@@ -1,0 +1,72 @@
+import type { CookieOptions } from '#app'
+import { UserMapper } from '~/mapper/user'
+import type { UserModel } from '~/models/user'
+
+interface State {
+  user: UserModel | null
+  token: string | null
+}
+
+export const useAuthStore = defineStore('auth', {
+  state: (): State => ({
+    user: null,
+    token: null,
+  }),
+
+  getters: {
+    isLoggedIn: (state) => !!state.user,
+    isVerifiedEkyc: (state) =>
+      state.user && state.user?.status === FemaleStatus.Active,
+  },
+
+  actions: {
+    async login({ email, password }: { email: string; password: string }) {
+      const { $api } = useNuxtApp()
+
+      const { data } = await $api.auth.login({
+        email,
+        password,
+      })
+
+      const token = useToken(CONSTANTS.COOKIE_TOKEN_OPTION as CookieOptions)
+
+      token.set(data.token)
+
+      return data
+    },
+
+    async logout() {
+      const router = useRouter()
+
+      this.user = null
+
+      const token = useToken(CONSTANTS.COOKIE_TOKEN_OPTION as CookieOptions)
+
+      token.set(null)
+
+      router.push(ROUTE_PAGE.HOME)
+    },
+
+    async getMe() {
+      const { $api } = useNuxtApp()
+
+      const { data } = await $api.auth.getMe()
+
+      this.user = UserMapper.toModel(data)
+
+      return this.user
+    },
+
+    setUser(user: UserModel) {
+      this.user = user
+    },
+
+    setToken(token: string) {
+      this.token = token
+    },
+
+    clearToken() {
+      this.token = null
+    },
+  },
+})

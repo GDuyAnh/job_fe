@@ -1,0 +1,26 @@
+$size: 36px; // => h1 = 32px, h2 = 28px, h3 = 24px, h4 = 20px, h5 = 16px, h6 = 12px
+
+@for $i from 1 through 6 {
+  h#{$i}.app-heading {
+    font-size: $size - ($i * 4);
+  }
+}
+
+.app-heading {
+  font-weight: 400;
+  display: flex;
+  align-items: center;
+  font-family: var(--font-serif);
+
+  &--left {
+    justify-content: flex-start;
+  }
+
+  &--center {
+    justify-content: center;
+  }
+
+  &--right {
+    justify-content: flex-end;
+  }
+}

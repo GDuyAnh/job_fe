@@ -1,0 +1,12 @@
+{
+  "app": {
+    "name": "Deet"
+  },
+  "common": {
+    "actions": {
+      "ok": "OK"
+    },
+    "fields": {},
+    "validate": {}
+  }
+}

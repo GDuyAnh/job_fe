@@ -1,0 +1,62 @@
+@import "tailwindcss";
+@import "@nuxt/ui";
+
+:root {
+  --ui-primary: #89714e;
+  --ui-secondary: #1d1a16;
+  --ui-success: #75cd69;
+  --ui-neutral: #b7ac9c;
+  --ui-warning: #cd5c5c;
+  --ui-error: #df3939;
+  --ui-info: #888ea3;
+  --ui-gray: #898989;
+  --ui-light-gray: #f9f9f9;
+  --ui-gray-50: #e6e6e6;
+  --ui-disabled: #b2b2b2;
+  --ui-border-line: #ccc;
+  --ui-border-line-light: #eaeaea;
+}
+
+@theme default {
+  --color-primary: var(--ui-primary);
+  --color-secondary: var(--ui-secondary);
+  --color-success: var(--ui-success);
+  --color-neutral: var(--ui-neutral);
+  --color-warning: var(--ui-warning);
+  --color-error: var(--ui-error);
+  --color-info: var(--ui-info);
+  --color-gray: var(--ui-gray);
+  --color-disabled: var(--ui-disabled);
+  --color-light-gray: var(--ui-light-gray);
+  --color-border-line: var(--ui-border-line);
+  --color-border-line-light: var(--ui-border-line-light);
+  --color-gray-50: var(--ui-gray-50);
+}
+
+@theme static {
+  --font-sans: "Noto Sans JP", sans-serif;
+  --font-serif: "Noto Serif JP", serif;
+  --app-header-height: 60px;
+  --app-tab-bar-height: 90px;
+}
+
+
+@layer components {
+  .flex-center {
+    @apply flex items-center justify-center;
+  }
+
+  .padding-x-layout {
+    @apply px-[30px];
+  }
+
+  .margin-x-negative {
+    @apply -mx-[30px];
+  }
+}
+
+body {
+  overflow-x: hidden;
+  font-family: var(--font-sans);
+  color: var(--color-secondary);
+}

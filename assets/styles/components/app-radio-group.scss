@@ -1,0 +1,5 @@
+.app-radio-group {
+  :deep(span[data-state="checked"]) {
+    background-color: rgb(var(--color-white));
+  }
+}
