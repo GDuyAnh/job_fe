@@ -1,5 +1,6 @@
 import type { UserModel } from '~/models/user'
 import type { UserEntity } from '~/entities/user'
+
 export class UserMapper {
   static toModel(value: UserEntity): UserModel {
     return {
@@ -15,5 +16,3 @@ export class UserMapper {
     }
   }
 }
-
-

@@ -17,7 +17,7 @@
             style="min-width: 80px"
             @click="activeTab = tab.name"
           >
-            <span>{{ tab.label }}</span>
+            <span>{{ $t(tab.label) }}</span>
             <span
               v-if="activeTab === tab.name"
               class="absolute left-1/2 -translate-x-1/2 bottom-0 w-8 h-[3px] bg-gradient-to-r from-[#8a7754] to-[#f5d2b6] rounded-full transition-all duration-300"
@@ -33,17 +33,17 @@
             min-width: 100px;
           "
         >
-          Sign in
+          {{ $t('jobs.signIn') }}
         </button>
       </div>
     </nav>
 
     <!-- Page Header -->
     <div class="bg-[#f2ecf9] py-12 text-center">
-      <h1 class="text-4xl font-extrabold mb-2">Find Jobs</h1>
-      <p class="text-lg text-gray-600">
-        Search your career opportunity through 12,800 jobs
-      </p>
+      <h1 class="text-4xl font-extrabold mb-2">
+        {{ $t('jobs.header.title') }}
+      </h1>
+      <p class="text-lg text-gray-600">{{ $t('jobs.header.subtitle') }}</p>
     </div>
 
     <!-- Main Layout: 12-column giống Bootstrap -->
@@ -56,13 +56,13 @@
         <div class="bg-[#e6f0f9] rounded-2xl p-6 space-y-6">
           <!-- Keyword -->
           <div>
-            <label class="font-semibold text-gray-900 block mb-2"
-              >Search by Keywords</label
-            >
+            <label class="font-semibold text-gray-900 block mb-2">
+              {{ $t('jobs.filters.searchByKeywords') }}
+            </label>
             <div class="relative">
               <input
                 v-model="keyword"
-                placeholder="Job Title or Keyword"
+                :placeholder="$t('jobs.filters.placeholderKeyword')"
                 class="w-full border rounded-full pl-10 pr-4 py-2 focus:ring focus:ring-blue-200 outline-none"
               />
               <svg
@@ -84,9 +84,9 @@
 
           <!-- Location -->
           <div>
-            <label class="font-semibold text-gray-900 block mb-2"
-              >Location</label
-            >
+            <label class="font-semibold text-gray-900 block mb-2">
+              {{ $t('jobs.filters.location') }}
+            </label>
             <div class="relative">
               <select
                 v-model="location"
@@ -114,9 +114,9 @@
 
           <!-- Category -->
           <div>
-            <label class="font-semibold text-gray-900 block mb-2"
-              >Category</label
-            >
+            <label class="font-semibold text-gray-900 block mb-2">
+              {{ $t('jobs.filters.category') }}
+            </label>
             <div class="relative">
               <select
                 v-model="category"
@@ -147,9 +147,9 @@
         <div class="bg-[#e6f0f9] rounded-2xl p-6 space-y-6">
           <!-- Type of Employment -->
           <div>
-            <label class="font-semibold text-gray-900 block mb-4"
-              >Type of Employment</label
-            >
+            <label class="font-semibold text-gray-900 block mb-4">
+              {{ $t('jobs.filters.typeOfEmployment') }}
+            </label>
             <div
               v-for="type in typeOfEmployment"
               :key="type"
@@ -169,9 +169,9 @@
 
           <!-- Experience Level -->
           <div>
-            <label class="font-semibold text-gray-900 block mb-4"
-              >Experience Level</label
-            >
+            <label class="font-semibold text-gray-900 block mb-4">
+              {{ $t('jobs.filters.experienceLevel') }}
+            </label>
             <div
               v-for="exp in experienceLevels"
               :key="exp"
@@ -194,16 +194,16 @@
       <!-- Job Results (col-9 hoặc col-8) -->
       <section class="lg:col-span-8 xl:col-span-9">
         <h2 class="text-xl font-semibold mb-4">
-          Showing {{ jobs.length }} jobs
+          {{ $t('jobs.results.showingJobs', { count: jobs.length }) }}
         </h2>
         <div v-if="loading" class="text-center text-indigo-600 font-medium">
-          Loading jobs...
+          {{ $t('jobs.results.loading') }}
         </div>
         <div v-else-if="error" class="text-center text-red-500">
-          {{ error }}
+          {{ $t('jobs.results.error') }}
         </div>
         <div v-else-if="jobs.length === 0" class="text-center text-gray-500">
-          No jobs found.
+          {{ $t('jobs.results.noJobs') }}
         </div>
 
         <div v-else class="grid md:grid-cols-2 gap-6">
@@ -245,12 +245,12 @@ import { TypeOfEmployment } from '@/enums/type-of-employment'
 import { ExperienceLevel } from '@/enums/experience-level'
 
 const tabs = [
-  { name: 'demos', label: 'Demos' },
-  { name: 'find-jobs', label: 'Find Jobs' },
-  { name: 'companies', label: 'Companies' },
-  { name: 'candidates', label: 'Candidates' },
-  { name: 'blog', label: 'Blog' },
-  { name: 'pages', label: 'Pages' },
+  { name: 'demos', label: 'jobs.tabs.demos' },
+  { name: 'find-jobs', label: 'jobs.tabs.findJobs' },
+  { name: 'companies', label: 'jobs.tabs.companies' },
+  { name: 'candidates', label: 'jobs.tabs.candidates' },
+  { name: 'blog', label: 'jobs.tabs.blog' },
+  { name: 'pages', label: 'jobs.tabs.pages' },
 ]
 const activeTab = ref('find-jobs')
 
@@ -291,10 +291,16 @@ const searchJobs = async () => {
   try {
     const response = await $api.job.searchJob(params)
 
-    jobs.value = Array.isArray(response) ? response : response?.data || []
-  } catch (e) {
+    if (Array.isArray(response)) {
+      jobs.value = response
+    } else if (response && typeof response === 'object' && 'data' in response) {
+      jobs.value = response.data as any[]
+    } else {
+      jobs.value = []
+    }
+  } catch (error: any) {
     jobs.value = []
-    error.value = 'Error fetching jobs!'
+    error.value = error.message
   } finally {
     loading.value = false
   }

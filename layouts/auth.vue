@@ -1,7 +1,5 @@
 <template>
-  <div
-    class="mx-autoflex flex-col bg-white min-h-screen overflow-x-hidden"
-  >
+  <div class="mx-autoflex flex-col bg-white min-h-screen overflow-x-hidden">
     <!-- <app-header /> -->
     <div class="flex-1 padding-x-layout bg-light-gray pb-11">
       <slot />

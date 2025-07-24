@@ -15,8 +15,8 @@ export const useAuthStore = defineStore('auth', {
 
   getters: {
     isLoggedIn: (state) => !!state.user,
-    isVerifiedEkyc: (state) =>
-      state.user && state.user?.status === FemaleStatus.Active,
+    // isVerifiedEkyc: (state) =>
+    //   state.user && state.user?.status === FemaleStatus.Active,
   },
 
   actions: {

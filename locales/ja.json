@@ -8,5 +8,69 @@
     },
     "fields": {},
     "validate": {}
+  },
+  "home": {
+    "tabs": {
+      "demos": "Demos",
+      "findJobs": "Find Jobs",
+      "companies": "Companies",
+      "candidates": "Candidates",
+      "blog": "Blog",
+      "pages": "Pages"
+    },
+    "signIn": "Sign in",
+    "headline": "Find the perfect job for you",
+    "subheadline": "Search your career opportunity through 12,800 jobs",
+    "search": {
+      "placeholderKeyword": "Job Title or Keyword",
+      "placeholderCategory": "All Categories",
+      "placeholderLocation": "All Locations",
+      "button": "Search"
+    },
+    "popularTags": {
+      "designer": "Designer",
+      "webDeveloper": "Web Developer",
+      "writer": "Writer",
+      "teamLeader": "Team Leader",
+      "fullstack": "Fullstack",
+      "web": "Web",
+      "financialAnalyst": "Financial Analyst",
+      "senior": "Senior",
+      "software": "Software"
+    },
+    "stats": {
+      "businessDevelopment": "job offers in Business Development",
+      "marketing": "job offers in Marketing & Communication",
+      "projectManagement": "job offers in Project Management"
+    }
+  },
+  "jobs": {
+    "tabs": {
+      "demos": "Demos",
+      "findJobs": "Find Jobs",
+      "companies": "Companies",
+      "candidates": "Candidates",
+      "blog": "Blog",
+      "pages": "Pages"
+    },
+    "signIn": "Sign in",
+    "header": {
+      "title": "Find Jobs",
+      "subtitle": "Search your career opportunity through 12,800 jobs"
+    },
+    "filters": {
+      "searchByKeywords": "Search by Keywords",
+      "placeholderKeyword": "Job Title or Keyword",
+      "location": "Location",
+      "category": "Category",
+      "typeOfEmployment": "Type of Employment",
+      "experienceLevel": "Experience Level"
+    },
+    "results": {
+      "showingJobs": "Showing {count} jobs",
+      "loading": "Loading jobs...",
+      "error": "Error fetching jobs!",
+      "noJobs": "No jobs found."
+    }
   }
 }

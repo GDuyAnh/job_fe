@@ -17,7 +17,7 @@
             style="min-width: 80px"
             @click="activeTab = tab.name"
           >
-            <span>{{ tab.label }}</span>
+            <span>{{ $t(tab.label) }}</span>
             <span
               v-if="activeTab === tab.name"
               class="absolute left-1/2 -translate-x-1/2 bottom-0 w-8 h-[3px] bg-gradient-to-r from-[#8a7754] to-[#f5d2b6] rounded-full transition-all duration-300"
@@ -33,7 +33,7 @@
             min-width: 100px;
           "
         >
-          Sign in
+          {{ $t('home.signIn') }}
         </button>
       </div>
     </nav>
@@ -45,11 +45,10 @@
           <!-- Left: Content -->
           <div>
             <h1 class="text-5xl md:text-6xl font-extrabold leading-tight mb-4">
-              Find the perfect <br />
-              job for you
+              {{ $t('home.headline') }}
             </h1>
             <p class="text-lg text-gray-500 mb-8">
-              Search your career opportunity through 12,800 jobs
+              {{ $t('home.subheadline') }}
             </p>
             <!-- Redesigned Search box -->
             <div
@@ -58,7 +57,7 @@
               <!-- 1. Keyword -->
               <input
                 v-model="keyword"
-                placeholder="Job Title or Keyword"
+                :placeholder="$t('home.search.placeholderKeyword')"
                 class="flex-1 min-w-0 truncate bg-white border-none outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-200 text-base placeholder-[#8a98b8] font-medium px-4 h-12 rounded-full transition-all duration-200"
                 @keyup.enter="searchJobs"
               />
@@ -110,10 +109,10 @@
             <div class="flex flex-wrap gap-2 mb-4">
               <UBadge
                 v-for="tag in popularTags"
-                :key="tag"
+                :key="tag.key"
                 class="bg-blue-100 text-blue-700 px-4 py-1.5 rounded-full text-sm font-medium hover:bg-blue-200 transition cursor-pointer mb-2"
               >
-                {{ tag }}
+                {{ $t(tag.label) }}
               </UBadge>
             </div>
             <!-- Partner logos (optional) -->
@@ -140,7 +139,9 @@
                   <span class="text-2xl font-extrabold text-blue-900">{{
                     item.count
                   }}</span>
-                  <span class="text-base text-gray-700">{{ item.label }}</span>
+                  <span class="text-base text-gray-700">{{
+                    $t(item.label)
+                  }}</span>
                 </div>
               </div>
               <!-- Decorative shapes (optional, dùng CSS hoặc SVG nếu muốn) -->
@@ -157,41 +158,42 @@ import { ref } from 'vue'
 import { LocationList } from '@/enums/location'
 import { CategoryList } from '@/enums/category'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 const keyword = ref('')
-const locations = ['All Locations', ...LocationList]
-const categories = ['All Categories', ...CategoryList]
+const locations = [t('home.search.placeholderLocation'), ...LocationList]
+const categories = [t('home.search.placeholderCategory'), ...CategoryList]
 const location = ref(locations[0])
 const category = ref(categories[0])
 
-const { $api } = useNuxtApp()
-
 const tabs = [
-  { name: 'demos', label: 'Demos' },
-  { name: 'find-jobs', label: 'Find Jobs' },
-  { name: 'companies', label: 'Companies' },
-  { name: 'candidates', label: 'Candidates' },
-  { name: 'blog', label: 'Blog' },
-  { name: 'pages', label: 'Pages' },
+  { name: 'demos', label: 'home.tabs.demos' },
+  { name: 'find-jobs', label: 'home.tabs.findJobs' },
+  { name: 'companies', label: 'home.tabs.companies' },
+  { name: 'candidates', label: 'home.tabs.candidates' },
+  { name: 'blog', label: 'home.tabs.blog' },
+  { name: 'pages', label: 'home.tabs.pages' },
 ]
 const activeTab = ref(tabs[0].name)
 
 const popularTags = [
-  'Designer',
-  'Web Developer',
-  'Writer',
-  'Team Leader',
-  'Fullstack',
-  'Web',
-  'Financial Analyst',
-  'Senior',
-  'Software',
+  { key: 'designer', label: 'home.popularTags.designer' },
+  { key: 'webDeveloper', label: 'home.popularTags.webDeveloper' },
+  { key: 'writer', label: 'home.popularTags.writer' },
+  { key: 'teamLeader', label: 'home.popularTags.teamLeader' },
+  { key: 'fullstack', label: 'home.popularTags.fullstack' },
+  { key: 'web', label: 'home.popularTags.web' },
+  { key: 'financialAnalyst', label: 'home.popularTags.financialAnalyst' },
+  { key: 'senior', label: 'home.popularTags.senior' },
+  { key: 'software', label: 'home.popularTags.software' },
 ]
 
 const stats = [
-  { count: 319, label: 'job offers in Business Development' },
-  { count: 265, label: 'job offers in Marketing & Communication' },
-  { count: 324, label: 'job offers in Project Management' },
+  { count: 319, label: 'home.stats.businessDevelopment' },
+  { count: 265, label: 'home.stats.marketing' },
+  { count: 324, label: 'home.stats.projectManagement' },
 ]
 
 const router = useRouter()
@@ -203,10 +205,12 @@ const searchJobs = () => {
   if (keyword.value.trim()) query.keyword = keyword.value.trim()
 
   // nếu khác "All Categories" mới gửi
-  if (category.value !== 'All Categories') query.category = category.value
+  if (category.value !== t('home.search.placeholderCategory'))
+    query.category = category.value
 
   // nếu khác "All Locations" mới gửi
-  if (location.value !== 'All Locations') query.location = location.value
+  if (location.value !== t('home.search.placeholderLocation'))
+    query.location = location.value
 
   // điều hướng đến trang kết quả
   router.push({ path: '/jobs', query })
