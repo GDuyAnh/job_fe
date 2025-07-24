@@ -4,6 +4,7 @@ export const ROUTE_API = {
   ME: '/auth/me',
 
   JOB: {
-    GET_JOB: 'v1/jobs',
-  }
+    GET_JOB: 'jobs',
+    SEARCH: 'jobs/search',
+  },
 }
