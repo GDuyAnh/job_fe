@@ -1,6 +1,10 @@
-<!-- <template>
-  <div class="auth-login flex-center flex-col h-full w-full">
-    <app-form
+<template>
+  <div>
+    <h1></h1>
+  </div>
+  <!-- <div class="auth-login flex-center flex-col h-full w-full"> -->
+  <!--
+ <app-form
       :disabled="loading"
       :schema="schema"
       :state="formState"
@@ -32,48 +36,48 @@
         </ULink>
       </div>
     </app-form>
-  </div>
-</template>
+  </div> 
+--></template>
 
 <script setup lang="ts">
-import type { FormSubmitEvent } from '@nuxt/ui'
-import { loginSchema, type LoginType } from '~/constants/schema/login'
+// import type { FormSubmitEvent } from '@nuxt/ui'
+// // import { loginSchema, type LoginType } from '~/constants/schema/login'
 
-defineComponent({
-  name: 'AuthLogin',
-})
-definePageMeta({
-  layout: 'auth',
-})
+// defineComponent({
+//   name: 'AuthLogin',
+// })
+// definePageMeta({
+//   layout: 'auth',
+// })
 
-const { t } = useI18n()
-const authStore = useAuthStore()
-const router = useRouter()
+// const { t } = useI18n()
+// const authStore = useAuthStore()
+// const router = useRouter()
 
-const schema = loginSchema()
+// // const schema = loginSchema()
 
-const formState = reactive<Partial<LoginType>>({
-  email: '',
-  password: '',
-})
-const loading = ref(false)
+// // const formState = reactive<Partial<LoginType>>({
+// //   email: '',
+// //   password: '',
+// // })
+// const loading = ref(false)
 
-async function onSubmit(event: FormSubmitEvent<LoginType>) {}
+// async function onSubmit(event: FormSubmitEvent<any>) {}
 
-function toResetPassword() {
-  router.push(ROUTE_PAGE.HOME)
-}
+// function toResetPassword() {
+//   router.push(ROUTE_PAGE.HOME)
+// }
 
-onMounted(() => {
-  const messageStore = useMessageStore()
-  const message = messageStore.getMessage()
+// onMounted(() => {
+//   const messageStore = useMessageStore()
+//   const message = messageStore.getMessage()
 
-  if (message) {
-    useNotify({
-      message: t(message),
-    })
+//   if (message) {
+//     useNotify({
+//       message: t(message),
+//     })
 
-    messageStore.clearMessage()
-  }
-})
-</script> -->
+//     messageStore.clearMessage()
+//   }
+// })
+</script>
