@@ -8,5 +8,28 @@
     },
     "fields": {},
     "validate": {}
+  },
+  "homePage": {
+    "header": {
+      "signIn": "Đăng nhập",
+      "signUp": "Đăng ký"
+    },
+    "heroImage": {
+      "title1": "Tuyển dụng Giáo viên",
+      "title2": "Toàn Quốc",
+      "subtitle": "Nền tảng tuyển dụng Giáo viên hàng đầu Việt Nam. Cập nhật việc làm Giáo viên mới nhất.",
+      "searchPlaceholder": "Nhập vị trí bạn muốn ứng tuyển",
+      "searchButton": "Tìm kiếm",
+      "allLocations": "Tỉnh thành"
+    },
+    "searchByCategory": {
+      "title1": "Danh mục việc làm",
+      "title2": "Tìm kiếm cơ hội nghề nghiệp theo chuyên môn của bạn",
+      "allCategories": "Xem tất cả ➔",
+      "openPosition": "việc làm"
+    },
+    "featuredJobOffers": {
+      "title": "Việc Làm Nổi bật "
+    }
   }
 }
