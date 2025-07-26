@@ -17,7 +17,7 @@
             style="min-width: 80px"
             @click="activeTab = tab.name"
           >
-            <span>{{ tab.label }}</span>
+            <span>{{ $t(tab.label) }}</span>
             <span
               v-if="activeTab === tab.name"
               class="absolute left-1/2 -translate-x-1/2 bottom-0 w-8 h-[3px] bg-gradient-to-r from-[#8a7754] to-[#f5d2b6] rounded-full transition-all duration-300"
@@ -71,58 +71,40 @@
               />
 
               <!-- 2. Categories -->
-              <!--
- <select
+              <USelect
                 v-model="category"
-                class="flex-1 min-w-0 truncate bg-white border-none outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-200 text-base text-gray-700 font-medium px-4 h-12 rounded-full transition-all duration-200"
-              >
-                <option v-for="c in categories" :key="c" :value="c">
-                  {{ c }}
-                </option>
-              </select> 
--->
+                :items="categoryItems"
+                class="flex-1 min-w-0"
+                variant="none"
+                size="lg"
+              />
 
               <!-- 3. Locations -->
-              <select
+              <USelect
                 v-model="location"
-                class="flex-1 min-w-0 truncate bg-white border-none outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-200 text-base text-gray-700 font-medium px-4 h-12 rounded-full transition-all duration-200"
-              >
-                <option v-for="l in locations" :key="l" :value="l">
-                  {{ l }}
-                </option>
-              </select>
+                :items="locationItems"
+                class="flex-1 min-w-0"
+                variant="none"
+                size="lg"
+              />
 
-              <!-- Search button -->
-              <button
+              <div
                 class="flex items-center justify-center h-12 w-12 rounded-full bg-[#8a7754] hover:bg-[#a08a6a] text-white shadow-lg"
-                style="box-shadow: 0 4px 16px 0 rgba(138, 119, 84, 0.15)"
-                @click="searchJobs"
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke-width="2"
-                  stroke="currentColor"
-                  class="w-6 h-6"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 104.5 4.5a7.5 7.5 0 0012.15 12.15z"
-                  />
-                </svg>
-              </button>
+                <NuxtSearch @click="searchJobs" />
+              </div>
             </div>
 
             <!-- Redesigned Popular tags -->
+            <!-- :key="tag.key" -->
+            <!-- {{ $t(tag.label) }} -->
             <div class="flex flex-wrap gap-2 mb-4">
               <UBadge
                 v-for="tag in popularTags"
                 :key="tag"
                 class="bg-blue-100 text-blue-700 px-4 py-1.5 rounded-full text-sm font-medium hover:bg-blue-200 transition cursor-pointer mb-2"
               >
-                {{ tag }}
+                {{ $t(tag) }}
               </UBadge>
             </div>
             <!-- Partner logos (optional) -->
@@ -151,13 +133,14 @@
                 <div
                   v-for="item in stats"
                   :key="item.label"
-                  class="grid grid-cols-2 gap-0 mb-4 last:mb-0"
+                  class="flex items-center gap-3 mb-2 last:mb-0"
                 >
-                  <span
-                    class="text-2xl text-right font-extrabold text-blue-900 pr-5"
-                    >{{ item.count }}</span
-                  >
-                  <span class="text-base text-gray-700">{{ item.label }}</span>
+                  <span class="text-2xl font-extrabold text-blue-900">{{
+                    item.count
+                  }}</span>
+                  <span class="text-base text-gray-700">{{
+                    $t(item.label)
+                  }}</span>
                 </div>
               </div>
               <!-- Decorative shapes (optional, dùng CSS hoặc SVG nếu muốn) -->
@@ -199,7 +182,6 @@
         <!-- Slide -->
         <UCarousel
           :items="categoryValues"
-          dots
           :ui="{ item: 'basis-1/4' }"
           class="mb-8"
         >
@@ -214,7 +196,7 @@
                 {{ item }}
               </h3>
               <p class="text-sm text-gray-600 mt-8">
-                {{ '0' }} {{ $t('homePage.searchByCategory.openPosition') }}
+                {{ $t('homePage.searchByCategory.openPosition') }}
               </p>
             </div>
           </template>
@@ -225,18 +207,17 @@
     <!-- Banner -->
     <div class="bg-white flex flex-row items-center relative z-10 mb-10">
       <UContainer>
-        <UCarousel :items="categoryValues" class="mt-8">
+        <UCarousel :items="banners" class="mt-8">
           <template #default="{ item }">
             <div
-              class="flex flex-col items-left justify-left p-16 bg-[#eaf4fd] rounded-2xl shadow hover:shadow-xl min-h-[300px] bg-[url('https://pixelprime.co/themes/jobster-wp/demo-10/wp-content/uploads/2023/01/green-building.jpg')] bg-cover bg-center"
+              class="flex flex-col items-left justify-left p-16 rounded-2xl shadow hover:shadow-xl min-h-[300px]"
+              :style="`background-image: url('${item.image}'); background-size: cover; background-position: center;`"
             >
               <div class="text-left text-5xl font-bold text-black max-w-6/10">
-                See right away whether candidates are the right fit
+                {{ item.title }}
               </div>
               <div class="text-md text-gray-600 mt-8 max-w-5/10">
-                We help candidates know whether they’re qualified for a job –
-                and allow you to see their match potential – giving you a better
-                pool of qualified candidates to choose from.
+                {{ item.description }}
               </div>
               <div class="mt-8">
                 <app-button
@@ -245,7 +226,7 @@
                   color="secondary"
                   shape="round"
                   compact
-                  >Chi tiết NTD</app-button
+                  >{{ item.buttonText }}</app-button
                 >
               </div>
             </div>
@@ -272,150 +253,305 @@
         <!-- List featured job -->
         <div>
           <div class="job-board grid grid-cols-2 gap-6">
-            <!-- Job Card -->
             <div
-              class="job-card border rounded-xl p-4 flex flex-col justify-between"
+              v-for="(job, index) in featureJobs"
+              :key="index"
+              class="job-card rounded-xl p-4 flex flex-col justify-between bg-white"
             >
               <div>
                 <div class="flex items-center gap-4">
-                  <div class="icon bg-black p-3 rounded-lg text-white">📷</div>
+                  <div class="icon bg-black p-3 rounded-lg text-white">
+                    {{ job.icon }}
+                  </div>
                   <div>
-                    <h2 class="font-bold text-lg">Financial Analyst</h2>
+                    <h2 class="font-bold text-lg">{{ job.title }}</h2>
                     <p class="text-sm text-gray-600">
-                      📍 San Diego, CA · Full Time
+                      {{ job.location }} {{ job.type }}
                     </p>
                   </div>
                 </div>
-                <p class="mt-2 text-sm text-gray-500">Finance</p>
+                <p class="mt-2 text-sm text-gray-500">{{ job.category }}</p>
               </div>
               <div class="text-right text-xs text-gray-400 mt-2">
-                June 8, 2022 by <span class="font-semibold">Gramware</span>
-              </div>
-            </div>
-
-            <div
-              class="job-card border rounded-xl p-4 flex flex-col justify-between"
-            >
-              <div>
-                <div class="flex items-center gap-4">
-                  <div class="icon bg-blue-400 p-3 rounded-lg text-white">
-                    📊
-                  </div>
-                  <div>
-                    <h2 class="font-bold text-lg">
-                      Human Resources Coordinator
-                    </h2>
-                    <p class="text-sm text-gray-600">
-                      📍 San Diego, CA · Full Time
-                    </p>
-                  </div>
-                </div>
-                <p class="mt-2 text-sm text-gray-500">Human Resources</p>
-              </div>
-              <div class="text-right text-xs text-gray-400 mt-2">
-                June 8, 2022 by <span class="font-semibold">DataRes</span>
-              </div>
-            </div>
-
-            <div
-              class="job-card border rounded-xl p-4 flex flex-col justify-between"
-            >
-              <div>
-                <div class="flex items-center gap-4">
-                  <div class="icon bg-blue-600 p-3 rounded-lg text-white">
-                    🌊
-                  </div>
-                  <div>
-                    <h2 class="font-bold text-lg">Fullstack Web Developer</h2>
-                    <p class="text-sm text-gray-600">
-                      📍 San Francisco, CA · Internship
-                    </p>
-                  </div>
-                </div>
-                <p class="mt-2 text-sm text-gray-500">Software Engineering</p>
-              </div>
-              <div class="text-right text-xs text-gray-400 mt-2">
-                June 8, 2022 by <span class="font-semibold">Syspresoft</span>
-              </div>
-            </div>
-
-            <div
-              class="job-card border rounded-xl p-4 flex flex-col justify-between"
-            >
-              <div>
-                <div class="flex items-center gap-4">
-                  <div class="icon bg-red-400 p-3 rounded-lg text-white">
-                    📝
-                  </div>
-                  <div>
-                    <h2 class="font-bold text-lg">Technical Writer</h2>
-                    <p class="text-sm text-gray-600">
-                      📍 Los Angeles, CA · Remote
-                    </p>
-                  </div>
-                </div>
-                <p class="mt-2 text-sm text-gray-500">Business Development</p>
-              </div>
-              <div class="text-right text-xs text-gray-400 mt-2">
-                June 7, 2022 by <span class="font-semibold">Craftgenics</span>
-              </div>
-            </div>
-
-            <div
-              class="job-card border rounded-xl p-4 flex flex-col justify-between"
-            >
-              <div>
-                <div class="flex items-center gap-4">
-                  <div class="icon bg-blue-500 p-3 rounded-lg text-white">
-                    🌊
-                  </div>
-                  <div>
-                    <h2 class="font-bold text-lg">Javascript Developer</h2>
-                    <p class="text-sm text-gray-600">
-                      📍 San Francisco, CA · Full Time
-                    </p>
-                  </div>
-                </div>
-                <p class="mt-2 text-sm text-gray-500">Software Engineering</p>
-              </div>
-              <div class="text-right text-xs text-gray-400 mt-2">
-                June 7, 2022 by <span class="font-semibold">Syspresoft</span>
-              </div>
-            </div>
-
-            <div
-              class="job-card border rounded-xl p-4 flex flex-col justify-between"
-            >
-              <div>
-                <div class="flex items-center gap-4">
-                  <div class="icon bg-orange-400 p-3 rounded-lg text-white">
-                    🎧
-                  </div>
-                  <div>
-                    <h2 class="font-bold text-lg">
-                      Technical Support Engineer
-                    </h2>
-                    <p class="text-sm text-gray-600">
-                      📍 San Diego, CA · Part Time
-                    </p>
-                  </div>
-                </div>
-                <p class="mt-2 text-sm text-gray-500">Customer Service</p>
-              </div>
-              <div class="text-right text-xs text-gray-400 mt-2">
-                June 7, 2022 by
-                <span class="font-semibold">Illuminate Studio</span>
+                {{ job.date }}
+                <span class="font-semibold">{{ job.company }}</span>
               </div>
             </div>
           </div>
         </div>
+        <div class="mt-6">
+          <app-button
+            class="mt-5 p-6"
+            variant="outline"
+            color="secondary"
+            shape="round"
+            compact
+            >{{ $t('homePage.buttonContent.seeAll') }}</app-button
+          >
+        </div>
       </UContainer>
+    </div>
+
+    <!-- Featured Cities -->
+    <div class="min-h-screen bg-white py-16">
+      <UContainer>
+        <!-- Title -->
+        <div class="mb-8">
+          <div class="flex flow-row justify-between items-start">
+            <div>
+              <h2 class="text-4xl font-extrabold text-gray-900 mb-2">
+                {{ $t('homePage.featuredCities.title1') }}
+              </h2>
+              <p class="text-gray-500 text-sm">
+                {{ $t('homePage.featuredCities.title2') }}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- City Cards Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div
+            v-for="city in featuredCities"
+            :key="city.name"
+            class="bg-[#eaf9ff] rounded-3xl overflow-hidden shadow-sm hover:shadow-lg transition"
+          >
+            <img
+              :src="city.image"
+              :alt="city.name"
+              class="w-full h-40 object-cover"
+            />
+            <div class="p-6">
+              <h3 class="text-lg font-semibold text-gray-900">
+                {{ city.name }}
+              </h3>
+              <p class="text-gray-500 text-sm">
+                {{ city.openPositions }}
+                {{ $t('homePage.searchByCategory.openPosition') }}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-6">
+          <app-button
+            class="mt-5 p-6"
+            variant="outline"
+            color="secondary"
+            shape="round"
+            compact
+            >{{ $t('homePage.buttonContent.seeAll') }}</app-button
+          >
+        </div>
+      </UContainer>
+    </div>
+
+    <!-- Blogs -->
+    <div class="min-h-screen bg-white py-16">
+      <UContainer>
+        <!-- Title -->
+        <div class="mb-8">
+          <div class="flex flow-row justify-between items-start">
+            <div>
+              <h2 class="text-4xl font-extrabold text-gray-900 mb-2">
+                {{ $t('homePage.blog.title1') }}
+              </h2>
+            </div>
+          </div>
+        </div>
+
+        <!-- Blogs Cards -->
+        <UCarousel :items="blogs" :ui="{ item: 'basis-1/4' }" class="mb-8">
+          <template #default="{ item }">
+            <UCard
+              variant="solid"
+              class="bg-white border border-gray-200"
+              :ui="{
+                header: 'p-0 sm:px-0',
+                body: 'px-4 py-3 min-h-[170px] max-h-[220px]',
+              }"
+            >
+              <template #header>
+                <img
+                  :src="item.image"
+                  alt="Blog Image"
+                  class="w-full h-[180px] object-cover"
+                />
+              </template>
+              <div clas>
+                <h3 class="text-base font-bold text-gray-900 mb-2 leading-snug">
+                  {{ item.title }}
+                </h3>
+                <p class="text-sm text-gray-600 leading-snug line-clamp-3">
+                  {{ item.description }}
+                </p>
+              </div>
+
+              <template #footer>
+                <a
+                  :href="item.url"
+                  class="text-blue-600 font-medium text-sm hover:underline inline-flex items-center"
+                >
+                  {{ $t('homePage.blog.readMore') }}
+                </a>
+              </template>
+            </UCard>
+          </template>
+        </UCarousel>
+
+        <div class="mt-6">
+          <app-button
+            class="mt-5 p-6"
+            variant="outline"
+            color="secondary"
+            shape="round"
+            compact
+            >{{ $t('homePage.buttonContent.seeAll') }}</app-button
+          >
+        </div>
+      </UContainer>
+    </div>
+
+    <!-- Last banner & Footer -->
+    <div class="min-h-screen bg-white py-16">
+      <!-- Last banner -->
+      <div
+        class="bg-gradient-to-r from-blue-800 to-blue-500 text-white text-center py-20 px-4"
+      >
+        <h2 class="text-3xl sm:text-4xl font-bold mb-4">
+          {{ $t('homePage.lastBanner.title1') }}
+        </h2>
+        <p class="text-lg sm:text-xl mb-8">
+          {{ $t('homePage.lastBanner.title2') }}
+          <br />
+          <a href="#" class="font-semibold">{{
+            $t('homePage.lastBanner.url')
+          }}</a>
+        </p>
+        <div class="flex flex-col sm:flex-row justify-center gap-4">
+          <a
+            href="#"
+            class="bg-white text-blue-700 font-semibold py-3 px-6 rounded-md border border-blue-600 hover:bg-blue-100 transition inline-flex items-center justify-center min-h-[48px] max-h-[60px]"
+          >
+            {{ $t('homePage.lastBanner.button1') }}
+          </a>
+          <a
+            href="#"
+            class="bg-green-600 text-white font-semibold py-3 px-6 rounded-md hover:bg-green-700 transition inline-flex items-center justify-center min-h-[48px] max-h-[60px]"
+          >
+            {{ $t('homePage.lastBanner.button2') }}
+          </a>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <footer class="bg-[#0B1320] text-gray-300 text-sm">
+        <div
+          class="max-w-7xl mx-auto px-6 py-10 grid grid-cols-1 md:grid-cols-3 gap-8 border-b border-gray-700"
+        >
+          <!-- Left -->
+          <div>
+            <h2 class="text-white font-bold text-xl mb-4">
+              {{ $t('homePage.lastBanner.url') }}
+            </h2>
+            <p>
+              {{ $t('homePage.footer.subscription') }}
+            </p>
+            <div class="flex space-x-4 mt-4">
+              <a
+                href="#"
+                class="bg-gray-800 hover:bg-gray-700 p-2 rounded-full"
+              >
+                <i class="fab fa-facebook-f text-white"></i>
+              </a>
+              <a
+                href="#"
+                class="bg-gray-800 hover:bg-gray-700 p-2 rounded-full"
+              >
+                <i class="fab fa-twitter text-white"></i>
+              </a>
+              <a
+                href="#"
+                class="bg-gray-800 hover:bg-gray-700 p-2 rounded-full"
+              >
+                <i class="fab fa-linkedin-in text-white"></i>
+              </a>
+            </div>
+          </div>
+
+          <!-- Candidate -->
+          <div>
+            <h3 class="text-white font-bold mb-4">
+              {{ $t('homePage.footer.titleCandidate') }}
+            </h3>
+            <ul class="space-y-2">
+              <li>
+                <a href="#" class="hover:text-white"
+                  >{{ $t('homePage.footer.featureCandidate1') }}
+                </a>
+              </li>
+              <li>
+                <a href="#" class="hover:text-white">{{
+                  $t('homePage.footer.featureCandidate2')
+                }}</a>
+              </li>
+              <li>
+                <a href="#" class="hover:text-white">{{
+                  $t('homePage.footer.featureCandidate3')
+                }}</a>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Recruiter -->
+          <div>
+            <h3 class="text-white font-bold mb-4">
+              {{ $t('homePage.footer.titleRecruit') }}
+            </h3>
+            <ul class="space-y-2">
+              <li>
+                <a href="#" class="hover:text-white">{{
+                  $t('homePage.footer.featureRecruit1')
+                }}</a>
+              </li>
+              <li>
+                <a href="#" class="hover:text-white">{{
+                  $t('homePage.footer.featureRecruit2')
+                }}</a>
+              </li>
+              <li>
+                <a href="#" class="hover:text-white">{{
+                  $t('homePage.footer.featureRecruit3')
+                }}</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div
+          class="max-w-7xl mx-auto px-6 py-4 flex flex-col md:flex-row justify-between items-center text-gray-400 text-sm"
+        >
+          <div class="mb-2 md:mb-0">
+            {{ $t('homePage.footer.copyRight') }}
+          </div>
+          <div class="flex space-x-6">
+            <a href="#" class="hover:text-white">{{
+              $t('homePage.footer.policies')
+            }}</a>
+            <a href="#" class="hover:text-white">{{
+              $t('homePage.footer.sercurity')
+            }}</a>
+            <a href="#" class="hover:text-white">{{
+              $t('homePage.footer.contact')
+            }}</a>
+          </div>
+        </div>
+      </footer>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
 import { LocationList } from '@/enums/location'
 import { CategoryList } from '@/enums/category'
 import { useRouter } from 'vue-router'
@@ -429,18 +565,21 @@ const categories = ['All Categories', ...CategoryList]
 const location = ref(locations[0])
 const category = ref(categories[0])
 
-const { $api } = useNuxtApp()
+// Convert to app-select format
+const locationItems = computed(() =>
+  locations.map((loc) => ({
+    label: loc,
+    value: loc,
+  })),
+)
 
-const tabs = [
-  { name: 'demos', label: 'Demos' },
-  { name: 'find-jobs', label: 'việc làm' },
-  { name: 'companies', label: 'công ty' },
-  { name: 'blog', label: 'Blog' },
-  { name: 'pages', label: 'đăng tin miễn phí' },
-]
-const activeTab = ref(tabs[0].name)
+const categoryItems = computed(() =>
+  categories.map((cat) => ({
+    label: cat,
+    value: cat,
+  })),
+)
 
-// 1. Convert enum to array
 const categoryValues = Object.values(CategoryList)
 
 // 2. Shuffle array
@@ -456,7 +595,53 @@ const stats = [
   { count: '15,420', label: 'Giáo viên toàn Quốc' },
 ]
 
+const tabs = [
+  { name: 'demos', label: 'home.tabs.demos' },
+  { name: 'find-jobs', label: 'home.tabs.findJobs' },
+  { name: 'companies', label: 'home.tabs.companies' },
+  { name: 'candidates', label: 'home.tabs.candidates' },
+  { name: 'blog', label: 'home.tabs.blog' },
+  { name: 'pages', label: 'home.tabs.pages' },
+]
+const activeTab = ref(tabs[0].name)
+
+// const popularTags = [
+//   { key: 'designer', label: 'home.popularTags.designer' },
+//   { key: 'webDeveloper', label: 'home.popularTags.webDeveloper' },
+//   { key: 'writer', label: 'home.popularTags.writer' },
+//   { key: 'teamLeader', label: 'home.popularTags.teamLeader' },
+//   { key: 'fullstack', label: 'home.popularTags.fullstack' },
+//   { key: 'web', label: 'home.popularTags.web' },
+//   { key: 'financialAnalyst', label: 'home.popularTags.financialAnalyst' },
+//   { key: 'senior', label: 'home.popularTags.senior' },
+//   { key: 'software', label: 'home.popularTags.software' },
+// ]
+
+// const stats = [
+//   { count: 319, label: 'home.stats.businessDevelopment' },
+//   { count: 265, label: 'home.stats.marketing' },
+//   { count: 324, label: 'home.stats.projectManagement' },
+// ]
+
 const router = useRouter()
+const route = useRoute()
+
+// Fill search fields from URL query parameters
+onMounted(() => {
+  const query = route.query
+
+  if (query.keyword) {
+    keyword.value = query.keyword as string
+  }
+
+  if (query.category && categories.includes(query.category as string)) {
+    category.value = query.category as string
+  }
+
+  if (query.location && locations.includes(query.location as string)) {
+    location.value = query.location as string
+  }
+})
 
 const searchJobs = () => {
   const query: Record<string, string> = {}
@@ -465,13 +650,123 @@ const searchJobs = () => {
   if (keyword.value.trim()) query.keyword = keyword.value.trim()
 
   // nếu khác "All Categories" mới gửi
-  if (category.value !== 'All Categories') query.category = category.value
+  if (category.value !== t('home.search.placeholderCategory'))
+    query.category = category.value
 
   // nếu khác "All Locations" mới gửi
-  if (location.value !== t('homePage.heroImage.allLocations'))
+  if (location.value !== t('home.search.placeholderLocation'))
     query.location = location.value
 
-  // điều hướng đến trang kết quả
-  router.push({ path: '/jobs', query })
+  router.push({ path: '/jobs/search', query })
 }
+
+const featureJobs = [
+  {
+    title: 'Financial Analyst',
+    location: 'San Diego, CA',
+    type: 'Full Time',
+    category: 'Finance',
+    date: 'June 8, 2022',
+    company: 'Gramware',
+    icon: '📷',
+  },
+  {
+    title: 'Senior Software Engineer',
+    location: 'Remote',
+    type: 'Contract',
+    category: 'Engineering',
+    date: 'July 12, 2022',
+    company: 'TechNova',
+    icon: '💻',
+  },
+  {
+    title: 'UX Designer',
+    location: 'New York, NY',
+    type: 'Part Time',
+    category: 'Design',
+    date: 'May 30, 2022',
+    company: 'CreativeHouse',
+    icon: '🎨',
+  },
+]
+
+const banners = [
+  {
+    title: 'See right away whether candidates are the right fit',
+    description:
+      'We help candidates know whether they’re qualified for a job – and allow you to see their match potential – giving you a better pool of qualified candidates to choose from.',
+    image:
+      'https://pixelprime.co/themes/jobster-wp/demo-10/wp-content/uploads/2023/01/green-building.jpg',
+    buttonText: 'Chi tiết NTD',
+    buttonLink: '/employer-details', // tuỳ route
+  },
+  {
+    title: 'Make better hiring decisions with AI insights',
+    description:
+      'Our AI evaluates resumes and applications to give you key insights into each candidate’s strengths, letting you focus on the best fits faster.',
+    image:
+      'https://pixelprime.co/themes/jobster-wp/demo-10/wp-content/uploads/2023/01/red-building.jpg',
+    buttonText: 'Tìm hiểu thêm',
+    buttonLink: '/ai-insights',
+  },
+  {
+    title: 'Save time screening unqualified candidates',
+    description:
+      'Our platform pre-screens candidates so you can skip the tedious filtering process and get straight to the best applicants.',
+    image:
+      'https://pixelprime.co/themes/jobster-wp/demo-10/wp-content/uploads/2023/01/yellow-building.jpg',
+    buttonText: 'Xem ngay',
+    buttonLink: '/screening',
+  },
+]
+
+const featuredCities = [
+  { name: 'Boston, MA', image: 'link-boston', openPositions: 0 },
+  { name: 'Chicago, IL', image: 'link-chicago', openPositions: 0 },
+  { name: 'Houston, TX', image: 'link-houston', openPositions: 0 },
+  { name: 'Los Angeles, CA', image: 'link-la', openPositions: 3 },
+  { name: 'New York, NY', image: 'link-ny', openPositions: 0 },
+  { name: 'San Diego, CA', image: 'link-sd', openPositions: 3 },
+  { name: 'San Francisco, CA', image: 'link-sf', openPositions: 3 },
+  { name: 'Seattle, WA', image: 'link-seattle', openPositions: 0 },
+]
+
+const blogs = [
+  {
+    id: 1,
+    title: 'How to find your first job out of college',
+    description:
+      'It’s keyword-optimized, industry-specified, full of achievements, backed by data, and double-checked by an expert.',
+    image:
+      'https://images.unsplash.com/photo-1581091870622-3c8c6b6ba5c4?auto=format&fit=crop&w=800&q=80',
+    url: '/blog/first-job',
+  },
+  {
+    id: 2,
+    title: 'Mastering the art of the interview',
+    description:
+      'Preparation is key. Learn how to answer common questions, dress for success, and impress your future boss.',
+    image:
+      'https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&fit=crop&w=800&q=80',
+    url: '/blog/interview-tips',
+  },
+  {
+    id: 3,
+    title: 'Top 10 tech companies hiring now',
+    description:
+      'From startups to giants, these companies are actively looking for fresh talents. Don’t miss your chance.',
+    image:
+      'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=800&q=80',
+    url: '/blog/top-tech-jobs',
+  },
+  {
+    id: 4,
+    title: 'Building your online portfolio',
+    description:
+      'A strong portfolio shows your skills and personality. We’ll show you how to craft one that gets attention.',
+    image:
+      'https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=800&q=80',
+    url: '/blog/portfolio-tips',
+  },
+]
 </script>

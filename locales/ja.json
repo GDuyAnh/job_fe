@@ -29,7 +29,116 @@
       "openPosition": "việc làm"
     },
     "featuredJobOffers": {
-      "title": "Việc Làm Nổi bật "
+      "title": "Việc Làm Nổi bật"
+    },
+    "featuredCities": {
+      "title1": "Việc làm theo tỉnh thành",
+      "title2": "Việc làm theo tỉnh thành"
+    },
+    "blog": {
+      "title1": "Cẩm nang giáo viên",
+      "readMore": "Xem thêm >"
+    },
+    "lastBanner": {
+      "title1": "Sẵn sàng bắt đầu hành trình nghề nghiệp giáo dục của bạn ?",
+      "title2": "Tham gia cùng hàng nghìn giáo viên đã tìm thấy công việc mơ ước tại",
+      "url": "TuyenGiaoVien.vn",
+      "button1": "Tìm việc làm ngay",
+      "button2": "Đăng tin tuyển dụng"
+    },
+    "footer": {
+      "subscription": "Nền tảng tuyển dụng Giáo viên hàng đầu Việt Nam. Kết nối giáo viên tài năng với các cơ sở giáo dục uy tín trên toàn quốc.",
+      "titleCandidate": "Dành cho ứng viên",
+      "featureCandidate1": "Tìm việc làm",
+      "featureCandidate2": "Hướng dẫn ứng tuyển",
+      "featureCandidate3": "Cẩm nang nghề nghiệp",
+      "titleRecruit": "Dành cho nhà tuyển dụng",
+      "featureRecruit1": "Đăng tin tuyển dụng",
+      "featureRecruit2": "Bảng giá dịch vụ",
+      "featureRecruit3": "Hỗ trợ tuyển dụng",
+      "copyRight": "© 2024 TuyenGiaoVien.vn. Tất cả quyền được bảo lưu.",
+      "policies": "Điều khoản sử dụng",
+      "sercurity": "Chính sách bảo mật",
+      "contact": "Chính sách bảo mật"
+    },
+    "buttonContent": {
+      "seeAll": "Xem tất cả"
     }
+  },
+  "home": {
+    "tabs": {
+      "demos": "Demos",
+      "findJobs": "Find Jobs",
+      "companies": "Companies",
+      "candidates": "Candidates",
+      "blog": "Blog",
+      "pages": "Pages"
+    },
+    "signIn": "Sign in",
+    "headline": "Find the perfect job for you",
+    "subheadline": "Search your career opportunity through 12,800 jobs",
+    "search": {
+      "placeholderKeyword": "Job Title or Keyword",
+      "placeholderCategory": "All Categories",
+      "placeholderLocation": "All Locations",
+      "button": "Search"
+    },
+    "popularTags": {
+      "designer": "Designer",
+      "webDeveloper": "Web Developer",
+      "writer": "Writer",
+      "teamLeader": "Team Leader",
+      "fullstack": "Fullstack",
+      "web": "Web",
+      "financialAnalyst": "Financial Analyst",
+      "senior": "Senior",
+      "software": "Software"
+    },
+    "stats": {
+      "businessDevelopment": "job offers in Business Development",
+      "marketing": "job offers in Marketing & Communication",
+      "projectManagement": "job offers in Project Management"
+    }
+  },
+  "jobs": {
+    "tabs": {
+      "demos": "Demos",
+      "findJobs": "Find Jobs",
+      "companies": "Companies",
+      "candidates": "Candidates",
+      "blog": "Blog",
+      "pages": "Pages"
+    },
+    "signIn": "Sign in",
+    "header": {
+      "title": "Find Jobs",
+      "subtitle": "Search your career opportunity through 12,800 jobs"
+    },
+    "filters": {
+      "searchByKeywords": "Search by Keywords",
+      "placeholderKeyword": "Job Title or Keyword",
+      "location": "Location",
+      "category": "Category",
+      "typeOfEmployment": "Type of Employment",
+      "experienceLevel": "Experience Level"
+    },
+    "results": {
+      "showingJobs": "Showing {count} jobs",
+      "loading": "Loading jobs...",
+      "error": "Error fetching jobs!",
+      "noJobs": "No jobs found."
+    }
+  },
+  "search": {
+    "results": "Search Results",
+    "foundResults": "Found {count} jobs",
+    "filters": "Filters",
+    "employmentType": "Employment Type",
+    "experienceLevel": "Experience Level",
+    "clearFilters": "Clear Filters",
+    "viewJob": "View Job",
+    "noResults": "No jobs found",
+    "noResultsDescription": "Try adjusting your search criteria or filters to find more jobs.",
+    "clearSearch": "Clear Search"
   }
 }

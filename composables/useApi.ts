@@ -23,17 +23,17 @@ export function useApi<T = any>(url: string, options?: UseFetchOptions<T>) {
         Authorization: token ? `Bearer ${token.value}` : '',
       }
 
-      if (options.body) {
-        options.body = Helper.toSnakeCase(options.body)
-      }
+      // if (options.body) {
+      //   options.body = Helper.toSnakeCase(options.body)
+      // }
 
-      if (options.params) {
-        options.params = Helper.toSnakeCase(options.params)
-      }
+      // if (options.params) {
+      //   options.params = Helper.toSnakeCase(options.params)
+      // }
 
-      if (options.query) {
-        options.query = Helper.toSnakeCase(options.query)
-      }
+      // if (options.query) {
+      //   options.query = Helper.toSnakeCase(options.query)
+      // }
     },
 
     onRequestError({ response }) {

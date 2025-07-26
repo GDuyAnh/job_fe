@@ -9,4 +9,3 @@ export interface UserModel {
   createdAt: string
   updatedAt: string
 }
-

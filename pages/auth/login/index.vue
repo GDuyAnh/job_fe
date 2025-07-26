@@ -1,6 +1,10 @@
 <template>
-  <div class="auth-login flex-center flex-col h-full w-full">
-    <app-form
+  <div>
+    <h1></h1>
+  </div>
+  <!-- <div class="auth-login flex-center flex-col h-full w-full"> -->
+  <!--
+ <app-form
       :disabled="loading"
       :schema="schema"
       :state="formState"
@@ -9,17 +13,11 @@
       @submit="onSubmit"
     >
       <app-form-field name="email" required>
-        <app-input
-          v-model="formState.email"
-          :placeholder="$t('common.fields.accountIDEmail')"
-        />
+        <app-input v-model="formState.email" />
       </app-form-field>
 
       <app-form-field name="password" required>
-        <app-input-password
-          v-model="formState.password"
-          :placeholder="$t('common.fields.password')"
-        />
+        <app-input-password v-model="formState.password" />
       </app-form-field>
 
       <div class="text-center mt-13">
@@ -29,87 +27,57 @@
           shape="round"
           :loading="loading"
         >
-          {{ $t('common.actions.login') }}
         </app-button>
 
         <ULink
           class="text-sm w-full mt-10 text-primary"
           @click="toResetPassword"
         >
-          {{ $t('pages.auth.login.toResetPassword') }}
         </ULink>
       </div>
     </app-form>
-  </div>
-</template>
+  </div> 
+--></template>
 
 <script setup lang="ts">
-import type { FormSubmitEvent } from '@nuxt/ui'
-import { loginSchema, type LoginType } from '~/constants/schema/login'
+// import type { FormSubmitEvent } from '@nuxt/ui'
+// // import { loginSchema, type LoginType } from '~/constants/schema/login'
 
-defineComponent({
-  name: 'AuthLogin',
-})
-definePageMeta({
-  layout: 'auth',
-})
+// defineComponent({
+//   name: 'AuthLogin',
+// })
+// definePageMeta({
+//   layout: 'auth',
+// })
 
-const { t } = useI18n()
-const authStore = useAuthStore()
-const router = useRouter()
-const { redirectHandler } = useAuth()
+// const { t } = useI18n()
+// const authStore = useAuthStore()
+// const router = useRouter()
 
+// // const schema = loginSchema()
 
-const schema = loginSchema()
+// // const formState = reactive<Partial<LoginType>>({
+// //   email: '',
+// //   password: '',
+// // })
+// const loading = ref(false)
 
-const formState = reactive<Partial<LoginType>>({
-  email: '',
-  password: '',
-})
-const loading = ref(false)
+// async function onSubmit(event: FormSubmitEvent<any>) {}
 
-async function onSubmit(event: FormSubmitEvent<LoginType>) {
-  loading.value = true
-  try {
-    const response = await authStore.login({
-      email: event.data.email,
-      password: event.data.password,
-    })
+// function toResetPassword() {
+//   router.push(ROUTE_PAGE.HOME)
+// }
 
-    await authStore.getMe()
+// onMounted(() => {
+//   const messageStore = useMessageStore()
+//   const message = messageStore.getMessage()
 
-    const result = redirectHandler(response.status)
+//   if (message) {
+//     useNotify({
+//       message: t(message),
+//     })
 
-    if (result.redirect) {
-      return router.push(result.redirect)
-    }
-
-    if (result.showError) {
-      useNotify({
-        message: t(`pages.auth.login.errors.title`),
-      })
-    }
-  } catch (error) {
-    useNotify({ error })
-  } finally {
-    loading.value = false
-  }
-}
-
-function toResetPassword() {
-  router.push(ROUTE_PAGE.HOME)
-}
-
-onMounted(() => {
-  const messageStore = useMessageStore()
-  const message = messageStore.getMessage()
-
-  if (message) {
-    useNotify({
-      message: t(message),
-    })
-
-    messageStore.clearMessage()
-  }
-})
+//     messageStore.clearMessage()
+//   }
+// })
 </script>

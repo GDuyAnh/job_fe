@@ -140,7 +140,8 @@
 
     <div class="text-lg font-bold mt-10">Form Default</div>
 
-    <app-form
+    <!--
+ <app-form
       class="mt-5"
       :state="formState"
       :schema="loginSchema()"
@@ -160,90 +161,12 @@
           Submit
         </app-button>
       </div>
-    </app-form>
-
-    <app-stepper
-      v-model="stepperValue"
-      disabled
-      class="mt-5"
-      :items="[
-        {
-          value: 1,
-        },
-        {
-          value: 2,
-        },
-        {
-          value: 3,
-        },
-        {
-          value: 4,
-        },
-        {
-          value: 5,
-        },
-        {
-          value: 6,
-        },
-        {
-          value: 7,
-        },
-        {
-          value: 8,
-        },
-      ]"
-    />
-
-    <UForm
-      :state="formResetPasswordState"
-      :schema="schemaResetPassword"
-      @submit="onSubmitResetPassword"
-    >
-      <UFormField label="Password" name="password">
-        <UInput v-model="formResetPasswordState.password" />
-      </UFormField>
-      <UFormField label="Password Confirmation" name="passwordConfirmation">
-        <UInput v-model="formResetPasswordState.passwordConfirmation" />
-      </UFormField>
-      <UButton type="submit">Submit</UButton>
-    </UForm>
+    </app-form> 
+-->
   </div>
 </template>
 
 <script setup lang="ts">
-import type { FormSubmitEvent } from '@nuxt/ui'
-import { loginSchema, type LoginType } from '@/constants/schema/login'
-import {
-  resetPasswordSchema,
-  type ResetPasswordType,
-} from '@/constants/schema/reset-password'
-
-
-
-const formState = reactive<Partial<LoginType>>({
-  email: '',
-  password: '',
-})
-
-const stepperValue = ref(0)
-
-const onSubmit = async (event: FormSubmitEvent<LoginType>) => {
-  console.log(event.data)
-}
-
-// Reset Password
-const schemaResetPassword = resetPasswordSchema()
-const formResetPasswordState = reactive<Partial<ResetPasswordType>>({
-  password: '',
-  passwordConfirmation: '',
-})
-
-const onSubmitResetPassword = async (
-  event: FormSubmitEvent<ResetPasswordType>,
-) => {
-  console.log(event.data)
-}
-
 // const { $api } = useNuxtApp()
 
 // Using $api to handle action POST, PUT, DELETE

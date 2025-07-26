@@ -1,7 +1,5 @@
 <template>
-  <div
-    class="px-[30px] py-4 margin-x-negative"
-  >
+  <div class="px-[30px] py-4 margin-x-negative">
     <component
       :is="tag"
       ref="headingRef"
