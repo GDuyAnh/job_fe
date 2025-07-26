@@ -63,46 +63,28 @@
               />
 
               <!-- 2. Categories -->
-              <select
+              <USelect
                 v-model="category"
-                class="flex-1 min-w-0 truncate bg-white border-none outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-200 text-base text-gray-700 font-medium px-4 h-12 rounded-full transition-all duration-200"
-              >
-                <option v-for="c in categories" :key="c" :value="c">
-                  {{ c }}
-                </option>
-              </select>
+                :items="categoryItems"
+                class="flex-1 min-w-0"
+                variant="none"
+                size="lg"
+              />
 
               <!-- 3. Locations -->
-              <select
+              <USelect
                 v-model="location"
-                class="flex-1 min-w-0 truncate bg-white border-none outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-200 text-base text-gray-700 font-medium px-4 h-12 rounded-full transition-all duration-200"
-              >
-                <option v-for="l in locations" :key="l" :value="l">
-                  {{ l }}
-                </option>
-              </select>
+                :items="locationItems"
+                class="flex-1 min-w-0"
+                variant="none"
+                size="lg"
+              />
 
-              <!-- Search button -->
-              <button
+              <div
                 class="flex items-center justify-center h-12 w-12 rounded-full bg-[#8a7754] hover:bg-[#a08a6a] text-white shadow-lg"
-                style="box-shadow: 0 4px 16px 0 rgba(138, 119, 84, 0.15)"
-                @click="searchJobs"
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke-width="2"
-                  stroke="currentColor"
-                  class="w-6 h-6"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 104.5 4.5a7.5 7.5 0 0012.15 12.15z"
-                  />
-                </svg>
-              </button>
+                <NuxtSearch @click="searchJobs" />
+              </div>
             </div>
 
             <!-- Redesigned Popular tags -->
@@ -154,7 +136,6 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
 import { LocationList } from '@/enums/location'
 import { CategoryList } from '@/enums/category'
 import { useRouter } from 'vue-router'
@@ -167,6 +148,21 @@ const locations = [t('home.search.placeholderLocation'), ...LocationList]
 const categories = [t('home.search.placeholderCategory'), ...CategoryList]
 const location = ref(locations[0])
 const category = ref(categories[0])
+
+// Convert to app-select format
+const locationItems = computed(() =>
+  locations.map((loc) => ({
+    label: loc,
+    value: loc,
+  })),
+)
+
+const categoryItems = computed(() =>
+  categories.map((cat) => ({
+    label: cat,
+    value: cat,
+  })),
+)
 
 const tabs = [
   { name: 'demos', label: 'home.tabs.demos' },
@@ -197,6 +193,24 @@ const stats = [
 ]
 
 const router = useRouter()
+const route = useRoute()
+
+// Fill search fields from URL query parameters
+onMounted(() => {
+  const query = route.query
+
+  if (query.keyword) {
+    keyword.value = query.keyword as string
+  }
+
+  if (query.category && categories.includes(query.category as string)) {
+    category.value = query.category as string
+  }
+
+  if (query.location && locations.includes(query.location as string)) {
+    location.value = query.location as string
+  }
+})
 
 const searchJobs = () => {
   const query: Record<string, string> = {}
@@ -212,7 +226,6 @@ const searchJobs = () => {
   if (location.value !== t('home.search.placeholderLocation'))
     query.location = location.value
 
-  // điều hướng đến trang kết quả
-  router.push({ path: '/jobs', query })
+  router.push({ path: '/jobs/search', query })
 }
 </script>

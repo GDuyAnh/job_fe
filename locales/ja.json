@@ -72,5 +72,17 @@
       "error": "Error fetching jobs!",
       "noJobs": "No jobs found."
     }
+  },
+  "search": {
+    "results": "Search Results",
+    "foundResults": "Found {count} jobs",
+    "filters": "Filters",
+    "employmentType": "Employment Type",
+    "experienceLevel": "Experience Level",
+    "clearFilters": "Clear Filters",
+    "viewJob": "View Job",
+    "noResults": "No jobs found",
+    "noResultsDescription": "Try adjusting your search criteria or filters to find more jobs.",
+    "clearSearch": "Clear Search"
   }
 }
