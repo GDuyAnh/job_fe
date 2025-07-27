@@ -33,22 +33,30 @@
             min-width: 100px;
           "
         >
-          {{ $t('home.signIn') }}
+          {{ $t('homePage.header.signIn') }}
         </button>
       </div>
     </nav>
-    <div class="min-h-screen bg-[#eaf3fb] flex items-center">
-      <UContainer>
+    <!-- Hero image group -->
+    <div class="min-h-screen bg-[#eaf3fc] flex items-center relative">
+      <!-- clip-diagonal -->
+      <div
+        class="absolute right-0 bottom-[200px] w-9/20 h-[150%] rounded-[200px] bg-[#002b57] z-0"
+        style="transform: rotate(32deg); transform-origin: bottom left"
+      />
+
+      <UContainer class="z-1">
         <div
           class="grid grid-cols-1 md:grid-cols-[2fr_1fr] gap-12 items-center"
         >
           <!-- Left: Content -->
           <div>
             <h1 class="text-5xl md:text-6xl font-extrabold leading-tight mb-4">
-              {{ $t('home.headline') }}
+              {{ $t('homePage.heroImage.title1') }} <br />
+              {{ $t('homePage.heroImage.title2') }}
             </h1>
             <p class="text-lg text-gray-500 mb-8">
-              {{ $t('home.subheadline') }}
+              {{ $t('homePage.heroImage.subtitle') }}
             </p>
             <!-- Redesigned Search box -->
             <div
@@ -57,7 +65,7 @@
               <!-- 1. Keyword -->
               <input
                 v-model="keyword"
-                :placeholder="$t('home.search.placeholderKeyword')"
+                :placeholder="$t('homePage.heroImage.searchPlaceholder')"
                 class="flex-1 min-w-0 truncate bg-white border-none outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-200 text-base placeholder-[#8a98b8] font-medium px-4 h-12 rounded-full transition-all duration-200"
                 @keyup.enter="searchJobs"
               />
@@ -88,13 +96,15 @@
             </div>
 
             <!-- Redesigned Popular tags -->
+            <!-- :key="tag.key" -->
+            <!-- {{ $t(tag.label) }} -->
             <div class="flex flex-wrap gap-2 mb-4">
               <UBadge
                 v-for="tag in popularTags"
-                :key="tag.key"
+                :key="tag"
                 class="bg-blue-100 text-blue-700 px-4 py-1.5 rounded-full text-sm font-medium hover:bg-blue-200 transition cursor-pointer mb-2"
               >
-                {{ $t(tag.label) }}
+                {{ $t(tag) }}
               </UBadge>
             </div>
             <!-- Partner logos (optional) -->
@@ -108,10 +118,17 @@
               <img
                 alt="Professional"
                 src="https://therandyreport.com/wp-content/uploads/2021/04/Depositphotos_41577599_xl-2015-jobs-unemployment.jpg"
-                class="rounded-3xl shadow-xl w-[350px] h-[450px] object-cover"
+                class="relative rounded-3xl shadow-xl w-[370px] h-[500px] object-fit z-5"
               />
               <div
-                class="absolute bottom-4 left-1/2 -translate-x-1/2 bg-white/90 backdrop-blur rounded-xl shadow-lg p-6 min-w-[260px]"
+                class="absolute bottom-0 right-0 w-[370px] h-[500px] rounded-[2rem] bg-[#378aff] rotate-[5deg] translate-x-[20px] translate-y-[15px] z-3"
+              />
+              <div
+                class="absolute bottom-0 right-0 w-[370px] h-[500px] rounded-[2rem] bg-[#e6f0f9] rotate-[10deg] translate-x-[40px] translate-y-[30px] z-2"
+              ></div>
+
+              <div
+                class="absolute bottom-4 left-1/2 translate-x-[120px] bg-white/90 backdrop-blur rounded-xl shadow-lg p-6 min-w-[270px] z-30"
               >
                 <div
                   v-for="item in stats"
@@ -132,6 +149,405 @@
         </div>
       </UContainer>
     </div>
+
+    <!-- Search by category -->
+    <div class="min-h-screen bg-white flex flex-row items-center relative z-10">
+      <UContainer>
+        <!-- Header -->
+        <div class="mb-8">
+          <div class="flex flow-row justify-between items-start">
+            <div>
+              <h2 class="text-4xl font-extrabold text-gray-900 mb-2">
+                {{ $t('homePage.searchByCategory.title1') }}
+              </h2>
+              <p class="text-gray-500 text-sm">
+                {{ $t('homePage.searchByCategory.title2') }}
+              </p>
+            </div>
+          </div>
+          <div class="flex flow-row justify-between items-start">
+            <div />
+            <div class="flex flow-row justify-between items-start">
+              <div>
+                <a
+                  href="/categories"
+                  class="text-blue-600 font-medium text-sm hover:underline inline-flex items-center"
+                >
+                  {{ $t('homePage.searchByCategory.allCategories') }}
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Slide -->
+        <UCarousel
+          :items="categoryValues"
+          :ui="{ item: 'basis-1/4' }"
+          class="mb-8"
+        >
+          <template #default="{ item }">
+            <div
+              class="flex flex-col items-center justify-center p-4 bg-[#eaf4fd] rounded-2xl shadow hover:shadow-xl min-h-[250px]"
+            >
+              <div class="bg-white p-4 rounded-2xl shadow-sm mb-4">
+                <!-- <component :is="item.icon" class="w-10 h-10 text-black" /> -->
+              </div>
+              <h3 class="text-center font-semibold text-black">
+                {{ item }}
+              </h3>
+              <p class="text-sm text-gray-600 mt-8">
+                {{ $t('homePage.searchByCategory.openPosition') }}
+              </p>
+            </div>
+          </template>
+        </UCarousel>
+      </UContainer>
+    </div>
+
+    <!-- Banner -->
+    <div class="bg-white flex flex-row items-center relative z-10 mb-10">
+      <UContainer>
+        <UCarousel :items="banners" class="mt-8">
+          <template #default="{ item }">
+            <div
+              class="flex flex-col items-left justify-left p-16 rounded-2xl shadow hover:shadow-xl min-h-[300px]"
+              :style="`background-image: url('${item.image}'); background-size: cover; background-position: center;`"
+            >
+              <div class="text-left text-5xl font-bold text-black max-w-6/10">
+                {{ item.title }}
+              </div>
+              <div class="text-md text-gray-600 mt-8 max-w-5/10">
+                {{ item.description }}
+              </div>
+              <div class="mt-8">
+                <app-button
+                  class="mt-5 p-6"
+                  variant="outline"
+                  color="secondary"
+                  shape="round"
+                  compact
+                  >{{ item.buttonText }}</app-button
+                >
+              </div>
+            </div>
+          </template>
+        </UCarousel>
+      </UContainer>
+    </div>
+
+    <!-- Featured Job Offers -->
+    <div
+      class="min-h-screen bg-[#fff8ec] flex flex-row items-center relative z-10"
+    >
+      <UContainer>
+        <!-- Header -->
+        <div class="mb-8">
+          <div class="flex flew-row justify-between items-start">
+            <div>
+              <h2 class="text-4xl font-extrabold text-gray-900 mb-2">
+                {{ $t('homePage.featuredJobOffers.title') }}
+              </h2>
+            </div>
+          </div>
+        </div>
+        <!-- List featured job -->
+        <div>
+          <div class="job-board grid grid-cols-2 gap-6">
+            <div
+              v-for="(job, index) in featureJobs"
+              :key="index"
+              class="job-card rounded-xl p-4 flex flex-col justify-between bg-white"
+            >
+              <div>
+                <div class="flex items-center gap-4">
+                  <div class="icon bg-black p-3 rounded-lg text-white">
+                    {{ job.icon }}
+                  </div>
+                  <div>
+                    <h2 class="font-bold text-lg">{{ job.title }}</h2>
+                    <p class="text-sm text-gray-600">
+                      {{ job.location }} {{ job.type }}
+                    </p>
+                  </div>
+                </div>
+                <p class="mt-2 text-sm text-gray-500">{{ job.category }}</p>
+              </div>
+              <div class="text-right text-xs text-gray-400 mt-2">
+                {{ job.date }}
+                <span class="font-semibold">{{ job.company }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="mt-6">
+          <app-button
+            class="mt-5 p-6"
+            variant="outline"
+            color="secondary"
+            shape="round"
+            compact
+            >{{ $t('homePage.buttonContent.seeAll') }}</app-button
+          >
+        </div>
+      </UContainer>
+    </div>
+
+    <!-- Featured Cities -->
+    <div class="min-h-screen bg-white py-16">
+      <UContainer>
+        <!-- Title -->
+        <div class="mb-8">
+          <div class="flex flow-row justify-between items-start">
+            <div>
+              <h2 class="text-4xl font-extrabold text-gray-900 mb-2">
+                {{ $t('homePage.featuredCities.title1') }}
+              </h2>
+              <p class="text-gray-500 text-sm">
+                {{ $t('homePage.featuredCities.title2') }}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- City Cards Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div
+            v-for="city in featuredCities"
+            :key="city.name"
+            class="bg-[#eaf9ff] rounded-3xl overflow-hidden shadow-sm hover:shadow-lg transition"
+          >
+            <img
+              :src="city.image"
+              :alt="city.name"
+              class="w-full h-40 object-cover"
+            />
+            <div class="p-6">
+              <h3 class="text-lg font-semibold text-gray-900">
+                {{ city.name }}
+              </h3>
+              <p class="text-gray-500 text-sm">
+                {{ city.openPositions }}
+                {{ $t('homePage.searchByCategory.openPosition') }}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-6">
+          <app-button
+            class="mt-5 p-6"
+            variant="outline"
+            color="secondary"
+            shape="round"
+            compact
+            >{{ $t('homePage.buttonContent.seeAll') }}</app-button
+          >
+        </div>
+      </UContainer>
+    </div>
+
+    <!-- Blogs -->
+    <div class="min-h-screen bg-white py-16">
+      <UContainer>
+        <!-- Title -->
+        <div class="mb-8">
+          <div class="flex flow-row justify-between items-start">
+            <div>
+              <h2 class="text-4xl font-extrabold text-gray-900 mb-2">
+                {{ $t('homePage.blog.title1') }}
+              </h2>
+            </div>
+          </div>
+        </div>
+
+        <!-- Blogs Cards -->
+        <UCarousel :items="blogs" :ui="{ item: 'basis-1/4' }" class="mb-8">
+          <template #default="{ item }">
+            <UCard
+              variant="solid"
+              class="bg-white border border-gray-200"
+              :ui="{
+                header: 'p-0 sm:px-0',
+                body: 'px-4 py-3 min-h-[170px] max-h-[220px]',
+              }"
+            >
+              <template #header>
+                <img
+                  :src="item.image"
+                  alt="Blog Image"
+                  class="w-full h-[180px] object-cover"
+                />
+              </template>
+              <div clas>
+                <h3 class="text-base font-bold text-gray-900 mb-2 leading-snug">
+                  {{ item.title }}
+                </h3>
+                <p class="text-sm text-gray-600 leading-snug line-clamp-3">
+                  {{ item.description }}
+                </p>
+              </div>
+
+              <template #footer>
+                <a
+                  :href="item.url"
+                  class="text-blue-600 font-medium text-sm hover:underline inline-flex items-center"
+                >
+                  {{ $t('homePage.blog.readMore') }}
+                </a>
+              </template>
+            </UCard>
+          </template>
+        </UCarousel>
+
+        <div class="mt-6">
+          <app-button
+            class="mt-5 p-6"
+            variant="outline"
+            color="secondary"
+            shape="round"
+            compact
+            >{{ $t('homePage.buttonContent.seeAll') }}</app-button
+          >
+        </div>
+      </UContainer>
+    </div>
+
+    <!-- Last banner & Footer -->
+    <div class="min-h-screen bg-white py-16">
+      <!-- Last banner -->
+      <div
+        class="bg-gradient-to-r from-blue-800 to-blue-500 text-white text-center py-20 px-4"
+      >
+        <h2 class="text-3xl sm:text-4xl font-bold mb-4">
+          {{ $t('homePage.lastBanner.title1') }}
+        </h2>
+        <p class="text-lg sm:text-xl mb-8">
+          {{ $t('homePage.lastBanner.title2') }}
+          <br />
+          <a href="#" class="font-semibold">{{
+            $t('homePage.lastBanner.url')
+          }}</a>
+        </p>
+        <div class="flex flex-col sm:flex-row justify-center gap-4">
+          <a
+            href="#"
+            class="bg-white text-blue-700 font-semibold py-3 px-6 rounded-md border border-blue-600 hover:bg-blue-100 transition inline-flex items-center justify-center min-h-[48px] max-h-[60px]"
+          >
+            {{ $t('homePage.lastBanner.button1') }}
+          </a>
+          <a
+            href="#"
+            class="bg-green-600 text-white font-semibold py-3 px-6 rounded-md hover:bg-green-700 transition inline-flex items-center justify-center min-h-[48px] max-h-[60px]"
+          >
+            {{ $t('homePage.lastBanner.button2') }}
+          </a>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <footer class="bg-[#0B1320] text-gray-300 text-sm">
+        <div
+          class="max-w-7xl mx-auto px-6 py-10 grid grid-cols-1 md:grid-cols-3 gap-8 border-b border-gray-700"
+        >
+          <!-- Left -->
+          <div>
+            <h2 class="text-white font-bold text-xl mb-4">
+              {{ $t('homePage.lastBanner.url') }}
+            </h2>
+            <p>
+              {{ $t('homePage.footer.subscription') }}
+            </p>
+            <div class="flex space-x-4 mt-4">
+              <a
+                href="#"
+                class="bg-gray-800 hover:bg-gray-700 p-2 rounded-full"
+              >
+                <i class="fab fa-facebook-f text-white"></i>
+              </a>
+              <a
+                href="#"
+                class="bg-gray-800 hover:bg-gray-700 p-2 rounded-full"
+              >
+                <i class="fab fa-twitter text-white"></i>
+              </a>
+              <a
+                href="#"
+                class="bg-gray-800 hover:bg-gray-700 p-2 rounded-full"
+              >
+                <i class="fab fa-linkedin-in text-white"></i>
+              </a>
+            </div>
+          </div>
+
+          <!-- Candidate -->
+          <div>
+            <h3 class="text-white font-bold mb-4">
+              {{ $t('homePage.footer.titleCandidate') }}
+            </h3>
+            <ul class="space-y-2">
+              <li>
+                <a href="#" class="hover:text-white"
+                  >{{ $t('homePage.footer.featureCandidate1') }}
+                </a>
+              </li>
+              <li>
+                <a href="#" class="hover:text-white">{{
+                  $t('homePage.footer.featureCandidate2')
+                }}</a>
+              </li>
+              <li>
+                <a href="#" class="hover:text-white">{{
+                  $t('homePage.footer.featureCandidate3')
+                }}</a>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Recruiter -->
+          <div>
+            <h3 class="text-white font-bold mb-4">
+              {{ $t('homePage.footer.titleRecruit') }}
+            </h3>
+            <ul class="space-y-2">
+              <li>
+                <a href="#" class="hover:text-white">{{
+                  $t('homePage.footer.featureRecruit1')
+                }}</a>
+              </li>
+              <li>
+                <a href="#" class="hover:text-white">{{
+                  $t('homePage.footer.featureRecruit2')
+                }}</a>
+              </li>
+              <li>
+                <a href="#" class="hover:text-white">{{
+                  $t('homePage.footer.featureRecruit3')
+                }}</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div
+          class="max-w-7xl mx-auto px-6 py-4 flex flex-col md:flex-row justify-between items-center text-gray-400 text-sm"
+        >
+          <div class="mb-2 md:mb-0">
+            {{ $t('homePage.footer.copyRight') }}
+          </div>
+          <div class="flex space-x-6">
+            <a href="#" class="hover:text-white">{{
+              $t('homePage.footer.policies')
+            }}</a>
+            <a href="#" class="hover:text-white">{{
+              $t('homePage.footer.sercurity')
+            }}</a>
+            <a href="#" class="hover:text-white">{{
+              $t('homePage.footer.contact')
+            }}</a>
+          </div>
+        </div>
+      </footer>
+    </div>
   </div>
 </template>
 
@@ -144,8 +560,8 @@ import { useI18n } from 'vue-i18n'
 const { t } = useI18n()
 
 const keyword = ref('')
-const locations = [t('home.search.placeholderLocation'), ...LocationList]
-const categories = [t('home.search.placeholderCategory'), ...CategoryList]
+const locations = [t('homePage.heroImage.allLocations'), ...LocationList]
+const categories = ['All Categories', ...CategoryList]
 const location = ref(locations[0])
 const category = ref(categories[0])
 
@@ -164,6 +580,21 @@ const categoryItems = computed(() =>
   })),
 )
 
+const categoryValues = Object.values(CategoryList)
+
+// 2. Shuffle array
+const shuffled = categoryValues.sort(() => 0.5 - Math.random())
+
+// 3. Get Random 5–6 item
+const randomLength = Math.floor(Math.random() * 2) + 6 // 5 or 6
+const popularTags = shuffled.slice(0, randomLength)
+
+const stats = [
+  { count: '2,543', label: 'Việc làm' },
+  { count: '856', label: 'Cơ sở giáo dục' },
+  { count: '15,420', label: 'Giáo viên toàn Quốc' },
+]
+
 const tabs = [
   { name: 'demos', label: 'home.tabs.demos' },
   { name: 'find-jobs', label: 'home.tabs.findJobs' },
@@ -174,23 +605,23 @@ const tabs = [
 ]
 const activeTab = ref(tabs[0].name)
 
-const popularTags = [
-  { key: 'designer', label: 'home.popularTags.designer' },
-  { key: 'webDeveloper', label: 'home.popularTags.webDeveloper' },
-  { key: 'writer', label: 'home.popularTags.writer' },
-  { key: 'teamLeader', label: 'home.popularTags.teamLeader' },
-  { key: 'fullstack', label: 'home.popularTags.fullstack' },
-  { key: 'web', label: 'home.popularTags.web' },
-  { key: 'financialAnalyst', label: 'home.popularTags.financialAnalyst' },
-  { key: 'senior', label: 'home.popularTags.senior' },
-  { key: 'software', label: 'home.popularTags.software' },
-]
+// const popularTags = [
+//   { key: 'designer', label: 'home.popularTags.designer' },
+//   { key: 'webDeveloper', label: 'home.popularTags.webDeveloper' },
+//   { key: 'writer', label: 'home.popularTags.writer' },
+//   { key: 'teamLeader', label: 'home.popularTags.teamLeader' },
+//   { key: 'fullstack', label: 'home.popularTags.fullstack' },
+//   { key: 'web', label: 'home.popularTags.web' },
+//   { key: 'financialAnalyst', label: 'home.popularTags.financialAnalyst' },
+//   { key: 'senior', label: 'home.popularTags.senior' },
+//   { key: 'software', label: 'home.popularTags.software' },
+// ]
 
-const stats = [
-  { count: 319, label: 'home.stats.businessDevelopment' },
-  { count: 265, label: 'home.stats.marketing' },
-  { count: 324, label: 'home.stats.projectManagement' },
-]
+// const stats = [
+//   { count: 319, label: 'home.stats.businessDevelopment' },
+//   { count: 265, label: 'home.stats.marketing' },
+//   { count: 324, label: 'home.stats.projectManagement' },
+// ]
 
 const router = useRouter()
 const route = useRoute()
@@ -228,4 +659,114 @@ const searchJobs = () => {
 
   router.push({ path: '/jobs/search', query })
 }
+
+const featureJobs = [
+  {
+    title: 'Financial Analyst',
+    location: 'San Diego, CA',
+    type: 'Full Time',
+    category: 'Finance',
+    date: 'June 8, 2022',
+    company: 'Gramware',
+    icon: '📷',
+  },
+  {
+    title: 'Senior Software Engineer',
+    location: 'Remote',
+    type: 'Contract',
+    category: 'Engineering',
+    date: 'July 12, 2022',
+    company: 'TechNova',
+    icon: '💻',
+  },
+  {
+    title: 'UX Designer',
+    location: 'New York, NY',
+    type: 'Part Time',
+    category: 'Design',
+    date: 'May 30, 2022',
+    company: 'CreativeHouse',
+    icon: '🎨',
+  },
+]
+
+const banners = [
+  {
+    title: 'See right away whether candidates are the right fit',
+    description:
+      'We help candidates know whether they’re qualified for a job – and allow you to see their match potential – giving you a better pool of qualified candidates to choose from.',
+    image:
+      'https://pixelprime.co/themes/jobster-wp/demo-10/wp-content/uploads/2023/01/green-building.jpg',
+    buttonText: 'Chi tiết NTD',
+    buttonLink: '/employer-details', // tuỳ route
+  },
+  {
+    title: 'Make better hiring decisions with AI insights',
+    description:
+      'Our AI evaluates resumes and applications to give you key insights into each candidate’s strengths, letting you focus on the best fits faster.',
+    image:
+      'https://pixelprime.co/themes/jobster-wp/demo-10/wp-content/uploads/2023/01/red-building.jpg',
+    buttonText: 'Tìm hiểu thêm',
+    buttonLink: '/ai-insights',
+  },
+  {
+    title: 'Save time screening unqualified candidates',
+    description:
+      'Our platform pre-screens candidates so you can skip the tedious filtering process and get straight to the best applicants.',
+    image:
+      'https://pixelprime.co/themes/jobster-wp/demo-10/wp-content/uploads/2023/01/yellow-building.jpg',
+    buttonText: 'Xem ngay',
+    buttonLink: '/screening',
+  },
+]
+
+const featuredCities = [
+  { name: 'Boston, MA', image: 'link-boston', openPositions: 0 },
+  { name: 'Chicago, IL', image: 'link-chicago', openPositions: 0 },
+  { name: 'Houston, TX', image: 'link-houston', openPositions: 0 },
+  { name: 'Los Angeles, CA', image: 'link-la', openPositions: 3 },
+  { name: 'New York, NY', image: 'link-ny', openPositions: 0 },
+  { name: 'San Diego, CA', image: 'link-sd', openPositions: 3 },
+  { name: 'San Francisco, CA', image: 'link-sf', openPositions: 3 },
+  { name: 'Seattle, WA', image: 'link-seattle', openPositions: 0 },
+]
+
+const blogs = [
+  {
+    id: 1,
+    title: 'How to find your first job out of college',
+    description:
+      'It’s keyword-optimized, industry-specified, full of achievements, backed by data, and double-checked by an expert.',
+    image:
+      'https://images.unsplash.com/photo-1581091870622-3c8c6b6ba5c4?auto=format&fit=crop&w=800&q=80',
+    url: '/blog/first-job',
+  },
+  {
+    id: 2,
+    title: 'Mastering the art of the interview',
+    description:
+      'Preparation is key. Learn how to answer common questions, dress for success, and impress your future boss.',
+    image:
+      'https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&fit=crop&w=800&q=80',
+    url: '/blog/interview-tips',
+  },
+  {
+    id: 3,
+    title: 'Top 10 tech companies hiring now',
+    description:
+      'From startups to giants, these companies are actively looking for fresh talents. Don’t miss your chance.',
+    image:
+      'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=800&q=80',
+    url: '/blog/top-tech-jobs',
+  },
+  {
+    id: 4,
+    title: 'Building your online portfolio',
+    description:
+      'A strong portfolio shows your skills and personality. We’ll show you how to craft one that gets attention.',
+    image:
+      'https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=800&q=80',
+    url: '/blog/portfolio-tips',
+  },
+]
 </script>
