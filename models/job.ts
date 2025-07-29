@@ -7,6 +7,7 @@ export interface JobModel {
   location: string
   typeOfEmployment: string
   experienceLevel: string
+  companyName: string
   createdAt: Date
   updatedAt: Date
 }

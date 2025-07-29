@@ -7,4 +7,8 @@ export const ROUTE_API = {
     GET_JOB: 'jobs',
     SEARCH: 'jobs/search',
   },
+
+  CATEGORY: {
+    GET_CATEGORY: 'category',
+  },
 }
