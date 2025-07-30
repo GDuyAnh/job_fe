@@ -6,6 +6,7 @@ export const ROUTE_API = {
   JOB: {
     GET_JOB: 'jobs',
     SEARCH: 'jobs/search',
+    GET_CATEGORY_JOBS: 'jobs/categories',
   },
 
   CATEGORY: {

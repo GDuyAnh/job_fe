@@ -29,7 +29,8 @@
       "openPosition": "việc làm"
     },
     "featuredJobOffers": {
-      "title": "Việc Làm Nổi bật"
+      "title": "Việc Làm Nổi bật",
+      "by": "by"
     },
     "featuredCities": {
       "title1": "Việc làm theo tỉnh thành",
@@ -68,11 +69,11 @@
   "home": {
     "tabs": {
       "demos": "Demos",
-      "findJobs": "Find Jobs",
-      "companies": "Companies",
+      "findJobs": "Việc Làm",
+      "companies": "Công Ty",
       "candidates": "Candidates",
       "blog": "Blog",
-      "pages": "Pages"
+      "pages": "Đăng tin miễn phí"
     },
     "signIn": "Sign in",
     "headline": "Find the perfect job for you",

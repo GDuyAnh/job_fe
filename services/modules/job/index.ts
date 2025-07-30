@@ -1,6 +1,7 @@
 import type { ApiResponse } from '~/types/api'
 import type FetchFactory from '~/services/factory'
 import type { JobEntity } from '~/entities/job'
+import type { CategoryEntity } from '~/entities/category'
 
 const JobModule = (apiService: FetchFactory) => {
   const getJob = async () =>
@@ -12,9 +13,14 @@ const JobModule = (apiService: FetchFactory) => {
     })
   }
 
+  const getCategoryJobs = async () => {
+    return apiService.get<CategoryEntity[]>(ROUTE_API.JOB.GET_CATEGORY_JOBS)
+  }
+
   return {
     getJob,
     searchJob,
+    getCategoryJobs,
   }
 }
 

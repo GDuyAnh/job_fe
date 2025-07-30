@@ -8,8 +8,14 @@ const CategoryModule = (apiService: FetchFactory) => {
       ROUTE_API.CATEGORY.GET_CATEGORY,
     )
 
+  const getCategoryJobs = async () =>
+    apiService.get<ApiResponse<CategoryEntity[]>>(
+      ROUTE_API.CATEGORY.GET_CATEGORY,
+    )
+
   return {
     getCategory,
+    getCategoryJobs,
   }
 }
 

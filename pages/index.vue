@@ -269,15 +269,28 @@
                   </div>
                   <div>
                     <h2 class="font-bold text-lg">{{ job.title }}</h2>
-                    <p class="text-sm text-gray-600">
-                      {{ job.location }} {{ job.typeOfEmployment }}
-                    </p>
+                    <span class="text-sm font-bold">
+                      <UIcon
+                        name="i-raphael:globealt"
+                        style="font-size: 12px !important"
+                      />
+                      {{
+                        locationEnum[job.location as keyof typeof locationEnum]
+                      }}
+                    </span>
+                    <span class="text-sm text-gray-600 pl-6">
+                      {{
+                        TypeOfEmployment[
+                          job.typeOfEmployment as keyof typeof TypeOfEmployment
+                        ]
+                      }}
+                    </span>
                   </div>
                 </div>
                 <p class="mt-2 text-sm text-gray-500">{{ job.category }}</p>
               </div>
-              <div class="text-right text-xs text-gray-400 mt-2">
-                {{ job.createdAt }}
+              <div class="text-right text-xs mt-2">
+                {{ job.createdAt }} {{ $t('homePage.featuredJobOffers.by') }}
                 <span class="font-semibold">{{ job.companyName }}</span>
               </div>
             </div>
@@ -556,12 +569,16 @@
 </template>
 
 <script setup lang="ts">
-import { LocationList } from '@/enums/location'
+import { location as locationEnum, LocationList } from '@/enums/location'
+import { TypeOfEmployment } from '@/enums/type-of-employment'
+
 import { CategoryList } from '@/enums/category'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import type { JobModel } from '~/models/job'
 import { JobMapper } from '~/mapper/job'
+// import type { CategoryModel } from '~/models/category'
+// import { CategoryMapper } from '~/mapper/category'
 const { t } = useI18n()
 
 const keyword = ref('')
@@ -578,12 +595,12 @@ const locationItems = computed(() =>
   })),
 )
 
-const categoryItems = computed(() =>
-  categories.map((cat) => ({
-    label: cat,
-    value: cat,
-  })),
-)
+// const categoryItems = computed(() =>
+//   categories.map((cat) => ({
+//     label: cat,
+//     value: cat,
+//   })),
+// )
 
 const categoryValues = Object.values(CategoryList)
 
@@ -669,36 +686,6 @@ const searchJobs = () => {
   router.push({ path: '/jobs/search', query })
 }
 
-const featureJobs = [
-  {
-    title: 'Financial Analyst',
-    location: 'San Diego, CA',
-    type: 'Full Time',
-    category: 'Finance',
-    date: 'June 8, 2022',
-    company: 'Gramware',
-    icon: '📷',
-  },
-  {
-    title: 'Senior Software Engineer',
-    location: 'Remote',
-    type: 'Contract',
-    category: 'Engineering',
-    date: 'July 12, 2022',
-    company: 'TechNova',
-    icon: '💻',
-  },
-  {
-    title: 'UX Designer',
-    location: 'New York, NY',
-    type: 'Part Time',
-    category: 'Design',
-    date: 'May 30, 2022',
-    company: 'CreativeHouse',
-    icon: '🎨',
-  },
-]
-
 const banners = [
   {
     title: 'See right away whether candidates are the right fit',
@@ -781,8 +768,10 @@ const blogs = [
 
 // Call Api OnMouted
 const featureJobsRes = ref<JobModel[]>([])
-const bannerRes = ref([])
-const blogRes = ref([])
+// const categoryJobsRes = ref<CategoryModel[]>([])
+
+// const bannerRes = ref([])
+// const blogRes = ref([])
 
 // initialize Api
 const { $api } = useNuxtApp()
@@ -791,6 +780,7 @@ const { $api } = useNuxtApp()
 const getFeatureJobs = async () => {
   try {
     // Build search parameters
+
     const apiParams: Record<string, any> = {}
 
     apiParams.isFeatured = 'true'
@@ -803,6 +793,8 @@ const getFeatureJobs = async () => {
     } else {
       featureJobsRes.value = []
     }
+
+    console.log(response)
   } catch (error: any) {
     console.error('Search failed:', error)
     useNotify({
@@ -811,4 +803,28 @@ const getFeatureJobs = async () => {
     featureJobsRes.value = []
   }
 }
+
+// Fetch Category Jobs
+// const getCategoryJobs = async () => {
+//   try {
+//     // Call API
+//     const response = await $api.job.getCategoryJobs()
+
+//     if (response && Array.isArray(response)) {
+//       categoryJobsRes.value = response.map((category) =>
+//         CategoryMapper.toModel(category),
+//       )
+//     } else {
+//       categoryJobsRes.value = []
+//     }
+
+//     console.log(response)
+//   } catch (error: any) {
+//     console.error('Search failed:', error)
+//     useNotify({
+//       message: error.message,
+//     })
+//     categoryJobsRes.value = []
+//   }
+// }
 </script>
