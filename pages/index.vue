@@ -71,13 +71,15 @@
               />
 
               <!-- 2. Categories -->
-              <USelect
+              <!--
+ <USelect
                 v-model="category"
                 :items="categoryItems"
                 class="flex-1 min-w-0"
                 variant="none"
                 size="lg"
-              />
+              /> 
+-->
 
               <!-- 3. Locations -->
               <USelect
@@ -128,17 +130,18 @@
               ></div>
 
               <div
-                class="absolute bottom-4 left-1/2 translate-x-[120px] bg-white/90 backdrop-blur rounded-xl shadow-lg p-6 min-w-[270px] z-30"
+                class="absolute bottom-4 left-1/2 bg-white/90 backdrop-blur rounded-xl shadow-lg p-6 min-w-[300px] z-30"
               >
                 <div
                   v-for="item in stats"
                   :key="item.label"
-                  class="flex items-center gap-3 mb-2 last:mb-0"
+                  class="grid grid-cols-3 items-center gap-3 mb-2 last:mb-0"
                 >
-                  <span class="text-2xl font-extrabold text-blue-900">{{
-                    item.count
-                  }}</span>
-                  <span class="text-base text-gray-700">{{
+                  <span
+                    class="text-2xl text-right font-extrabold text-blue-900"
+                    >{{ item.count }}</span
+                  >
+                  <span class="text-base text-gray-700 col-span-2">{{
                     $t(item.label)
                   }}</span>
                 </div>
@@ -183,6 +186,7 @@
         <UCarousel
           :items="categoryValues"
           :ui="{ item: 'basis-1/4' }"
+          :dots="true"
           class="mb-8"
         >
           <template #default="{ item }">
@@ -206,12 +210,12 @@
 
     <!-- Banner -->
     <div class="bg-white flex flex-row items-center relative z-10 mb-10">
-      <UContainer>
+      <div class="px-8">
         <UCarousel :items="banners" class="mt-8">
           <template #default="{ item }">
             <div
               class="flex flex-col items-left justify-left p-16 rounded-2xl shadow hover:shadow-xl min-h-[300px]"
-              :style="`background-image: url('${item.image}'); background-size: cover; background-position: center;`"
+              :style="`background-image: url('${item.image}'); background-size: fit; background-position: center;`"
             >
               <div class="text-left text-5xl font-bold text-black max-w-6/10">
                 {{ item.title }}
@@ -232,7 +236,7 @@
             </div>
           </template>
         </UCarousel>
-      </UContainer>
+      </div>
     </div>
 
     <!-- Featured Job Offers -->
@@ -254,27 +258,40 @@
         <div>
           <div class="job-board grid grid-cols-2 gap-6">
             <div
-              v-for="(job, index) in featureJobs"
-              :key="index"
+              v-for="job in featureJobsRes"
+              :key="job.id"
               class="job-card rounded-xl p-4 flex flex-col justify-between bg-white"
             >
               <div>
                 <div class="flex items-center gap-4">
                   <div class="icon bg-black p-3 rounded-lg text-white">
-                    {{ job.icon }}
+                    <!-- {{ job. }} -->
                   </div>
                   <div>
                     <h2 class="font-bold text-lg">{{ job.title }}</h2>
-                    <p class="text-sm text-gray-600">
-                      {{ job.location }} {{ job.type }}
-                    </p>
+                    <span class="text-sm font-bold">
+                      <UIcon
+                        name="i-raphael:globealt"
+                        style="font-size: 12px !important"
+                      />
+                      {{
+                        locationEnum[job.location as keyof typeof locationEnum]
+                      }}
+                    </span>
+                    <span class="text-sm text-gray-600 pl-6">
+                      {{
+                        TypeOfEmployment[
+                          job.typeOfEmployment as keyof typeof TypeOfEmployment
+                        ]
+                      }}
+                    </span>
                   </div>
                 </div>
                 <p class="mt-2 text-sm text-gray-500">{{ job.category }}</p>
               </div>
-              <div class="text-right text-xs text-gray-400 mt-2">
-                {{ job.date }}
-                <span class="font-semibold">{{ job.company }}</span>
+              <div class="text-right text-xs mt-2">
+                {{ job.createdAt }} {{ $t('homePage.featuredJobOffers.by') }}
+                <span class="font-semibold">{{ job.companyName }}</span>
               </div>
             </div>
           </div>
@@ -413,7 +430,7 @@
     </div>
 
     <!-- Last banner & Footer -->
-    <div class="min-h-screen bg-white py-16">
+    <div class="bg-white">
       <!-- Last banner -->
       <div
         class="bg-gradient-to-r from-blue-800 to-blue-500 text-white text-center py-20 px-4"
@@ -552,11 +569,16 @@
 </template>
 
 <script setup lang="ts">
-import { LocationList } from '@/enums/location'
+import { location as locationEnum, LocationList } from '@/enums/location'
+import { TypeOfEmployment } from '@/enums/type-of-employment'
+
 import { CategoryList } from '@/enums/category'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-
+import type { JobModel } from '~/models/job'
+import { JobMapper } from '~/mapper/job'
+// import type { CategoryModel } from '~/models/category'
+// import { CategoryMapper } from '~/mapper/category'
 const { t } = useI18n()
 
 const keyword = ref('')
@@ -573,12 +595,12 @@ const locationItems = computed(() =>
   })),
 )
 
-const categoryItems = computed(() =>
-  categories.map((cat) => ({
-    label: cat,
-    value: cat,
-  })),
-)
+// const categoryItems = computed(() =>
+//   categories.map((cat) => ({
+//     label: cat,
+//     value: cat,
+//   })),
+// )
 
 const categoryValues = Object.values(CategoryList)
 
@@ -603,6 +625,7 @@ const tabs = [
   { name: 'blog', label: 'home.tabs.blog' },
   { name: 'pages', label: 'home.tabs.pages' },
 ]
+
 const activeTab = ref(tabs[0].name)
 
 // const popularTags = [
@@ -641,6 +664,9 @@ onMounted(() => {
   if (query.location && locations.includes(query.location as string)) {
     location.value = query.location as string
   }
+
+  // Fetch Api
+  getFeatureJobs()
 })
 
 const searchJobs = () => {
@@ -659,36 +685,6 @@ const searchJobs = () => {
 
   router.push({ path: '/jobs/search', query })
 }
-
-const featureJobs = [
-  {
-    title: 'Financial Analyst',
-    location: 'San Diego, CA',
-    type: 'Full Time',
-    category: 'Finance',
-    date: 'June 8, 2022',
-    company: 'Gramware',
-    icon: '📷',
-  },
-  {
-    title: 'Senior Software Engineer',
-    location: 'Remote',
-    type: 'Contract',
-    category: 'Engineering',
-    date: 'July 12, 2022',
-    company: 'TechNova',
-    icon: '💻',
-  },
-  {
-    title: 'UX Designer',
-    location: 'New York, NY',
-    type: 'Part Time',
-    category: 'Design',
-    date: 'May 30, 2022',
-    company: 'CreativeHouse',
-    icon: '🎨',
-  },
-]
 
 const banners = [
   {
@@ -769,4 +765,66 @@ const blogs = [
     url: '/blog/portfolio-tips',
   },
 ]
+
+// Call Api OnMouted
+const featureJobsRes = ref<JobModel[]>([])
+// const categoryJobsRes = ref<CategoryModel[]>([])
+
+// const bannerRes = ref([])
+// const blogRes = ref([])
+
+// initialize Api
+const { $api } = useNuxtApp()
+
+// Fetch FeatureJobs
+const getFeatureJobs = async () => {
+  try {
+    // Build search parameters
+
+    const apiParams: Record<string, any> = {}
+
+    apiParams.isFeatured = 'true'
+
+    // Call API
+    const response = await $api.job.searchJob(apiParams)
+
+    if (response && Array.isArray(response)) {
+      featureJobsRes.value = response.map((job) => JobMapper.toModel(job))
+    } else {
+      featureJobsRes.value = []
+    }
+
+    console.log(response)
+  } catch (error: any) {
+    console.error('Search failed:', error)
+    useNotify({
+      message: error.message,
+    })
+    featureJobsRes.value = []
+  }
+}
+
+// Fetch Category Jobs
+// const getCategoryJobs = async () => {
+//   try {
+//     // Call API
+//     const response = await $api.job.getCategoryJobs()
+
+//     if (response && Array.isArray(response)) {
+//       categoryJobsRes.value = response.map((category) =>
+//         CategoryMapper.toModel(category),
+//       )
+//     } else {
+//       categoryJobsRes.value = []
+//     }
+
+//     console.log(response)
+//   } catch (error: any) {
+//     console.error('Search failed:', error)
+//     useNotify({
+//       message: error.message,
+//     })
+//     categoryJobsRes.value = []
+//   }
+// }
 </script>

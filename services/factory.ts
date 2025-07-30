@@ -16,15 +16,15 @@ export default class FetchFactory {
         }
 
         if (!(options.body instanceof FormData)) {
-          options.body = Helper.toSnakeCase(options.body)
+          //options.body = Helper.toSnakeCase(options.body)
         }
 
         if (options.params) {
-          options.params = Helper.toSnakeCase(options.params)
+          //options.params = Helper.toSnakeCase(options.params)
         }
 
         if (options.query) {
-          options.query = Helper.toSnakeCase(options.query)
+          // options.query = Helper.toSnakeCase(options.query)
         }
       },
 
