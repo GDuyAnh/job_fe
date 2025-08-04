@@ -25,7 +25,7 @@ export enum category {
   GIAO_VIEN_TIENG_TBN = 'Giáo viên tiếng Tây Ban Nha',
   GIAO_VIEN_STEM = 'Giáo viên StEM/StEAM',
   TRO_GIANG = 'Trợ giảng',
-  TRO_GIANG_TIENH_ANH = 'Trợ giảng tiếng Anh',
+  TRO_GIANG_TIENG_ANH = 'Trợ giảng tiếng Anh',
   TRO_GIANG_TOAN = 'Trợ giảng toán',
 }
 

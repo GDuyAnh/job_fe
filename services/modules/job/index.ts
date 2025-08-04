@@ -12,9 +12,14 @@ const JobModule = (apiService: FetchFactory) => {
     })
   }
 
+  const getJobDetail = async (id: number) => {
+    return apiService.get<JobEntity>(`${ROUTE_API.JOB.GET_JOB_DETAIL}/${id}`)
+  }
+
   return {
     getJob,
     searchJob,
+    getJobDetail,
   }
 }
 

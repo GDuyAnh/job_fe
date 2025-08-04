@@ -7,7 +7,8 @@
       "ok": "OK"
     },
     "fields": {},
-    "validate": {}
+    "validate": {},
+    "separator": "•"
   },
   "homePage": {
     "header": {
@@ -140,5 +141,56 @@
     "noResults": "No jobs found",
     "noResultsDescription": "Try adjusting your search criteria or filters to find more jobs.",
     "clearSearch": "Clear Search"
+  },
+  "job": {
+    "detail": {
+      "title": "Chi tiết công việc",
+      "featured": "Nổi bật",
+      "applyNow": "Ứng tuyển",
+      "share": "Chia sẻ",
+      "linkCopied": "Đã sao chép liên kết!",
+      "negotiable": "Thương lượng",
+      "salary": "Lương",
+      "experience": "Kinh nghiệm",
+      "employmentType": "Hình thức làm việc",
+      "location": "Địa điểm",
+      "description": "Mô tả chi tiết",
+      "requirements": "Yêu cầu",
+      "requirement1": "Bằng cử nhân ngành Giáo dục hoặc lĩnh vực liên quan",
+      "requirement2": "Chứng chỉ giảng dạy hoặc giấy phép hành nghề",
+      "requirement3": "Tối thiểu 2 năm kinh nghiệm giảng dạy",
+      "requirement4": "Kỹ năng giao tiếp và tương tác tốt",
+      "benefits": "Phúc lợi",
+      "benefit1": "Lương và phúc lợi cạnh tranh",
+      "benefit2": "Bảo hiểm y tế",
+      "benefit3": "Cơ hội phát triển chuyên môn",
+      "benefit4": "Làm việc linh hoạt",
+      "aboutCompany": "Về công ty",
+      "companyDescription": "Chúng tôi là một tổ chức giáo dục hàng đầu cam kết cung cấp chất lượng giáo dục và tạo môi trường học tập hỗ trợ cho cả học sinh và giáo viên.",
+      "viewCompany": "Xem chi tiết",
+      "jobOverview": "Thông tin công việc",
+      "postedDate": "Ngày đăng",
+      "deadline": "Hạn cuối",
+      "category": "Danh mục",
+      "similarJobs": "Việc làm tương tự",
+      "notFound": "Không tìm thấy công việc",
+      "notFoundDescription": "Công việc bạn đang tìm kiếm không tồn tại hoặc đã bị xóa.",
+      "goBack": "Quay lại",
+      "applicationSubmitted": "Đã gửi đơn ứng tuyển thành công!"
+    }
+  },
+  "company": {
+    "industry": "Loại hình tổ chức",
+    "founded": "Năm thành lập",
+    "address": "Địa chỉ",
+    "size": "Quy mô",
+    "socialMedia": "Mạng xã hội",
+    "platforms": {
+      "facebook": "Facebook",
+      "twitter": "Twitter",
+      "linkedin": "LinkedIn",
+      "instagram": "Instagram"
+    },
+    "website": "Website"
   }
 }
