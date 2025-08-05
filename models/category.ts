@@ -4,3 +4,8 @@ export interface CategoryModel {
   categoryValue: string
   numberOfJobs: number
 }
+
+export interface CategoryJobModel {
+  category: string
+  jobCount: number
+}

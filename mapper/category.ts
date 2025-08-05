@@ -1,12 +1,11 @@
-// import type { CategoryEntity } from '~/entities/category'
-// import type { CategoryModel } from '~/models/category'
+import type { CategoryJobEntity } from '~/entities/category'
+import type { CategoryJobModel } from '~/models/category'
 
-// export class CategoryMapper {
-//   static toModel(value: CategoryEntity): CategoryModel {
-//     return {
-//       id: value.id,
-//       categoryKey: value.categoryKey,
-//       categoryValue: value.categoryValue,
-//     }
-//   }
-// }
+export class CategoryJobMapper {
+  static toModel(value: CategoryJobEntity): CategoryJobModel {
+    return {
+      category: value.category,
+      jobCount: value.jobCount,
+    }
+  }
+}

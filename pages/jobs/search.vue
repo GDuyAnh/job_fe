@@ -223,8 +223,6 @@
 </template>
 
 <script setup lang="ts">
-import { LocationList } from '@/enums/location'
-import { CategoryList } from '@/enums/category'
 import { TypeOfEmployment } from '@/enums/type-of-employment'
 import { ExperienceLevel } from '@/enums/experience-level'
 import type { JobModel } from '~/models/job'
@@ -259,25 +257,35 @@ const searchParams = ref<SearchParams>({
 })
 
 // Filter options
-const locations = [t('home.search.placeholderLocation'), ...LocationList]
-const categories = [t('home.search.placeholderCategory'), ...CategoryList]
 const employmentTypes = Object.values(TypeOfEmployment)
 const experienceLevels = Object.values(ExperienceLevel)
-
+const { getLabel } = useMasterdata()
 // Convert to app-select format
-const locationItems = computed(() =>
-  locations.map((loc) => ({
-    label: loc,
-    value: loc,
-  })),
-)
 
-const categoryItems = computed(() =>
-  categories.map((cat) => ({
-    label: cat,
-    value: cat,
+const locationEnumLabel = getLabel(MasterDataItem.Location)
+const locationItems = computed(() => [
+  {
+    label: t('home.search.placeholderLocation'),
+    value: '0',
+  },
+  ...Object.entries(locationEnumLabel).map(([key, value]) => ({
+    label: value,
+    value: key,
   })),
-)
+])
+
+const categoryEnumLabel = getLabel(MasterDataItem.Category)
+
+const categoryItems = computed(() => [
+  {
+    label: t('home.search.placeholderCategory'),
+    value: '0',
+  },
+  ...Object.entries(categoryEnumLabel).map(([key, value]) => ({
+    label: value,
+    value: key,
+  })),
+])
 
 // Selected filters
 const selectedFilters = ref<SelectedFilters>({

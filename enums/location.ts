@@ -11,7 +11,7 @@ export enum location {
   BacNinh = 'Bắc Ninh',
   QuangNinh = 'Quảng Ninh',
   HaNoi = 'TP. Hà Nội',
-  HaiPhong = 'TP. Hải Phòng',
+  HaiPhong = 'TP. Hải Phòng', // 13
   HungYen = 'Hưng Yên',
   NinhBinh = 'Ninh Bình',
   ThanhHoa = 'Thanh Hóa',
@@ -27,7 +27,7 @@ export enum location {
   LamDong = 'Lâm Đồng',
   DongNai = 'Đồng Nai',
   TayNinh = 'Tây Ninh',
-  HoChiMinh = 'TP. Hồ Chí Minh',
+  HoChiMinh = 'TP. Hồ Chí Minh', //29
   DongThap = 'Đồng Tháp',
   AnGiang = 'An Giang',
   VinhLong = 'Vĩnh Long',

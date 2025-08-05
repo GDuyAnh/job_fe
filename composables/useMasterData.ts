@@ -1,3 +1,4 @@
+import { Category } from '~/enums/master-data'
 import type { MasterData } from '~/types/master-data'
 
 type MasterDataConfig = {
@@ -9,6 +10,8 @@ type MasterDataConfig = {
       | typeof Alcohol
       | typeof CupSize
       | typeof Footwork
+      | typeof Category
+      | typeof Location
     translationKey: string
   }
 }
@@ -43,6 +46,14 @@ export const useMasterdata = (): MasterDataReturn => {
     footwork: {
       enum: Footwork,
       translationKey: 'common.masterData.footwork',
+    },
+    category: {
+      enum: Category,
+      translationKey: 'common.masterData.category',
+    },
+    location: {
+      enum: Location,
+      translationKey: 'common.masterData.location',
     },
   }
 
