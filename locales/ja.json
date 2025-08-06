@@ -7,7 +7,109 @@
       "ok": "OK"
     },
     "fields": {},
-    "validate": {}
+    "validate": {},
+    "masterData": {
+      "category": {
+        "giaovienmamnon": "Giáo viên mầm non",
+        "giaovientieuhoc": "Giáo viên tiểu học",
+        "giaoviennguvan": "Giáo viên ngữ văn",
+        "giaovientoan": "Giáo viên toán",
+        "giaovientienganh": "Giáo viên tiếng Anh",
+        "giaoviengdcd": "Giáo viên giáo dục công dân",
+        "giaovienlichsu": "Giáo viên lịch sử",
+        "giaoviendiali": "Giáo viên địa lí",
+        "giaovienkhoahoctn": "Giáo viên khoa học tự nhiên",
+        "giaoviencongnghe": "Giáo viên công nghệ",
+        "giaovientinhoc": "Giáo viên tin học",
+        "giaovienthechat": "Giáo viên giáo dục thể chất",
+        "giaoviennghethuat": "Giáo viên nghệ thuật (âm nhạc, mĩ thuật)",
+        "giaovienhoatdongtrainghiem": "Giáo viên hoạt động trải nghiệm, hướng nghiệp",
+        "giaovienvatly": "Giáo viên vật lý",
+        "giaovienhoahoc": "Giáo viên hoá học",
+        "giaoviengdiaphuong": "Giáo viên giáo dục địa phương",
+        "giaovientiengphap": "Giáo viên tiếng Pháp",
+        "giaovientienhduc": "Giáo viên tiếng Đức",
+        "giaovientiengnga": "Giáo viên tiếng Nga",
+        "giaovientiengnhat": "Giáo viên tiếng Nhật",
+        "giaovientienghan": "Giáo viên tiếng Hàn",
+        "giaovientiengtrung": "Giáo viên tiếng Trung",
+        "giaovientiengtbn": "Giáo viên tiếng Tây Ban Nha",
+        "giaovienstem": "Giáo viên StEM/StEAM",
+        "trogiang": "Trợ giảng",
+        "trogiangtienhanh": "Trợ giảng tiếng Anh",
+        "trogiangtoan": "Trợ giảng toán"
+      },
+      "location": {
+        "tuyenquang": "Tuyên Quang",
+        "caobang": "Cao Bằng",
+        "laichau": "Lai Châu",
+        "laocai": "Lào Cai",
+        "thainguyen": "Thái Nguyên",
+        "dienbien": "Điện Biên",
+        "langson": "Lạng Sơn",
+        "sonla": "Sơn La",
+        "phutho": "Phú Thọ",
+        "bacninh": "Bắc Ninh",
+        "quangninh": "Quảng Ninh",
+        "hanoi": "TP. Hà Nội",
+        "haiphong": "TP. Hải Phòng",
+        "hungyen": "Hưng Yên",
+        "ninhbinh": "Ninh Bình",
+        "thanhhoa": "Thanh Hóa",
+        "nghean": "Nghệ An",
+        "hatinh": "Hà Tĩnh",
+        "quangtri": "Quảng Trị",
+        "hue": "TP. Huế",
+        "danang": "TP. Đà Nẵng",
+        "quangngai": "Quảng Ngãi",
+        "gialai": "Gia Lai",
+        "daklak": "Đắk Lắk",
+        "khanhhoa": "Khánh Hoà",
+        "lamdong": "Lâm Đồng",
+        "dongnai": "Đồng Nai",
+        "tayninh": "Tây Ninh",
+        "hochiminh": "TP. Hồ Chí Minh",
+        "dongthap": "Đồng Tháp",
+        "angiang": "An Giang",
+        "vinhlong": "Vĩnh Long",
+        "cantho": "TP. Cần Thơ",
+        "camau": "Cà Mau"
+      },
+      "jobBenefits": {
+        "insurance": "Bảo hiểm",
+        "travel": "Du lịch",
+        "bonus": "Thưởng",
+        "healthcare": "Chăm sóc sức khỏe",
+        "training": "Đào tạo",
+        "salaryincrease": "Tăng lương",
+        "laptop": "Cấp laptop",
+        "lunchallowance": "Phụ cấp ăn trưa",
+        "transportallowance": "Phụ cấp đi lại",
+        "paidleave": "Nghỉ phép có lương",
+        "housingsupport": "Hỗ trợ nhà ở",
+        "uniform": "Đồng phục",
+        "teambuilding": "Teambuilding",
+        "performancebonus": "Thưởng hiệu suất",
+        "annualhealthcheck": "Khám sức khỏe định kỳ"
+      },
+      "experienceLevel": {
+        "underoneyear": "Dưới 1 năm",
+        "twoyears": "2 năm",
+        "threeyears": "3 năm",
+        "fouryears": "4 năm",
+        "fiveyears": "5 năm",
+        "sixyearsplus": "6 năm +"
+      },
+      "typeOfEmployment": {
+        "intern": "Thực tập sinh",
+        "fulltime": "Toàn thời gian",
+        "parttime": "Bán thời gian",
+        "remote": "Remote",
+        "temporary": "Tạm thời/dự án"
+      }
+    },
+    "separator": "•",
+    "nanValue": "N/A"
   },
   "homePage": {
     "header": {
@@ -29,7 +131,8 @@
       "openPosition": "việc làm"
     },
     "featuredJobOffers": {
-      "title": "Việc Làm Nổi bật"
+      "title": "Việc Làm Nổi bật",
+      "by": "by"
     },
     "featuredCities": {
       "title1": "Việc làm theo tỉnh thành",
@@ -40,7 +143,7 @@
       "readMore": "Xem thêm >"
     },
     "lastBanner": {
-      "title1": "Sẵn sàng bắt đầu hành trình nghề nghiệp giáo dục của bạn ?",
+      "title1": "Bắt đầu hành trình giáo dục ngay hôm nay",
       "title2": "Tham gia cùng hàng nghìn giáo viên đã tìm thấy công việc mơ ước tại",
       "url": "TuyenGiaoVien.vn",
       "button1": "Tìm việc làm ngay",
@@ -68,11 +171,11 @@
   "home": {
     "tabs": {
       "demos": "Demos",
-      "findJobs": "Find Jobs",
-      "companies": "Companies",
+      "findJobs": "Việc Làm",
+      "companies": "Công Ty",
       "candidates": "Candidates",
       "blog": "Blog",
-      "pages": "Pages"
+      "pages": "Đăng tin miễn phí"
     },
     "signIn": "Sign in",
     "headline": "Find the perfect job for you",
@@ -140,5 +243,56 @@
     "noResults": "No jobs found",
     "noResultsDescription": "Try adjusting your search criteria or filters to find more jobs.",
     "clearSearch": "Clear Search"
+  },
+  "job": {
+    "detail": {
+      "title": "Chi tiết công việc",
+      "featured": "Nổi bật",
+      "applyNow": "Ứng tuyển",
+      "share": "Chia sẻ",
+      "linkCopied": "Đã sao chép liên kết!",
+      "negotiable": "Thương lượng",
+      "salary": "Lương",
+      "experience": "Kinh nghiệm",
+      "employmentType": "Hình thức làm việc",
+      "location": "Địa điểm",
+      "description": "Mô tả chi tiết",
+      "requirements": "Yêu cầu",
+      "requirement1": "Bằng cử nhân ngành Giáo dục hoặc lĩnh vực liên quan",
+      "requirement2": "Chứng chỉ giảng dạy hoặc giấy phép hành nghề",
+      "requirement3": "Tối thiểu 2 năm kinh nghiệm giảng dạy",
+      "requirement4": "Kỹ năng giao tiếp và tương tác tốt",
+      "benefits": "Phúc lợi",
+      "benefit1": "Lương và phúc lợi cạnh tranh",
+      "benefit2": "Bảo hiểm y tế",
+      "benefit3": "Cơ hội phát triển chuyên môn",
+      "benefit4": "Làm việc linh hoạt",
+      "aboutCompany": "Về công ty",
+      "companyDescription": "Chúng tôi là một tổ chức giáo dục hàng đầu cam kết cung cấp chất lượng giáo dục và tạo môi trường học tập hỗ trợ cho cả học sinh và giáo viên.",
+      "viewCompany": "Xem chi tiết",
+      "jobOverview": "Thông tin công việc",
+      "postedDate": "Ngày đăng",
+      "deadline": "Hạn cuối",
+      "category": "Danh mục",
+      "similarJobs": "Việc làm tương tự",
+      "notFound": "Không tìm thấy công việc",
+      "notFoundDescription": "Công việc bạn đang tìm kiếm không tồn tại hoặc đã bị xóa.",
+      "goBack": "Quay lại",
+      "applicationSubmitted": "Đã gửi đơn ứng tuyển thành công!"
+    }
+  },
+  "company": {
+    "industry": "Loại hình tổ chức",
+    "founded": "Năm thành lập",
+    "address": "Địa chỉ",
+    "size": "Quy mô",
+    "socialMedia": "Mạng xã hội",
+    "platforms": {
+      "facebook": "Facebook",
+      "twitter": "Twitter",
+      "linkedin": "LinkedIn",
+      "instagram": "Instagram"
+    },
+    "website": "Website"
   }
 }

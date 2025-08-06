@@ -70,15 +70,6 @@
                 @keyup.enter="searchJobs"
               />
 
-              <!-- 2. Categories -->
-              <USelect
-                v-model="category"
-                :items="categoryItems"
-                class="flex-1 min-w-0"
-                variant="none"
-                size="lg"
-              />
-
               <!-- 3. Locations -->
               <USelect
                 v-model="location"
@@ -101,10 +92,11 @@
             <div class="flex flex-wrap gap-2 mb-4">
               <UBadge
                 v-for="tag in popularTags"
-                :key="tag"
+                :key="tag.value"
                 class="bg-blue-100 text-blue-700 px-4 py-1.5 rounded-full text-sm font-medium hover:bg-blue-200 transition cursor-pointer mb-2"
+                @click="onTagClick(tag.value)"
               >
-                {{ $t(tag) }}
+                {{ $t(tag.label) }}
               </UBadge>
             </div>
             <!-- Partner logos (optional) -->
@@ -128,17 +120,18 @@
               ></div>
 
               <div
-                class="absolute bottom-4 left-1/2 translate-x-[120px] bg-white/90 backdrop-blur rounded-xl shadow-lg p-6 min-w-[270px] z-30"
+                class="absolute bottom-4 left-1/2 bg-white/90 backdrop-blur rounded-xl shadow-lg p-6 min-w-[300px] z-30"
               >
                 <div
                   v-for="item in stats"
                   :key="item.label"
-                  class="flex items-center gap-3 mb-2 last:mb-0"
+                  class="grid grid-cols-3 items-center gap-3 mb-2 last:mb-0"
                 >
-                  <span class="text-2xl font-extrabold text-blue-900">{{
-                    item.count
-                  }}</span>
-                  <span class="text-base text-gray-700">{{
+                  <span
+                    class="text-2xl text-right font-extrabold text-blue-900"
+                    >{{ item.count }}</span
+                  >
+                  <span class="text-base text-gray-700 col-span-2">{{
                     $t(item.label)
                   }}</span>
                 </div>
@@ -181,8 +174,9 @@
         </div>
         <!-- Slide -->
         <UCarousel
-          :items="categoryValues"
+          :items="categoryJobsRes"
           :ui="{ item: 'basis-1/4' }"
+          :dots="true"
           class="mb-8"
         >
           <template #default="{ item }">
@@ -193,9 +187,13 @@
                 <!-- <component :is="item.icon" class="w-10 h-10 text-black" /> -->
               </div>
               <h3 class="text-center font-semibold text-black">
-                {{ item }}
+                {{
+                  categoryEnumLabel?.[item.category as unknown as number] ??
+                  item.category
+                }}
               </h3>
               <p class="text-sm text-gray-600 mt-8">
+                {{ item.jobCount }}
                 {{ $t('homePage.searchByCategory.openPosition') }}
               </p>
             </div>
@@ -206,12 +204,12 @@
 
     <!-- Banner -->
     <div class="bg-white flex flex-row items-center relative z-10 mb-10">
-      <UContainer>
+      <div class="px-8">
         <UCarousel :items="banners" class="mt-8">
           <template #default="{ item }">
             <div
               class="flex flex-col items-left justify-left p-16 rounded-2xl shadow hover:shadow-xl min-h-[300px]"
-              :style="`background-image: url('${item.image}'); background-size: cover; background-position: center;`"
+              :style="`background-image: url('${item.image}'); background-size: fit; background-position: center;`"
             >
               <div class="text-left text-5xl font-bold text-black max-w-6/10">
                 {{ item.title }}
@@ -232,7 +230,7 @@
             </div>
           </template>
         </UCarousel>
-      </UContainer>
+      </div>
     </div>
 
     <!-- Featured Job Offers -->
@@ -254,27 +252,43 @@
         <div>
           <div class="job-board grid grid-cols-2 gap-6">
             <div
-              v-for="(job, index) in featureJobs"
-              :key="index"
+              v-for="job in featureJobsRes"
+              :key="job.id"
               class="job-card rounded-xl p-4 flex flex-col justify-between bg-white"
             >
               <div>
                 <div class="flex items-center gap-4">
                   <div class="icon bg-black p-3 rounded-lg text-white">
-                    {{ job.icon }}
+                    <!-- {{ job. }} -->
                   </div>
                   <div>
                     <h2 class="font-bold text-lg">{{ job.title }}</h2>
-                    <p class="text-sm text-gray-600">
-                      {{ job.location }} {{ job.type }}
-                    </p>
+                    <span class="text-sm font-bold">
+                      <UIcon
+                        name="i-raphael:globealt"
+                        style="font-size: 12px !important"
+                      />
+                      <!-- {{ """ }} -->
+                    </span>
+                    <span class="text-sm text-gray-600 pl-6">
+                      {{
+                        TypeOfEmployment[
+                          job.typeOfEmployment as keyof typeof TypeOfEmployment
+                        ]
+                      }}
+                    </span>
                   </div>
                 </div>
-                <p class="mt-2 text-sm text-gray-500">{{ job.category }}</p>
+                <p class="mt-2 text-sm text-gray-500">
+                  {{
+                    categoryEnumLabel?.[job.category as unknown as number] ??
+                    job.category
+                  }}
+                </p>
               </div>
-              <div class="text-right text-xs text-gray-400 mt-2">
-                {{ job.date }}
-                <span class="font-semibold">{{ job.company }}</span>
+              <div class="text-right text-xs mt-2">
+                {{ job.createdAt }} {{ $t('homePage.featuredJobOffers.by') }}
+                <span class="font-semibold">{{ job.companyName }}</span>
               </div>
             </div>
           </div>
@@ -312,21 +326,24 @@
         <!-- City Cards Grid -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
           <div
-            v-for="city in featuredCities"
-            :key="city.name"
+            v-for="city in locationJobsRes"
+            :key="city.location"
             class="bg-[#eaf9ff] rounded-3xl overflow-hidden shadow-sm hover:shadow-lg transition"
           >
-            <img
-              :src="city.image"
-              :alt="city.name"
-              class="w-full h-40 object-cover"
-            />
+            <!--
+ :src="city.image"
+              :alt="city.name" 
+-->
+            <img class="w-full h-40 object-cover" />
             <div class="p-6">
               <h3 class="text-lg font-semibold text-gray-900">
-                {{ city.name }}
+                {{
+                  locationEnumLabel?.[city.location as unknown as number] ??
+                  city.location
+                }}
               </h3>
               <p class="text-gray-500 text-sm">
-                {{ city.openPositions }}
+                {{ city.jobCount }}
                 {{ $t('homePage.searchByCategory.openPosition') }}
               </p>
             </div>
@@ -413,7 +430,7 @@
     </div>
 
     <!-- Last banner & Footer -->
-    <div class="min-h-screen bg-white py-16">
+    <div class="bg-white">
       <!-- Last banner -->
       <div
         class="bg-gradient-to-r from-blue-800 to-blue-500 text-white text-center py-20 px-4"
@@ -552,41 +569,33 @@
 </template>
 
 <script setup lang="ts">
-import { LocationList } from '@/enums/location'
-import { CategoryList } from '@/enums/category'
 import { useRouter } from 'vue-router'
-import { useI18n } from 'vue-i18n'
+import type { JobModel } from '~/models/job'
+import { JobMapper } from '~/mapper/job'
+import type { CategoryJobModel } from '~/models/category'
+import { CategoryJobMapper } from '~/mapper/category'
+import { LocationJobMapper } from '~/mapper/location'
+import type { LocationJobModel } from '~/models/location'
 
-const { t } = useI18n()
+const { locationItems, categoryEnumLabel, locationEnumLabel } = useJobFilters()
 
 const keyword = ref('')
-const locations = [t('homePage.heroImage.allLocations'), ...LocationList]
-const categories = ['All Categories', ...CategoryList]
-const location = ref(locations[0])
-const category = ref(categories[0])
 
-// Convert to app-select format
-const locationItems = computed(() =>
-  locations.map((loc) => ({
-    label: loc,
-    value: loc,
-  })),
-)
+const location = ref('0')
 
-const categoryItems = computed(() =>
-  categories.map((cat) => ({
-    label: cat,
-    value: cat,
-  })),
-)
-
-const categoryValues = Object.values(CategoryList)
+// 1. Get range of values from CategoryList
+const categoryValues = Object.entries(categoryEnumLabel)
+  .filter(([key]) => key !== '0')
+  .map(([key, value]) => ({
+    label: value,
+    value: key,
+  }))
 
 // 2. Shuffle array
 const shuffled = categoryValues.sort(() => 0.5 - Math.random())
 
 // 3. Get Random 5–6 item
-const randomLength = Math.floor(Math.random() * 2) + 6 // 5 or 6
+const randomLength = Math.floor(Math.random() * 2) + 6
 const popularTags = shuffled.slice(0, randomLength)
 
 const stats = [
@@ -603,25 +612,8 @@ const tabs = [
   { name: 'blog', label: 'home.tabs.blog' },
   { name: 'pages', label: 'home.tabs.pages' },
 ]
+
 const activeTab = ref(tabs[0].name)
-
-// const popularTags = [
-//   { key: 'designer', label: 'home.popularTags.designer' },
-//   { key: 'webDeveloper', label: 'home.popularTags.webDeveloper' },
-//   { key: 'writer', label: 'home.popularTags.writer' },
-//   { key: 'teamLeader', label: 'home.popularTags.teamLeader' },
-//   { key: 'fullstack', label: 'home.popularTags.fullstack' },
-//   { key: 'web', label: 'home.popularTags.web' },
-//   { key: 'financialAnalyst', label: 'home.popularTags.financialAnalyst' },
-//   { key: 'senior', label: 'home.popularTags.senior' },
-//   { key: 'software', label: 'home.popularTags.software' },
-// ]
-
-// const stats = [
-//   { count: 319, label: 'home.stats.businessDevelopment' },
-//   { count: 265, label: 'home.stats.marketing' },
-//   { count: 324, label: 'home.stats.projectManagement' },
-// ]
 
 const router = useRouter()
 const route = useRoute()
@@ -634,61 +626,37 @@ onMounted(() => {
     keyword.value = query.keyword as string
   }
 
-  if (query.category && categories.includes(query.category as string)) {
-    category.value = query.category as string
-  }
-
-  if (query.location && locations.includes(query.location as string)) {
+  if (
+    query.location &&
+    locationItems.value.some((item) => item.value === query.location)
+  ) {
     location.value = query.location as string
   }
+
+  // Fetch Api
+  getFeatureJobs()
+  getCategoryJobs()
+  getLocationJobs()
 })
 
 const searchJobs = () => {
   const query: Record<string, string> = {}
 
-  // chỉ gửi keyword nếu có nhập
   if (keyword.value.trim()) query.keyword = keyword.value.trim()
 
-  // nếu khác "All Categories" mới gửi
-  if (category.value !== t('home.search.placeholderCategory'))
-    query.category = category.value
-
-  // nếu khác "All Locations" mới gửi
-  if (location.value !== t('home.search.placeholderLocation'))
-    query.location = location.value
+  if (location.value !== '0') query.location = location.value
 
   router.push({ path: '/jobs/search', query })
 }
 
-const featureJobs = [
-  {
-    title: 'Financial Analyst',
-    location: 'San Diego, CA',
-    type: 'Full Time',
-    category: 'Finance',
-    date: 'June 8, 2022',
-    company: 'Gramware',
-    icon: '📷',
-  },
-  {
-    title: 'Senior Software Engineer',
-    location: 'Remote',
-    type: 'Contract',
-    category: 'Engineering',
-    date: 'July 12, 2022',
-    company: 'TechNova',
-    icon: '💻',
-  },
-  {
-    title: 'UX Designer',
-    location: 'New York, NY',
-    type: 'Part Time',
-    category: 'Design',
-    date: 'May 30, 2022',
-    company: 'CreativeHouse',
-    icon: '🎨',
-  },
-]
+const onTagClick = (tag: string) => {
+  router.push({
+    path: '/jobs/search',
+    query: {
+      category: tag,
+    },
+  })
+}
 
 const banners = [
   {
@@ -718,17 +686,6 @@ const banners = [
     buttonText: 'Xem ngay',
     buttonLink: '/screening',
   },
-]
-
-const featuredCities = [
-  { name: 'Boston, MA', image: 'link-boston', openPositions: 0 },
-  { name: 'Chicago, IL', image: 'link-chicago', openPositions: 0 },
-  { name: 'Houston, TX', image: 'link-houston', openPositions: 0 },
-  { name: 'Los Angeles, CA', image: 'link-la', openPositions: 3 },
-  { name: 'New York, NY', image: 'link-ny', openPositions: 0 },
-  { name: 'San Diego, CA', image: 'link-sd', openPositions: 3 },
-  { name: 'San Francisco, CA', image: 'link-sf', openPositions: 3 },
-  { name: 'Seattle, WA', image: 'link-seattle', openPositions: 0 },
 ]
 
 const blogs = [
@@ -769,4 +726,91 @@ const blogs = [
     url: '/blog/portfolio-tips',
   },
 ]
+
+// Call Api OnMouted
+const featureJobsRes = ref<JobModel[]>([])
+const categoryJobsRes = ref<CategoryJobModel[]>([])
+const locationJobsRes = ref<LocationJobModel[]>([])
+
+// const bannerRes = ref([])
+// const blogRes = ref([])
+
+// initialize Api
+const { $api } = useNuxtApp()
+
+// Fetch FeatureJobs
+const getFeatureJobs = async () => {
+  try {
+    // Build search parameters
+
+    const apiParams: Record<string, any> = {}
+
+    apiParams.isFeatured = 'true'
+
+    // Call API
+    const response = await $api.job.searchJob(apiParams)
+
+    if (response && Array.isArray(response)) {
+      featureJobsRes.value = response.map((job) => JobMapper.toModel(job))
+    } else {
+      featureJobsRes.value = []
+    }
+
+    console.log(response)
+  } catch (error: any) {
+    console.error('Search failed:', error)
+    useNotify({
+      message: error.message,
+    })
+    featureJobsRes.value = []
+  }
+}
+
+// Fetch Category JobModel
+const getCategoryJobs = async () => {
+  try {
+    // Call API
+    const response = await $api.job.getCategoryJobs()
+
+    if (response && Array.isArray(response)) {
+      categoryJobsRes.value = response.map((cateJob) =>
+        CategoryJobMapper.toModel(cateJob),
+      )
+    } else {
+      categoryJobsRes.value = []
+    }
+
+    console.log(response)
+  } catch (error: any) {
+    console.error('Search failed:', error)
+    useNotify({
+      message: error.message,
+    })
+    categoryJobsRes.value = []
+  }
+}
+
+// Fetch Location JobModel
+const getLocationJobs = async () => {
+  try {
+    // Call API
+    const response = await $api.job.getLocationJobs()
+
+    if (response && Array.isArray(response)) {
+      locationJobsRes.value = response.map((locJob) =>
+        LocationJobMapper.toModel(locJob),
+      )
+    } else {
+      locationJobsRes.value = []
+    }
+
+    console.log(response)
+  } catch (error: any) {
+    console.error('Search failed:', error)
+    useNotify({
+      message: error.message,
+    })
+    locationJobsRes.value = []
+  }
+}
 </script>

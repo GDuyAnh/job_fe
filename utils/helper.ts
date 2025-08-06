@@ -60,8 +60,33 @@ const getFullname = (firstName: string, lastName: string) => {
  * @param date
  * @returns
  */
-const formatDate = (date: string, iso: ISO = ISO.DATE_TIME) => {
+export const formatDate = (date: string | Date, iso: ISO = ISO.DATE_TIME) => {
   return dayjs(date).format(iso)
+}
+
+/**
+ * Format number with commas and currency
+ * @param value - The number to format
+ * @param currency - The currency code (default: 'VND')
+ * @returns Formatted string like "15,000,000 VND"
+ */
+export const formatNumber = (
+  value: number | string,
+  currency: string = 'VND',
+): string => {
+  // Convert to number if it's a string
+  const numValue = typeof value === 'string' ? parseFloat(value) : value
+
+  // Check if it's a valid number
+  if (isNaN(numValue)) {
+    return value.toString()
+  }
+
+  // Format with commas
+  const formattedNumber = numValue.toLocaleString('en-US')
+
+  // Add currency
+  return `${formattedNumber} ${currency}`
 }
 
 const convertHeicToPreview = async (file: File): Promise<string | null> => {
@@ -175,6 +200,7 @@ export const Helper = {
   toSnakeCase,
   getFullname,
   formatDate,
+  formatNumber,
   convertHeicToPreview,
   convertHeicToJpg,
   checkMimeType,

@@ -86,12 +86,16 @@
                 </h4>
                 <div class="space-y-2">
                   <UCheckbox
-                    v-for="type in employmentTypes"
-                    :key="type"
-                    :model-value="selectedFilters.employmentType.includes(type)"
-                    :label="type"
+                    v-for="type in employmentTypeItems"
+                    :key="type.value"
+                    :model-value="
+                      selectedFilters.employmentType.includes(type.value)
+                    "
+                    :label="type.label"
                     class="text-sm"
-                    @update:model-value="toggleFilter('employmentType', type)"
+                    @update:model-value="
+                      toggleFilter('employmentType', type.value)
+                    "
                   />
                 </div>
               </div>
@@ -103,14 +107,16 @@
                 </h4>
                 <div class="space-y-2">
                   <UCheckbox
-                    v-for="level in experienceLevels"
-                    :key="level"
+                    v-for="level in experienceLevelItems"
+                    :key="level.value"
                     :model-value="
-                      selectedFilters.experienceLevel.includes(level)
+                      selectedFilters.experienceLevel.includes(level.value)
                     "
-                    :label="level"
+                    :label="level.label"
                     class="text-sm"
-                    @update:model-value="toggleFilter('experienceLevel', level)"
+                    @update:model-value="
+                      toggleFilter('experienceLevel', level.value)
+                    "
                   />
                 </div>
               </div>
@@ -223,10 +229,6 @@
 </template>
 
 <script setup lang="ts">
-import { LocationList } from '@/enums/location'
-import { CategoryList } from '@/enums/category'
-import { TypeOfEmployment } from '@/enums/type-of-employment'
-import { ExperienceLevel } from '@/enums/experience-level'
 import type { JobModel } from '~/models/job'
 import { JobMapper } from '~/mapper/job'
 
@@ -240,6 +242,14 @@ interface SelectedFilters {
   employmentType: string[]
   experienceLevel: string[]
 }
+
+// Enum
+const {
+  categoryItems,
+  employmentTypeItems,
+  experienceLevelItems,
+  locationItems,
+} = useJobFilters()
 
 // Route
 const route = useRoute()
@@ -257,27 +267,6 @@ const searchParams = ref<SearchParams>({
   category: '',
   location: '',
 })
-
-// Filter options
-const locations = [t('home.search.placeholderLocation'), ...LocationList]
-const categories = [t('home.search.placeholderCategory'), ...CategoryList]
-const employmentTypes = Object.values(TypeOfEmployment)
-const experienceLevels = Object.values(ExperienceLevel)
-
-// Convert to app-select format
-const locationItems = computed(() =>
-  locations.map((loc) => ({
-    label: loc,
-    value: loc,
-  })),
-)
-
-const categoryItems = computed(() =>
-  categories.map((cat) => ({
-    label: cat,
-    value: cat,
-  })),
-)
 
 // Selected filters
 const selectedFilters = ref<SelectedFilters>({
@@ -420,7 +409,9 @@ const getExperienceColor = (level: string) => {
   }
 }
 
-const formatDate = (date: Date) => {
+const formatDate = (date?: Date) => {
+  if (!date) return ''
+
   return new Intl.DateTimeFormat('en-US', {
     year: 'numeric',
     month: 'short',
