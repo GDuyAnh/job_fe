@@ -569,10 +569,7 @@
 </template>
 
 <script setup lang="ts">
-import { TypeOfEmployment } from '@/enums/type-of-employment'
-
 import { useRouter } from 'vue-router'
-import { useI18n } from 'vue-i18n'
 import type { JobModel } from '~/models/job'
 import { JobMapper } from '~/mapper/job'
 import type { CategoryJobModel } from '~/models/category'
@@ -580,25 +577,11 @@ import { CategoryJobMapper } from '~/mapper/category'
 import { LocationJobMapper } from '~/mapper/location'
 import type { LocationJobModel } from '~/models/location'
 
-const { t } = useI18n()
-const { getLabel } = useMasterdata()
+const { locationItems, categoryEnumLabel, locationEnumLabel } = useJobFilters()
+
 const keyword = ref('')
 
-// Convert to app-select format
-const locationEnumLabel = getLabel(MasterDataItem.Location)
-const locationItems = computed(() => [
-  {
-    label: t('homePage.heroImage.allLocations'),
-    value: '0',
-  },
-  ...Object.entries(locationEnumLabel).map(([key, value]) => ({
-    label: value,
-    value: key,
-  })),
-])
 const location = ref('0')
-
-const categoryEnumLabel = getLabel(MasterDataItem.Category)
 
 // 1. Get range of values from CategoryList
 const categoryValues = Object.entries(categoryEnumLabel)

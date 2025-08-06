@@ -1,3 +1,4 @@
+import { JobBenefits } from '~/enums/job'
 import { Category } from '~/enums/master-data'
 import type { MasterData } from '~/types/master-data'
 
@@ -12,6 +13,9 @@ type MasterDataConfig = {
       | typeof Footwork
       | typeof Category
       | typeof Location
+      | typeof JobBenefits
+      | typeof ExperienceLevel
+      | typeof TypeOfEmployment
     translationKey: string
   }
 }
@@ -54,6 +58,18 @@ export const useMasterdata = (): MasterDataReturn => {
     location: {
       enum: Location,
       translationKey: 'common.masterData.location',
+    },
+    jobBenefits: {
+      enum: JobBenefits,
+      translationKey: 'common.masterData.jobBenefits',
+    },
+    experienceLevel: {
+      enum: ExperienceLevel,
+      translationKey: 'common.masterData.experienceLevel',
+    },
+    typeOfEmployment: {
+      enum: TypeOfEmployment,
+      translationKey: 'common.masterData.typeOfEmployment',
     },
   }
 

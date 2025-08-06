@@ -22,11 +22,16 @@ const JobModule = (apiService: FetchFactory) => {
     return apiService.get<LocationJobEntity[]>(ROUTE_API.JOB.GET_LOCATION_JOBS)
   }
 
+  const getJobDetail = async (id: number) => {
+    return apiService.get<JobEntity>(`${ROUTE_API.JOB.GET_JOB}/${id}`)
+  }
+
   return {
     getJob,
     searchJob,
     getCategoryJobs,
     getLocationJobs,
+    getJobDetail,
   }
 }
 
