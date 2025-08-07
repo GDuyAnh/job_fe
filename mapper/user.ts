@@ -6,13 +6,8 @@ export class UserMapper {
     return {
       id: value.id,
       email: value.email,
-      firstName: value.firstName,
-      lastName: value.lastName,
-      avatar: value.avatar,
-      role: value.role,
-      status: value.status,
-      createdAt: value.createdAt,
-      updatedAt: value.updatedAt,
+      username: value.username,
+      fullName: value.fullName,
     }
   }
 }

@@ -23,16 +23,16 @@ export const useAuthStore = defineStore('auth', {
     async login({ email, password }: { email: string; password: string }) {
       const { $api } = useNuxtApp()
 
-      const { data } = await $api.auth.login({
+      const response = await $api.auth.login({
         email,
         password,
       })
 
       const token = useToken(CONSTANTS.COOKIE_TOKEN_OPTION as CookieOptions)
 
-      token.set(data.token)
+      token.set(response.access_token)
 
-      return data
+      return response
     },
 
     async logout() {
@@ -50,9 +50,9 @@ export const useAuthStore = defineStore('auth', {
     async getMe() {
       const { $api } = useNuxtApp()
 
-      const { data } = await $api.auth.getMe()
+      const response = await $api.auth.getMe()
 
-      this.user = UserMapper.toModel(data)
+      this.user = UserMapper.toModel(response)
 
       return this.user
     },
