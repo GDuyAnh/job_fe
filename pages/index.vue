@@ -182,6 +182,7 @@
           <template #default="{ item }">
             <div
               class="flex flex-col items-center justify-center p-4 bg-[#eaf4fd] rounded-2xl shadow hover:shadow-xl min-h-[250px]"
+              @click="onTagClick(item.category)"
             >
               <div class="bg-white p-4 rounded-2xl shadow-sm mb-4">
                 <!-- <component :is="item.icon" class="w-10 h-10 text-black" /> -->
@@ -782,7 +783,7 @@ const getCategoryJobs = async () => {
 
     console.log(response)
   } catch (error: any) {
-    console.error('Search failed:', error)
+    console.error('Get Category Jobs failed:', error)
     useNotify({
       message: error.message,
     })
@@ -806,7 +807,7 @@ const getLocationJobs = async () => {
 
     console.log(response)
   } catch (error: any) {
-    console.error('Search failed:', error)
+    console.error('Get Location Jobs failed:', error)
     useNotify({
       message: error.message,
     })
