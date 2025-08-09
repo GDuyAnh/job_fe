@@ -1,12 +1,19 @@
 {
   "app": {
-    "name": "Deet"
+    "name": "Job"
+  },
+  "auth": {
+    "login": "Login",
+    "loginFailed": "Login failded"
   },
   "common": {
     "actions": {
       "ok": "OK"
     },
-    "fields": {},
+    "fields": {
+      "email": "Email",
+      "password": "Password"
+    },
     "validate": {},
     "masterData": {
       "category": {

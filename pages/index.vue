@@ -26,15 +26,22 @@
         </div>
       </div>
       <div class="flex items-center ml-2 md:ml-8">
-        <button
-          class="px-6 py-1 text-[#fff] border-0 bg-gradient-to-r from-[#8a7754] to-[#f5d2b6] shadow-md hover:from-[#7a6847] hover:to-[#f5d2b6] transition duration-200 font-bold rounded-full text-base"
-          style="
-            box-shadow: 0 2px 8px 0 rgba(138, 119, 84, 0.1);
-            min-width: 100px;
-          "
-        >
-          {{ $t('homePage.header.signIn') }}
-        </button>
+        <template v-if="authStore.user">
+          <span class="text-base font-semibold text-gray-700">
+            {{ authStore.user.fullName }}
+          </span>
+        </template>
+        <template v-else>
+          <button
+            class="px-6 py-1 text-white border-0 bg-gradient-to-r from-[#8a7754] to-[#f5d2b6] shadow-md hover:from-[#7a6847] hover:to-[#f5d2b6] transition duration-200 font-bold rounded-full text-base"
+            style="
+              box-shadow: 0 2px 8px 0 rgba(138, 119, 84, 0.1);
+              min-width: 100px;
+            "
+          >
+            {{ $t('homePage.header.signIn') }}
+          </button>
+        </template>
       </div>
     </nav>
     <!-- Hero image group -->
@@ -618,9 +625,12 @@ const activeTab = ref(tabs[0].name)
 
 const router = useRouter()
 const route = useRoute()
+const authStore = useAuthStore()
 
 // Fill search fields from URL query parameters
 onMounted(() => {
+  console.log('siuuuuuuuuuuuu', authStore.user?.fullName)
+
   const query = route.query
 
   if (query.keyword) {

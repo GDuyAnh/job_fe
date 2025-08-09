@@ -14,4 +14,5 @@ export const CONSTANTS = {
   MIN_LENGTH: {
     PASSWORD: 8,
   },
+  MASK: '*',
 }
