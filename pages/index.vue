@@ -38,6 +38,7 @@
               box-shadow: 0 2px 8px 0 rgba(138, 119, 84, 0.1);
               min-width: 100px;
             "
+            @click="gotoLogin"
           >
             {{ $t('homePage.header.signIn') }}
           </button>
@@ -628,8 +629,6 @@ const authStore = useAuthStore()
 
 // Fill search fields from URL query parameters
 onMounted(() => {
-  console.log('siuuuuuuuuuuuu', authStore.user?.fullName)
-
   const query = route.query
 
   if (query.keyword) {
@@ -765,8 +764,6 @@ const getFeatureJobs = async () => {
     } else {
       featureJobsRes.value = []
     }
-
-    console.log(response)
   } catch (error: any) {
     console.error('Search failed:', error)
     useNotify({
@@ -789,8 +786,6 @@ const getCategoryJobs = async () => {
     } else {
       categoryJobsRes.value = []
     }
-
-    console.log(response)
   } catch (error: any) {
     console.error('Search failed:', error)
     useNotify({
@@ -813,8 +808,6 @@ const getLocationJobs = async () => {
     } else {
       locationJobsRes.value = []
     }
-
-    console.log(response)
   } catch (error: any) {
     console.error('Search failed:', error)
     useNotify({
@@ -822,5 +815,9 @@ const getLocationJobs = async () => {
     })
     locationJobsRes.value = []
   }
+}
+
+const gotoLogin = () => {
+  router.push(ROUTE_PAGE.AUTH.LOGIN)
 }
 </script>

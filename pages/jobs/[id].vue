@@ -487,7 +487,6 @@ const loadJobDetail = async () => {
     useNotify({ message: error.message })
   } finally {
     loading.value = false
-    console.log(job.value)
   }
 }
 
