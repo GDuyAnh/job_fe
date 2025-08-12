@@ -27,10 +27,33 @@
       </div>
       <div class="flex items-center ml-2 md:ml-8">
         <template v-if="authStore.user">
-          <span class="text-base font-semibold text-gray-700">
-            {{ authStore.user.fullName }}
-          </span>
+          <div class="relative w-48">
+            <!-- relative để absolute bên trong dựa vào -->
+            <UCollapsible class="flex flex-col">
+              <UButton
+                :label="authStore.user.fullName"
+                color="neutral"
+                variant="subtle"
+                trailing-icon="i-lucide-chevron-down"
+                block
+              />
+              <template #content>
+                <div
+                  class="absolute left-0 top-full mt-1 z-50 w-full bg-white shadow-lg rounded-md p-1"
+                >
+                  <div>
+                    <UButton
+                      label="Đăng tải công việc"
+                      block
+                      @click="router.push('/jobs/upload')"
+                    />
+                  </div>
+                </div>
+              </template>
+            </UCollapsible>
+          </div>
         </template>
+
         <template v-else>
           <button
             class="px-6 py-1 text-white border-0 bg-gradient-to-r from-[#8a7754] to-[#f5d2b6] shadow-md hover:from-[#7a6847] hover:to-[#f5d2b6] transition duration-200 font-bold rounded-full text-base"
@@ -38,6 +61,7 @@
               box-shadow: 0 2px 8px 0 rgba(138, 119, 84, 0.1);
               min-width: 100px;
             "
+            @click="router.push('/auth/login')"
           >
             {{ $t('homePage.header.signIn') }}
           </button>
@@ -101,7 +125,7 @@
                 v-for="tag in popularTags"
                 :key="tag.value"
                 class="bg-blue-100 text-blue-700 px-4 py-1.5 rounded-full text-sm font-medium hover:bg-blue-200 transition cursor-pointer mb-2"
-                @click="onTagClick(tag.value)"
+                @click="onCategoryClick(tag.value)"
               >
                 {{ $t(tag.label) }}
               </UBadge>
@@ -170,8 +194,8 @@
             <div class="flex flow-row justify-between items-start">
               <div>
                 <a
-                  href="/categories"
-                  class="text-blue-600 font-medium text-sm hover:underline inline-flex items-center"
+                  class="text-blue-600 font-medium text-sm hover:underline inline-flex items-center cursor-pointer"
+                  @click="viewAllClick()"
                 >
                   {{ $t('homePage.searchByCategory.allCategories') }}
                 </a>
@@ -188,8 +212,8 @@
         >
           <template #default="{ item }">
             <div
-              class="flex flex-col items-center justify-center p-4 bg-[#eaf4fd] rounded-2xl shadow hover:shadow-xl min-h-[250px]"
-              @click="onTagClick(item.category)"
+              class="flex flex-col items-center justify-center p-4 bg-[#eaf4fd] rounded-2xl shadow hover:shadow-xl min-h-[250px] cursor-pointer"
+              @click="onCategoryClick(item.category)"
             >
               <div class="bg-white p-4 rounded-2xl shadow-sm mb-4">
                 <!-- <component :is="item.icon" class="w-10 h-10 text-black" /> -->
@@ -211,19 +235,19 @@
     </div>
 
     <!-- Banner -->
-    <div class="bg-white flex flex-row items-center relative z-10 mb-10">
+    <div class="bg-white items-center relative z-10 mb-10">
       <div class="px-8">
-        <UCarousel :items="banners" class="mt-8">
+        <UCarousel :items="bannerRes" class="mt-8">
           <template #default="{ item }">
             <div
-              class="flex flex-col items-left justify-left p-16 rounded-2xl shadow hover:shadow-xl min-h-[300px]"
-              :style="`background-image: url('${item.image}'); background-size: fit; background-position: center;`"
+              class="flex flex-col items-left justify-left p-16 rounded-2xl shadow hover:shadow-xl min-h-[300px] border-1 border-gray-200"
+              :style="`background-image: url('${item.logo}'); background-size: fit; background-position: center;`"
             >
               <div class="text-left text-5xl font-bold text-black max-w-6/10">
-                {{ item.title }}
+                {{ item.insight }}
               </div>
               <div class="text-md text-gray-600 mt-8 max-w-5/10">
-                {{ item.description }}
+                {{ item.overview }}
               </div>
               <div class="mt-8">
                 <app-button
@@ -232,7 +256,8 @@
                   color="secondary"
                   shape="round"
                   compact
-                  >{{ item.buttonText }}</app-button
+                  @click.stop="viewCompany(item.id)"
+                  >{{ $t('homePage.buttonContent.detailCompany') }}</app-button
                 >
               </div>
             </div>
@@ -262,7 +287,8 @@
             <div
               v-for="job in featureJobsRes"
               :key="job.id"
-              class="job-card rounded-xl p-4 flex flex-col justify-between bg-white"
+              class="job-card rounded-xl p-4 flex flex-col justify-between bg-white cursor-pointer"
+              @click.stop="viewJob(job)"
             >
               <div>
                 <div class="flex items-center gap-4">
@@ -280,9 +306,9 @@
                     </span>
                     <span class="text-sm text-gray-600 pl-6">
                       {{
-                        TypeOfEmployment[
-                          job.typeOfEmployment as keyof typeof TypeOfEmployment
-                        ]
+                        employmentTypesEnumLabel?.[
+                          job.typeOfEmployment as unknown as number
+                        ] ?? job.typeOfEmployment
                       }}
                     </span>
                   </div>
@@ -295,7 +321,12 @@
                 </p>
               </div>
               <div class="text-right text-xs mt-2">
-                {{ job.createdAt }} {{ $t('homePage.featuredJobOffers.by') }}
+                {{
+                  job.createdAt
+                    ? formatDateVN(new Date(job.createdAt))
+                    : $t('common.nanValue')
+                }}
+                {{ $t('homePage.featuredJobOffers.by') }}
                 <span class="font-semibold">{{ job.companyName }}</span>
               </div>
             </div>
@@ -308,6 +339,7 @@
             color="secondary"
             shape="round"
             compact
+            @click="viewAllClick()"
             >{{ $t('homePage.buttonContent.seeAll') }}</app-button
           >
         </div>
@@ -336,13 +368,14 @@
           <div
             v-for="city in locationJobsRes"
             :key="city.location"
-            class="bg-[#eaf9ff] rounded-3xl overflow-hidden shadow-sm hover:shadow-lg transition"
+            class="bg-[#eaf9ff] rounded-3xl overflow-hidden shadow-sm hover:shadow-lg transition cursor-pointer"
+            @click="onLocationClick(city.location)"
           >
-            <!--
- :src="city.image"
-              :alt="city.name" 
--->
-            <img class="w-full h-40 object-cover" />
+            <img
+              class="w-full h-40 object-cover"
+              :src="city.image"
+              alt="No images found"
+            />
             <div class="p-6">
               <h3 class="text-lg font-semibold text-gray-900">
                 {{
@@ -365,6 +398,7 @@
             color="secondary"
             shape="round"
             compact
+            @click="viewAllClick()"
             >{{ $t('homePage.buttonContent.seeAll') }}</app-button
           >
         </div>
@@ -386,7 +420,7 @@
         </div>
 
         <!-- Blogs Cards -->
-        <UCarousel :items="blogs" :ui="{ item: 'basis-1/4' }" class="mb-8">
+        <UCarousel :items="blogRes" :ui="{ item: 'basis-1/4' }" class="mb-8">
           <template #default="{ item }">
             <UCard
               variant="solid"
@@ -584,8 +618,17 @@ import type { CategoryJobModel } from '~/models/category'
 import { CategoryJobMapper } from '~/mapper/category'
 import { LocationJobMapper } from '~/mapper/location'
 import type { LocationJobModel } from '~/models/location'
+import type { CompanyBannerModel } from '~/models/company'
+import { CompanyMapper } from '~/mapper/company'
+import type { BlogModel } from '~/models/blog'
+import { BlogMapper } from '~/mapper/blog'
 
-const { locationItems, categoryEnumLabel, locationEnumLabel } = useJobFilters()
+const {
+  locationItems,
+  categoryEnumLabel,
+  locationEnumLabel,
+  employmentTypesEnumLabel,
+} = useJobFilters()
 
 const keyword = ref('')
 
@@ -622,7 +665,6 @@ const tabs = [
 ]
 
 const activeTab = ref(tabs[0].name)
-
 const router = useRouter()
 const route = useRoute()
 const authStore = useAuthStore()
@@ -648,6 +690,8 @@ onMounted(() => {
   getFeatureJobs()
   getCategoryJobs()
   getLocationJobs()
+  getCompanyBanners()
+  getBlogs()
 })
 
 const searchJobs = () => {
@@ -660,7 +704,7 @@ const searchJobs = () => {
   router.push({ path: '/jobs/search', query })
 }
 
-const onTagClick = (tag: string) => {
+const onCategoryClick = (tag: string) => {
   router.push({
     path: '/jobs/search',
     query: {
@@ -669,82 +713,28 @@ const onTagClick = (tag: string) => {
   })
 }
 
-const banners = [
-  {
-    title: 'See right away whether candidates are the right fit',
-    description:
-      'We help candidates know whether they’re qualified for a job – and allow you to see their match potential – giving you a better pool of qualified candidates to choose from.',
-    image:
-      'https://pixelprime.co/themes/jobster-wp/demo-10/wp-content/uploads/2023/01/green-building.jpg',
-    buttonText: 'Chi tiết NTD',
-    buttonLink: '/employer-details', // tuỳ route
-  },
-  {
-    title: 'Make better hiring decisions with AI insights',
-    description:
-      'Our AI evaluates resumes and applications to give you key insights into each candidate’s strengths, letting you focus on the best fits faster.',
-    image:
-      'https://pixelprime.co/themes/jobster-wp/demo-10/wp-content/uploads/2023/01/red-building.jpg',
-    buttonText: 'Tìm hiểu thêm',
-    buttonLink: '/ai-insights',
-  },
-  {
-    title: 'Save time screening unqualified candidates',
-    description:
-      'Our platform pre-screens candidates so you can skip the tedious filtering process and get straight to the best applicants.',
-    image:
-      'https://pixelprime.co/themes/jobster-wp/demo-10/wp-content/uploads/2023/01/yellow-building.jpg',
-    buttonText: 'Xem ngay',
-    buttonLink: '/screening',
-  },
-]
+const onLocationClick = (tag: string) => {
+  router.push({
+    path: '/jobs/search',
+    query: {
+      location: tag,
+    },
+  })
+}
 
-const blogs = [
-  {
-    id: 1,
-    title: 'How to find your first job out of college',
-    description:
-      'It’s keyword-optimized, industry-specified, full of achievements, backed by data, and double-checked by an expert.',
-    image:
-      'https://images.unsplash.com/photo-1581091870622-3c8c6b6ba5c4?auto=format&fit=crop&w=800&q=80',
-    url: '/blog/first-job',
-  },
-  {
-    id: 2,
-    title: 'Mastering the art of the interview',
-    description:
-      'Preparation is key. Learn how to answer common questions, dress for success, and impress your future boss.',
-    image:
-      'https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&fit=crop&w=800&q=80',
-    url: '/blog/interview-tips',
-  },
-  {
-    id: 3,
-    title: 'Top 10 tech companies hiring now',
-    description:
-      'From startups to giants, these companies are actively looking for fresh talents. Don’t miss your chance.',
-    image:
-      'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=800&q=80',
-    url: '/blog/top-tech-jobs',
-  },
-  {
-    id: 4,
-    title: 'Building your online portfolio',
-    description:
-      'A strong portfolio shows your skills and personality. We’ll show you how to craft one that gets attention.',
-    image:
-      'https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=800&q=80',
-    url: '/blog/portfolio-tips',
-  },
-]
+const viewAllClick = () => {
+  router.push({
+    path: '/jobs/search',
+    query: {},
+  })
+}
 
 // Call Api OnMouted
 const featureJobsRes = ref<JobModel[]>([])
 const categoryJobsRes = ref<CategoryJobModel[]>([])
 const locationJobsRes = ref<LocationJobModel[]>([])
-
-// const bannerRes = ref([])
-// const blogRes = ref([])
+const bannerRes = ref<CompanyBannerModel[]>([])
+const blogRes = ref<BlogModel[]>([])
 
 // initialize Api
 const { $api } = useNuxtApp()
@@ -823,5 +813,69 @@ const getLocationJobs = async () => {
     })
     locationJobsRes.value = []
   }
+}
+
+// Fetch Company Banners
+const getCompanyBanners = async () => {
+  try {
+    // Build search parameters
+
+    const apiParams: Record<string, any> = {}
+
+    apiParams.isShow = 'true'
+
+    // Call API
+    const response = await $api.company.searchCompany(apiParams)
+
+    if (response && Array.isArray(response)) {
+      bannerRes.value = response.map((comp) =>
+        CompanyMapper.toBannerModel(comp),
+      )
+    } else {
+      bannerRes.value = []
+    }
+
+    console.log(response)
+  } catch (error: any) {
+    console.error('Search company failed:', error)
+    useNotify({
+      message: error.message,
+    })
+    bannerRes.value = []
+  }
+
+  console.log('getCompanyBanners', bannerRes.value)
+}
+
+// Fetch Blog
+const getBlogs = async () => {
+  try {
+    // Call API
+    const response = await $api.blog.getBlog()
+
+    if (response && Array.isArray(response)) {
+      blogRes.value = response.map((comp) => BlogMapper.toModel(comp))
+    } else {
+      blogRes.value = []
+    }
+
+    console.log(response)
+  } catch (error: any) {
+    console.error('Get banner failed:', error)
+    useNotify({
+      message: error.message,
+    })
+    blogRes.value = []
+  }
+}
+
+const viewJob = (job: JobModel) => {
+  // Navigate to job detail page
+  router.push(`/jobs/${job.id}`)
+}
+
+const viewCompany = (companyId: number) => {
+  // Navigate to job detail page
+  router.push(`/companies/${companyId}`)
 }
 </script>

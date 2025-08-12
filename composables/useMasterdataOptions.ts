@@ -22,6 +22,13 @@ export const useJobFilters = () => {
     })),
   ])
 
+  const locationItemsWithoutAll = computed(() =>
+    Object.entries(locationEnumLabel).map(([key, value]) => ({
+      label: value,
+      value: key,
+    })),
+  )
+
   const categoryItems = computed(() => [
     {
       label: t('home.search.placeholderCategory'),
@@ -32,6 +39,13 @@ export const useJobFilters = () => {
       value: key,
     })),
   ])
+
+  const categoryItemsWithoutAll = computed(() =>
+    Object.entries(categoryEnumLabel).map(([key, value]) => ({
+      label: value,
+      value: key,
+    })),
+  )
 
   const employmentTypeItems = computed(() =>
     Object.entries(employmentTypesEnumLabel).map(([key, value]) => ({
@@ -65,5 +79,7 @@ export const useJobFilters = () => {
     experienceLevelItems,
     jobBenefits,
     jobBenefitsItems,
+    locationItemsWithoutAll,
+    categoryItemsWithoutAll,
   }
 }

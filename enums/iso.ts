@@ -1,6 +1,7 @@
 export enum ISO {
   DATE_TIME = 'YYYY-MM-DD HH:mm:ss',
   DATE = 'YYYY-MM-DD',
+  DATE_VN = 'DD/MM/YYYY',
   TIME = 'HH:mm:ss',
   DATE_TIME_WITH_SLASH = 'YYYY/MM/DD HH:mm:ss',
   DATE_WITH_SLASH = 'YYYY/MM/DD',
