@@ -22,5 +22,10 @@ export const ROUTE_API = {
   BLOG: {
     GET_BLOG: 'blogs',
     GET_COMPANY: 'companies',
+    SEARCH: 'companies/search',
+  },
+
+  BLOG: {
+    GET_BLOG: 'blogs',
   },
 }
