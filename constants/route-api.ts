@@ -16,5 +16,10 @@ export const ROUTE_API = {
 
   COMPANY: {
     GET_COMPANY: 'companies',
+    SEARCH: 'companies/search',
+  },
+
+  BLOG: {
+    GET_BLOG: 'blogs',
   },
 }

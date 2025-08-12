@@ -7,6 +7,7 @@ export class LocationJobMapper {
       location: value.location,
       jobCount: value.jobCount,
       isMajorCity: value.isMajorCity,
+      image: value.image,
     }
   }
 }
