@@ -30,7 +30,7 @@ export const useAuthStore = defineStore('auth', {
 
       const token = useToken(CONSTANTS.COOKIE_TOKEN_OPTION as CookieOptions)
 
-      token.set(response.access_token)
+      token.set(response.accessToken)
 
       return response
     },

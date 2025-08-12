@@ -5,12 +5,6 @@ import type { MasterData } from '~/types/master-data'
 type MasterDataConfig = {
   [key in MasterDataItem]: {
     enum:
-      | typeof FemaleStatus
-      | typeof AccountType
-      | typeof Tattoo
-      | typeof Alcohol
-      | typeof CupSize
-      | typeof Footwork
       | typeof Category
       | typeof Location
       | typeof JobBenefits
@@ -27,30 +21,6 @@ type MasterDataReturn = {
 export const useMasterdata = (): MasterDataReturn => {
   const { $i18n } = useNuxtApp()
   const masterDataConfig: MasterDataConfig = {
-    femaleStatus: {
-      enum: FemaleStatus,
-      translationKey: 'common.masterData.femaleStatus',
-    },
-    accountType: {
-      enum: AccountType,
-      translationKey: 'common.masterData.accountType',
-    },
-    tattoo: {
-      enum: Tattoo,
-      translationKey: 'common.masterData.tattoo',
-    },
-    alcohol: {
-      enum: Alcohol,
-      translationKey: 'common.masterData.alcohol',
-    },
-    cupSize: {
-      enum: CupSize,
-      translationKey: 'common.masterData.cupzize',
-    },
-    footwork: {
-      enum: Footwork,
-      translationKey: 'common.masterData.footwork',
-    },
     category: {
       enum: Category,
       translationKey: 'common.masterData.category',
