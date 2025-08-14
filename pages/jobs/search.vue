@@ -391,17 +391,17 @@ const viewJob = (job: JobModel) => {
 }
 
 const getExperienceColor = (level: string) => {
-  switch (level.toLowerCase()) {
-    case 'entry':
+  switch (level) {
+    case '1':
       return 'success'
 
-    case 'mid-level':
+    case '2':
       return 'primary'
 
-    case 'senior':
+    case '3':
       return 'secondary'
 
-    case 'expert':
+    case '4':
       return 'error'
 
     default:

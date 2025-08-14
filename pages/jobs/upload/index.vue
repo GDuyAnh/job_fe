@@ -40,6 +40,7 @@
               <!-- Input -->
               <UInput
                 id="job-title"
+                v-model="job.title"
                 class="w-full"
                 :placeholder="$t('job.uploadJob.nameJobPlaceHolder')"
               />
@@ -57,7 +58,11 @@
                 }}</span>
               </label>
               <!-- Input -->
-              <UInput id="job-title" class="w-full" />
+              <UInput
+                id="job-description"
+                v-model="job.description"
+                class="w-full"
+              />
             </div>
 
             <!-- Job email/name -->
@@ -78,7 +83,7 @@
                 </label>
 
                 <!-- Input email -->
-                <UInput id="job-title" class="w-full" type="email" />
+                <UInput id="job-email" class="w-full" type="email" />
               </div>
               <div>
                 <!-- Label -->
@@ -90,7 +95,7 @@
                 </label>
 
                 <!-- Input -->
-                <UInput id="job-title" class="w-full" />
+                <UInput id="company-name" class="w-full" />
               </div>
             </div>
 
@@ -112,7 +117,12 @@
                 </label>
 
                 <!-- Input deadline date -->
-                <UInput id="job-title" class="w-full" type="date" />
+                <UInput
+                  id="job-title"
+                  v-model="job.deadline"
+                  class="w-full"
+                  type="date"
+                />
               </div>
               <div>
                 <!-- Label -->
@@ -127,7 +137,14 @@
                 </label>
 
                 <!-- Input -->
-                <USelect :items="categoryItemsWithoutAll" class="w-full" />
+                <USelect
+                  :model-value="job.category?.toString()"
+                  :items="categoryItemsWithoutAll"
+                  class="w-full"
+                  @update:model-value="
+                    (val) => (job.category = Number(val ?? 0))
+                  "
+                />
               </div>
               <div>
                 <!-- Label -->
@@ -139,7 +156,14 @@
                 </label>
 
                 <!-- Input job type -->
-                <USelect :items="employmentTypeItems" class="w-full" />
+                <USelect
+                  :items="employmentTypeItems"
+                  :model-value="job.typeOfEmployment?.toString()"
+                  class="w-full"
+                  @update:model-value="
+                    (val) => (job.typeOfEmployment = Number(val ?? 0))
+                  "
+                />
               </div>
             </div>
 
@@ -158,7 +182,12 @@
                 </label>
 
                 <!-- Input -->
-                <UInput id="job-title" class="w-full" type="email" />
+                <UInput
+                  id="job-title"
+                  v-model="job.salaryType"
+                  class="w-full"
+                  type="text"
+                />
               </div>
               <div>
                 <!-- Label -->
@@ -170,7 +199,12 @@
                 </label>
 
                 <!-- Input -->
-                <UInput id="job-title" class="w-full" type="email" />
+                <UInput
+                  id="job-title"
+                  v-model="job.salaryMin"
+                  class="w-full"
+                  type="text"
+                />
               </div>
               <div>
                 <!-- Label -->
@@ -182,7 +216,12 @@
                 </label>
 
                 <!-- Input -->
-                <UInput id="job-title" class="w-full" type="email" />
+                <UInput
+                  id="job-title"
+                  v-model="job.salaryMax"
+                  class="w-full"
+                  type="text"
+                />
               </div>
             </div>
 
@@ -200,7 +239,14 @@
               </label>
 
               <!-- Input Experience Level -->
-              <USelect :items="experienceLevelItems" class="w-full" />
+              <USelect
+                :items="experienceLevelItems"
+                :model-value="job.experienceLevel?.toString()"
+                class="w-full"
+                @update:model-value="
+                  (val) => (job.experienceLevel = Number(val ?? 0))
+                "
+              />
             </div>
 
             <!-- Job benefit Level -->
@@ -217,7 +263,12 @@
               </label>
 
               <!-- Input Benefit -->
-              <USelect :items="jobBenefitsItems" multiple class="w-full" />
+              <USelect
+                v-model="job.benefits"
+                :items="jobBenefitsItems"
+                multiple
+                class="w-full"
+              />
             </div>
 
             <!-- Job address -->
@@ -256,18 +307,40 @@
               <!-- Input locations -->
               <USelect
                 :items="locationItemsWithoutAll"
-                multiple
+                :model-value="job.location?.toString()"
                 class="w-full"
+                @update:model-value="(val) => (job.location = Number(val ?? 0))"
               />
             </div>
           </template>
           <template #confirm>
-            <div></div>
+            <div class="flex bg-[#f5f7fa] flex-col items-center">
+              <div class="h-1/2">
+                <UIcon name="i-lucide-laptop-minimal-check" class="size-10" />
+              </div>
+              <div style="font-size: 16px; color: #333">
+                {{ $t('job.uploadJob.uploadJobComplete') }}
+              </div>
+              <UButton
+                style="
+                  margin-top: 15px;
+                  padding: 8px 16px;
+                  border: none;
+                  background-color: #4f8ef7;
+                  color: white;
+                  border-radius: 6px;
+                  cursor: pointer;
+                "
+                label="Trở về trang danh sách"
+                @click="goToListJobUser()"
+              >
+              </UButton>
+            </div>
           </template>
         </UStepper>
       </div>
     </div>
-    <div class="flex flex-col gap-4 mt-8">
+    <div v-if="!isComplete" class="flex flex-col gap-4 mt-8">
       <!-- Hàng checkbox + text -->
       <div class="flex items-center">
         <UCheckbox class="text-primary mr-3"></UCheckbox>
@@ -288,7 +361,7 @@
           </a>
         </span>
       </div>
-      <UButton class="w-1/10" color="primary">
+      <UButton class="w-1/10" color="primary" @click="addJob()">
         {{ $t('job.uploadJob.uploadJobContent') }}
       </UButton>
     </div>
@@ -296,19 +369,21 @@
 </template>
 
 <script setup lang="ts">
+import { UButton } from '#components'
 import type { StepperItem } from '@nuxt/ui'
+import type { JobModelAdd } from '~/models/job'
 
 const stepper = useTemplateRef('stepper')
 const steppers = ref<StepperItem[]>([
   {
     slot: 'detail' as const,
     title: 'Chi tiết công việc',
-    icon: 'i-lucide-house',
+    icon: 'i-lucide-file-pen-line',
   },
   {
     slot: 'confirm' as const,
     title: 'Xác nhận hoàn tất',
-    icon: 'i-lucide-truck',
+    icon: 'i-lucide-circle-check-big',
   },
 ])
 
@@ -325,14 +400,58 @@ const {
 // const route = useRoute()
 const router = useRouter()
 // const { t } = useI18n()
-// const { $api } = useNuxtApp()
+const { $api } = useNuxtApp()
+const authStore = useAuthStore()
+const loading = ref(false)
+const isComplete = ref(false)
+const job = ref<JobModelAdd>({} as JobModelAdd)
 
 // Initialize search from route query
-onMounted(() => {})
+onMounted(() => {
+  if (
+    !authStore.user ||
+    typeof authStore.user.role !== 'number' ||
+    authStore.user.role < 1 ||
+    !authStore.user?.companyId
+  ) {
+    router.push('/')
+  }
+
+  job.value.companyId = authStore.user?.companyId
+  job.value.postedDate = new Date()
+})
 
 // Methods
 const goBack = () => {
   router.back()
+}
+
+// Methods
+const goToListJobUser = () => {
+  router.push('/Jobs/list')
+}
+
+const addJob = async () => {
+  loading.value = true
+
+  try {
+    // Call API
+    const response = await $api.job.addJob(job.value)
+
+    if (response) {
+      if (stepper.value?.hasNext) {
+        stepper.value.next()
+        isComplete.value = true
+      }
+    }
+  } catch (error: any) {
+    console.error('Add job failed:', error)
+    useNotify({
+      message: Array.isArray(error.message) ? error.message[0] : error.message,
+    })
+  } finally {
+    loading.value = false
+  }
 }
 </script>
 
