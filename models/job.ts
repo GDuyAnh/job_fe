@@ -25,3 +25,44 @@ export interface JobModel {
   deadline?: Date
   detailDescription?: string | null
 }
+
+export interface JobModelAdd {
+  title: string
+  description: string
+  category: number
+  location: number
+  typeOfEmployment: number
+  experienceLevel: number
+  companyId?: number
+  imageLogo: string
+  bannerLogo: string
+  postedDate?: Date
+  deadline?: string
+  salaryMin?: string
+  salaryMax?: string
+  salaryType: number
+  benefits?: string[]
+  detailDescription?: string
+  isFeatured: boolean
+}
+
+export interface JobModelUpdate {
+  id: number
+  title: string
+  description: string
+  category: number
+  location: number
+  typeOfEmployment: number
+  experienceLevel: number
+  companyId: number
+  imageLogo: string
+  bannerLogo: string
+  postedDate?: Date
+  deadline?: string
+  salaryMin?: string
+  salaryMax?: string
+  salaryType: number
+  benefits?: string[]
+  detailDescription?: string
+  isFeatured: boolean
+}

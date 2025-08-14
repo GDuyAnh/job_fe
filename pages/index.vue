@@ -45,8 +45,11 @@
                     <UButton
                       label="Đăng tải công việc"
                       block
-                      @click="router.push('/jobs/upload')"
+                      @click="router.push('/jobs/list')"
                     />
+                  </div>
+                  <div>
+                    <UButton label="Đăng xuất" block @click="logout()" />
                   </div>
                 </div>
               </template>
@@ -206,7 +209,7 @@
         <!-- Slide -->
         <UCarousel
           :items="categoryJobsRes"
-          :ui="{ item: 'basis-1/4' }"
+          :ui="uiOptions"
           :dots="true"
           class="mb-8"
         >
@@ -826,8 +829,6 @@ const getCompanyBanners = async () => {
     } else {
       bannerRes.value = []
     }
-
-    console.log(response)
   } catch (error: any) {
     console.error('Search company failed:', error)
     useNotify({
@@ -835,8 +836,6 @@ const getCompanyBanners = async () => {
     })
     bannerRes.value = []
   }
-
-  console.log('getCompanyBanners', bannerRes.value)
 }
 
 // Fetch Blog
@@ -850,8 +849,6 @@ const getBlogs = async () => {
     } else {
       blogRes.value = []
     }
-
-    console.log(response)
   } catch (error: any) {
     console.error('Get banner failed:', error)
     useNotify({
@@ -870,4 +867,21 @@ const viewCompany = (companyId: number) => {
   // Navigate to job detail page
   router.push(`/companies/${companyId}`)
 }
+
+const gotoLogin = () => {
+  router.push(ROUTE_PAGE.AUTH.LOGIN)
+}
+
+const logout = () => {
+  authStore.logout()
+}
+
+const uiOptions = computed(() => {
+  const len = categoryJobsRes.value.length
+
+  return {
+    item:
+      len < 4 ? ['basis-1/1', 'basis-1/2', 'basis-1/3'][len - 1] : 'basis-1/4',
+  }
+})
 </script>

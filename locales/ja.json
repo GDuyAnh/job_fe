@@ -313,6 +313,13 @@
       "goBack": "Quay lại",
       "applicationSubmitted": "Đã gửi đơn ứng tuyển thành công!"
     },
+    "listJobUser": {
+      "title": "Thông tin việc làm",
+      "foundResults": "Tổng cộng {count} việc làm",
+      "addJob": "Chỉnh sửa Job",
+      "updateJob": "Chỉnh sửa Job",
+      "deleteJob": "Xóa Job"
+    },
     "uploadJob": {
       "title": "Đăng việc làm mới",
       "mandatoryChar": "*",
@@ -336,7 +343,13 @@
       "agreePolicy": "Điều khoản và Điều kiện ",
       "agreePrivacy": "Chính sách quyền riêng tư",
       "and": " và ",
-      "uploadJobContent": "Đăng việc làm"
+      "uploadJobContent": "Đăng việc làm",
+      "uploadJobComplete": "Đăng tải công việc thành công."
+    },
+    "editJob": {
+      "title": "Chỉnh sửa việc làm",
+      "editJobContent": "Xác nhận chỉnh sửa",
+      "editJobComplete": "Chỉnh sửa công việc thành công."
     }
   },
   "company": {
