@@ -15,7 +15,6 @@ export enum JobBenefits {
   performancebonus = 14,
   annualhealthcheck = 15,
 }
-
 export enum ExperienceLevel {
   underoneyear = 1,
   twoyears = 2,
@@ -32,3 +31,4 @@ export enum TypeOfEmployment {
   remote = 4,
   temporary = 5,
 }
+

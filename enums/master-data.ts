@@ -4,6 +4,7 @@ export enum MasterDataItem {
   JobBenefits = 'jobBenefits',
   ExperienceLevel = 'experienceLevel',
   TypeOfEmployment = 'typeOfEmployment',
+  OrganizationType = 'organizationType',
 }
 
 export enum Category {
@@ -72,4 +73,15 @@ export enum Location {
   vinhlong = 32,
   cantho = 33,
   camau = 34,
+}
+
+export enum OrganizationType {
+  truongconglap = 1,
+  truongtuthuc = 2,
+  truongquocte = 3,
+  truongconggiao = 4,
+  trungtam = 5,
+  truonggiaoducdacbiet = 6,
+  truongdaynghe = 7,
+  khac = 8,
 }

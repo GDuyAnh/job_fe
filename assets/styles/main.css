@@ -15,6 +15,8 @@
   --ui-disabled: #b2b2b2;
   --ui-border-line: #ccc;
   --ui-border-line-light: #eaeaea;
+  --ui-cream: #fff8ec;
+  --ui-main-light: #ebeff3;
 }
 
 @theme default {
@@ -31,6 +33,8 @@
   --color-border-line: var(--ui-border-line);
   --color-border-line-light: var(--ui-border-line-light);
   --color-gray-50: var(--ui-gray-50);
+  --color-cream: var(--ui-cream);
+  --color-main-light: var(--ui-main-light);
 }
 
 @theme static {

@@ -10,6 +10,7 @@ export const useJobFilters = () => {
   const employmentTypesEnumLabel = getLabel(MasterDataItem.TypeOfEmployment)
   const experienceLevelsEnumLabel = getLabel(MasterDataItem.ExperienceLevel)
   const jobBenefits = getLabel(MasterDataItem.JobBenefits)
+  const organizationTypesLabel = getLabel(MasterDataItem.OrganizationType)
 
   const locationItems = computed(() => [
     {
@@ -68,6 +69,17 @@ export const useJobFilters = () => {
     })),
   )
 
+  const organizationTypeItems = computed(() => [
+    {
+      label: t('home.search.placeholderOrganizationType'),
+      value: '0',
+    },
+    ...Object.entries(organizationTypesLabel).map(([key, value]) => ({
+      label: value,
+      value: key,
+    })),
+  ])
+
   return {
     locationEnumLabel,
     locationItems,
@@ -81,5 +93,7 @@ export const useJobFilters = () => {
     jobBenefitsItems,
     locationItemsWithoutAll,
     categoryItemsWithoutAll,
+    organizationTypesLabel,
+    organizationTypeItems,
   }
 }
