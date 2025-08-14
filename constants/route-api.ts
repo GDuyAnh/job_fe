@@ -13,4 +13,8 @@ export const ROUTE_API = {
   CATEGORY: {
     GET_CATEGORY: 'category',
   },
+
+  COMPANY: {
+    GET_COMPANY: 'companies',
+  },
 }

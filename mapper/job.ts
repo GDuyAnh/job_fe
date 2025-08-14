@@ -11,6 +11,7 @@ export class JobMapper {
       location: value.location,
       typeOfEmployment: value.typeOfEmployment,
       experienceLevel: value.experienceLevel,
+      companyId: value.companyId,
       companyName: value.companyName,
       companyLogo: value.companyLogo,
       organizationType: value.organizationType,

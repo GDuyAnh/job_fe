@@ -6,6 +6,7 @@ export interface JobEntity {
   location: string
   typeOfEmployment: string
   experienceLevel: string
+  companyId: number
   companyName: string
   companyLogo: string
   organizationType?: string | null

@@ -15,6 +15,10 @@
       "password": "Password"
     },
     "validate": {},
+    "error": {
+      "title": "Đã xảy ra lỗi",
+      "retry": "Thử lại"
+    },
     "masterData": {
       "category": {
         "giaovienmamnon": "Giáo viên mầm non",
@@ -113,10 +117,30 @@
         "parttime": "Bán thời gian",
         "remote": "Remote",
         "temporary": "Tạm thời/dự án"
+      },
+      "organizationType": {
+        "truongconglap": "Trường Công Lập",
+        "truongtuthuc": "Trường Tư thục",
+        "truongquocte": "Trường Quốc Tế",
+        "truongconggiao": "Trường Công Giáo",
+        "trungtam": "Trung Tâm",
+        "truonggiaoducdacbiet": "Trường Giáo Dục Đặc Biệt",
+        "truongdaynghe": "Trường Dạy Nghề",
+        "khac": "Khác"
       }
     },
     "separator": "•",
     "nanValue": "N/A"
+  },
+  "companies": {
+    "search": {
+      "placeholder": "Nhập tên công ty để tìm kiếm "
+    },
+    "jobs": "Việc Làm",
+    "noResults": {
+      "title": "Không tìm thấy công ty",
+      "clearSearch": "Xóa tìm kiếm"
+    }
   },
   "homePage": {
     "header": {
@@ -191,6 +215,7 @@
       "placeholderKeyword": "Job Title or Keyword",
       "placeholderCategory": "All Categories",
       "placeholderLocation": "All Locations",
+      "placeholderOrganizationType": "All Organizations",
       "button": "Search"
     },
     "popularTags": {
@@ -227,8 +252,8 @@
     "filters": {
       "searchByKeywords": "Search by Keywords",
       "placeholderKeyword": "Job Title or Keyword",
-      "location": "Location",
-      "category": "Category",
+      "placeholderCategory": "All Categories",
+      "placeholderLocation": "All Locations",
       "typeOfEmployment": "Type of Employment",
       "experienceLevel": "Experience Level"
     },
@@ -289,6 +314,23 @@
     }
   },
   "company": {
+    "detail": {
+      "title": "Chi tiết công ty",
+      "about": "Về",
+      "images": "Hình ảnh công ty",
+      "availableJobs": "Việc làm hiện có",
+      "details": "Thông tin chi tiết",
+      "industry": "Loại hình tổ chức",
+      "companySize": "Quy mô công ty",
+      "employees": "nhân viên",
+      "foundedIn": "Năm thành lập",
+      "location": "Địa chỉ",
+      "website": "Website",
+      "email": "Email",
+      "socialLinks": "Mạng xã hội",
+      "showMore": "Hiện tất cả",
+      "showLess": "Hiện ít hơn"
+    },
     "industry": "Loại hình tổ chức",
     "founded": "Năm thành lập",
     "address": "Địa chỉ",

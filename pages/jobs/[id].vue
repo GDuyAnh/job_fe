@@ -41,10 +41,10 @@
 
         <!-- Job detail -->
         <div v-else-if="job" class="space-y-8">
-          <!-- Banner -->
           <div class="relative">
+            <!-- Banner Section -->
             <div
-              class="w-full h-64 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl overflow-hidden"
+              class="w-full h-72 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl overflow-hidden"
             >
               <img
                 v-if="job.bannerLogo"
@@ -62,110 +62,94 @@
                 />
               </div>
             </div>
-            <div class="absolute -bottom-10 left-8">
-              <div
-                class="w-24 h-24 bg-white rounded-xl shadow-lg flex items-center justify-center border-4 border-white overflow-hidden"
-              >
-                <img
-                  v-if="job.companyLogo"
-                  :src="job.companyLogo"
-                  :alt="job.companyName"
-                  class="w-full h-full object-cover"
-                />
-                <UIcon
-                  v-else
-                  name="i-heroicons-building-office"
-                  class="w-8 h-8 text-gray-400"
-                />
-              </div>
-            </div>
-          </div>
 
-          <!-- Job header -->
-          <UCard class="mt-12">
-            <div class="flex items-start justify-between mb-6">
-              <div class="flex-1">
-                <h1 class="text-3xl font-bold text-gray-900 mb-3">
-                  {{ job.title }}
-                </h1>
-                <div class="flex items-center gap-2 text-gray-600 mb-4">
-                  <span class="font-medium">{{ job.companyName }}</span>
-                  <span class="text-gray-400">{{
-                    $t('common.separator')
-                  }}</span>
-                  <span>{{
-                    locationEnumLabel?.[job.location as unknown as number] ??
-                    job.location
-                  }}</span>
+            <!-- Job Info Section Overlay -->
+            <div
+              class="absolute -bottom-18 left-6 right-6 bg-white rounded-2xl shadow-lg border-t border-gray-200 py-4 px-6"
+            >
+              <div class="flex items-center gap-4">
+                <!-- Company Logo -->
+                <div class="flex-shrink-0">
+                  <div
+                    class="w-12 h-12 rounded-lg shadow-md overflow-hidden bg-white border border-gray-200"
+                  >
+                    <img
+                      v-if="job.companyLogo"
+                      :src="job.companyLogo"
+                      :alt="job.companyName"
+                      class="w-full h-full object-cover"
+                    />
+                    <div
+                      v-else
+                      class="w-full h-full flex items-center justify-center"
+                    >
+                      <UIcon
+                        name="i-heroicons-building-office"
+                        class="w-4 h-4 text-gray-400"
+                      />
+                    </div>
+                  </div>
                 </div>
-                <div class="flex items-center gap-4 text-sm text-gray-600 mb-4">
-                  <div class="flex items-center gap-1">
-                    <UIcon name="i-heroicons-tag" class="w-4 h-4" />
+
+                <!-- Job Details -->
+                <div class="flex-1">
+                  <h1 class="text-xl font-bold text-gray-900 mb-1">
+                    {{ job.title }}
+                  </h1>
+                  <!-- Company and Location -->
+                  <div
+                    class="flex items-center gap-2 text-sm text-gray-600 mb-1"
+                  >
+                    <span
+                      class="font-medium cursor-pointer"
+                      @click="viewCompany(job.companyId)"
+                      >{{ job.companyName }}</span
+                    >
+                    &nbsp;
+                    <span>{{
+                      locationEnumLabel?.[job.location as unknown as number] ??
+                      job.location
+                    }}</span>
+                  </div>
+                  <!-- Category, Created Date and Deadline -->
+                  <div class="flex items-center gap-3 text-xs text-gray-500">
                     <span>{{
                       categoryEnumLabel?.[job.category as unknown as number] ??
                       job.category
                     }}</span>
-                  </div>
-                  <div class="flex items-center gap-1">
-                    <UIcon name="i-heroicons-calendar" class="w-4 h-4" />
-                    <span
-                      >{{ $t('job.detail.postedDate') }}:
-                      {{
-                        job.createdAt
-                          ? formatDate(new Date(job.createdAt))
-                          : $t('common.nanValue')
-                      }}</span
-                    >
-                  </div>
-                  <div v-if="job.deadline" class="flex items-center gap-1">
-                    <UIcon name="i-heroicons-clock" class="w-4 h-4" />
-                    <span
-                      >{{ $t('job.detail.deadline') }}:
-                      {{
-                        job.deadline
-                          ? formatDate(new Date(job.deadline))
-                          : $t('common.nanValue')
-                      }}</span
-                    >
+                    &nbsp;
+                    <span>{{
+                      job.createdAt
+                        ? `${$t('job.detail.postedDate')}: ${formatDate(new Date(job.createdAt))}`
+                        : $t('common.nanValue')
+                    }}</span>
+                    &nbsp;
+                    <span v-if="job.deadline">{{
+                      job.deadline
+                        ? `${$t('job.detail.deadline')}: ${formatDate(new Date(job.deadline))}`
+                        : $t('common.nanValue')
+                    }}</span>
                   </div>
                 </div>
-                <div class="flex items-center gap-4 text-sm">
-                  <UBadge variant="soft">
-                    {{
-                      experienceLevelsEnumLabel?.[
-                        job.experienceLevel as unknown as number
-                      ] ?? job.experienceLevel
-                    }}
-                  </UBadge>
-                  <UBadge v-if="job.isFeatured" color="warning" variant="soft">
-                    {{ $t('job.detail.featured') }}
-                  </UBadge>
+
+                <!-- Right Side Actions -->
+                <div class="flex items-center gap-2">
+                  <!-- Apply Button -->
+                  <UButton
+                    color="primary"
+                    variant="solid"
+                    size="sm"
+                    class="min-w-[80px] ml-1"
+                    @click="applyForJob"
+                  >
+                    {{ $t('job.detail.applyNow') }}
+                  </UButton>
                 </div>
-              </div>
-              <div class="flex flex-col gap-3">
-                <UButton
-                  color="primary"
-                  variant="solid"
-                  size="lg"
-                  class="min-w-[140px]"
-                  @click="applyForJob"
-                >
-                  {{ $t('job.detail.applyNow') }}
-                </UButton>
-                <UButton
-                  variant="outline"
-                  color="neutral"
-                  size="sm"
-                  @click="shareJob"
-                >
-                  <UIcon name="i-heroicons-share" class="w-4 h-4 mr-2" />
-                  {{ $t('job.detail.share') }}
-                </UButton>
               </div>
             </div>
-          </UCard>
+          </div>
 
-          <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-24">
             <!-- Left column -->
             <div class="lg:col-span-2 space-y-6">
               <UCard>
@@ -339,7 +323,11 @@
                     <span class="text-gray-600">{{
                       $t('company.industry')
                     }}</span>
-                    <span class="font-medium">{{ job.organizationType }}</span>
+                    <span class="font-medium">{{
+                      organizationTypesLabel?.[
+                        job.organizationType as unknown as number
+                      ] ?? job.organizationType
+                    }}</span>
                   </div>
                   <div v-if="job.foundedYear" class="flex justify-between">
                     <span class="text-gray-600">{{
@@ -459,6 +447,7 @@ const {
   employmentTypesEnumLabel,
   locationEnumLabel,
   jobBenefits,
+  organizationTypesLabel,
 } = useJobFilters()
 const route = useRoute()
 const router = useRouter()
@@ -494,21 +483,8 @@ const applyForJob = () => {
   useNotify({ message: t('job.detail.applicationSubmitted'), type: 'success' })
 }
 
-const shareJob = () => {
-  if (navigator.share) {
-    navigator.share({
-      title: job.value?.title || 'Job Posting',
-      text: `Check out this job: ${job.value?.title} at ${job.value?.companyName}`,
-      url: window.location.href,
-    })
-  } else {
-    navigator.clipboard.writeText(window.location.href)
-    useNotify({ message: t('job.detail.linkCopied'), type: 'success' })
-  }
-}
-
 const viewCompany = () => {
-  window.open(`/companies/${job.value?.companyName}`, '_blank')
+  window.open(`/companies/${job.value?.companyId}`, '_blank')
 }
 
 // Computed property to check if company has any social media links
