@@ -127,6 +127,13 @@
         "truonggiaoducdacbiet": "Trường Giáo Dục Đặc Biệt",
         "truongdaynghe": "Trường Dạy Nghề",
         "khac": "Khác"
+      },
+      "salaryType": {
+        "month": "Tháng",
+        "week": "Tuần",
+        "hour": "Giờ",
+        "contract": "Theo hợp đồng dự án",
+        "more": "Thương lượng"
       }
     },
     "separator": "•",

@@ -18,7 +18,10 @@ export interface JobModel {
   twitterLink?: string | null
   linkedInLink?: string | null
   bannerLogo?: string
-  salary?: string | null
+  salaryMin?: string | null
+  salaryMax?: string | null
+  salaryType: number
+  salaryTypeValue?: string | null
   benefits?: string[] | null
   isFeatured: boolean
   createdAt?: Date
@@ -41,13 +44,13 @@ export interface JobModelAdd {
   salaryMin?: string
   salaryMax?: string
   salaryType: number
+  salaryTypeValue?: string
   benefits?: string[]
   detailDescription?: string
   isFeatured: boolean
 }
 
 export interface JobModelUpdate {
-  id: number
   title: string
   description: string
   category: number
@@ -62,6 +65,7 @@ export interface JobModelUpdate {
   salaryMin?: string
   salaryMax?: string
   salaryType: number
+  salaryTypeValue?: string
   benefits?: string[]
   detailDescription?: string
   isFeatured: boolean

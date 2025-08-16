@@ -218,9 +218,21 @@
               class="flex flex-col items-center justify-center p-4 bg-[#eaf4fd] rounded-2xl shadow hover:shadow-xl min-h-[250px] cursor-pointer"
               @click="onCategoryClick(item.category)"
             >
-              <div class="bg-white p-4 rounded-2xl shadow-sm mb-4">
-                <!-- <component :is="item.icon" class="w-10 h-10 text-black" /> -->
+              <div
+                class="bg-white p-4 rounded-2xl shadow-sm mb-4 w-30 h-30 flex items-center justify-center text-3xl text-[#002b57]"
+              >
+                {{
+                  (
+                    categoryEnumLabel?.[item.category as unknown as number] ??
+                    item.category
+                  )
+                    .split(' ')
+                    .map((word) => word[0])
+                    .join('')
+                    .toUpperCase()
+                }}
               </div>
+
               <h3 class="text-center font-semibold text-black">
                 {{
                   categoryEnumLabel?.[item.category as unknown as number] ??
@@ -295,8 +307,14 @@
             >
               <div>
                 <div class="flex items-center gap-4">
-                  <div class="icon bg-black p-3 rounded-lg text-white">
-                    <!-- {{ job. }} -->
+                  <div class="bg-black p-3 rounded-lg text-white w-20 h-20">
+                    {{
+                      job.title
+                        .split(' ')
+                        .map((word) => word[0])
+                        .join('')
+                        .toUpperCase()
+                    }}
                   </div>
                   <div>
                     <h2 class="font-bold text-lg">{{ job.title }}</h2>
@@ -305,7 +323,11 @@
                         name="i-raphael:globealt"
                         style="font-size: 12px !important"
                       />
-                      <!-- {{ """ }} -->
+                      {{
+                        locationEnumLabel?.[
+                          job.location as unknown as number
+                        ] ?? job.location
+                      }}
                     </span>
                     <span class="text-sm text-gray-600 pl-6">
                       {{
@@ -316,21 +338,25 @@
                     </span>
                   </div>
                 </div>
-                <p class="mt-2 text-sm text-gray-500">
-                  {{
-                    categoryEnumLabel?.[job.category as unknown as number] ??
-                    job.category
-                  }}
-                </p>
               </div>
-              <div class="text-right text-xs mt-2">
-                {{
-                  job.createdAt
-                    ? formatDateVN(new Date(job.createdAt))
-                    : $t('common.nanValue')
-                }}
-                {{ $t('homePage.featuredJobOffers.by') }}
-                <span class="font-semibold">{{ job.companyName }}</span>
+              <div class="flex flex-row justify-between mt-4">
+                <div>
+                  <p class="text-sm text-gray-500">
+                    {{
+                      categoryEnumLabel?.[job.category as unknown as number] ??
+                      job.category
+                    }}
+                  </p>
+                </div>
+                <div class="text-right text-xs mt-2">
+                  {{
+                    job.createdAt
+                      ? formatDateVN(new Date(job.createdAt))
+                      : $t('common.nanValue')
+                  }}
+                  {{ $t('homePage.featuredJobOffers.by') }}
+                  <span class="font-semibold">{{ job.companyName }}</span>
+                </div>
               </div>
             </div>
           </div>
@@ -660,7 +686,7 @@ const stats = [
 
 const tabs = [
   { name: 'demos', label: 'home.tabs.demos', path: ROUTE_PAGE.HOME },
-  { name: 'find-jobs', label: 'home.tabs.findJobs', path: ROUTE_PAGE.HOME },
+  { name: 'find-jobs', label: 'home.tabs.findJobs', path: ROUTE_PAGE.SEARCH },
   { name: 'companies', label: 'home.tabs.companies', path: ROUTE_PAGE.COMPANY },
   {
     name: 'candidates',
