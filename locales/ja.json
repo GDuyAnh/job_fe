@@ -196,7 +196,8 @@
       "contact": "Chính sách bảo mật"
     },
     "buttonContent": {
-      "seeAll": "Xem tất cả"
+      "seeAll": "Xem tất cả",
+      "detailCompany": "Chi tiết NDT"
     }
   },
   "home": {
@@ -311,6 +312,44 @@
       "notFoundDescription": "Công việc bạn đang tìm kiếm không tồn tại hoặc đã bị xóa.",
       "goBack": "Quay lại",
       "applicationSubmitted": "Đã gửi đơn ứng tuyển thành công!"
+    },
+    "listJobUser": {
+      "title": "Thông tin việc làm",
+      "foundResults": "Tổng cộng {count} việc làm",
+      "addJob": "Chỉnh sửa Job",
+      "updateJob": "Chỉnh sửa Job",
+      "deleteJob": "Xóa Job"
+    },
+    "uploadJob": {
+      "title": "Đăng việc làm mới",
+      "mandatoryChar": "*",
+      "nameJobLabel": "Vị trí công việc",
+      "nameJobPlaceHolder": "Ví dụ: Tuyển nhân viên trợ giảng, Tuyển giáo viên tiểu học,...",
+      "detailJobLabel": "Chi tiết công việc",
+      "emailJobLabel": "Địa chỉ email",
+      "companyNameLabel": "Tên công ty",
+      "deadlineLabel": "Hạn ứng tuyển",
+      "categoryLabel": "Lĩnh vực công việc",
+      "typeJobLabel": "Hình thức làm việc",
+      "currentSalaryLabel": "Mức lượng hiện tại",
+      "minSalaryLabel": "Tối thiểu",
+      "maxSalaryLabel": "Tối đa",
+      "experienceLabel": "Yêu cầu bằng cấp",
+      "benefitLabel": "Phúc lợi",
+      "addressJobLabel": "Địa chỉ làm việc",
+      "subAddressJobLabel": "(Danh sách cơ sở giảng dạy của trường/trung tâm)",
+      "locationJobLabel": "Tỉnh/Thành",
+      "agreeUploadJobLabel": "Bằng cách ấn vào đây, tôi đồng ý với",
+      "agreePolicy": "Điều khoản và Điều kiện ",
+      "agreePrivacy": "Chính sách quyền riêng tư",
+      "and": " và ",
+      "uploadJobContent": "Đăng việc làm",
+      "uploadJobComplete": "Đăng tải công việc thành công."
+    },
+    "editJob": {
+      "title": "Chỉnh sửa việc làm",
+      "editJobContent": "Xác nhận chỉnh sửa",
+      "editJobComplete": "Chỉnh sửa công việc thành công."
     }
   },
   "company": {

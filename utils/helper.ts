@@ -60,7 +60,16 @@ const getFullname = (firstName: string, lastName: string) => {
  * @param date
  * @returns
  */
-export const formatDate = (date: string | Date, iso: ISO = ISO.DATE_TIME) => {
+export const formatDate = (date: string | Date, iso: ISO = ISO.DATE) => {
+  return dayjs(date).format(iso)
+}
+
+/**
+ * Convert date to
+ * @param date
+ * @returns
+ */
+export const formatDateVN = (date: string | Date, iso: ISO = ISO.DATE_VN) => {
   return dayjs(date).format(iso)
 }
 

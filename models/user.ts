@@ -4,4 +4,5 @@ export interface UserModel {
   username: string
   fullName: string
   role: number
+  companyId: number
 }

@@ -3,6 +3,7 @@ import type {
   CompanyImage,
   CompanyJobSummary,
 } from '~/entities/company'
+import type { CompanyBannerModel } from '~/models/company'
 
 export class CompanyMapper {
   static fromDto(dto: any): CompanyEntity {
@@ -48,6 +49,15 @@ export class CompanyMapper {
     return {
       id: imageDto.id,
       url: imageDto.url,
+    }
+  }
+  
+  static toBannerModel(value: CompanyEntity): CompanyBannerModel {
+    return {
+      id: value.id,
+      insight: value.insight,
+      overview: value.overview,
+      logo: value.logo,
     }
   }
 }

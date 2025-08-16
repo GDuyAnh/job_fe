@@ -1,3 +1,10 @@
+
+export interface CompanyBannerModel {
+  id: number
+  insight: string
+  overview: string
+  logo: string
+
 export interface CompanyJobSummaryModel {
   id: number
   title: string
@@ -28,4 +35,5 @@ export interface CompanyModel {
   openPositions?: number
 
   jobs: CompanyJobSummaryModel[]
+
 }
