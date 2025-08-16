@@ -102,7 +102,7 @@
                   >
                     <span
                       class="font-medium cursor-pointer"
-                      @click="viewCompany(job.companyId)"
+                      @click="viewCompany()"
                       >{{ job.companyName }}</span
                     >
                     &nbsp;
