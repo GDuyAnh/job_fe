@@ -11,6 +11,7 @@ export const useJobFilters = () => {
   const experienceLevelsEnumLabel = getLabel(MasterDataItem.ExperienceLevel)
   const jobBenefits = getLabel(MasterDataItem.JobBenefits)
   const organizationTypesLabel = getLabel(MasterDataItem.OrganizationType)
+  const salaryTypeLabel = getLabel(MasterDataItem.SalaryType)
 
   const locationItems = computed(() => [
     {
@@ -80,6 +81,13 @@ export const useJobFilters = () => {
     })),
   ])
 
+  const salaryTypeItems = computed(() =>
+    Object.entries(salaryTypeLabel).map(([key, value]) => ({
+      label: value,
+      value: key,
+    })),
+  )
+
   return {
     locationEnumLabel,
     locationItems,
@@ -95,5 +103,7 @@ export const useJobFilters = () => {
     categoryItemsWithoutAll,
     organizationTypesLabel,
     organizationTypeItems,
+    salaryTypeLabel,
+    salaryTypeItems,
   }
 }

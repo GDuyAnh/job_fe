@@ -37,6 +37,10 @@ const JobModule = (apiService: FetchFactory) => {
     })
   }
 
+  const delJob = async (id: number) => {
+    return apiService.delete<JobEntity>(`${ROUTE_API.JOB.GET_JOB}/${id}`)
+  }
+
   return {
     getJob,
     searchJob,
@@ -45,6 +49,7 @@ const JobModule = (apiService: FetchFactory) => {
     getJobDetail,
     addJob,
     editJob,
+    delJob,
   }
 }
 

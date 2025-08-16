@@ -266,12 +266,12 @@
                 </div>
 
                 <!-- Salary -->
-                <div v-if="job.salary" class="mt-6">
+                <div v-if="job.salaryMin" class="mt-6">
                   <h4 class="text-md font-semibold mb-2">
                     {{ $t('job.detail.salary') }}
                   </h4>
                   <p class="text-sm text-gray-700">
-                    {{ formatNumber(job.salary) }}
+                    {{ formatNumber(job.salaryMin) }}
                   </p>
                 </div>
               </UCard>

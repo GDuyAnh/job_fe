@@ -163,15 +163,27 @@
                           name="i-heroicons-building-office"
                           class="w-4 h-4"
                         />
-                        <span>{{ job.category }}</span>
+                        <span>{{
+                          categoryEnumLabel?.[
+                            job.category as unknown as number
+                          ] ?? job.category
+                        }}</span>
                       </div>
                       <div class="flex items-center gap-1">
                         <UIcon name="i-heroicons-map-pin" class="w-4 h-4" />
-                        <span>{{ job.location }}</span>
+                        <span>{{
+                          locationEnumLabel?.[
+                            job.location as unknown as number
+                          ] ?? job.location
+                        }}</span>
                       </div>
                       <div class="flex items-center gap-1">
                         <UIcon name="i-heroicons-clock" class="w-4 h-4" />
-                        <span>{{ job.typeOfEmployment }}</span>
+                        <span>{{
+                          employmentTypesEnumLabel?.[
+                            job.typeOfEmployment as unknown as number
+                          ] ?? job.typeOfEmployment
+                        }}</span>
                       </div>
                     </div>
                   </div>
@@ -180,7 +192,11 @@
                     variant="soft"
                     class="flex-shrink-0"
                   >
-                    {{ job.experienceLevel }}
+                    {{
+                      experienceLevelsEnumLabel?.[
+                        job.experienceLevel as unknown as number
+                      ] ?? job.experienceLevel
+                    }}
                   </UBadge>
                 </div>
 
@@ -249,6 +265,10 @@ const {
   employmentTypeItems,
   experienceLevelItems,
   locationItems,
+  locationEnumLabel,
+  categoryEnumLabel,
+  employmentTypesEnumLabel,
+  experienceLevelsEnumLabel,
 } = useJobFilters()
 
 // Route
@@ -280,7 +300,9 @@ const filteredJobs = computed(() => {
     // Employment type filter
     if (
       selectedFilters.value.employmentType.length > 0 &&
-      !selectedFilters.value.employmentType.includes(job.typeOfEmployment)
+      !selectedFilters.value.employmentType.includes(
+        String(job.typeOfEmployment),
+      )
     ) {
       return false
     }
@@ -288,7 +310,9 @@ const filteredJobs = computed(() => {
     // Experience level filter
     if (
       selectedFilters.value.experienceLevel.length > 0 &&
-      !selectedFilters.value.experienceLevel.includes(job.experienceLevel)
+      !selectedFilters.value.experienceLevel.includes(
+        String(job.experienceLevel),
+      )
     ) {
       return false
     }
@@ -338,6 +362,8 @@ const performSearch = async () => {
 
     // Call API
     const response = await $api.job.searchJob(apiParams)
+
+    console.log(response)
 
     if (response && Array.isArray(response)) {
       jobs.value = response.map((job) => JobMapper.toModel(job))

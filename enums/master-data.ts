@@ -5,6 +5,7 @@ export enum MasterDataItem {
   ExperienceLevel = 'experienceLevel',
   TypeOfEmployment = 'typeOfEmployment',
   OrganizationType = 'organizationType',
+  SalaryType = 'salaryType',
 }
 
 export enum Category {

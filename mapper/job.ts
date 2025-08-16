@@ -23,7 +23,10 @@ export class JobMapper {
       twitterLink: value.twitterLink,
       linkedInLink: value.linkedInLink,
       bannerLogo: value.bannerLogo,
-      salary: value.salary,
+      salaryMin: value.salaryMin,
+      salaryMax: value.salaryMax,
+      salaryType: value.salaryType,
+      salaryTypeValue: value.salaryTypeValue,
       benefits: value.benefits,
       isFeatured: value.isFeatured,
       createdAt: value.createdAt || new Date(),
@@ -44,8 +47,10 @@ export class JobMapper {
           : 0,
       experienceLevel:
         value.experienceLevel !== undefined ? Number(value.experienceLevel) : 0,
-      salaryMin: value.salary ?? undefined,
-      salaryMax: value.salary ?? undefined,
+      salaryMin: value.salaryMin ?? undefined,
+      salaryMax: value.salaryMax ?? undefined,
+      salaryType: value.salaryType ?? undefined,
+      salaryTypeValue: value.salaryTypeValue ?? undefined,
       benefits: value.benefits ?? undefined,
       isFeatured: value.isFeatured,
       deadline: value.deadline
@@ -55,13 +60,11 @@ export class JobMapper {
       companyId: 0,
       imageLogo: '',
       bannerLogo: '',
-      salaryType: 1,
     }
   }
 
   static toModelUpdate(value: JobEntity): JobModelUpdate {
     return {
-      id: value.id,
       title: value.title,
       description: value.description,
       category: value.category !== undefined ? Number(value.category) : 0,
@@ -72,8 +75,10 @@ export class JobMapper {
           : 0,
       experienceLevel:
         value.experienceLevel !== undefined ? Number(value.experienceLevel) : 0,
-      salaryMin: value.salary ?? undefined,
-      salaryMax: value.salary ?? undefined,
+      salaryMin: value.salaryMin ?? undefined,
+      salaryMax: value.salaryMax ?? undefined,
+      salaryType: value.salaryType ?? undefined,
+      salaryTypeValue: value.salaryTypeValue ?? undefined,
       benefits: value.benefits ?? undefined,
       isFeatured: value.isFeatured,
       deadline: value.deadline
@@ -83,7 +88,6 @@ export class JobMapper {
       companyId: 0,
       imageLogo: '',
       bannerLogo: '',
-      salaryType: 1,
     }
   }
 }

@@ -193,14 +193,24 @@
                 </label>
 
                 <!-- Input -->
-                <UInput
-                  id="job-title"
-                  v-model="job.salaryType"
-                  class="w-full"
-                  type="text"
-                />
+                <div>
+                  <USelect
+                    :items="salaryTypeItems"
+                    :model-value="job.salaryType?.toString()"
+                    class="w-3/10 pt-2 rounded-r-none border-r-0"
+                    @update:model-value="
+                      (val) => (job.salaryType = Number(val ?? 0))
+                    "
+                  />
+                  <UInput
+                    id="job-title"
+                    v-model="job.salaryTypeValue"
+                    class="w-7/10 rounded-l-none border-l-0"
+                    type="text"
+                  />
+                </div>
               </div>
-              <div>
+              <div v-if="job.salaryType != 5">
                 <!-- Label -->
                 <label
                   for="job-title"
@@ -217,7 +227,7 @@
                   type="text"
                 />
               </div>
-              <div>
+              <div v-if="job.salaryType != 5">
                 <!-- Label -->
                 <label
                   for="job-title"
@@ -299,7 +309,12 @@
               </label>
 
               <!-- Input -->
-              <UInput id="job-title" class="w-full" />
+              <UInput
+                id="company-address"
+                :model-value="company ? company.address : ''"
+                class="w-full"
+                readonly
+              />
             </div>
 
             <!-- Job location address -->
@@ -386,6 +401,7 @@ const {
   experienceLevelItems,
   locationItemsWithoutAll,
   jobBenefitsItems,
+  salaryTypeItems,
 } = useJobFilters()
 
 // Route
@@ -443,6 +459,9 @@ const loadJobDetail = async () => {
     if (response) {
       job.value = JobMapper.toModelAdd(response)
       job.value.companyId = authStore.user?.companyId
+      job.value.benefits = job.value.benefits
+        ? job.value.benefits.map((b) => String(b))
+        : []
     }
   } catch (error: any) {
     useNotify({ message: error.message })
@@ -462,7 +481,7 @@ onMounted(() => {
   }
 
   loadJobDetail()
-  fetchCompanyDetail(authStore.user?.companyId ?? Nan)
+  fetchCompanyDetail(authStore.user?.companyId ?? NaN)
 })
 
 const fetchCompanyDetail = async (companyId: number) => {

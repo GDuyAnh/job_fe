@@ -157,7 +157,7 @@
                           variant="outline"
                           color="warning"
                           size="sm"
-                          @click.stop="viewJob(job)"
+                          @click.stop="deleteJob(job)"
                         >
                           {{ $t('job.listJobUser.deleteJob') }}
                         </UButton>
@@ -254,6 +254,30 @@ const viewJob = (job: JobModel) => {
 const updateJob = (job: JobModel) => {
   // Navigate to job detail page
   router.push(`/jobs/edit/${job.id}`)
+}
+
+const deleteJob = async (job: JobModel) => {
+  loading.value = true
+
+  try {
+    // Call API
+    const response = await $api.job.delJob(job.id)
+
+    if (response && authStore.user?.companyId != null) {
+      useNotify({
+        message: 'Xóa job thành công.',
+      })
+
+      performGetJobByCompanyId(authStore.user?.companyId)
+    }
+  } catch (error: any) {
+    console.error('Delete job failed:', error)
+    useNotify({
+      message: Array.isArray(error.message) ? error.message[0] : error.message,
+    })
+  } finally {
+    loading.value = false
+  }
 }
 
 const getExperienceColor = (level: string) => {
