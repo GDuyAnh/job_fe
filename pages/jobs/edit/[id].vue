@@ -83,7 +83,13 @@
                 </label>
 
                 <!-- Input email -->
-                <UInput id="job-email" class="w-full" type="email" />
+                <UInput
+                  id="job-email"
+                  :model-value="company ? company.email : ''"
+                  class="w-full"
+                  type="email"
+                  readonly
+                />
               </div>
               <div>
                 <!-- Label -->
@@ -95,7 +101,12 @@
                 </label>
 
                 <!-- Input -->
-                <UInput id="company-name" class="w-full" />
+                <UInput
+                  id="company-name"
+                  :model-value="company ? company.name : ''"
+                  class="w-full"
+                  readonly
+                />
               </div>
             </div>
 
@@ -350,6 +361,7 @@
 
 <script setup lang="ts">
 import type { StepperItem } from '@nuxt/ui'
+import type { CompanyEntity } from '~/entities/company'
 import { JobMapper } from '~/mapper/job'
 import type { JobModelAdd } from '~/models/job'
 const authStore = useAuthStore()
@@ -386,6 +398,8 @@ const loading = ref(false)
 const jobId = Array.isArray(route.params.id)
   ? Number(route.params.id[0])
   : Number(route.params.id)
+
+const company = ref<CompanyEntity | null>(null)
 // Methods
 const goBack = () => {
   router.back()
@@ -448,7 +462,29 @@ onMounted(() => {
   }
 
   loadJobDetail()
+  fetchCompanyDetail(authStore.user?.companyId ?? Nan)
 })
+
+const fetchCompanyDetail = async (companyId: number) => {
+  loading.value = true
+
+  try {
+    if (isNaN(companyId)) {
+      throw new Error('Invalid company ID')
+    }
+
+    const response = await $api.company.getCompanyDetail(companyId)
+
+    company.value = response
+  } catch (error: any) {
+    useNotify({
+      message: Array.isArray(error.message) ? error.message[0] : error.message,
+    })
+  } finally {
+    loading.value = false
+  }
+}
+
 watch(() => route.params.id, loadJobDetail)
 </script>
 
