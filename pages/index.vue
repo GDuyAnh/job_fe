@@ -41,7 +41,7 @@
                 <div
                   class="absolute left-0 top-full mt-1 z-50 w-full bg-white shadow-lg rounded-md p-1"
                 >
-                  <div>
+                  <div v-if="authStore.user.companyId == 3">
                     <UButton
                       v-if="authStore.user.role == RoleStatus.COMPANY"
                       label="Đăng tải công việc"
@@ -49,7 +49,7 @@
                       @click="router.push('/jobs/list')"
                     />
                   </div>
-                  <div>
+                  <div class="mt-3">
                     <UButton label="Đăng xuất" block @click="logout()" />
                   </div>
                 </div>

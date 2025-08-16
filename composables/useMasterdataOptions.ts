@@ -95,5 +95,7 @@ export const useJobFilters = () => {
     categoryItemsWithoutAll,
     organizationTypesLabel,
     organizationTypeItems,
+    locationItemsWithoutAll,
+    categoryItemsWithoutAll,
   }
 }
