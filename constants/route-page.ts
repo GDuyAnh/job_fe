@@ -4,4 +4,5 @@ export const ROUTE_PAGE = {
   AUTH: {
     LOGIN: 'auth/login',
   },
+  COMPANY: '/companies',
 } as const

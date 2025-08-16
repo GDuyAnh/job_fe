@@ -15,7 +15,7 @@
               activeTab === tab.name ? 'font-extrabold text-[#8a7754]' : ''
             "
             style="min-width: 80px"
-            @click="activeTab = tab.name"
+            @click="gotoTab(tab)"
           >
             <span>{{ $t(tab.label) }}</span>
             <span
@@ -43,6 +43,7 @@
                 >
                   <div>
                     <UButton
+                      v-if="authStore.user.role == RoleStatus.COMPANY"
                       label="Đăng tải công việc"
                       block
                       @click="router.push('/jobs/list')"
@@ -659,12 +660,16 @@ const stats = [
 ]
 
 const tabs = [
-  { name: 'demos', label: 'home.tabs.demos' },
-  { name: 'find-jobs', label: 'home.tabs.findJobs' },
-  { name: 'companies', label: 'home.tabs.companies' },
-  { name: 'candidates', label: 'home.tabs.candidates' },
-  { name: 'blog', label: 'home.tabs.blog' },
-  { name: 'pages', label: 'home.tabs.pages' },
+  { name: 'demos', label: 'home.tabs.demos', path: ROUTE_PAGE.HOME },
+  { name: 'find-jobs', label: 'home.tabs.findJobs', path: ROUTE_PAGE.HOME },
+  { name: 'companies', label: 'home.tabs.companies', path: ROUTE_PAGE.COMPANY },
+  {
+    name: 'candidates',
+    label: 'home.tabs.candidates',
+    path: ROUTE_PAGE.HOME,
+  },
+  { name: 'blog', label: 'home.tabs.blog', path: ROUTE_PAGE.HOME },
+  { name: 'pages', label: 'home.tabs.pages', path: ROUTE_PAGE.HOME },
 ]
 
 const activeTab = ref(tabs[0].name)
@@ -884,4 +889,9 @@ const uiOptions = computed(() => {
       len < 4 ? ['basis-1/1', 'basis-1/2', 'basis-1/3'][len - 1] : 'basis-1/4',
   }
 })
+
+const gotoTab = (tab: any) => {
+  activeTab.value = tab.name
+  router.push(tab.path)
+}
 </script>

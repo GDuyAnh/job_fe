@@ -189,8 +189,8 @@ const loading = ref(false)
 
 const searchParams = ref({
   keyword: '',
-  location: null as number | null,
-  organizationType: null as number | null,
+  location: '',
+  organizationType: '',
 })
 
 // Computed property for filtered companies
@@ -230,7 +230,7 @@ const performSearch = async () => {
 }
 
 const clearSearch = () => {
-  searchParams.value = { keyword: '', location: null, organizationType: null }
+  searchParams.value = { keyword: '', location: '', organizationType: '' }
   performSearch()
 }
 
@@ -249,15 +249,17 @@ const getOrganizationTypeLabel = (organizationType: number): string => {
 onMounted(() => {
   const query = route.query
 
-  if (query.keyword) searchParams.value.keyword = query.keyword as string
+  if (query.keyword) {
+    searchParams.value.keyword = query.keyword as string
+  }
 
-  if (query.location)
-    searchParams.value.location = parseInt(query.location as string)
+  if (query.location) {
+    searchParams.value.location = query.location as string
+  }
 
-  if (query.organizationType)
-    searchParams.value.organizationType = parseInt(
-      query.organizationType as string,
-    )
+  if (query.organizationType) {
+    searchParams.value.organizationType = query.organizationType as string
+  }
 
   performSearch()
 })

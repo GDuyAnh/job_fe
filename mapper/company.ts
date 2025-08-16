@@ -51,13 +51,13 @@ export class CompanyMapper {
       url: imageDto.url,
     }
   }
-  
+
   static toBannerModel(value: CompanyEntity): CompanyBannerModel {
     return {
       id: value.id,
-      insight: value.insight,
-      overview: value.overview,
-      logo: value.logo,
+      insight: value.insight ?? '',
+      overview: value.overview ?? '',
+      logo: value.logo ?? '',
     }
   }
 }
