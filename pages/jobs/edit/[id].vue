@@ -441,7 +441,7 @@ onMounted(() => {
   if (
     !authStore.user ||
     typeof authStore.user.role !== 'number' ||
-    authStore.user.role < 2 ||
+    authStore.user.role < 3 ||
     !authStore.user?.companyId
   ) {
     router.push('/')
