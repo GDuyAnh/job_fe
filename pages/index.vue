@@ -41,9 +41,8 @@
                 <div
                   class="absolute left-0 top-full mt-1 z-50 w-full bg-white shadow-lg rounded-md p-1"
                 >
-                  <div v-if="authStore.user.companyId == 3">
+                  <div v-if="authStore.user.role == RoleStatus.COMPANY">
                     <UButton
-                      v-if="authStore.user.role == RoleStatus.COMPANY"
                       label="Đăng tải công việc"
                       block
                       @click="router.push('/jobs/list')"

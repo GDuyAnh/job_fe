@@ -83,7 +83,13 @@
                 </label>
 
                 <!-- Input email -->
-                <UInput id="job-email" class="w-full" type="email" />
+                <UInput
+                  id="job-email"
+                  :model-value="company ? company.email : ''"
+                  class="w-full"
+                  type="text"
+                  readonly
+                />
               </div>
               <div>
                 <!-- Label -->
@@ -95,7 +101,13 @@
                 </label>
 
                 <!-- Input -->
-                <UInput id="company-name" class="w-full" />
+                <UInput
+                  id="company-name"
+                  :model-value="company ? company.name : ''"
+                  class="w-full"
+                  type="text"
+                  readonly
+                />
               </div>
             </div>
 
@@ -371,6 +383,7 @@
 <script setup lang="ts">
 import { UButton } from '#components'
 import type { StepperItem } from '@nuxt/ui'
+import type { CompanyEntity } from '~/entities/company'
 import type { JobModelAdd } from '~/models/job'
 
 const stepper = useTemplateRef('stepper')
@@ -405,6 +418,7 @@ const authStore = useAuthStore()
 const loading = ref(false)
 const isComplete = ref(false)
 const job = ref<JobModelAdd>({} as JobModelAdd)
+const company = ref<CompanyEntity | null>(null)
 
 // Initialize search from route query
 onMounted(() => {
@@ -419,6 +433,7 @@ onMounted(() => {
 
   job.value.companyId = authStore.user?.companyId
   job.value.postedDate = new Date()
+  fetchCompanyDetail(job.value.companyId ? job.value.companyId : NaN)
 })
 
 // Methods
@@ -446,6 +461,26 @@ const addJob = async () => {
     }
   } catch (error: any) {
     console.error('Add job failed:', error)
+    useNotify({
+      message: Array.isArray(error.message) ? error.message[0] : error.message,
+    })
+  } finally {
+    loading.value = false
+  }
+}
+
+const fetchCompanyDetail = async (companyId: number) => {
+  loading.value = true
+
+  try {
+    if (isNaN(companyId)) {
+      throw new Error('Invalid company ID')
+    }
+
+    const response = await $api.company.getCompanyDetail(companyId)
+
+    company.value = response
+  } catch (error: any) {
     useNotify({
       message: Array.isArray(error.message) ? error.message[0] : error.message,
     })
