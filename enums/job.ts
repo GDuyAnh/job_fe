@@ -32,3 +32,11 @@ export enum TypeOfEmployment {
   remote = 4,
   temporary = 5,
 }
+
+export enum SalaryType {
+  month = 1,
+  week = 2,
+  hour = 3,
+  contract = 4,
+  more = 5,
+}

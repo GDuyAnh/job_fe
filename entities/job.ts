@@ -18,7 +18,10 @@ export interface JobEntity {
   twitterLink?: string | null
   linkedInLink?: string | null
   bannerLogo?: string
-  salary?: string | null
+  salaryMin?: string | null
+  salaryMax?: string | null
+  salaryType: number
+  salaryTypeValue?: string | null
   benefits?: string[] | null
   isFeatured: boolean
   createdAt?: Date

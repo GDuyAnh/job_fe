@@ -1,4 +1,4 @@
-import { JobBenefits } from '~/enums/job'
+import { JobBenefits, SalaryType } from '~/enums/job'
 import { OrganizationType, Category } from '~/enums/master-data'
 
 import type { MasterData } from '~/types/master-data'
@@ -12,6 +12,7 @@ type MasterDataConfig = {
       | typeof ExperienceLevel
       | typeof TypeOfEmployment
       | typeof OrganizationType
+      | typeof SalaryType
     translationKey: string
   }
 }
@@ -46,6 +47,10 @@ export const useMasterdata = (): MasterDataReturn => {
     organizationType: {
       enum: OrganizationType,
       translationKey: 'common.masterData.organizationType',
+    },
+    salaryType: {
+      enum: SalaryType,
+      translationKey: 'common.masterData.salaryType',
     },
   }
 
