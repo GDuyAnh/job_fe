@@ -311,6 +311,8 @@ const formatDate = (date?: Date) => {
 
 // Initialize search from route query
 onMounted(() => {
+  console.log(authStore.user)
+
   if (
     !authStore.user ||
     typeof authStore.user.role !== 'number' ||
