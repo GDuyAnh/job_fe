@@ -423,7 +423,7 @@ const goBack = () => {
 
 // Methods
 const goToListJobUser = () => {
-  router.push('/Jobs/list')
+  router.push(ROUTE_PAGE.USER_JOB.LIST)
 }
 
 const editJob = async () => {
@@ -471,17 +471,14 @@ const loadJobDetail = async () => {
 }
 
 onMounted(() => {
-  if (
-    !authStore.user ||
-    typeof authStore.user.role !== 'number' ||
-    authStore.user.role < 3 ||
-    !authStore.user?.companyId
-  ) {
-    router.push('/')
+  if (!authStore.user) {
+    router.push(ROUTE_PAGE.AUTH.LOGIN)
   }
 
   loadJobDetail()
-  fetchCompanyDetail(authStore.user?.companyId ?? NaN)
+  if (authStore.user?.companyId) {
+    fetchCompanyDetail(authStore.user.companyId)
+  }
 })
 
 const fetchCompanyDetail = async (companyId: number) => {

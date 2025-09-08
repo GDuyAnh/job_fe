@@ -311,18 +311,13 @@ const formatDate = (date?: Date) => {
 
 // Initialize search from route query
 onMounted(() => {
-  if (
-    !authStore.user ||
-    typeof authStore.user.role !== 'number' ||
-    authStore.user.role < 3
-  ) {
-    router.push('/')
+  console.log(authStore.user)
+  if (!authStore.user) {
+    router.push(ROUTE_PAGE.AUTH.LOGIN)
   }
 
   if (authStore.user?.companyId) {
-    performGetJobByCompanyId(authStore.user?.companyId)
-  } else {
-    router.push('/')
+    performGetJobByCompanyId(authStore.user.companyId)
   }
 })
 </script>

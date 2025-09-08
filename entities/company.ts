@@ -35,3 +35,16 @@ export interface CompanyEntity {
   companyImages: CompanyImage[]
   jobs: CompanyJobSummary[]
 }
+
+export interface VietQRBusinessResponse {
+  code: string
+  desc: string
+  data: {
+    id: number
+    name: string
+    shortName: string
+    mst: string
+    address: string
+    // thêm field khác nếu cần
+  }
+}

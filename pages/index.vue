@@ -41,11 +41,11 @@
                 <div
                   class="absolute left-0 top-full mt-1 z-50 w-full bg-white shadow-lg rounded-md p-1"
                 >
-                  <div v-if="authStore.user.role == RoleStatus.COMPANY">
+                  <div v-if="authStore.user">
                     <UButton
                       label="Đăng tải công việc"
                       block
-                      @click="router.push('/jobs/list')"
+                      @click="router.push(ROUTE_PAGE.USER_JOB.LIST)"
                     />
                   </div>
                   <div class="mt-3">
@@ -694,7 +694,7 @@ const tabs = [
     path: ROUTE_PAGE.HOME,
   },
   { name: 'blog', label: 'home.tabs.blog', path: ROUTE_PAGE.HOME },
-  { name: 'pages', label: 'home.tabs.pages', path: ROUTE_PAGE.HOME },
+  { name: 'pages', label: 'home.tabs.pages', path: ROUTE_PAGE.PAGE },
 ]
 
 const activeTab = ref(tabs[0].name)
