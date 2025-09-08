@@ -3,7 +3,11 @@ export const ROUTE_PAGE = {
   SEARCH: '/jobs/search',
   TEST: '/test',
   AUTH: {
-    LOGIN: 'auth/login',
+    LOGIN: '/auth/login',
   },
   COMPANY: '/companies',
+  PAGE: '/jobs/upload',
+  USER_JOB: {
+    LIST: '/Jobs/list',
+  },
 } as const

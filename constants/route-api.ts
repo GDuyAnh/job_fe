@@ -17,6 +17,7 @@ export const ROUTE_API = {
   COMPANY: {
     SEARCH: 'companies/search',
     GET_COMPANY: 'companies',
+    GET_COMPANY_BY_MST: 'https://api.vietqr.io/v2/business',
   },
 
   BLOG: {

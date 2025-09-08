@@ -23,6 +23,144 @@
           color="primary"
           size="xl"
         >
+          <template #school>
+            <UTabs
+              :items="tabItems"
+              variant="link"
+              :ui="{ trigger: 'grow' }"
+              class="gap-4 w-full"
+            >
+              <template #choose>
+                <div
+                  class="flex flex-col gap-1 w-full"
+                  style="padding: 30px 0px 30px 0px !important"
+                >
+                  <!-- Label -->
+                  <label
+                    for="job-title"
+                    class="font-medium text-sm text-gray-700"
+                  >
+                    {{ $t('job.uploadJob.companyNameLabel') }}
+                  </label>
+                  <div>
+                    <!-- Input -->
+                    <UInput
+                      id="company-name"
+                      v-model="searchCompany"
+                      class="w-full"
+                      type="text"
+                      @input="
+                        (e: Event) =>
+                          filterCompanies((e.target as HTMLInputElement).value)
+                      "
+                      @keydown.enter.prevent="selectFirstOrClear"
+                      @blur="selectFirstOrClear"
+                    />
+                    <!-- Suggestion dropdown -->
+                    <div
+                      v-if="filteredCompanies.length > 0"
+                      class="absolute z-10 bg-white border border-gray-300 rounded shadow max-h-60 overflow-auto"
+                      style="width: 91.5%"
+                    >
+                      <div
+                        v-for="c in filteredCompanies"
+                        :key="c.id"
+                        class="px-3 py-2 hover:bg-gray-100 cursor-pointer"
+                        @click="selectCompany(c)"
+                      >
+                        {{ c.name }}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <UButton
+                  label="Xác nhận"
+                  variant="soft"
+                  class="self-end"
+                  color="primary"
+                />
+              </template>
+
+              <template #register>
+                <div
+                  class="flex flex-col gap-1 w-full"
+                  style="padding: 30px 0px 30px 0px !important"
+                >
+                  <label
+                    for="company-mst"
+                    class="font-medium text-sm text-gray-700"
+                  >
+                    {{ $t('company.action.inputMST') }}
+                    <span class="text-black">{{
+                      $t('job.uploadJob.mandatoryChar')
+                    }}</span>
+                  </label>
+                  <div
+                    class="flex flex-row gap-2 w-full"
+                    style="padding: 0px !important"
+                  >
+                    <!-- Input -->
+                    <UInput
+                      id="company-mst"
+                      v-model="mstCompany"
+                      variant="outline"
+                      class="w-full"
+                      :placeholder="$t('company.action.placeHolderMST')"
+                    />
+                    <UButton
+                      label="Tra cứu"
+                      variant="soft"
+                      class="self-end"
+                      color="neutral"
+                      @click="findCompanyByMst()"
+                    />
+                  </div>
+                  <div>
+                    <!-- Label -->
+                    <label
+                      for="company-mst"
+                      class="font-medium text-sm text-gray-700"
+                    >
+                      {{ $t('company.action.nameLabel') }}
+                    </label>
+                    <!-- Input -->
+                    <UInput
+                      id="company-mst"
+                      :model-value="companyByMST ? companyByMST.data.name : ''"
+                      variant="outline"
+                      class="w-full"
+                    />
+                  </div>
+                  <div>
+                    <!-- Label -->
+                    <label
+                      for="company-mst"
+                      class="font-medium text-sm text-gray-700"
+                    >
+                      {{ $t('company.action.addressLabel') }}
+                    </label>
+                    <!-- Input -->
+                    <UInput
+                      id="company-mst"
+                      :model-value="
+                        companyByMST ? companyByMST.data.address : ''
+                      "
+                      variant="outline"
+                      class="w-full"
+                    />
+                  </div>
+                </div>
+
+                <UButton
+                  label="Xác nhận"
+                  variant="soft"
+                  class="self-end"
+                  color="primary"
+                />
+              </template>
+            </UTabs>
+          </template>
           <template #detail>
             <!-- Input type job -->
             <div
@@ -88,7 +226,6 @@
                   :model-value="company ? company.email : ''"
                   class="w-full"
                   type="text"
-                  readonly
                 />
               </div>
               <div>
@@ -103,11 +240,31 @@
                 <!-- Input -->
                 <UInput
                   id="company-name"
-                  :model-value="company ? company.name : ''"
+                  v-model="searchCompany"
                   class="w-full"
                   type="text"
-                  readonly
+                  @input="
+                    (e: Event) =>
+                      filterCompanies((e.target as HTMLInputElement).value)
+                  "
+                  @keydown.enter.prevent="selectFirstOrClear"
+                  @blur="selectFirstOrClear"
                 />
+                <!-- Suggestion dropdown -->
+                <div
+                  v-if="filteredCompanies.length > 0"
+                  class="absolute z-10 bg-white border border-gray-300 rounded shadow max-h-60 overflow-auto"
+                  style="width: 44.5%"
+                >
+                  <div
+                    v-for="c in filteredCompanies"
+                    :key="c.id"
+                    class="px-3 py-2 hover:bg-gray-100 cursor-pointer"
+                    @click="selectCompany(c)"
+                  >
+                    {{ c.name }}
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -314,7 +471,6 @@
                 id="company-address"
                 :model-value="company ? company.address : ''"
                 class="w-full"
-                readonly
               />
             </div>
 
@@ -341,7 +497,7 @@
             </div>
           </template>
           <template #confirm>
-            <div class="flex bg-[#f5f7fa] flex-col items-center">
+            <div class="flex flex-col items-center">
               <div class="h-1/2">
                 <UIcon name="i-lucide-laptop-minimal-check" class="size-10" />
               </div>
@@ -397,12 +553,17 @@
 
 <script setup lang="ts">
 import { UButton } from '#components'
-import type { StepperItem } from '@nuxt/ui'
-import type { CompanyEntity } from '~/entities/company'
+import type { StepperItem, TabsItem } from '@nuxt/ui'
+import type { CompanyEntity, VietQRBusinessResponse } from '~/entities/company'
 import type { JobModelAdd } from '~/models/job'
 
 const stepper = useTemplateRef('stepper')
 const steppers = ref<StepperItem[]>([
+  {
+    slot: 'school' as const,
+    title: 'Trường học',
+    icon: 'i-lucide-school',
+  },
   {
     slot: 'detail' as const,
     title: 'Chi tiết công việc',
@@ -414,6 +575,19 @@ const steppers = ref<StepperItem[]>([
     icon: 'i-lucide-circle-check-big',
   },
 ])
+
+const tabItems: TabsItem[] = [
+  {
+    label: 'Chọn trường đã có sẵn',
+    icon: 'i-lucide-graduation-cap',
+    slot: 'choose' as const,
+  },
+  {
+    label: 'Đăng ký trường học mới',
+    icon: 'i-lucide-plus',
+    slot: 'register' as const,
+  },
+]
 
 // Enum
 const {
@@ -435,21 +609,21 @@ const loading = ref(false)
 const isComplete = ref(false)
 const job = ref<JobModelAdd>({} as JobModelAdd)
 const company = ref<CompanyEntity | null>(null)
+const currentCompanies = ref<CompanyEntity[]>([])
+const companyByMST = ref<VietQRBusinessResponse | null>(null)
 
 // Initialize search from route query
 onMounted(() => {
-  if (
-    !authStore.user ||
-    typeof authStore.user.role !== 'number' ||
-    authStore.user.role < 3 ||
-    !authStore.user?.companyId
-  ) {
-    router.push('/')
+  if (!authStore.user) {
+    router.push(ROUTE_PAGE.AUTH.LOGIN)
   }
 
-  job.value.companyId = authStore.user?.companyId
   job.value.postedDate = new Date()
-  fetchCompanyDetail(job.value.companyId ? job.value.companyId : NaN)
+  fetchAllCompany()
+  if (authStore.user?.companyId) {
+    job.value.companyId = authStore.user.companyId
+    fetchCompanyDetail(job.value.companyId)
+  }
 })
 
 // Methods
@@ -459,7 +633,7 @@ const goBack = () => {
 
 // Methods
 const goToListJobUser = () => {
-  router.push('/Jobs/list')
+  router.push(ROUTE_PAGE.USER_JOB.LIST)
 }
 
 const addJob = async () => {
@@ -485,6 +659,22 @@ const addJob = async () => {
   }
 }
 
+const fetchAllCompany = async () => {
+  loading.value = true
+
+  try {
+    const response = await $api.company.searchCompany({})
+
+    currentCompanies.value = response
+  } catch (error: any) {
+    useNotify({
+      message: Array.isArray(error.message) ? error.message[0] : error.message,
+    })
+  } finally {
+    loading.value = false
+  }
+}
+
 const fetchCompanyDetail = async (companyId: number) => {
   loading.value = true
 
@@ -496,12 +686,75 @@ const fetchCompanyDetail = async (companyId: number) => {
     const response = await $api.company.getCompanyDetail(companyId)
 
     company.value = response
+    searchCompany.value = company.value.name
   } catch (error: any) {
     useNotify({
       message: Array.isArray(error.message) ? error.message[0] : error.message,
     })
   } finally {
     loading.value = false
+  }
+}
+
+const mstCompany = ref('')
+const findCompanyByMst = async () => {
+  loading.value = true
+
+  try {
+    // Call API
+    const response = await $api.company.getCompanyByMst(mstCompany.value)
+
+    if (response && response.code == '00') {
+      companyByMST.value = response
+    } else {
+      useNotify({
+        message: 'Không tìm thấy thông tin trường học với mã số thuế đã nhập.',
+      })
+    }
+  } catch (error: any) {
+    console.error('Get Company By Mst failed:', error)
+    useNotify({
+      message: Array.isArray(error.message) ? error.message[0] : error.message,
+    })
+  } finally {
+    loading.value = false
+  }
+}
+
+const searchCompany = ref('')
+const filteredCompanies = ref<CompanyEntity[]>([])
+
+const filterCompanies = (keyword: string) => {
+  if (!keyword) {
+    filteredCompanies.value = []
+  } else {
+    filteredCompanies.value = currentCompanies.value.filter((c) =>
+      c.name.toLowerCase().includes(keyword.toLowerCase()),
+    )
+  }
+}
+
+const selectCompany = (c: CompanyEntity) => {
+  company.value = c
+  searchCompany.value = c.name
+  filteredCompanies.value = []
+
+  // fill thêm thông tin vào job
+  job.value.companyId = c.id
+}
+
+// chọn thằng đầu tiên trong filter hoặc clear
+const selectFirstOrClear = () => {
+  const currentSelect =
+    currentCompanies.value.filter((c) =>
+      c.name.toLowerCase().includes(searchCompany.value.toLowerCase()),
+    ).length > 0
+
+  if (filteredCompanies.value && filteredCompanies.value.length > 0) {
+    selectCompany(filteredCompanies.value[0])
+  } else if (!currentSelect) {
+    job.value.companyId = NaN
+    searchCompany.value = ''
   }
 }
 </script>
@@ -529,18 +782,16 @@ const fetchCompanyDetail = async (companyId: number) => {
 ::v-deep(.stepper-cus div.absolute.rounded-full[data-state='completed']) {
   background-color: #378ecc !important;
   color: white !important;
-  height: 4px !important;
 }
 
 /* Thanh ngang inactive */
 ::v-deep(.stepper-cus div.absolute.rounded-full[data-state='active']) {
   background-color: #d4d4d4 !important;
   color: white !important;
-  height: 4px !important;
 }
 
 /* Thanh ngang inactive */
 ::v-deep(.stepper-cus div.flex) {
-  padding: 20px 210px !important;
+  padding: 20px 0px !important;
 }
 </style>

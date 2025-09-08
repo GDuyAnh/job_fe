@@ -1,5 +1,5 @@
 import type FetchFactory from '~/services/factory'
-import type { CompanyEntity } from '~/entities/company'
+import type { CompanyEntity, VietQRBusinessResponse } from '~/entities/company'
 
 const CompanyModule = (apiService: FetchFactory) => {
   const searchCompany = async (params: Record<string, any>) => {
@@ -14,9 +14,16 @@ const CompanyModule = (apiService: FetchFactory) => {
     )
   }
 
+  const getCompanyByMst = async (mst: string) => {
+    return apiService.get<VietQRBusinessResponse>(
+      `${ROUTE_API.COMPANY.GET_COMPANY_BY_MST}/${mst}`,
+    )
+  }
+
   return {
     searchCompany,
     getCompanyDetail,
+    getCompanyByMst,
   }
 }
 

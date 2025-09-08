@@ -200,7 +200,7 @@
       "copyRight": "© 2024 TuyenGiaoVien.vn. Tất cả quyền được bảo lưu.",
       "policies": "Điều khoản sử dụng",
       "sercurity": "Chính sách bảo mật",
-      "contact": "Chính sách bảo mật"
+      "contact": "Thông tin liên lạc"
     },
     "buttonContent": {
       "seeAll": "Xem tất cả",
@@ -388,6 +388,12 @@
       "linkedin": "LinkedIn",
       "instagram": "Instagram"
     },
-    "website": "Website"
+    "website": "Website",
+    "action": {
+      "inputMST": "Nhập mã số thuế trường học :",
+      "placeHolderMST": "Ví dụ : 2100234326",
+      "nameLabel": "Tên trường học :",
+      "addressLabel": "Địa chỉ trường học :"
+    }
   }
 }
