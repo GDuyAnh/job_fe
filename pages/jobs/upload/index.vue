@@ -22,10 +22,13 @@
           class="w-full stepper-cus"
           color="primary"
           size="xl"
+          disabled
         >
           <template #school>
             <UTabs
+              v-model="currentTab"
               :items="tabItems"
+              :default-value="tabItems[0].slot"
               variant="link"
               :ui="{ trigger: 'grow' }"
               class="gap-4 w-full"
@@ -49,6 +52,7 @@
                       v-model="searchCompany"
                       class="w-full"
                       type="text"
+                      :placeholder="$t('company.action.placeHolderInputName')"
                       @input="
                         (e: Event) =>
                           filterCompanies((e.target as HTMLInputElement).value)
@@ -73,13 +77,23 @@
                     </div>
                   </div>
                 </div>
-
-                <UButton
-                  label="Xác nhận"
-                  variant="soft"
-                  class="self-end"
-                  color="primary"
-                />
+                <div
+                  class="flex flex-row gap-1 w-full justify-end"
+                  style="padding: 0px 0px 38px 20px !important"
+                >
+                  <UButton
+                    style="
+                      padding: 8px 16px;
+                      border: none;
+                      background-color: #4f8ef7;
+                      color: white;
+                      border-radius: 6px;
+                      cursor: pointer;
+                    "
+                    label="Xác nhận & Tiếp tục"
+                    @click="confirmChooseSchool()"
+                  />
+                </div>
               </template>
 
               <template #register>
@@ -113,6 +127,7 @@
                       variant="soft"
                       class="self-end"
                       color="neutral"
+                      :loading="isGettingCompanyByMst"
                       @click="findCompanyByMst()"
                     />
                   </div>
@@ -151,13 +166,23 @@
                     />
                   </div>
                 </div>
-
-                <UButton
-                  label="Xác nhận"
-                  variant="soft"
-                  class="self-end"
-                  color="primary"
-                />
+                <div
+                  class="flex flex-row gap-1 w-full justify-end"
+                  style="padding: 0px 0px 38px 20px !important"
+                >
+                  <UButton
+                    style="
+                      padding: 8px 16px;
+                      border: none;
+                      background-color: #4f8ef7;
+                      color: white;
+                      border-radius: 6px;
+                      cursor: pointer;
+                    "
+                    label="Xác nhận & Tiếp tục"
+                    @click="confirmCreateSchool()"
+                  />
+                </div>
               </template>
             </UTabs>
           </template>
@@ -226,6 +251,7 @@
                   :model-value="company ? company.email : ''"
                   class="w-full"
                   type="text"
+                  readonly
                 />
               </div>
               <div>
@@ -243,28 +269,8 @@
                   v-model="searchCompany"
                   class="w-full"
                   type="text"
-                  @input="
-                    (e: Event) =>
-                      filterCompanies((e.target as HTMLInputElement).value)
-                  "
-                  @keydown.enter.prevent="selectFirstOrClear"
-                  @blur="selectFirstOrClear"
+                  readonly
                 />
-                <!-- Suggestion dropdown -->
-                <div
-                  v-if="filteredCompanies.length > 0"
-                  class="absolute z-10 bg-white border border-gray-300 rounded shadow max-h-60 overflow-auto"
-                  style="width: 44.5%"
-                >
-                  <div
-                    v-for="c in filteredCompanies"
-                    :key="c.id"
-                    class="px-3 py-2 hover:bg-gray-100 cursor-pointer"
-                    @click="selectCompany(c)"
-                  >
-                    {{ c.name }}
-                  </div>
-                </div>
               </div>
             </div>
 
@@ -471,6 +477,7 @@
                 id="company-address"
                 :model-value="company ? company.address : ''"
                 class="w-full"
+                readonly
               />
             </div>
 
@@ -495,9 +502,47 @@
                 @update:model-value="(val) => (job.location = Number(val ?? 0))"
               />
             </div>
+
+            <!-- Action btn -->
+            <div
+              class="flex flex-row gap-1 w-full justify-between"
+              style="padding: 0px 20px 38px 20px !important"
+            >
+              <!-- Buton Back -->
+              <UButton
+                style="
+                  margin-top: 15px;
+                  padding: 8px 16px;
+                  border: none;
+                  background-color: #40d1cd;
+                  color: white;
+                  border-radius: 6px;
+                  cursor: pointer;
+                "
+                label="Trở về hiệu chỉnh trường học"
+                @click="goBackToChooseSchool()"
+              >
+              </UButton>
+
+              <!-- Buton Next -->
+              <UButton
+                style="
+                  margin-top: 15px;
+                  padding: 8px 16px;
+                  border: none;
+                  background-color: #4f8ef7;
+                  color: white;
+                  border-radius: 6px;
+                  cursor: pointer;
+                "
+                label="Xác nhận & Tiếp tục"
+                @click="confirmAddJob()"
+              >
+              </UButton>
+            </div>
           </template>
           <template #confirm>
-            <div class="flex flex-col items-center">
+            <div class="flex bg-[#f5f7fa] flex-col items-center">
               <div class="h-1/2">
                 <UIcon name="i-lucide-laptop-minimal-check" class="size-10" />
               </div>
@@ -507,6 +552,7 @@
               <UButton
                 style="
                   margin-top: 15px;
+                  margin-bottom: 38px;
                   padding: 8px 16px;
                   border: none;
                   background-color: #4f8ef7;
@@ -554,8 +600,12 @@
 <script setup lang="ts">
 import { UButton } from '#components'
 import type { StepperItem, TabsItem } from '@nuxt/ui'
-import type { CompanyEntity, VietQRBusinessResponse } from '~/entities/company'
-import type { JobModelAdd } from '~/models/job'
+import type {
+  CompanyAddUpdateEntity,
+  CompanyEntity,
+  VietQRBusinessResponse,
+} from '~/entities/company'
+import type { JobModelAddUpdate } from '~/models/job'
 
 const stepper = useTemplateRef('stepper')
 const steppers = ref<StepperItem[]>([
@@ -580,14 +630,16 @@ const tabItems: TabsItem[] = [
   {
     label: 'Chọn trường đã có sẵn',
     icon: 'i-lucide-graduation-cap',
-    slot: 'choose' as const,
+    slot: 'choose',
   },
   {
     label: 'Đăng ký trường học mới',
     icon: 'i-lucide-plus',
-    slot: 'register' as const,
+    slot: 'register',
   },
 ]
+
+const currentTab = ref('choose')
 
 // Enum
 const {
@@ -607,8 +659,9 @@ const { $api } = useNuxtApp()
 const authStore = useAuthStore()
 const loading = ref(false)
 const isComplete = ref(false)
-const job = ref<JobModelAdd>({} as JobModelAdd)
+const job = ref<JobModelAddUpdate>({} as JobModelAddUpdate)
 const company = ref<CompanyEntity | null>(null)
+const companyAdd = ref<CompanyAddUpdateEntity | null>(null)
 const currentCompanies = ref<CompanyEntity[]>([])
 const companyByMST = ref<VietQRBusinessResponse | null>(null)
 
@@ -620,10 +673,6 @@ onMounted(() => {
 
   job.value.postedDate = new Date()
   fetchAllCompany()
-  if (authStore.user?.companyId) {
-    job.value.companyId = authStore.user.companyId
-    fetchCompanyDetail(job.value.companyId)
-  }
 })
 
 // Methods
@@ -636,28 +685,7 @@ const goToListJobUser = () => {
   router.push(ROUTE_PAGE.USER_JOB.LIST)
 }
 
-const addJob = async () => {
-  loading.value = true
-
-  try {
-    // Call API
-    const response = await $api.job.addJob(job.value)
-
-    if (response) {
-      if (stepper.value?.hasNext) {
-        stepper.value.next()
-        isComplete.value = true
-      }
-    }
-  } catch (error: any) {
-    console.error('Add job failed:', error)
-    useNotify({
-      message: Array.isArray(error.message) ? error.message[0] : error.message,
-    })
-  } finally {
-    loading.value = false
-  }
-}
+const addJob = async () => {}
 
 const fetchAllCompany = async () => {
   loading.value = true
@@ -675,37 +703,65 @@ const fetchAllCompany = async () => {
   }
 }
 
-const fetchCompanyDetail = async (companyId: number) => {
-  loading.value = true
-
-  try {
-    if (isNaN(companyId)) {
-      throw new Error('Invalid company ID')
-    }
-
-    const response = await $api.company.getCompanyDetail(companyId)
-
-    company.value = response
-    searchCompany.value = company.value.name
-  } catch (error: any) {
-    useNotify({
-      message: Array.isArray(error.message) ? error.message[0] : error.message,
-    })
-  } finally {
-    loading.value = false
-  }
-}
-
 const mstCompany = ref('')
+const isGettingCompanyByMst = ref(false)
+const isAddCompany = ref(false)
 const findCompanyByMst = async () => {
   loading.value = true
-
   try {
+    if (!mstCompany.value || mstCompany.value.trim().length === 0) {
+      useNotify({
+        message: 'Vui lòng nhập mã số thuế để tra cứu.',
+      })
+
+      return
+    }
+
     // Call API
     const response = await $api.company.getCompanyByMst(mstCompany.value)
 
     if (response && response.code == '00') {
       companyByMST.value = response
+      searchCompany.value = companyByMST.value.data.name
+
+      if (!companyAdd.value) {
+        companyAdd.value = {} as CompanyAddUpdateEntity
+      }
+
+      companyAdd.value.name = companyByMST.value.data.name ?? ''
+      companyAdd.value.address = companyByMST.value.data.address ?? ''
+
+      // Set data to view
+      if (!company.value) {
+        company.value = {} as CompanyEntity
+      }
+
+      company.value.name = companyByMST.value.data.name ?? ''
+      company.value.address = companyByMST.value.data.address ?? ''
+
+      // Fake data for add job
+      companyAdd.value.email = 'contact@company.com'
+      companyAdd.value.logo = 'https://example.com/logo.png'
+      companyAdd.value.organizationType = 1
+      companyAdd.value.isShow = false
+      companyAdd.value.isWaiting = true
+      companyAdd.value.facebookLink = 'https://facebook.com/company'
+      companyAdd.value.twitterLink = 'https://twitter.com/company'
+      companyAdd.value.linkedInLink = 'https://linkedin.com/company'
+      companyAdd.value.website = 'https://company.com'
+      companyAdd.value.companySize = 100
+      companyAdd.value.foundedYear = 2010
+      companyAdd.value.description = 'Technology company specializing in...'
+      companyAdd.value.insight = 'We value innovation and teamwork'
+      companyAdd.value.overview = 'Founded in 2010, we have ...'
+      companyAdd.value.companyImages = [
+        {
+          url: 'https://example.com/image1.jpg',
+        },
+        {
+          url: 'https://example.com/image2.jpg',
+        },
+      ]
     } else {
       useNotify({
         message: 'Không tìm thấy thông tin trường học với mã số thuế đã nhập.',
@@ -718,6 +774,7 @@ const findCompanyByMst = async () => {
     })
   } finally {
     loading.value = false
+    isGettingCompanyByMst.value = false
   }
 }
 
@@ -756,6 +813,168 @@ const selectFirstOrClear = () => {
     job.value.companyId = NaN
     searchCompany.value = ''
   }
+}
+
+const confirmChooseSchool = () => {
+  isAddCompany.value = false
+  if (validateSchool()) {
+    if (stepper.value?.hasNext) {
+      stepper.value.next()
+    }
+  } else {
+    useNotify({
+      message: 'Vui lòng chọn trường học để tiếp tục.',
+    })
+  }
+}
+
+const confirmCreateSchool = () => {
+  isAddCompany.value = true
+  if (companyByMST.value && companyByMST.value.code == '00') {
+    // fill thêm thông tin vào job
+    job.value.companyId = companyByMST.value.data.id
+
+    if (stepper.value?.hasNext) {
+      stepper.value.next()
+    }
+  } else {
+    useNotify({
+      message: 'Vui lòng tra cứu và chọn trường học để tiếp tục.',
+    })
+  }
+}
+
+const goBackToChooseSchool = () => {
+  if (stepper.value?.hasPrev) {
+    stepper.value.prev()
+  }
+}
+
+const confirmAddJob = async () => {
+  const msgErr = validateJobFields()
+
+  if (msgErr && msgErr.length > 0) {
+    useNotify({
+      message: msgErr,
+    })
+  } else {
+    loading.value = true
+    let isAddCompanySuccess = false
+    let isAddJobSuccess = false
+
+    // Check add Company
+    if (isAddCompany.value && companyAdd.value) {
+      try {
+        // Call API
+        const response = await $api.company.addCompany(companyAdd.value)
+
+        if (response) {
+          company.value = response
+          isAddCompanySuccess = true
+        }
+      } catch (error: any) {
+        console.error('Add company failed:', error)
+      }
+    } else {
+      isAddCompanySuccess = true
+    }
+
+    // Add job
+    if (isAddCompanySuccess) {
+      try {
+        // Set id Company for Job
+        job.value.companyId = company.value ? company.value.id : NaN
+
+        // Set id User for Job
+        job.value.userId = authStore.user ? authStore.user.id : NaN
+
+        // Call API
+        const response = await $api.job.addJob(job.value)
+
+        if (response) {
+          isAddJobSuccess = true
+        }
+      } catch (error: any) {
+        console.error('Add job failed:', error)
+      }
+    }
+
+    loading.value = false
+    if (isAddCompany.value && !isAddCompanySuccess) {
+      useNotify({
+        message: 'Đăng ký trường học thất bại. Vui lòng thử lại.',
+      })
+
+      return
+    } else if (!isAddJobSuccess) {
+      useNotify({
+        message: 'Đăng tải công việc thất bại. Vui lòng thử lại.',
+      })
+
+      return
+    }
+
+    if (stepper.value?.hasNext) {
+      stepper.value.next()
+      isComplete.value = true
+    }
+  }
+}
+
+function validateSchool(): boolean {
+  return typeof job.value.companyId === 'number' && !isNaN(job.value.companyId)
+}
+
+function validateJobFields(): string {
+  if (!job.value.title || job.value.title.trim().length === 0) {
+    return 'Tên công việc không được để trống.'
+  }
+  if (!job.value.description || job.value.description.trim().length === 0) {
+    return 'Mô tả công việc không được để trống.'
+  }
+  if (!job.value.deadline) {
+    return 'Vui lòng chọn hạn nộp hồ sơ.'
+  }
+  if (!job.value.category) {
+    return 'Vui lòng chọn ngành nghề.'
+  }
+  if (!job.value.typeOfEmployment) {
+    return 'Vui lòng chọn loại hình công việc.'
+  }
+  if (!job.value.salaryType) {
+    return 'Vui lòng chọn loại lương.'
+  }
+  if (!job.value.experienceLevel) {
+    return 'Vui lòng chọn kinh nghiệm yêu cầu.'
+  }
+  if (!job.value.benefits || job.value.benefits.length === 0) {
+    return 'Vui lòng chọn quyền lợi.'
+  }
+  if (!job.value.location) {
+    return 'Vui lòng chọn địa điểm làm việc.'
+  }
+  if (!job.value.companyId) {
+    return 'Vui lòng chọn trường học.'
+  }
+
+  // Kiểm tra độ dài
+  if (job.value.title && job.value.title.length > 255) {
+    return 'Tên công việc không được vượt quá 255 ký tự.'
+  }
+  if (job.value.description && job.value.description.length > 255) {
+    return 'Mô tả công việc không được vượt quá 255 ký tự.'
+  }
+
+  // Kiểm tra lương (nếu có)
+  if (
+    job.value.salaryMin &&
+    job.value.salaryMax &&
+    Number(job.value.salaryMin) > Number(job.value.salaryMax)
+  ) {
+    return 'Lương tối thiểu không được lớn hơn lương tối đa.'
+  }
+
+  return ''
 }
 </script>
 

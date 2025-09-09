@@ -190,7 +190,7 @@
 
 <script setup lang="ts">
 import type { JobModel } from '~/models/job'
-import { JobMapper } from '~/mapper/job'
+//import { JobMapper } from '~/mapper/job'
 
 // Enum
 const {
@@ -219,32 +219,32 @@ const goBack = () => {
   router.back()
 }
 
-const performGetJobByCompanyId = async (companyId: number) => {
-  loading.value = true
+// const performGetJobByCompanyId = async (companyId: number) => {
+//   loading.value = true
 
-  try {
-    // Build search parameters
-    const apiParams: Record<string, any> = {}
+//   try {
+//     // Build search parameters
+//     const apiParams: Record<string, any> = {}
 
-    apiParams.companyId = companyId
-    // Call API
-    const response = await $api.job.searchJob(apiParams)
+//     apiParams.companyId = companyId
+//     // Call API
+//     const response = await $api.job.searchJob(apiParams)
 
-    if (response && Array.isArray(response)) {
-      jobs.value = response.map((job) => JobMapper.toModel(job))
-    } else {
-      jobs.value = []
-    }
-  } catch (error: any) {
-    console.error('Search failed:', error)
-    useNotify({
-      message: error.message,
-    })
-    jobs.value = []
-  } finally {
-    loading.value = false
-  }
-}
+//     if (response && Array.isArray(response)) {
+//       jobs.value = response.map((job) => JobMapper.toModel(job))
+//     } else {
+//       jobs.value = []
+//     }
+//   } catch (error: any) {
+//     console.error('Search failed:', error)
+//     useNotify({
+//       message: error.message,
+//     })
+//     jobs.value = []
+//   } finally {
+//     loading.value = false
+//   }
+// }
 
 const viewJob = (job: JobModel) => {
   // Navigate to job detail page
@@ -263,12 +263,12 @@ const deleteJob = async (job: JobModel) => {
     // Call API
     const response = await $api.job.delJob(job.id)
 
-    if (response && authStore.user?.companyId != null) {
+    if (response) {
       useNotify({
         message: 'Xóa job thành công.',
       })
 
-      performGetJobByCompanyId(authStore.user?.companyId)
+      //performGetJobByCompanyId(authStore.user?.companyId)
     }
   } catch (error: any) {
     console.error('Delete job failed:', error)
@@ -316,8 +316,6 @@ onMounted(() => {
     router.push(ROUTE_PAGE.AUTH.LOGIN)
   }
 
-  if (authStore.user?.companyId) {
-    performGetJobByCompanyId(authStore.user.companyId)
-  }
+  //performGetJobByCompanyId(authStore.user.companyId)
 })
 </script>

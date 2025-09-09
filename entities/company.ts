@@ -12,6 +12,10 @@ export interface CompanyImage {
   url: string
 }
 
+export interface CompanyAddUpdateImage {
+  url: string
+}
+
 export interface CompanyEntity {
   id: number
   name: string
@@ -34,6 +38,30 @@ export interface CompanyEntity {
 
   companyImages: CompanyImage[]
   jobs: CompanyJobSummary[]
+}
+
+export interface CompanyAddUpdateEntity {
+  id: number
+  name: string
+  logo: string | null
+  organizationType: number | null
+  isShow: boolean
+  isWaiting: boolean
+  facebookLink: string | null
+  linkedInLink: string | null
+  twitterLink: string | null
+  instagramLink: string | null
+  website: string | null
+  address: string | null
+  companySize: number | null
+  foundedYear: number | null
+  email: string
+  description: string | null
+  insight: string | null
+  overview: string | null
+  openPositions?: number
+
+  companyImages: CompanyAddUpdateImage[]
 }
 
 export interface VietQRBusinessResponse {

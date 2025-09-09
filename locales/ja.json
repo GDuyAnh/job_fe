@@ -393,7 +393,8 @@
       "inputMST": "Nhập mã số thuế trường học :",
       "placeHolderMST": "Ví dụ : 2100234326",
       "nameLabel": "Tên trường học :",
-      "addressLabel": "Địa chỉ trường học :"
+      "addressLabel": "Địa chỉ trường học :",
+      "placeHolderInputName": "Nhập tên trường học"
     }
   }
 }

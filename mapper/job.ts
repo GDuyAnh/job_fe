@@ -1,5 +1,5 @@
 import type { JobEntity } from '~/entities/job'
-import type { JobModel, JobModelAdd, JobModelUpdate } from '~/models/job'
+import type { JobModel, JobModelAddUpdate } from '~/models/job'
 
 export class JobMapper {
   static toModel(value: JobEntity): JobModel {
@@ -12,6 +12,7 @@ export class JobMapper {
       typeOfEmployment: value.typeOfEmployment,
       experienceLevel: value.experienceLevel,
       companyId: value.companyId,
+      userId: value.userId,
       companyName: value.companyName,
       companyLogo: value.companyLogo,
       organizationType: value.organizationType,
@@ -35,7 +36,7 @@ export class JobMapper {
     }
   }
 
-  static toModelAdd(value: JobEntity): JobModelAdd {
+  static toModelAddUpdate(value: JobEntity): JobModelAddUpdate {
     return {
       title: value.title,
       description: value.description,
@@ -57,37 +58,11 @@ export class JobMapper {
         ? new Date(value.deadline).toISOString().split('T')[0]
         : undefined,
       detailDescription: value.detailDescription ?? undefined,
-      companyId: 0,
       imageLogo: '',
       bannerLogo: '',
-    }
-  }
-
-  static toModelUpdate(value: JobEntity): JobModelUpdate {
-    return {
-      title: value.title,
-      description: value.description,
-      category: value.category !== undefined ? Number(value.category) : 0,
-      location: value.location !== undefined ? Number(value.location) : 0,
-      typeOfEmployment:
-        value.typeOfEmployment !== undefined
-          ? Number(value.typeOfEmployment)
-          : 0,
-      experienceLevel:
-        value.experienceLevel !== undefined ? Number(value.experienceLevel) : 0,
-      salaryMin: value.salaryMin ?? undefined,
-      salaryMax: value.salaryMax ?? undefined,
-      salaryType: value.salaryType ?? undefined,
-      salaryTypeValue: value.salaryTypeValue ?? undefined,
-      benefits: value.benefits ?? undefined,
-      isFeatured: value.isFeatured,
-      deadline: value.deadline
-        ? new Date(value.deadline).toISOString().split('T')[0]
-        : undefined,
-      detailDescription: value.detailDescription ?? undefined,
-      companyId: 0,
-      imageLogo: '',
-      bannerLogo: '',
+      postedDate: new Date(),
+      userId: value.userId,
+      companyId: value.companyId,
     }
   }
 }

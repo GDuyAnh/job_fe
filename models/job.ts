@@ -7,6 +7,7 @@ export interface JobModel {
   typeOfEmployment: string
   experienceLevel: string
   companyId: number
+  userId: number
   companyName: string
   companyLogo: string
   organizationType?: string | null
@@ -29,7 +30,7 @@ export interface JobModel {
   detailDescription?: string | null
 }
 
-export interface JobModelAdd {
+export interface JobModelAddUpdate {
   title: string
   description: string
   category: number
@@ -37,27 +38,7 @@ export interface JobModelAdd {
   typeOfEmployment: number
   experienceLevel: number
   companyId?: number
-  imageLogo: string
-  bannerLogo: string
-  postedDate?: Date
-  deadline?: string
-  salaryMin?: string
-  salaryMax?: string
-  salaryType: number
-  salaryTypeValue?: string
-  benefits?: string[]
-  detailDescription?: string
-  isFeatured: boolean
-}
-
-export interface JobModelUpdate {
-  title: string
-  description: string
-  category: number
-  location: number
-  typeOfEmployment: number
-  experienceLevel: number
-  companyId: number
+  userId?: number
   imageLogo: string
   bannerLogo: string
   postedDate?: Date
