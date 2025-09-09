@@ -7,6 +7,7 @@ export interface JobEntity {
   typeOfEmployment: string
   experienceLevel: string
   companyId: number
+  userId: number
   companyName: string
   companyLogo: string
   organizationType?: string | null

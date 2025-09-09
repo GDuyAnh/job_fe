@@ -3,7 +3,7 @@ import type FetchFactory from '~/services/factory'
 import type { JobEntity } from '~/entities/job'
 import type { CategoryJobEntity } from '~/entities/category'
 import type { LocationJobEntity } from '~/entities/location'
-import type { JobModelAdd } from '~/models/job'
+import type { JobModelAddUpdate } from '~/models/job'
 
 const JobModule = (apiService: FetchFactory) => {
   const getJob = async () =>
@@ -27,11 +27,11 @@ const JobModule = (apiService: FetchFactory) => {
     return apiService.get<JobEntity>(`${ROUTE_API.JOB.GET_JOB}/${id}`)
   }
 
-  const addJob = async (model: JobModelAdd) => {
+  const addJob = async (model: JobModelAddUpdate) => {
     return apiService.post<JobEntity>(ROUTE_API.JOB.GET_JOB, { body: model })
   }
 
-  const editJob = async (id: number, model: JobModelAdd) => {
+  const editJob = async (id: number, model: JobModelAddUpdate) => {
     return apiService.put<JobEntity>(`${ROUTE_API.JOB.GET_JOB}/${id}`, {
       body: model,
     })

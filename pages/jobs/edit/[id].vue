@@ -103,10 +103,31 @@
                 <!-- Input -->
                 <UInput
                   id="company-name"
-                  :model-value="company ? company.name : ''"
+                  v-model="searchCompany"
                   class="w-full"
-                  readonly
+                  type="text"
+                  @input="
+                    (e: Event) =>
+                      filterCompanies((e.target as HTMLInputElement).value)
+                  "
+                  @keydown.enter.prevent="selectFirstOrClear"
+                  @blur="selectFirstOrClear"
                 />
+                <!-- Suggestion dropdown -->
+                <div
+                  v-if="filteredCompanies.length > 0"
+                  class="absolute z-10 bg-white border border-gray-300 rounded shadow max-h-60 overflow-auto"
+                  style="width: 44.5%"
+                >
+                  <div
+                    v-for="c in filteredCompanies"
+                    :key="c.id"
+                    class="px-3 py-2 hover:bg-gray-100 cursor-pointer"
+                    @click="selectCompany(c)"
+                  >
+                    {{ c.name }}
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -378,7 +399,7 @@
 import type { StepperItem } from '@nuxt/ui'
 import type { CompanyEntity } from '~/entities/company'
 import { JobMapper } from '~/mapper/job'
-import type { JobModelAdd } from '~/models/job'
+import type { JobModelAddUpdate } from '~/models/job'
 const authStore = useAuthStore()
 const stepper = useTemplateRef('stepper')
 const steppers = ref<StepperItem[]>([
@@ -409,7 +430,22 @@ const route = useRoute()
 const router = useRouter()
 const { $api } = useNuxtApp()
 const isComplete = ref(false)
-const job = ref<JobModelAdd>({} as JobModelAdd)
+const job = ref<JobModelAddUpdate>({} as JobModelAddUpdate)
+const currentCompanies = ref<CompanyEntity[]>([])
+
+const searchCompany = ref('')
+const filteredCompanies = ref<CompanyEntity[]>([])
+
+const filterCompanies = (keyword: string) => {
+  if (!keyword) {
+    filteredCompanies.value = []
+  } else {
+    filteredCompanies.value = currentCompanies.value.filter((c) =>
+      c.name.toLowerCase().includes(keyword.toLowerCase()),
+    )
+  }
+}
+
 const loading = ref(false)
 const jobId = Array.isArray(route.params.id)
   ? Number(route.params.id[0])
@@ -424,6 +460,15 @@ const goBack = () => {
 // Methods
 const goToListJobUser = () => {
   router.push(ROUTE_PAGE.USER_JOB.LIST)
+}
+
+const selectCompany = (c: CompanyEntity) => {
+  company.value = c
+  searchCompany.value = c.name
+  filteredCompanies.value = []
+
+  // fill thêm thông tin vào job
+  job.value.companyId = c.id
 }
 
 const editJob = async () => {
@@ -450,6 +495,22 @@ const editJob = async () => {
   }
 }
 
+const fetchAllCompany = async () => {
+  loading.value = true
+
+  try {
+    const response = await $api.company.searchCompany({})
+
+    currentCompanies.value = response
+  } catch (error: any) {
+    useNotify({
+      message: Array.isArray(error.message) ? error.message[0] : error.message,
+    })
+  } finally {
+    loading.value = false
+  }
+}
+
 const loadJobDetail = async () => {
   if (!jobId) return
   loading.value = true
@@ -457,10 +518,9 @@ const loadJobDetail = async () => {
     const response = await $api.job.getJobDetail(jobId)
 
     if (response) {
-      job.value = JobMapper.toModelAdd(response)
-      job.value.companyId = authStore.user?.companyId
+      job.value = JobMapper.toModelAddUpdate(response)
       job.value.benefits = job.value.benefits
-        ? job.value.benefits.map((b) => String(b))
+        ? job.value.benefits.map((b: unknown) => String(b))
         : []
     }
   } catch (error: any) {
@@ -476,28 +536,21 @@ onMounted(() => {
   }
 
   loadJobDetail()
-  if (authStore.user?.companyId) {
-    fetchCompanyDetail(authStore.user.companyId)
-  }
+  fetchAllCompany()
 })
 
-const fetchCompanyDetail = async (companyId: number) => {
-  loading.value = true
+// chọn thằng đầu tiên trong filter hoặc clear
+const selectFirstOrClear = () => {
+  const currentSelect =
+    currentCompanies.value.filter((c) =>
+      c.name.toLowerCase().includes(searchCompany.value.toLowerCase()),
+    ).length > 0
 
-  try {
-    if (isNaN(companyId)) {
-      throw new Error('Invalid company ID')
-    }
-
-    const response = await $api.company.getCompanyDetail(companyId)
-
-    company.value = response
-  } catch (error: any) {
-    useNotify({
-      message: Array.isArray(error.message) ? error.message[0] : error.message,
-    })
-  } finally {
-    loading.value = false
+  if (filteredCompanies.value && filteredCompanies.value.length > 0) {
+    selectCompany(filteredCompanies.value[0])
+  } else if (!currentSelect) {
+    job.value.companyId = NaN
+    searchCompany.value = ''
   }
 }
 
