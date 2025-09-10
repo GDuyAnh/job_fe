@@ -137,7 +137,9 @@
       }
     },
     "separator": "•",
-    "nanValue": "N/A"
+    "nanValue": "N/A",
+    "requiredMark": "*",
+    "remove": "Xoá"
   },
   "companies": {
     "search": {
@@ -377,12 +379,36 @@
       "showMore": "Hiện tất cả",
       "showLess": "Hiện ít hơn"
     },
+    "listCompanyUser": {
+      "title": "Danh sách công ty",
+      "foundResults": "Tìm thấy {count} công ty",
+      "orgTypeUnknown": "Không tìm thấy tổ chức"
+    },
+    "actions": {
+      "create": "Thêm mới công ty",
+      "view": "Xem chi tiết",
+      "update": "Cập nhật",
+      "delete": "Xóa",
+      "approve": "Duyệt",
+      "confirmDelete": "Xác nhận xóa công ty"
+    },
+    "toasts": {
+      "deleteSuccess": "Xóa công ty thành công.",
+      "approveSuccess": "Duyệt công ty thành công."
+    },
+    "errors": {
+      "loadFailed": "Không thể tải danh sách công ty.",
+      "deleteFailed": "Xóa công ty thất bại.",
+      "approveFailed": "Duyệt công ty thất bại."
+    },
+    "name": "Tên công ty / Trường học",
+    "email": "Email",
     "industry": "Loại hình tổ chức",
     "founded": "Năm thành lập",
     "address": "Địa chỉ",
     "size": "Quy mô",
     "socialMedia": "Mạng xã hội",
-    "platforms": {
+    "social": {
       "facebook": "Facebook",
       "twitter": "Twitter",
       "linkedin": "LinkedIn",
@@ -395,6 +421,40 @@
       "nameLabel": "Tên trường học :",
       "addressLabel": "Địa chỉ trường học :",
       "placeHolderInputName": "Nhập tên trường học"
+    },
+    "form": {
+      "stepCompany": "Công ty / Trường học",
+      "stepConfirm": "Xác nhận hoàn tất",
+      "createTitle": "Thêm công ty / trường học",
+      "imagesTitle": "Hình ảnh công ty (kéo thả nhiều ảnh) — ảnh đầu tiên là Logo",
+      "dropHint": "Kéo thả ảnh vào đây hoặc nhấn để chọn (nhiều ảnh)",
+      "addMore": "Thêm ảnh",
+      "logoBadge": "Logo",
+      "descLabel": "Mô tả công ty",
+      "descPlaceholder": "Giới thiệu ngắn gọn về công ty: lĩnh vực hoạt động, sứ mệnh, văn hoá, các thành tựu chính...",
+      "overviewLabel": "Tổng quan",
+      "overviewPlaceholder": "Tổng quan chi tiết: quy mô, cơ cấu, môi trường làm việc, lợi thế cạnh tranh, mục tiêu sắp tới...",
+      "confirmNext": "Xác nhận & Tiếp tục",
+      "createSuccess": "Đăng ký công ty thành công.",
+      "createFailed": "Đăng ký công ty thất bại. Vui lòng thử lại.",
+      "backToList": "Trở về trang danh sách",
+      "createBtn": "Tạo công ty",
+      "placeholderName": "Nhập tên công ty / trường học",
+      "placeholderAddress": "Nhập địa chỉ",
+      "placeholderFounded": "2020",
+      "placeholderCompanySize": "120",
+      "placeholderEmail": "Enter your email",
+      "placeholderWebsite": "https://example.com",
+      "placeholderFacebook": "https://facebook.com/...",
+      "placeholderTwitter": "https://twitter.com/...",
+      "placeholderInstagram": "https://instagram.com/...",
+      "placeholderLinkedIn": "https://linkedin.com/company/...",
+      "errName": "Tên công ty / trường học không được để trống.",
+      "errAddress": "Địa chỉ không được để trống.",
+      "errOrgType": "Vui lòng chọn loại hình tổ chức.",
+      "errEmail": "Email không hợp lệ.",
+      "errWebsite": "Website không hợp lệ.",
+      "errCompanySize": "Quy mô phải là số nguyên không âm."
     }
   }
 }

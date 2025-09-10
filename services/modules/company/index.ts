@@ -12,6 +12,16 @@ const CompanyModule = (apiService: FetchFactory) => {
     })
   }
 
+  // giống với search nhưng sẽ liệt kê tất cả entity ở 2 status isWaiting
+  const adminListCompany = async (params: Record<string, any>) => {
+    return (
+      apiService.get<CompanyEntity[]>(ROUTE_API.COMPANY.ADMIN_LIST),
+      {
+        params,
+      }
+    )
+  }
+
   const getCompanyDetail = async (id: number) => {
     return apiService.get<CompanyEntity>(
       `${ROUTE_API.COMPANY.GET_COMPANY}/${id}`,
@@ -30,11 +40,36 @@ const CompanyModule = (apiService: FetchFactory) => {
     })
   }
 
+  const editCompany = async (id: number, model: CompanyAddUpdateEntity) => {
+    return apiService.put<CompanyEntity>(
+      `${ROUTE_API.COMPANY.GET_COMPANY}/${id}`,
+      {
+        body: model,
+      },
+    )
+  }
+
+  const delCompany = async (id: number) => {
+    return apiService.delete<CompanyEntity>(
+      `${ROUTE_API.COMPANY.GET_COMPANY}/${id}`,
+    )
+  }
+
+  const approveCompany = async (id: number) => {
+    return apiService.patch<CompanyEntity>(
+      `${ROUTE_API.COMPANY.GET_COMPANY}/${id}/approve`,
+    )
+  }
+
   return {
     searchCompany,
+    adminListCompany,
     getCompanyDetail,
     getCompanyByMst,
     addCompany,
+    editCompany,
+    delCompany,
+    approveCompany,
   }
 }
 
