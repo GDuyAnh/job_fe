@@ -72,7 +72,7 @@ export const useJobFilters = () => {
 
   const organizationTypeItems = computed(() => [
     {
-      label: t('home.search.placeholderOrganizationType'),
+      label: t('home.search.placeholderOrganizationTypeAll'),
       value: '0',
     },
     ...Object.entries(organizationTypesLabel).map(([key, value]) => ({

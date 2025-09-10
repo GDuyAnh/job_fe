@@ -226,7 +226,8 @@
       "placeholderCategory": "All Categories",
       "placeholderLocation": "All Locations",
       "placeholderOrganizationType": "All Organizations",
-      "button": "Search"
+      "button": "Search",
+      "placeholderOrganizationTypeAll": "Chọn loại hình tổ chức"
     },
     "popularTags": {
       "designer": "Designer",
@@ -336,7 +337,7 @@
       "nameJobPlaceHolder": "Ví dụ: Tuyển nhân viên trợ giảng, Tuyển giáo viên tiểu học,...",
       "detailJobLabel": "Chi tiết công việc",
       "emailJobLabel": "Địa chỉ email",
-      "companyNameLabel": "Tên công ty",
+      "companyNameLabel": "Tên trường học / công ty",
       "deadlineLabel": "Hạn ứng tuyển",
       "categoryLabel": "Lĩnh vực công việc",
       "typeJobLabel": "Hình thức làm việc",
@@ -353,7 +354,8 @@
       "agreePrivacy": "Chính sách quyền riêng tư",
       "and": " và ",
       "uploadJobContent": "Đăng việc làm",
-      "uploadJobComplete": "Đăng tải công việc thành công."
+      "uploadJobComplete": "Đăng tải công việc thành công.",
+      "chooseSchool": "Tra cứu công ty / trường học"
     },
     "editJob": {
       "title": "Chỉnh sửa việc làm",
@@ -416,11 +418,9 @@
     },
     "website": "Website",
     "action": {
-      "inputMST": "Nhập mã số thuế trường học :",
+      "inputMST": "Mã số thuế trường học / công ty",
       "placeHolderMST": "Ví dụ : 2100234326",
-      "nameLabel": "Tên trường học :",
-      "addressLabel": "Địa chỉ trường học :",
-      "placeHolderInputName": "Nhập tên trường học"
+      "placeHolderInputName": "Nhập tên trường học / công ty"
     },
     "form": {
       "stepCompany": "Công ty / Trường học",

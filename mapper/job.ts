@@ -63,6 +63,7 @@ export class JobMapper {
       postedDate: new Date(),
       userId: value.userId,
       companyId: value.companyId,
+      isWaiting: false,
     }
   }
 }
