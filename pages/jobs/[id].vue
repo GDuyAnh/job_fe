@@ -375,7 +375,7 @@
                       class="inline-flex items-center gap-1 px-3 py-1 bg-blue-600 text-white text-xs rounded-full hover:bg-blue-700 transition-colors"
                     >
                       <UIcon name="i-simple-icons-facebook" class="w-3 h-3" />
-                      {{ $t('company.platforms.facebook') }}
+                      <!-- {{ $t('company.platforms.facebook') }} -->
                     </a>
                     <a
                       v-if="job.twitterLink"
@@ -385,7 +385,7 @@
                       class="inline-flex items-center gap-1 px-3 py-1 bg-sky-500 text-white text-xs rounded-full hover:bg-sky-600 transition-colors"
                     >
                       <UIcon name="i-simple-icons-twitter" class="w-3 h-3" />
-                      {{ $t('company.platforms.twitter') }}
+                      <!-- {{ $t('company.platforms.twitter') }} -->
                     </a>
                     <a
                       v-if="job.linkedInLink"
@@ -395,7 +395,7 @@
                       class="inline-flex items-center gap-1 px-3 py-1 bg-blue-700 text-white text-xs rounded-full hover:bg-blue-800 transition-colors"
                     >
                       <UIcon name="i-simple-icons-linkedin" class="w-3 h-3" />
-                      {{ $t('company.platforms.linkedin') }}
+                      <!-- {{ $t('company.platforms.linkedin') }} -->
                     </a>
                     <a
                       v-if="job.instagramLink"
@@ -405,7 +405,7 @@
                       class="inline-flex items-center gap-1 px-3 py-1 bg-pink-600 text-white text-xs rounded-full hover:bg-pink-700 transition-colors"
                     >
                       <UIcon name="i-simple-icons-instagram" class="w-3 h-3" />
-                      {{ $t('company.platforms.instagram') }}
+                      <!-- {{ $t('company.platforms.instagram') }} -->
                     </a>
                   </div>
                 </div>

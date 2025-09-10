@@ -50,4 +50,5 @@ export interface JobModelAddUpdate {
   benefits?: string[]
   detailDescription?: string
   isFeatured: boolean
+  isWaiting: boolean
 }

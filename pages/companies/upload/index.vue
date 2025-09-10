@@ -32,7 +32,7 @@
               style="padding: 30px 20px !important"
             >
               <!-- Name -->
-              <div class="flex flex-col gap-1 w-full">
+              <div>
                 <label class="font-medium text-sm text-gray-700">
                   {{ $t('company.name') }}
                   <span aria-hidden="true" class="text-black">{{
@@ -42,12 +42,12 @@
                 <UInput
                   v-model.trim="companyAdd.name"
                   class="w-full"
-                  :placeholder="$t('company.form.placeholderName') as string"
+                  :placeholder="$t('company.form.placeholderName')"
                 />
               </div>
 
               <!-- Address -->
-              <div class="flex flex-col gap-1 w-full">
+              <div>
                 <label class="font-medium text-sm text-gray-700">
                   {{ $t('company.address') }}
                   <span aria-hidden="true" class="text-black">{{
@@ -57,7 +57,7 @@
                 <UInput
                   v-model.trim="companyAdd.address"
                   class="w-full"
-                  :placeholder="$t('company.form.placeholderAddress') as string"
+                  :placeholder="$t('company.form.placeholderAddress')"
                 />
               </div>
 
@@ -108,9 +108,7 @@
                     min="0"
                     step="1"
                     class="w-full"
-                    :placeholder="
-                      $t('company.form.placeholderCompanySize') as string
-                    "
+                    :placeholder="$t('company.form.placeholderCompanySize')"
                   />
                 </div>
                 <div>
@@ -121,13 +119,13 @@
                     v-model.trim="companyAdd.email"
                     type="email"
                     class="w-full"
-                    :placeholder="$t('company.form.placeholderEmail') as string"
+                    :placeholder="$t('company.form.placeholderEmail')"
                   />
                 </div>
               </div>
 
               <!-- Website -->
-              <div class="flex flex-col gap-1 w-full">
+              <div>
                 <label class="font-medium text-sm text-gray-700">
                   {{ $t('company.website') }}
                 </label>
@@ -135,7 +133,7 @@
                   v-model.trim="companyAdd.website"
                   type="url"
                   class="w-full"
-                  :placeholder="$t('company.form.placeholderWebsite') as string"
+                  :placeholder="$t('company.form.placeholderWebsite')"
                 />
               </div>
 
@@ -148,9 +146,7 @@
                   <UInput
                     v-model.trim="companyAdd.facebookLink"
                     class="w-full"
-                    :placeholder="
-                      $t('company.form.placeholderFacebook') as string
-                    "
+                    :placeholder="$t('company.form.placeholderFacebook')"
                   />
                 </div>
                 <div>
@@ -160,9 +156,7 @@
                   <UInput
                     v-model.trim="companyAdd.twitterLink"
                     class="w-full"
-                    :placeholder="
-                      $t('company.form.placeholderTwitter') as string
-                    "
+                    :placeholder="$t('company.form.placeholderTwitter')"
                   />
                 </div>
                 <div>
@@ -172,9 +166,7 @@
                   <UInput
                     v-model.trim="companyAdd.instagramLink"
                     class="w-full"
-                    :placeholder="
-                      $t('company.form.placeholderInstagram') as string
-                    "
+                    :placeholder="$t('company.form.placeholderInstagram')"
                   />
                 </div>
                 <div>
@@ -184,15 +176,13 @@
                   <UInput
                     v-model.trim="companyAdd.linkedInLink"
                     class="w-full"
-                    :placeholder="
-                      $t('company.form.placeholderLinkedIn') as string
-                    "
+                    :placeholder="$t('company.form.placeholderLinkedIn')"
                   />
                 </div>
               </div>
 
               <!-- Images uploader (MULTIPLE). images[0] = logo -->
-              <div class="flex flex-col gap-2">
+              <div>
                 <label class="font-medium text-sm text-gray-700">
                   {{ $t('company.form.imagesTitle') }}
                 </label>
@@ -249,7 +239,7 @@
                           size="xs"
                           variant="solid"
                           class="absolute top-2 right-2"
-                          :aria-label="$t('common.remove') as string"
+                          :aria-label="$t('common.remove')"
                           @click.stop="removeImage(idx)"
                         />
                       </div>
@@ -272,7 +262,7 @@
               </div>
 
               <!-- Description & Overview -->
-              <div class="grid grid-cols-1 gap-6">
+              <div>
                 <div class="flex flex-col gap-1">
                   <label class="font-medium text-sm text-gray-700">
                     {{ $t('company.form.overviewLabel') }}
@@ -282,9 +272,7 @@
                     :rows="6"
                     autoresize
                     class="w-full"
-                    :placeholder="
-                      $t('company.form.overviewPlaceholder') as string
-                    "
+                    :placeholder="$t('company.form.overviewPlaceholder')"
                   />
                 </div>
                 <div class="flex flex-col gap-1">
@@ -296,15 +284,15 @@
                     :rows="12"
                     autoresize
                     class="w-full"
-                    :placeholder="$t('company.form.descPlaceholder') as string"
+                    :placeholder="$t('company.form.descPlaceholder')"
                   />
                 </div>
               </div>
 
               <!-- Next -->
-              <div class="flex flex-row w-full justify-end pt-2">
+              <div class="flex flex-row w-full justify-end">
                 <UButton
-                  :label="$t('company.form.confirmNext') as string"
+                  :label="$t('company.form.confirmNext')"
                   style="
                     padding: 8px 16px;
                     border: none;
@@ -329,7 +317,7 @@
                 {{ $t('company.form.createSuccess') }}
               </div>
               <UButton
-                :label="$t('company.form.backToList') as string"
+                :label="$t('company.form.backToList')"
                 style="
                   margin-top: 15px;
                   margin-bottom: 38px;
@@ -414,6 +402,7 @@ const steppers = computed<StepperItem[]>(() => [
 const company = ref<CompanyEntity | null>(null)
 const companyAdd = ref<CompanyAddUpdateEntity>({
   name: '',
+  mst: null,
   address: '',
   email: '',
   website: '',
@@ -611,6 +600,6 @@ function goToCompaniesList() {
   background-color: #d4d4d4 !important;
 }
 ::v-deep(.stepper-cus div.flex) {
-  padding: 20px 0 !important;
+  padding: 20px 0px !important;
 }
 </style>
