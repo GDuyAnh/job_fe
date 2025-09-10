@@ -43,6 +43,13 @@
                 >
                   <div v-if="authStore.user">
                     <UButton
+                      label="Tạo mới công ty"
+                      block
+                      @click="router.push(ROUTE_PAGE.COMPANY.LIST)"
+                    />
+                  </div>
+                  <div v-if="authStore.user" class="mt-2">
+                    <UButton
                       label="Đăng tải công việc"
                       block
                       @click="router.push(ROUTE_PAGE.USER_JOB.LIST)"

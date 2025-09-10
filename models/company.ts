@@ -17,7 +17,7 @@ export interface CompanyJobSummaryModel {
 export interface CompanyModel {
   id: number
   name: string
-  logo: string
+  logo: string | null
   organizationType: number | null
   isShow: boolean
   facebookLink: string | null

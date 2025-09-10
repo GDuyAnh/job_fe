@@ -177,9 +177,6 @@
               <h3 class="text-lg font-medium text-gray-900 mb-2">
                 {{ $t('search.noResults') }}
               </h3>
-              <p class="text-gray-600 mb-6">
-                {{ $t('search.noResultsDescription') }}
-              </p>
             </div>
           </div>
         </div>

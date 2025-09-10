@@ -5,9 +5,15 @@ export const ROUTE_PAGE = {
   AUTH: {
     LOGIN: '/auth/login',
   },
-  COMPANY: '/companies',
+  COMPANY: {
+    LIST: '/companies/list',
+    CREATE: '/companies/create',
+    EDIT: (id: number) => `/companies/edit/${id}`,
+    DETAIL: (id: number) => `/companies/${id}`,
+    UPLOAD: '/companies/upload',
+  },
   PAGE: '/jobs/upload',
   USER_JOB: {
-    LIST: '/Jobs/list',
+    LIST: '/jobs/list',
   },
 } as const

@@ -83,4 +83,13 @@ export default class FetchFactory {
       throw error.response._data || error
     })
   }
+
+  patch<T = any>(url: string, options?: FetchOptionsSystem): Promise<T> {
+    return this.instance(url, {
+      method: 'PATCH',
+      ...options,
+    }).catch((error: any) => {
+      throw error.response._data || error
+    })
+  }
 }

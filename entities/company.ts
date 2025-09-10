@@ -41,7 +41,7 @@ export interface CompanyEntity {
 }
 
 export interface CompanyAddUpdateEntity {
-  id: number
+  id?: number
   name: string
   logo: string | null
   organizationType: number | null
