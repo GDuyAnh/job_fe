@@ -19,6 +19,7 @@ export interface CompanyAddUpdateImage {
 export interface CompanyEntity {
   id: number
   name: string
+  mst?: number
   logo: string | null
   organizationType: number | null
   isShow: boolean
