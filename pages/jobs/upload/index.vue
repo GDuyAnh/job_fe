@@ -1197,82 +1197,89 @@ const goBackToChooseSchool = () => {
 
 const confirmAddJob = async () => {
   const msgErrJob = validateJobFields()
-  const msgErrComp = validateCompanyFields()
 
   if (msgErrJob && msgErrJob.length > 0) {
     useNotify({
       message: msgErrJob,
     })
-  } else if (msgErrComp && msgErrComp.length > 0) {
-    useNotify({
-      message: msgErrComp,
-    })
+
+    return
+  }
+
+  loading.value = true
+  let isAddCompanySuccess = false
+  let isAddJobSuccess = false
+
+  // Check add Company
+  if (isAddCompany.value && companyAdd.value) {
+    const msgErrComp = validateCompanyFields()
+
+    if (msgErrComp && msgErrComp.length > 0) {
+      useNotify({
+        message: msgErrComp,
+      })
+
+      return
+    }
+
+    try {
+      // Call API
+
+      const response = await $api.company.addCompany(companyAdd.value)
+
+      if (response) {
+        company.value = response
+        isAddCompanySuccess = true
+      }
+    } catch (error: any) {
+      console.error('Add company failed:', error)
+    }
   } else {
-    loading.value = true
-    let isAddCompanySuccess = false
-    let isAddJobSuccess = false
+    isAddCompanySuccess = true
+  }
 
-    // Check add Company
-    if (isAddCompany.value && companyAdd.value) {
-      try {
-        // Call API
-        console.log('CompanyAdd :', companyAdd.value)
-        const response = await $api.company.addCompany(companyAdd.value)
+  // Add job
+  if (isAddCompanySuccess) {
+    try {
+      // Set id Company for Job
+      job.value.companyId = company.value ? company.value.id : NaN
 
-        if (response) {
-          company.value = response
-          isAddCompanySuccess = true
-        }
-      } catch (error: any) {
-        console.error('Add company failed:', error)
+      // Set id User for Job
+      job.value.userId = authStore.user ? authStore.user.id : NaN
+
+      // Set default add value
+      job.value.isFeatured = false
+      job.value.isWaiting = true
+
+      // Call API
+      const response = await $api.job.addJob(job.value)
+
+      if (response) {
+        isAddJobSuccess = true
       }
-    } else {
-      isAddCompanySuccess = true
+    } catch (error: any) {
+      console.error('Add job failed:', error)
     }
+  }
 
-    // Add job
-    if (isAddCompanySuccess) {
-      try {
-        // Set id Company for Job
-        job.value.companyId = company.value ? company.value.id : NaN
+  loading.value = false
+  if (isAddCompany.value && !isAddCompanySuccess) {
+    useNotify({
+      message: 'Đăng ký trường học thất bại. Vui lòng thử lại.',
+    })
 
-        // Set id User for Job
-        job.value.userId = authStore.user ? authStore.user.id : NaN
+    return
+  } else if (!isAddJobSuccess) {
+    useNotify({
+      message: 'Đăng tải công việc thất bại. Vui lòng thử lại.',
+    })
 
-        // Set default add value
-        job.value.isFeatured = false
-        job.value.isWaiting = true
+    return
+  }
 
-        // Call API
-        const response = await $api.job.addJob(job.value)
-
-        if (response) {
-          isAddJobSuccess = true
-        }
-      } catch (error: any) {
-        console.error('Add job failed:', error)
-      }
-    }
-
-    loading.value = false
-    if (isAddCompany.value && !isAddCompanySuccess) {
-      useNotify({
-        message: 'Đăng ký trường học thất bại. Vui lòng thử lại.',
-      })
-
-      return
-    } else if (!isAddJobSuccess) {
-      useNotify({
-        message: 'Đăng tải công việc thất bại. Vui lòng thử lại.',
-      })
-
-      return
-    }
-
-    if (stepper.value?.hasNext) {
-      stepper.value.next()
-      isComplete.value = true
-    }
+  if (stepper.value?.hasNext) {
+    stepper.value.next()
+    isComplete.value = true
   }
 }
 

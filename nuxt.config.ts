@@ -88,6 +88,7 @@ export default defineNuxtConfig({
       ekycUrl: import.meta.env.NUXT_PUBLIC_LIQUIDEKYC_URL,
       ekycApiKey: import.meta.env.NUXT_PUBLIC_LIQUIDEKYC_KEY,
       ekycScriptUrl: import.meta.env.NUXT_PUBLIC_LIQUIDEKYC_SCRIPT,
+      imgbbApiKey: import.meta.env.NUXT_PUBLIC_IMGBB_API_KEY,
     },
   },
 
