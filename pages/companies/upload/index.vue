@@ -265,6 +265,19 @@
               <div>
                 <div class="flex flex-col gap-1">
                   <label class="font-medium text-sm text-gray-700">
+                    {{ $t('company.form.insightLabel') }}
+                  </label>
+                  <UTextarea
+                    v-model.trim="companyAdd.overview"
+                    :rows="3"
+                    autoresize
+                    class="w-full"
+                    :placeholder="$t('company.form.placeholderInsight')"
+                  />
+                </div>
+
+                <div class="flex flex-col gap-1">
+                  <label class="font-medium text-sm text-gray-700">
                     {{ $t('company.form.overviewLabel') }}
                   </label>
                   <UTextarea

@@ -404,6 +404,7 @@
       "approveFailed": "Duyệt công ty thất bại."
     },
     "name": "Tên công ty / Trường học",
+    "mst": "Mã số thuế",
     "email": "Email",
     "industry": "Loại hình tổ chức",
     "founded": "Năm thành lập",
@@ -430,6 +431,7 @@
       "dropHint": "Kéo thả ảnh vào đây hoặc nhấn để chọn (nhiều ảnh)",
       "addMore": "Thêm ảnh",
       "logoBadge": "Logo",
+      "insightLabel": "Mô tả tầm nhìn của công ty",
       "descLabel": "Mô tả công ty",
       "descPlaceholder": "Giới thiệu ngắn gọn về công ty: lĩnh vực hoạt động, sứ mệnh, văn hoá, các thành tựu chính...",
       "overviewLabel": "Tổng quan",
@@ -439,6 +441,7 @@
       "createFailed": "Đăng ký công ty thất bại. Vui lòng thử lại.",
       "backToList": "Trở về trang danh sách",
       "createBtn": "Tạo công ty",
+      "placeholderInsight": "Sứ mệnh của côngty",
       "placeholderName": "Nhập tên công ty / trường học",
       "placeholderAddress": "Nhập địa chỉ",
       "placeholderFounded": "2020",
@@ -455,6 +458,11 @@
       "errEmail": "Email không hợp lệ.",
       "errWebsite": "Website không hợp lệ.",
       "errCompanySize": "Quy mô phải là số nguyên không âm."
+    },
+    "editCompany": {
+      "title": "Chỉnh sửa công ty",
+      "editCompanyContent": "Xác nhận chỉnh sửa",
+      "editCompanyComplete": "Chỉnh sửa thông tin công ty thành công"
     }
   }
 }

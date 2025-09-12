@@ -255,7 +255,7 @@
                     <div class="text-sm text-gray-500 mb-2">
                       {{ $t('company.detail.industry') }}
                     </div>
-                    <div class="text-lg font-bold text-gray-700">
+                    <div class="text-sm font-bold text-gray-700">
                       {{ getOrganizationTypeLabel(company.organizationType) }}
                     </div>
                   </div>
@@ -264,7 +264,7 @@
                     <div class="text-sm text-gray-500 mb-2">
                       {{ $t('company.detail.companySize') }}
                     </div>
-                    <div class="text-lg font-bold text-gray-700">
+                    <div class="text-sm font-bold text-gray-700">
                       {{ company.companySize }}
                       {{ $t('company.detail.employees') }}
                     </div>
@@ -274,7 +274,7 @@
                     <div class="text-sm text-gray-500 mb-2">
                       {{ $t('company.detail.foundedIn') }}
                     </div>
-                    <div class="text-lg font-bold text-gray-700">
+                    <div class="text-sm font-bold text-gray-700">
                       {{ company.foundedYear }}
                     </div>
                   </div>
@@ -283,7 +283,7 @@
                     <div class="text-sm text-gray-500 mb-2">
                       {{ $t('company.detail.location') }}
                     </div>
-                    <div class="text-lg font-bold text-gray-700 break-words">
+                    <div class="text-sm font-bold text-gray-700 break-words">
                       {{ company.address }}
                     </div>
                   </div>
@@ -296,7 +296,7 @@
                       :href="company.website"
                       target="_blank"
                       rel="noopener noreferrer"
-                      class="text-lg font-bold text-blue-600 hover:text-gray-900 no-underline break-all"
+                      class="text-sm font-bold text-blue-600 hover:text-gray-900 no-underline truncate whitespace-nowrap"
                     >
                       {{ company.website }}
                     </a>
@@ -308,7 +308,7 @@
                     </div>
                     <a
                       :href="`mailto:${company.email}`"
-                      class="text-lg font-bold text-blue-600 hover:text-gray-900 no-underline break-all"
+                      class="text-sm font-bold text-blue-600 hover:text-gray-900 no-underline break-all"
                     >
                       {{ company.email }}
                     </a>
