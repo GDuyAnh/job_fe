@@ -125,6 +125,57 @@ export const useImageUpload = () => {
   }
 
   /**
+   * Upload image and return only URL (similar to Java implementation)
+   * @param image - File, base64 string, or image URL
+   * @param options - Upload options
+   * @returns Image URL string or empty string if failed
+   */
+  const uploadImageAndGetUrl = async (
+    image: File | string,
+    options: UploadOptions = {},
+  ): Promise<string> => {
+    loading.value = true
+    error.value = null
+
+    try {
+      const { $api } = useNuxtApp()
+
+      if (!$api?.upload) {
+        throw new Error('Upload service not available')
+      }
+
+      const imageUrl = await $api.upload.uploadImageAndGetUrl(
+        image,
+        options.name,
+        options.expiration,
+      )
+
+      return imageUrl || ''
+    } catch (err: any) {
+      const errorMessage = err.message || 'Upload failed'
+
+      error.value = errorMessage
+
+      return ''
+    } finally {
+      loading.value = false
+    }
+  }
+
+  /**
+   * Upload file and return only URL
+   * @param file - File object
+   * @param options - Upload options
+   * @returns Image URL string or empty string if failed
+   */
+  const uploadFileAndGetUrl = async (
+    file: File,
+    options: UploadOptions = {},
+  ): Promise<string> => {
+    return uploadImageAndGetUrl(file, options)
+  }
+
+  /**
    * Clear error state
    */
   const clearError = () => {
@@ -137,6 +188,8 @@ export const useImageUpload = () => {
     uploadImage,
     uploadFile,
     uploadBase64,
+    uploadImageAndGetUrl,
+    uploadFileAndGetUrl,
     fileToBase64,
     validateImageFile,
     clearError,

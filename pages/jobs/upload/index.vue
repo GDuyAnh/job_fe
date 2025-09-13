@@ -1049,7 +1049,7 @@ const findCompanyByMst = async () => {
 
         // Init default data for add job
         companyAdd.value.email = ''
-        companyAdd.value.logo = 'https://example.com/logo.png'
+        companyAdd.value.logo = ''
         companyAdd.value.organizationType = 0
         companyAdd.value.isShow = false
         companyAdd.value.isWaiting = true
@@ -1062,14 +1062,7 @@ const findCompanyByMst = async () => {
         companyAdd.value.description = ''
         companyAdd.value.insight = ''
         companyAdd.value.overview = ''
-        companyAdd.value.companyImages = [
-          {
-            url: 'https://example.com/image1.jpg',
-          },
-          {
-            url: 'https://example.com/image2.jpg',
-          },
-        ]
+        companyAdd.value.companyImages = []
       } else {
         isDisplayInputCompany.value = false
         useNotify({
@@ -1224,6 +1217,29 @@ const confirmAddJob = async () => {
 
     try {
       // Call API
+      // Progress Call api update image bbimg and get url img from response
+      for (let index = 0; index < imageFiles.value.length; index++) {
+        const image = imageFiles.value[index]
+
+        try {
+          // Upload image and get URL directly (similar to Java implementation)
+          const imageUrl = await $api.upload.uploadImageAndGetUrl(image)
+
+          if (imageUrl) {
+            if (index === 0) {
+              // Ảnh đầu tiên làm logo
+              companyAdd.value.logo = imageUrl
+            } else {
+              // Các ảnh còn lại làm company images
+              companyAdd.value.companyImages.push({ url: imageUrl })
+            }
+          } else {
+            console.error(`Failed to upload image at index ${index}`)
+          }
+        } catch (error) {
+          console.error(`Error uploading image at index ${index}:`, error)
+        }
+      }
 
       const response = await $api.company.addCompany(companyAdd.value)
 
