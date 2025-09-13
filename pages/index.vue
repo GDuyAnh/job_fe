@@ -27,40 +27,52 @@
       </div>
       <div class="flex items-center ml-2 md:ml-8">
         <template v-if="authStore.user">
-          <div class="relative w-48">
-            <!-- relative để absolute bên trong dựa vào -->
-            <UCollapsible class="flex flex-col">
-              <UButton
-                :label="authStore.user.fullName"
-                color="neutral"
-                variant="subtle"
-                trailing-icon="i-lucide-chevron-down"
-                block
-              />
-              <template #content>
+          <div class="relative">
+            <!-- User Profile Dropdown -->
+            <div class="relative">
+              <button
+                class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors border border-gray-200 w-56"
+                @click="toggleUserDropdown"
+              >
+                <!-- User Avatar -->
                 <div
-                  class="absolute left-0 top-full mt-1 z-50 w-full bg-white shadow-lg rounded-md p-1"
+                  class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center"
                 >
-                  <div v-if="authStore.user">
-                    <UButton
-                      label="Tạo mới công ty"
-                      block
-                      @click="router.push(ROUTE_PAGE.COMPANY.LIST)"
-                    />
-                  </div>
-                  <div v-if="authStore.user" class="mt-2">
-                    <UButton
-                      label="Đăng tải công việc"
-                      block
-                      @click="router.push(ROUTE_PAGE.USER_JOB.LIST)"
-                    />
-                  </div>
-                  <div class="mt-3">
-                    <UButton label="Đăng xuất" block @click="logout()" />
-                  </div>
+                  <span class="text-white font-semibold text-sm">
+                    {{
+                      authStore.user.fullName?.charAt(0)?.toUpperCase() || 'U'
+                    }}
+                  </span>
                 </div>
-              </template>
-            </UCollapsible>
+                <!-- User Name -->
+                <span class="text-gray-900 font-medium text-sm">
+                  {{ authStore.user.fullName }}
+                </span>
+                <!-- Dropdown Icon -->
+                <UIcon
+                  name="i-lucide-chevron-down"
+                  class="w-4 h-4 text-gray-500"
+                />
+              </button>
+
+              <!-- Dropdown Menu -->
+              <div
+                v-if="showUserDropdown"
+                class="absolute right-0 mt-2 w-56 bg-white rounded-md shadow-lg border border-gray-200 z-50"
+              >
+                <div class="py-1">
+                  <button
+                    v-for="item in userMenuItems"
+                    :key="item.label"
+                    class="flex items-center gap-3 w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                    @click="handleMenuItemClick(item)"
+                  >
+                    <UIcon :name="item.icon" class="w-4 h-4" />
+                    {{ item.label }}
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
         </template>
 
@@ -694,7 +706,11 @@ const stats = [
 const tabs = [
   { name: 'demos', label: 'home.tabs.demos', path: ROUTE_PAGE.HOME },
   { name: 'find-jobs', label: 'home.tabs.findJobs', path: ROUTE_PAGE.SEARCH },
-  { name: 'companies', label: 'home.tabs.companies', path: ROUTE_PAGE.COMPANY },
+  {
+    name: 'companies',
+    label: 'home.tabs.companies',
+    path: ROUTE_PAGE.COMPANY.GET,
+  },
   {
     name: 'candidates',
     label: 'home.tabs.candidates',
@@ -708,6 +724,9 @@ const activeTab = ref(tabs[0].name)
 const router = useRouter()
 const route = useRoute()
 const authStore = useAuthStore()
+
+// User dropdown state
+const showUserDropdown = ref(false)
 
 // Fill search fields from URL query parameters
 onMounted(() => {
@@ -724,12 +743,20 @@ onMounted(() => {
     location.value = query.location as string
   }
 
+  // Add click outside listener for dropdown
+  document.addEventListener('click', handleClickOutside)
+
   // Fetch Api
   getFeatureJobs()
   getCategoryJobs()
   getLocationJobs()
   getCompanyBanners()
   getBlogs()
+})
+
+// Clean up event listener
+onUnmounted(() => {
+  document.removeEventListener('click', handleClickOutside)
 })
 
 const searchJobs = () => {
@@ -926,4 +953,54 @@ const gotoTab = (tab: any) => {
   activeTab.value = tab.name
   router.push(tab.path)
 }
+
+// User dropdown methods
+const toggleUserDropdown = () => {
+  showUserDropdown.value = !showUserDropdown.value
+}
+
+const handleMenuItemClick = (item: any) => {
+  showUserDropdown.value = false
+  if (item.click) {
+    item.click()
+  }
+}
+
+// Close dropdown when clicking outside
+const handleClickOutside = (event: Event) => {
+  const target = event.target as HTMLElement
+
+  if (!target.closest('.relative')) {
+    showUserDropdown.value = false
+  }
+}
+
+// User dropdown menu items
+const userMenuItems = computed(() => [
+  {
+    label: 'Dashboard',
+    icon: 'i-lucide-layout-dashboard',
+    click: () => router.push('/dashboard'),
+  },
+  {
+    label: 'Edit Profile',
+    icon: 'i-lucide-user',
+    click: () => router.push('/profile/edit'),
+  },
+  {
+    label: 'Tạo mới công ty',
+    icon: 'i-lucide-building-2',
+    click: () => router.push(ROUTE_PAGE.COMPANY.LIST),
+  },
+  {
+    label: 'Đăng tải công việc',
+    icon: 'i-lucide-briefcase',
+    click: () => router.push(ROUTE_PAGE.USER_JOB.LIST),
+  },
+  {
+    label: 'Đăng xuất',
+    icon: 'i-lucide-log-out',
+    click: logout,
+  },
+])
 </script>

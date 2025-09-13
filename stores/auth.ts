@@ -30,10 +30,11 @@ export const useAuthStore = defineStore('auth', {
 
       const token = useToken(CONSTANTS.COOKIE_TOKEN_OPTION as CookieOptions)
 
-      token.set(response.accessToken)
+      token.set(response.access_token || response.accessToken)
 
       return response
     },
+
 
     async logout() {
       const router = useRouter()
