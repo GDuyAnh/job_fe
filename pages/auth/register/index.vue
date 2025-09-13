@@ -1,6 +1,6 @@
 <template>
   <div
-    class="auth-login fixed inset-0 flex items-center justify-center bg-gray-50 bg-opacity-50 backdrop-blur-sm z-50"
+    class="auth-register fixed inset-0 flex items-center justify-center bg-gray-50 bg-opacity-50 backdrop-blur-sm z-50"
   >
     <div class="w-full max-w-md mx-4">
       <div class="relative bg-white rounded-2xl shadow-2xl p-6">
@@ -27,15 +27,15 @@
         <!-- Welcome illustration -->
         <div class="flex justify-center items-center mb-4">
           <img
-            src="https://pixelprime.co/themes/jobster-wp/demo-1/wp-content/themes/jobster/images/signin-fig.png"
-            alt="Welcome illustration"
+            src="https://pixelprime.co/themes/jobster-wp/demo-1/wp-content/themes/jobster/images/signup-fig.png"
+            alt="Create account illustration"
             class="max-w-32 h-auto"
           />
         </div>
 
-        <!-- Welcome back title -->
+        <!-- Create account title -->
         <h1 class="text-xl font-bold text-center mb-6 text-gray-900">
-          {{ t('auth.welcomeBack') }}
+          {{ t('auth.createAccount') }}
         </h1>
 
         <app-form
@@ -47,10 +47,34 @@
           @submit="onSubmit"
         >
           <div class="space-y-0">
+            <app-form-field name="fullName" required>
+              <app-input
+                v-model="formState.fullName"
+                class="w-full rounded-xl text-base"
+                :placeholder="t('auth.fullName')"
+              >
+                <template #trailing>
+                  <svg
+                    class="w-4 h-4 text-gray-400"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                    />
+                  </svg>
+                </template>
+              </app-input>
+            </app-form-field>
+
             <app-form-field name="email" required>
               <app-input
                 v-model="formState.email"
-                class="w-full rounded-xl py-4 text-base"
+                class="w-full rounded-xl text-base"
                 :placeholder="t('auth.emailAddress')"
               >
                 <template #trailing>
@@ -75,7 +99,7 @@
               <app-input-password
                 v-model="formState.password"
                 class="w-full rounded-xl text-base"
-                :placeholder="t('auth.password')"
+                :placeholder="t('auth.createPassword')"
               >
                 <template #trailing>
                   <svg
@@ -114,23 +138,14 @@
 
         <!-- Links -->
         <div class="mt-4 text-center space-y-2">
-          <div>
-            <a
-              href="#"
-              class="text-blue-600 hover:text-blue-700 text-sm font-medium"
-              @click.prevent="handleForgotPassword"
-            >
-              {{ t('auth.forgotPassword') }}
-            </a>
-          </div>
           <div class="text-sm text-gray-600">
-            {{ t('auth.newToJobster') }}
+            {{ t('auth.alreadyHaveAccount') }}
             <a
               href="#"
               class="text-blue-600 hover:text-blue-700 font-medium ml-1"
-              @click.prevent="handleCreateAccount"
+              @click.prevent="handleSignIn"
             >
-              {{ t('auth.createAccount') }}
+              {{ t('auth.signIn') }}
             </a>
           </div>
         </div>
@@ -141,11 +156,11 @@
 
 <script setup lang="ts">
 import type { FormSubmitEvent } from '@nuxt/ui'
-import { loginSchema, type LoginType } from '~/constants/schema/login'
+import { registerSchema, type RegisterType } from '~/constants/schema/register'
 import { useRouter } from 'vue-router'
 
 defineComponent({
-  name: 'AuthLogin',
+  name: 'AuthRegister',
 })
 definePageMeta({
   layout: 'auth',
@@ -155,53 +170,69 @@ const { t } = useI18n()
 const authStore = useAuthStore()
 const router = useRouter()
 
-const schema = loginSchema()
+const schema = registerSchema()
 
-const formState = reactive<Partial<LoginType>>({
+const formState = reactive<Partial<RegisterType>>({
+  fullName: '',
   email: '',
   password: '',
 })
 const loading = ref(false)
 
-async function onSubmit(event: FormSubmitEvent<LoginType>) {
+async function onSubmit(event: FormSubmitEvent<RegisterType>) {
   loading.value = true
 
   try {
-    const response = await authStore.login({
+    const response = await authStore.register({
+      fullName: event.data.fullName,
       email: event.data.email,
       password: event.data.password,
     })
 
-    if (response?.user) {
-      authStore.setUser(response.user)
+    console.log('Register response:', response)
 
+    // Check if registration was successful
+    if (response) {
+      // If we have a user object, set it
+      if (response.user) {
+        authStore.setUser(response.user)
+      }
+
+      useNotify({
+        type: 'success',
+        message: t('auth.registerSuccess'),
+      })
       router.push('/')
     } else {
+      console.log('Registration failed - no response')
       useNotify({
         type: 'error',
-        message: t('auth.loginFailed'),
+        message: t('auth.registerFailed'),
       })
     }
   } catch (error: any) {
+    console.error('Registration error:', error)
+
+    // Handle specific error messages
+    let errorMessage = t('auth.registerFailed')
+
+    if (error?.response?.data?.message) {
+      errorMessage = error.response.data.message
+    } else if (error?.message) {
+      errorMessage = error.message
+    }
+
     useNotify({
       type: 'error',
-      message: error?.message,
+      message: errorMessage,
     })
   } finally {
     loading.value = false
   }
 }
 
-function handleForgotPassword() {
-  // TODO: Implement forgot password functionality
-  useNotify({
-    type: 'info',
-    message: 'Forgot password functionality coming soon!',
-  })
-}
-
-function handleCreateAccount() {
-  router.push('/users/register')
+function handleSignIn() {
+  router.push('/auth/login')
 }
 
 onMounted(() => {

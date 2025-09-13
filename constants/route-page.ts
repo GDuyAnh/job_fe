@@ -6,6 +6,7 @@ export const ROUTE_PAGE = {
     LOGIN: '/auth/login',
   },
   COMPANY: {
+    GET: '/companies',
     LIST: '/companies/list',
     CREATE: '/companies/create',
     EDIT: (id: number) => `/companies/edit/${id}`,

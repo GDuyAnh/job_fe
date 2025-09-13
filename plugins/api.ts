@@ -1,5 +1,6 @@
 import FetchFactory from '~/services/factory'
 import AuthModule from '~/services/modules/auth'
+import UsersModule from '~/services/modules/users'
 import JobModule from '~/services/modules/job'
 import CategoryModule from '~/services/modules/category'
 import CompanyModule from '~/services/modules/company'
@@ -10,6 +11,7 @@ export default defineNuxtPlugin(({ $config }) => {
 
   const modules = {
     auth: AuthModule(API_SERVICE),
+    users: UsersModule(API_SERVICE),
     job: JobModule(API_SERVICE),
     category: CategoryModule(API_SERVICE),
     company: CompanyModule(API_SERVICE),

@@ -4,7 +4,20 @@
   },
   "auth": {
     "login": "Login",
-    "loginFailed": "Login failded"
+    "loginFailed": "Login failed",
+    "welcomeBack": "Welcome back!",
+    "emailAddress": "Email address",
+    "password": "Password",
+    "continue": "Continue",
+    "forgotPassword": "Forgot password",
+    "newToJobster": "New to Jobster?",
+    "createAccount": "Create an account",
+    "fullName": "Full name",
+    "createPassword": "Create password",
+    "alreadyHaveAccount": "Already have an account?",
+    "signIn": "Sign in",
+    "registerSuccess": "Account created successfully!",
+    "registerFailed": "Registration failed. Please try again."
   },
   "common": {
     "actions": {

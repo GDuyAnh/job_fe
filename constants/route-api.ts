@@ -1,6 +1,7 @@
 export const ROUTE_API = {
   // Auth
   LOGIN: '/auth/login',
+  REGISTER: '/users/register',
   ME: '/auth/me',
 
   JOB: {
