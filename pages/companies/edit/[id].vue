@@ -86,7 +86,8 @@
               <UInput
                 v-model.trim="form.email"
                 type="email"
-                class="w-full"
+                readonly
+                class="w-full opacity-70 cursor-not-allowed"
                 :placeholder="$t('company.form.placeholderEmail') as string"
               />
             </div>

@@ -30,6 +30,7 @@
     "@typescript-eslint/eslint-plugin": "^8.32.0",
     "@typescript-eslint/parser": "^8.32.0",
     "@vite-pwa/nuxt": "^1.0.3",
+    "chart.js": "^4.5.0",
     "dayjs": "^1.11.13",
     "encoding-japanese": "^2.2.0",
     "eslint": "^9.26.0",
