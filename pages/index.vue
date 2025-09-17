@@ -980,7 +980,7 @@ const userMenuItems = computed(() => [
   {
     label: 'Dashboard',
     icon: 'i-lucide-layout-dashboard',
-    click: () => router.push('/dashboard'),
+    click: () => router.push(ROUTE_PAGE.DASHBOARD),
   },
   {
     label: 'Edit Profile',

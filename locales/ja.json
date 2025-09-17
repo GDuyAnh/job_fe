@@ -477,5 +477,50 @@
       "editCompanyContent": "Xác nhận chỉnh sửa",
       "editCompanyComplete": "Chỉnh sửa thông tin công ty thành công"
     }
+  },
+  "dashboard": {
+    "header": {
+      "logo": "Jobster",
+      "postJob": "Đăng tin tuyển dụng"
+    },
+    "sidebar": {
+      "adminTools": "Công cụ quản trị",
+      "dashboard": "Dashboard",
+      "editProfile": "Chỉnh sửa hồ sơ",
+      "newJob": "Tin tuyển dụng mới",
+      "manageJobs": "Quản lý tin tuyển dụng",
+      "candidates": "Ứng viên",
+      "changePassword": "Đổi mật khẩu",
+      "insights": "Thống kê",
+      "notifications": "Thông báo"
+    },
+    "main": {
+      "title": "Tổng quan",
+      "welcome": "Xin chào, {name}!",
+      "metrics": {
+        "postedJobs": "Công việc đăng tải",
+        "pendingJobs": "Tin đăng chờ duyệt",
+        "expiredJobs": "Tin hết hạn",
+        "expiringSoonJobs": "Tin sắp hết hạn"
+      },
+      "charts": {
+        "jobPosting": "Biểu đồ đăng tin tuyển dụng",
+        "candidateApplications": "Biểu đồ ứng viên ứng tuyển",
+        "vsLastWeek": "so với 7 ngày trước"
+      },
+      "timeRange": {
+        "last7Days": "7 ngày qua",
+        "last30Days": "30 ngày qua",
+        "last3Months": "3 tháng qua",
+        "lastYear": "1 năm qua"
+      }
+    },
+    "userMenu": {
+      "dashboard": "Dashboard",
+      "editProfile": "Chỉnh sửa hồ sơ",
+      "createCompany": "Tạo mới công ty",
+      "postJob": "Đăng tải công việc",
+      "logout": "Đăng xuất"
+    }
   }
 }
