@@ -1,7 +1,7 @@
 <template>
-  <div class="min-h-screen bg-white">
+  <div class="min-h-screen bg-gray-50">
     <!-- Header -->
-    <div class="bg-cream shadow-sm border-b border-gray-200">
+    <div class="bg-white shadow-sm border-b border-gray-200">
       <UContainer>
         <div class="py-4">
           <div class="flex items-center gap-4">
@@ -66,7 +66,7 @@
 
             <!-- Company info overlay -->
             <div class="absolute bottom-0 left-0 right-0 p-8">
-              <div class="flex items-center gap-6">
+              <div class="flex items-center gap-6 bg-[#00000084] rounded-2xl">
                 <!-- Company Logo -->
                 <div class="flex-shrink-0">
                   <div class="w-24 h-24 rounded-xl shadow-lg overflow-hidden">
@@ -78,7 +78,7 @@
                     />
                     <div
                       v-else
-                      class="w-full h-full bg-white flex items-center justify-center"
+                      class="w-full h-full bg-black flex items-center justify-center"
                     >
                       <UIcon
                         name="i-heroicons-building-office"
@@ -249,7 +249,7 @@
 
             <!-- Right column -->
             <div class="lg:col-span-1 space-y-6">
-              <UCard class="rounded-2xl bg-cream">
+              <UCard class="rounded-2xl bg-[#f0f7ff]">
                 <div class="space-y-6">
                   <div v-if="company.organizationType">
                     <div class="text-sm text-gray-500 mb-2">

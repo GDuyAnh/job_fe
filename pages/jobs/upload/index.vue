@@ -50,35 +50,15 @@
                   </label>
 
                   <div>
-                    <!-- Input -->
-                    <UInput
-                      id="company-name"
-                      v-model="searchCompany"
+                    <!-- Input Menu -->
+                    <UInputMenu
+                      v-model="selectedCompanyId"
+                      value-key="id"
+                      :items="companyItems"
                       class="w-full"
-                      type="text"
                       :placeholder="$t('company.action.placeHolderInputName')"
-                      @input="
-                        (e: Event) =>
-                          filterCompanies((e.target as HTMLInputElement).value)
-                      "
-                      @keydown.enter.prevent="selectFirstOrClear"
-                      @blur="selectFirstOrClear"
+                      @update:model-value="onCompanySelect"
                     />
-                    <!-- Suggestion dropdown -->
-                    <div
-                      v-if="filteredCompanies.length > 0"
-                      class="absolute z-10 bg-white border border-gray-300 rounded shadow max-h-60 overflow-auto"
-                      style="width: 91.5%"
-                    >
-                      <div
-                        v-for="c in filteredCompanies"
-                        :key="c.id"
-                        class="px-3 py-2 hover:bg-gray-100 cursor-pointer"
-                        @click="selectCompany(c)"
-                      >
-                        {{ c.name }}
-                      </div>
-                    </div>
                   </div>
                 </div>
                 <div
@@ -86,11 +66,10 @@
                   style="padding: 0px 0px 38px 20px !important"
                 >
                   <UButton
+                    class="bg-[#4f8ef7] text-white hover:bg-[#4568a1ad]"
                     style="
                       padding: 8px 16px;
                       border: none;
-                      background-color: #4f8ef7;
-                      color: white;
                       border-radius: 6px;
                       cursor: pointer;
                     "
@@ -412,11 +391,10 @@
                   style="padding: 0px 0px 38px 20px !important"
                 >
                   <UButton
+                    class="bg-[#4f8ef7] text-white hover:bg-[#4568a1ad]"
                     style="
                       padding: 8px 16px;
                       border: none;
-                      background-color: #4f8ef7;
-                      color: white;
                       border-radius: 6px;
                       cursor: pointer;
                     "
@@ -507,7 +485,7 @@
                 <!-- Input -->
                 <UInput
                   id="company-name"
-                  v-model="searchCompany"
+                  :model-value="selectedCompany?.name || ''"
                   class="w-full"
                   type="text"
                   readonly
@@ -767,12 +745,11 @@
 
               <!-- Buton Next -->
               <UButton
+                class="bg-[#4f8ef7] text-white hover:bg-[#4568a1ad]"
                 style="
                   margin-top: 15px;
                   padding: 8px 16px;
                   border: none;
-                  background-color: #4f8ef7;
-                  color: white;
                   border-radius: 6px;
                   cursor: pointer;
                 "
@@ -783,7 +760,79 @@
             </div>
           </template>
           <template #confirm>
-            <div class="flex bg-[#f5f7fa] flex-col items-center">
+            <!-- Incomplete state -->
+            <div
+              v-if="confirmStepState === 'incomplete'"
+              class="flex bg-[#f5f7fa] flex-col items-center"
+            >
+              <div
+                class="flex flex-col items-center gap-1 w-full"
+                style="padding: 0px 0px 8px 0px !important"
+              >
+                <UButton
+                  style="width: 51%"
+                  class="text-white bg-[#0969C3] hover:bg-[#002745]"
+                  @click="previewJob()"
+                >
+                  {{ $t('job.uploadJob.viewJob') }}
+                </UButton>
+              </div>
+
+              <div
+                class="flex items-center"
+                style="
+                  padding: 0px 0px 8px 0px !important;
+                  height: 30px !important;
+                "
+              >
+                <UCheckbox
+                  v-model="agreeChecked"
+                  class="text-primary mr-3"
+                ></UCheckbox>
+                <span>
+                  {{ $t('job.uploadJob.agreeUploadJobLabel') }}
+                  <a
+                    href="#"
+                    style="
+                      color: #0284c7 !important;
+                      text-decoration: none !important;
+                    "
+                  >
+                    {{ $t('job.uploadJob.agreePolicy') }}
+                  </a>
+                  {{ $t('job.uploadJob.and') }}
+                  <a
+                    href="#"
+                    style="
+                      color: #0284c7 !important;
+                      text-decoration: none !important;
+                    "
+                  >
+                    {{ $t('job.uploadJob.agreePrivacy') }}
+                  </a>
+                </span>
+              </div>
+
+              <UButton
+                class="w-2/10 bg-[#4f8ef7] text-white hover:bg-[#4568a1ad]"
+                style="
+                  margin-top: 15px;
+                  padding: 8px 16px;
+                  border: none;
+                  border-radius: 6px;
+                  cursor: pointer;
+                "
+                @click="addJob()"
+              >
+                {{ $t('job.uploadJob.uploadJobContent') }}
+              </UButton>
+            </div>
+
+            <!-- Success state -->
+            <div
+              v-if="confirmStepState === 'success'"
+              class="flex bg-[#f5f7fa] flex-col items-center"
+            >
               <div class="h-1/2">
                 <UIcon name="i-lucide-laptop-minimal-check" class="size-10" />
               </div>
@@ -806,34 +855,40 @@
               >
               </UButton>
             </div>
+
+            <!-- Error state -->
+            <div
+              v-if="confirmStepState === 'error'"
+              class="flex bg-[#f5f7fa] flex-col items-center"
+            >
+              <div class="h-1/2">
+                <UIcon
+                  name="i-lucide-alert-circle"
+                  class="size-10 text-red-500"
+                />
+              </div>
+              <div style="font-size: 16px; color: #333">
+                {{ $t('job.uploadJob.uploadJobFailed') }}
+              </div>
+              <UButton
+                style="
+                  margin-top: 15px;
+                  margin-bottom: 38px;
+                  padding: 8px 16px;
+                  border: none;
+                  background-color: #ef4444;
+                  color: white;
+                  border-radius: 6px;
+                  cursor: pointer;
+                "
+                label="Thử lại"
+                @click="confirmStepState = 'incomplete'"
+              >
+              </UButton>
+            </div>
           </template>
         </UStepper>
       </div>
-    </div>
-    <div v-if="!isComplete" class="flex flex-col gap-4 mt-8">
-      <!-- Hàng checkbox + text -->
-      <div class="flex items-center">
-        <UCheckbox class="text-primary mr-3"></UCheckbox>
-        <span>
-          {{ $t('job.uploadJob.agreeUploadJobLabel') }}
-          <a
-            href="#"
-            style="color: #0284c7 !important; text-decoration: none !important"
-          >
-            {{ $t('job.uploadJob.agreePolicy') }}
-          </a>
-          {{ $t('job.uploadJob.and') }}
-          <a
-            href="#"
-            style="color: #0284c7 !important; text-decoration: none !important"
-          >
-            {{ $t('job.uploadJob.agreePrivacy') }}
-          </a>
-        </span>
-      </div>
-      <UButton class="w-1/10" color="primary" @click="addJob()">
-        {{ $t('job.uploadJob.uploadJobContent') }}
-      </UButton>
     </div>
   </div>
 </template>
@@ -932,6 +987,7 @@ function removeImage(idx: number) {
   imagePreviews.value.splice(idx, 1)
   imageFiles.value.splice(idx, 1)
 }
+
 onBeforeUnmount(() => {
   imagePreviews.value.forEach((pv) => {
     if (pv?.startsWith('blob:')) URL.revokeObjectURL(pv)
@@ -943,7 +999,11 @@ const router = useRouter()
 const { $api } = useNuxtApp()
 const authStore = useAuthStore()
 const loading = ref(false)
-const isComplete = ref(false)
+const agreeChecked = ref(false)
+
+// Confirm step states
+type ConfirmStepState = 'incomplete' | 'success' | 'error'
+const confirmStepState = ref<ConfirmStepState>('incomplete')
 const job = ref<JobModelAddUpdate>({} as JobModelAddUpdate)
 const company = ref<CompanyEntity | null>(null)
 const companyAdd = ref<CompanyAddUpdateEntity>({
@@ -968,7 +1028,17 @@ const companyAdd = ref<CompanyAddUpdateEntity>({
   companyImages: [],
 } as CompanyAddUpdateEntity)
 const currentCompanies = ref<CompanyEntity[]>([])
+const selectedCompanyId = ref<number | undefined>(undefined)
+const selectedCompany = ref<CompanyEntity | null>(null)
 const companyByMST = ref<VietQRBusinessResponse | null>(null)
+
+// Transform companies to UInputMenu format
+const companyItems = computed(() => {
+  return currentCompanies.value.map((company) => ({
+    label: company.name,
+    id: company.id,
+  }))
+})
 
 // Initialize search from route query
 onMounted(() => {
@@ -989,8 +1059,6 @@ const goBack = () => {
 const goToListJobUser = () => {
   router.push(ROUTE_PAGE.USER_JOB.LIST)
 }
-
-const addJob = async () => {}
 
 const fetchAllCompany = async () => {
   loading.value = true
@@ -1027,10 +1095,21 @@ const findCompanyByMst = async () => {
 
     // Check mst in db
     // If exist, show data
-    const isExist = false // await $api.company.checkExistMst(mstCompany.value);
+    let existingCompany: CompanyEntity | null = null
 
-    if (isExist) {
+    try {
+      existingCompany = await $api.company.checkExistMst(mstCompany.value)
+    } catch (error) {
+      console.error('Error checking MST existence:', error)
+      // If check fails, assume it doesn't exist and proceed with VietQR lookup
+      existingCompany = null
+    }
+
+    if (existingCompany) {
       isDisplayInputCompany.value = false
+      useNotify({
+        message: `Mã số thuế ${mstCompany.value} đã tồn tại trong hệ thống với tên công ty "${existingCompany.name}". Vui lòng chọn từ danh sách có sẵn.`,
+      })
     } else {
       // If not exist, call api to get data from vietqr
       const response = await $api.company.getCompanyByMst(mstCompany.value)
@@ -1049,7 +1128,7 @@ const findCompanyByMst = async () => {
 
         // Init default data for add job
         companyAdd.value.email = ''
-        companyAdd.value.logo = 'https://example.com/logo.png'
+        companyAdd.value.logo = ''
         companyAdd.value.organizationType = 0
         companyAdd.value.isShow = false
         companyAdd.value.isWaiting = true
@@ -1062,14 +1141,7 @@ const findCompanyByMst = async () => {
         companyAdd.value.description = ''
         companyAdd.value.insight = ''
         companyAdd.value.overview = ''
-        companyAdd.value.companyImages = [
-          {
-            url: 'https://example.com/image1.jpg',
-          },
-          {
-            url: 'https://example.com/image2.jpg',
-          },
-        ]
+        companyAdd.value.companyImages = []
       } else {
         isDisplayInputCompany.value = false
         useNotify({
@@ -1090,40 +1162,20 @@ const findCompanyByMst = async () => {
   }
 }
 
-const searchCompany = ref('')
-const filteredCompanies = ref<CompanyEntity[]>([])
+const onCompanySelect = (companyId: number | undefined) => {
+  if (companyId) {
+    const foundCompany = currentCompanies.value.find((c) => c.id === companyId)
 
-const filterCompanies = (keyword: string) => {
-  if (!keyword) {
-    filteredCompanies.value = []
+    if (foundCompany) {
+      selectedCompany.value = foundCompany
+      company.value = foundCompany
+      // fill thêm thông tin vào job
+      job.value.companyId = foundCompany.id
+    }
   } else {
-    filteredCompanies.value = currentCompanies.value.filter((c) =>
-      c.name.toLowerCase().includes(keyword.toLowerCase()),
-    )
-  }
-}
-
-const selectCompany = (c: CompanyEntity) => {
-  company.value = c
-  searchCompany.value = c.name
-  filteredCompanies.value = []
-
-  // fill thêm thông tin vào job
-  job.value.companyId = c.id
-}
-
-// chọn thằng đầu tiên trong filter hoặc clear
-const selectFirstOrClear = () => {
-  const currentSelect =
-    currentCompanies.value.filter((c) =>
-      c.name.toLowerCase().includes(searchCompany.value.toLowerCase()),
-    ).length > 0
-
-  if (filteredCompanies.value && filteredCompanies.value.length > 0) {
-    selectCompany(filteredCompanies.value[0])
-  } else if (!currentSelect) {
+    selectedCompany.value = null
+    company.value = null
     job.value.companyId = NaN
-    searchCompany.value = ''
   }
 }
 
@@ -1156,7 +1208,14 @@ const confirmCreateSchool = () => {
     if (companyByMST.value && companyByMST.value.code == '00') {
       // fill thêm thông tin vào job
       job.value.companyId = companyByMST.value.data.id
-      searchCompany.value = companyByMST.value.data.name ?? ''
+      // Create a temporary company object for display
+      selectedCompanyId.value = companyByMST.value.data.id
+      selectedCompany.value = {
+        id: companyByMST.value.data.id,
+        name: companyByMST.value.data.name ?? '',
+        address: companyByMST.value.data.address ?? '',
+        email: companyAdd.value.email ?? '',
+      } as CompanyEntity
 
       // Set data to view
       if (!company.value) {
@@ -1195,85 +1254,151 @@ const goBackToChooseSchool = () => {
   }
 }
 
-const confirmAddJob = async () => {
+const confirmAddJob = () => {
   const msgErrJob = validateJobFields()
-  const msgErrComp = validateCompanyFields()
 
   if (msgErrJob && msgErrJob.length > 0) {
     useNotify({
       message: msgErrJob,
     })
-  } else if (msgErrComp && msgErrComp.length > 0) {
-    useNotify({
-      message: msgErrComp,
-    })
+
+    return
+  }
+
+  if (stepper.value?.hasNext) {
+    stepper.value.next()
+  }
+}
+
+const addJob = async () => {
+  // If not check display msg
+  if (!agreeChecked.value) {
+    useNotify({ message: 'Hãy xác nhận điều khoản và chính sách' })
+
+    return
+  }
+
+  loading.value = true
+  let isAddCompanySuccess = false
+  let isAddJobSuccess = false
+
+  // Check add Company
+  if (isAddCompany.value && companyAdd.value) {
+    const msgErrComp = validateCompanyFields()
+
+    if (msgErrComp && msgErrComp.length > 0) {
+      useNotify({
+        message: msgErrComp,
+      })
+
+      return
+    }
+
+    try {
+      // Call API
+      // Progress Call api update image bbimg and get url img from response
+      for (let index = 0; index < imageFiles.value.length; index++) {
+        const image = imageFiles.value[index]
+
+        try {
+          // Upload image and get URL directly (similar to Java implementation)
+          const imageUrl = await $api.upload.uploadImageAndGetUrl(image)
+
+          if (imageUrl) {
+            if (index === 0) {
+              // Ảnh đầu tiên làm logo
+              companyAdd.value.logo = imageUrl
+            } else {
+              // Các ảnh còn lại làm company images
+              companyAdd.value.companyImages.push({ url: imageUrl })
+            }
+          } else {
+            console.error(`Failed to upload image at index ${index}`)
+          }
+        } catch (error) {
+          console.error(`Error uploading image at index ${index}:`, error)
+        }
+      }
+
+      const response = await $api.company.addCompany(companyAdd.value)
+
+      if (response) {
+        company.value = response
+        isAddCompanySuccess = true
+      }
+    } catch (error: any) {
+      console.error('Add company failed:', error)
+    }
   } else {
-    loading.value = true
-    let isAddCompanySuccess = false
-    let isAddJobSuccess = false
+    isAddCompanySuccess = true
+  }
 
-    // Check add Company
-    if (isAddCompany.value && companyAdd.value) {
-      try {
-        // Call API
-        console.log('CompanyAdd :', companyAdd.value)
-        const response = await $api.company.addCompany(companyAdd.value)
+  // Add job
+  if (isAddCompanySuccess) {
+    try {
+      // Set id Company for Job
+      job.value.companyId = company.value ? company.value.id : NaN
 
-        if (response) {
-          company.value = response
-          isAddCompanySuccess = true
-        }
-      } catch (error: any) {
-        console.error('Add company failed:', error)
+      // Set id User for Job
+      job.value.userId = authStore.user ? authStore.user.id : NaN
+
+      // Set default add value
+      job.value.isFeatured = false
+      job.value.isWaiting = true
+
+      // Call API
+      const response = await $api.job.addJob(job.value)
+
+      if (response) {
+        isAddJobSuccess = true
       }
-    } else {
-      isAddCompanySuccess = true
-    }
-
-    // Add job
-    if (isAddCompanySuccess) {
-      try {
-        // Set id Company for Job
-        job.value.companyId = company.value ? company.value.id : NaN
-
-        // Set id User for Job
-        job.value.userId = authStore.user ? authStore.user.id : NaN
-
-        // Set default add value
-        job.value.isFeatured = false
-        job.value.isWaiting = true
-
-        // Call API
-        const response = await $api.job.addJob(job.value)
-
-        if (response) {
-          isAddJobSuccess = true
-        }
-      } catch (error: any) {
-        console.error('Add job failed:', error)
-      }
-    }
-
-    loading.value = false
-    if (isAddCompany.value && !isAddCompanySuccess) {
-      useNotify({
-        message: 'Đăng ký trường học thất bại. Vui lòng thử lại.',
-      })
-
-      return
-    } else if (!isAddJobSuccess) {
-      useNotify({
-        message: 'Đăng tải công việc thất bại. Vui lòng thử lại.',
-      })
-
-      return
-    }
-
-    if (stepper.value?.hasNext) {
-      stepper.value.next()
-      isComplete.value = true
+    } catch (error: any) {
+      console.error('Add job failed:', error)
     }
   }
+
+  loading.value = false
+  if (isAddCompany.value && !isAddCompanySuccess) {
+    confirmStepState.value = 'error'
+    useNotify({
+      message: 'Đăng ký trường học thất bại. Vui lòng thử lại.',
+    })
+
+    return
+  } else if (!isAddJobSuccess) {
+    confirmStepState.value = 'error'
+    useNotify({
+      message: 'Đăng tải công việc thất bại. Vui lòng thử lại.',
+    })
+
+    return
+  }
+
+  confirmStepState.value = 'success'
+}
+
+const previewJob = () => {
+  // Validate job fields before preview
+  const msgErrJob = validateJobFields()
+
+  if (msgErrJob && msgErrJob.length > 0) {
+    useNotify({
+      message: msgErrJob,
+    })
+
+    return
+  }
+
+  // Open preview page in new tab with job and company data
+  const previewUrl = router.resolve({
+    path: '/jobs/view',
+    query: {
+      job: encodeURIComponent(JSON.stringify(job.value)),
+      company: encodeURIComponent(JSON.stringify(company.value)),
+    },
+  })
+
+  window.open(previewUrl.href, '_blank')
 }
 
 function validateSchool(): boolean {

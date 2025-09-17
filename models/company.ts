@@ -2,7 +2,7 @@ export interface CompanyBannerModel {
   id: number
   insight: string
   overview: string
-  logo: string
+  image: string
 }
 
 export interface CompanyJobSummaryModel {
@@ -41,5 +41,5 @@ export interface CompanyBannerModel {
   id: number
   insight: string
   overview: string
-  logo: string
+  image: string
 }

@@ -41,6 +41,12 @@ const JobModule = (apiService: FetchFactory) => {
     return apiService.delete<JobEntity>(`${ROUTE_API.JOB.GET_JOB}/${id}`)
   }
 
+  const findJobByUserId = async (userId: number) => {
+    return apiService.get<JobEntity[]>(
+      `${ROUTE_API.JOB.FIND_BY_USER_ID}/${userId}`,
+    )
+  }
+
   return {
     getJob,
     searchJob,
@@ -50,6 +56,7 @@ const JobModule = (apiService: FetchFactory) => {
     addJob,
     editJob,
     delJob,
+    findJobByUserId,
   }
 }
 

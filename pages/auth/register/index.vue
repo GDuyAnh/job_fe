@@ -1,6 +1,6 @@
 <template>
   <div
-    class="auth-register fixed inset-0 flex items-center justify-center bg-gray-50 bg-opacity-50 backdrop-blur-sm z-50"
+    class="auth-register fixed inset-0 flex items-center justify-center bg-[#eaf3fc] bg-opacity-50 backdrop-blur-sm z-50"
   >
     <div class="w-full max-w-md mx-4">
       <div class="relative bg-white rounded-2xl shadow-2xl p-6">

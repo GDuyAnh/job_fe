@@ -118,6 +118,15 @@
                         <span>{{ formatDate(job.createdAt) }}</span>
                       </div>
                     </div>
+                    <div v-if="job.isWaiting" class="mt-2">
+                      <UBadge
+                        color="warning"
+                        variant="soft"
+                        class="flex-shrink-0"
+                      >
+                        {{ $t('job.listJobUser.waitingJob') }}
+                      </UBadge>
+                    </div>
                   </div>
 
                   <!-- Right group -->
@@ -187,7 +196,7 @@
 
 <script setup lang="ts">
 import type { JobModel } from '~/models/job'
-//import { JobMapper } from '~/mapper/job'
+import { JobMapper } from '~/mapper/job'
 
 // Enum
 const {
@@ -216,32 +225,30 @@ const goBack = () => {
   router.back()
 }
 
-// const performGetJobByCompanyId = async (companyId: number) => {
-//   loading.value = true
+const performGetJobByUserId = async (userId: number | undefined) => {
+  if (!userId) return
 
-//   try {
-//     // Build search parameters
-//     const apiParams: Record<string, any> = {}
+  loading.value = true
 
-//     apiParams.companyId = companyId
-//     // Call API
-//     const response = await $api.job.searchJob(apiParams)
+  try {
+    // Call API
+    const response = await $api.job.findJobByUserId(userId)
 
-//     if (response && Array.isArray(response)) {
-//       jobs.value = response.map((job) => JobMapper.toModel(job))
-//     } else {
-//       jobs.value = []
-//     }
-//   } catch (error: any) {
-//     console.error('Search failed:', error)
-//     useNotify({
-//       message: error.message,
-//     })
-//     jobs.value = []
-//   } finally {
-//     loading.value = false
-//   }
-// }
+    if (response && Array.isArray(response)) {
+      jobs.value = response.map((job) => JobMapper.toModel(job))
+    } else {
+      jobs.value = []
+    }
+  } catch (error: any) {
+    console.error('Search failed:', error)
+    useNotify({
+      message: error.message,
+    })
+    jobs.value = []
+  } finally {
+    loading.value = false
+  }
+}
 
 const viewJob = (job: JobModel) => {
   // Navigate to job detail page
@@ -265,7 +272,7 @@ const deleteJob = async (job: JobModel) => {
         message: 'Xóa job thành công.',
       })
 
-      //performGetJobByCompanyId(authStore.user?.companyId)
+      performGetJobByUserId(authStore.user?.id)
     }
   } catch (error: any) {
     console.error('Delete job failed:', error)
@@ -313,6 +320,6 @@ onMounted(() => {
     router.push(ROUTE_PAGE.AUTH.LOGIN)
   }
 
-  //performGetJobByCompanyId(authStore.user.companyId)
+  performGetJobByUserId(authStore.user?.id)
 })
 </script>

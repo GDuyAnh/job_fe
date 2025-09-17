@@ -2,15 +2,14 @@
   <div>
     <!-- Enhanced Custom Tab Bar -->
     <nav
-      class="w-full bg-[#FDE8DB] border-b border-[#f5d2b6] flex items-center justify-between px-2 md:px-8 py-2 md:py-3 shadow-sm sticky top-0 z-30"
-      style="box-shadow: 0 2px 12px 0 rgba(253, 232, 219, 0.5)"
+      class="w-full bg-[#e5f2ff] flex items-center border-b border-[#88909854] justify-between px-2 md:px-8 py-2 md:py-3 sticky top-0 z-30"
     >
       <div class="flex-1 flex justify-center overflow-x-auto scrollbar-hide">
         <div class="flex gap-2 md:gap-10">
           <button
             v-for="tab in tabs"
             :key="tab.name"
-            class="relative pb-2 px-3 md:px-2 text-base font-semibold text-[#222] border-b-2 border-transparent transition hover:text-[#8a7754] hover:bg-[#f5e0d0] rounded-t-lg duration-200"
+            class="relative pb-2 px-3 md:px-2 text-base font-semibold text-[#222] border-b-2 border-transparent transition hover:text-[#000000fe] hover:bg-[#454e571a] rounded-t-lg duration-200"
             :class="
               activeTab === tab.name ? 'font-extrabold text-[#8a7754]' : ''
             "
@@ -20,7 +19,7 @@
             <span>{{ $t(tab.label) }}</span>
             <span
               v-if="activeTab === tab.name"
-              class="absolute left-1/2 -translate-x-1/2 bottom-0 w-8 h-[3px] bg-gradient-to-r from-[#8a7754] to-[#f5d2b6] rounded-full transition-all duration-300"
+              class="absolute left-1/2 -translate-x-1/2 bottom-0 w-12 h-[3px] bg-gradient-to-r from-[#000000] to-[#eaf3fc] rounded-full transition-all duration-300"
             ></span>
           </button>
         </div>
@@ -29,30 +28,35 @@
         <template v-if="authStore.user">
           <div class="relative">
             <!-- User Profile Dropdown -->
-            <div class="relative">
+            <div class="relative user-dropdown-container">
               <button
-                class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors border border-gray-200 w-56"
+                class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-[#002b57] hover:text-[#ffffff] transition-colors border border-gray-200 w-56"
                 @click="toggleUserDropdown"
               >
-                <!-- User Avatar -->
-                <div
-                  class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center"
-                >
-                  <span class="text-white font-semibold text-sm">
-                    {{
-                      authStore.user.fullName?.charAt(0)?.toUpperCase() || 'U'
-                    }}
-                  </span>
+                <div class="flex items-center justify-between gap-2 w-full">
+                  <!-- User Avatar -->
+                  <div class="flex items-center gap-2">
+                    <div
+                      class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center"
+                    >
+                      <span class="text-white font-semibold text-sm">
+                        {{
+                          authStore.user.fullName?.charAt(0)?.toUpperCase() ||
+                          'U'
+                        }}
+                      </span>
+                    </div>
+                    <!-- User Name -->
+                    <span class="font-medium text-sm">
+                      {{ authStore.user.fullName }}
+                    </span>
+                  </div>
+                  <!-- Dropdown Icon -->
+                  <UIcon
+                    name="i-lucide-chevron-down"
+                    class="w-4 h-4 text-gray-500"
+                  />
                 </div>
-                <!-- User Name -->
-                <span class="text-gray-900 font-medium text-sm">
-                  {{ authStore.user.fullName }}
-                </span>
-                <!-- Dropdown Icon -->
-                <UIcon
-                  name="i-lucide-chevron-down"
-                  class="w-4 h-4 text-gray-500"
-                />
               </button>
 
               <!-- Dropdown Menu -->
@@ -64,7 +68,7 @@
                   <button
                     v-for="item in userMenuItems"
                     :key="item.label"
-                    class="flex items-center gap-3 w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                    class="flex items-center gap-3 w-full px-4 py-2 text-sm text-gray-700 hover:bg-[#002b57] hover:text-[#ffffff] transition-colors"
                     @click="handleMenuItemClick(item)"
                   >
                     <UIcon :name="item.icon" class="w-4 h-4" />
@@ -78,7 +82,7 @@
 
         <template v-else>
           <button
-            class="px-6 py-1 text-white border-0 bg-gradient-to-r from-[#8a7754] to-[#f5d2b6] shadow-md hover:from-[#7a6847] hover:to-[#f5d2b6] transition duration-200 font-bold rounded-full text-base"
+            class="px-6 py-1 text-white border-0 bg-[#0969C3] shadow-md hover:bg-[#002b57] transition duration-200 font-bold rounded-full text-base"
             style="
               box-shadow: 0 2px 8px 0 rgba(138, 119, 84, 0.1);
               min-width: 100px;
@@ -94,8 +98,12 @@
     <div class="min-h-screen bg-[#eaf3fc] flex items-center relative">
       <!-- clip-diagonal -->
       <div
-        class="absolute right-0 bottom-[200px] w-9/20 h-[150%] rounded-[200px] bg-[#002b57] z-0"
-        style="transform: rotate(32deg); transform-origin: bottom left"
+        class="absolute right-0 bottom-[200px] w-9/20 h-[150%] rounded-[200px] bg-[#002b57] z-0 animate-slide-right-1"
+        style="
+          transform: rotate(32deg);
+          transform-origin: bottom left;
+          right: -5000px;
+        "
       />
 
       <UContainer class="z-1">
@@ -113,7 +121,7 @@
             </p>
             <!-- Redesigned Search box -->
             <div
-              class="flex items-stretch gap-3 mb-8 bg-white rounded-full shadow-2xl px-4 py-2 max-w-4xl mx-auto border border-[#f5e0d0]"
+              class="flex items-stretch gap-3 mb-8 bg-white rounded-full shadow-2xl px-4 py-2 max-w-4xl mx-auto border border-gray-200"
             >
               <!-- 1. Keyword -->
               <input
@@ -133,7 +141,7 @@
               />
 
               <div
-                class="flex items-center justify-center h-12 w-12 rounded-full bg-[#8a7754] hover:bg-[#a08a6a] text-white shadow-lg"
+                class="flex items-center justify-center h-12 w-12 rounded-full bg-[#0969C3] hover:bg-[#002745] text-white shadow-lg"
               >
                 <NuxtSearch @click="searchJobs" />
               </div>
@@ -162,18 +170,18 @@
             <div class="relative">
               <img
                 alt="Professional"
-                src="https://therandyreport.com/wp-content/uploads/2021/04/Depositphotos_41577599_xl-2015-jobs-unemployment.jpg"
+                src="../public/hero_banner.png"
                 class="relative rounded-3xl shadow-xl w-[370px] h-[500px] object-fit z-5"
               />
               <div
-                class="absolute bottom-0 right-0 w-[370px] h-[500px] rounded-[2rem] bg-[#378aff] rotate-[5deg] translate-x-[20px] translate-y-[15px] z-3"
+                class="absolute bottom-0 right-0 w-[370px] h-[500px] rounded-[2rem] bg-[#378aff] z-3 animate-slide-in-1"
               />
               <div
-                class="absolute bottom-0 right-0 w-[370px] h-[500px] rounded-[2rem] bg-[#e6f0f9] rotate-[10deg] translate-x-[40px] translate-y-[30px] z-2"
+                class="absolute bottom-0 right-0 w-[370px] h-[500px] rounded-[2rem] bg-[#e6f0f9] z-2 animate-slide-in-2"
               ></div>
 
               <div
-                class="absolute bottom-4 left-1/2 bg-white/90 backdrop-blur rounded-xl shadow-lg p-6 min-w-[300px] z-30"
+                class="absolute bottom-4 left-1/2 bg-white/90 backdrop-blur rounded-xl shadow-lg p-6 min-w-[300px] z-30 animate-slide-left-1"
               >
                 <div
                   v-for="item in stats"
@@ -274,25 +282,31 @@
         <UCarousel :items="bannerRes" class="mt-8">
           <template #default="{ item }">
             <div
-              class="flex flex-col items-left justify-left p-16 rounded-2xl shadow hover:shadow-xl min-h-[300px] border-1 border-gray-200"
-              :style="`background-image: url('${item.logo}'); background-size: fit; background-position: center;`"
+              class="flex flex-col items-left justify-left p-16 rounded-2xl shadow hover:shadow-xl min-h-[400px] max-h-[400px] border-1 border-gray-200 relative overflow-hidden"
+              :style="`background-image: url('${item.image}'); background-size: cover; background-position: center;`"
             >
-              <div class="text-left text-5xl font-bold text-black max-w-6/10">
+              <!-- Overlay -->
+              <div class="absolute inset-0 bg-[#0000005c]"></div>
+
+              <!-- Content -->
+              <div
+                class="relative z-10 text-left text-5xl font-bold text-white max-w-6/10"
+              >
                 {{ item.insight }}
               </div>
-              <div class="text-md text-gray-600 mt-8 max-w-5/10">
+              <div class="relative z-10 text-md text-gray-200 mt-8 max-w-5/10">
                 {{ item.overview }}
               </div>
-              <div class="mt-8">
+              <div class="relative z-10 mt-8">
                 <app-button
-                  class="mt-5 p-6"
+                  class="mt-5 p-6 bg-white text-black hover:bg-gray-700 hover:text-white"
                   variant="outline"
-                  color="secondary"
                   shape="round"
                   compact
                   @click.stop="viewCompany(item.id)"
-                  >{{ $t('homePage.buttonContent.detailCompany') }}</app-button
                 >
+                  {{ $t('homePage.buttonContent.detailCompany') }}
+                </app-button>
               </div>
             </div>
           </template>
@@ -302,7 +316,7 @@
 
     <!-- Featured Job Offers -->
     <div
-      class="min-h-screen bg-[#fff8ec] flex flex-row items-center relative z-10"
+      class="min-h-screen bg-[#eaf3fc] flex flex-row items-center relative z-10"
     >
       <UContainer>
         <!-- Header -->
@@ -382,9 +396,8 @@
         </div>
         <div class="mt-6">
           <app-button
-            class="mt-5 p-6"
+            class="mt-5 p-6 bg-black text-white"
             variant="outline"
-            color="secondary"
             shape="round"
             compact
             @click="viewAllClick()"
@@ -416,7 +429,7 @@
           <div
             v-for="city in locationJobsRes"
             :key="city.location"
-            class="bg-[#eaf9ff] rounded-3xl overflow-hidden shadow-sm hover:shadow-lg transition cursor-pointer"
+            class="bg-[#eaf3fc] rounded-3xl overflow-hidden shadow-sm hover:shadow-lg transition cursor-pointer"
             @click="onLocationClick(city.location)"
           >
             <img
@@ -441,9 +454,8 @@
 
         <div class="mt-6">
           <app-button
-            class="mt-5 p-6"
+            class="mt-5 p-6 bg-black text-white"
             variant="outline"
-            color="secondary"
             shape="round"
             compact
             @click="viewAllClick()"
@@ -454,7 +466,7 @@
     </div>
 
     <!-- Blogs -->
-    <div class="min-h-screen bg-white py-16">
+    <div class="min-h-screen bg-[#eaf3fc] py-16">
       <UContainer>
         <!-- Title -->
         <div class="mb-8">
@@ -508,9 +520,8 @@
 
         <div class="mt-6">
           <app-button
-            class="mt-5 p-6"
+            class="mt-5 p-6 bg-black text-white"
             variant="outline"
-            color="secondary"
             shape="round"
             compact
             >{{ $t('homePage.buttonContent.seeAll') }}</app-button
@@ -537,13 +548,13 @@
         </p>
         <div class="flex flex-col sm:flex-row justify-center gap-4">
           <a
-            href="#"
+            href="/jobs/search"
             class="bg-white text-blue-700 font-semibold py-3 px-6 rounded-md border border-blue-600 hover:bg-blue-100 transition inline-flex items-center justify-center min-h-[48px] max-h-[60px]"
           >
             {{ $t('homePage.lastBanner.button1') }}
           </a>
           <a
-            href="#"
+            href="/jobs/upload"
             class="bg-green-600 text-white font-semibold py-3 px-6 rounded-md hover:bg-green-700 transition inline-flex items-center justify-center min-h-[48px] max-h-[60px]"
           >
             {{ $t('homePage.lastBanner.button2') }}
@@ -970,7 +981,8 @@ const handleMenuItemClick = (item: any) => {
 const handleClickOutside = (event: Event) => {
   const target = event.target as HTMLElement
 
-  if (!target.closest('.relative')) {
+  // Check if click is outside the dropdown container
+  if (!target.closest('.user-dropdown-container')) {
     showUserDropdown.value = false
   }
 }
@@ -1004,3 +1016,68 @@ const userMenuItems = computed(() => [
   },
 ])
 </script>
+
+<style scoped>
+@keyframes slideIn1 {
+  0% {
+    transform: translateX(0px) translateY(0px) rotate(0deg);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(20px) translateY(15px) rotate(5deg);
+    opacity: 1;
+  }
+}
+
+@keyframes slideIn2 {
+  0% {
+    transform: translateX(0px) translateY(0px) rotate(0deg);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(40px) translateY(30px) rotate(10deg);
+    opacity: 1;
+  }
+}
+
+@keyframes slideLeft1 {
+  0% {
+    left: 0;
+    opacity: 0;
+  }
+  100% {
+    left: calc(1 / 2 * 100%);
+    opacity: 1;
+  }
+}
+
+@keyframes slideRight1 {
+  0% {
+    right: calc(var(--spacing) * 10);
+    opacity: 0;
+  }
+  100% {
+    right: calc(var(--spacing) * 0);
+    opacity: 1;
+  }
+}
+
+.animate-slide-in-1 {
+  animation: slideIn1 1.2s ease-out forwards;
+  animation-delay: 0.3s;
+}
+
+.animate-slide-in-2 {
+  animation: slideIn2 1.2s ease-out forwards;
+  animation-delay: 0.6s;
+}
+
+.animate-slide-left-1 {
+  animation: slideLeft1 1.2s ease-out forwards;
+  animation-delay: 0.6s;
+}
+
+.animate-slide-right-1 {
+  animation: slideRight1 1.2s ease-out forwards;
+}
+</style>

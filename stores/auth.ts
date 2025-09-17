@@ -35,6 +35,26 @@ export const useAuthStore = defineStore('auth', {
       return response
     },
 
+    async register({
+      fullName,
+      email,
+      password,
+    }: {
+      fullName: string
+      email: string
+      password: string
+    }) {
+      const { $api } = useNuxtApp()
+
+      const response = await $api.auth.register({
+        fullName,
+        email,
+        password,
+        username: email,
+      })
+
+      return response
+    },
 
     async logout() {
       const router = useRouter()

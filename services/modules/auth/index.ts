@@ -5,8 +5,12 @@ const AuthModule = (apiService: FetchFactory) => {
   const login = async (body: { email: string; password: string }) =>
     apiService.post(ROUTE_API.LOGIN, { body })
 
-  const register = async (body: { fullName: string; email: string; password: string; username: string }) =>
-    apiService.post(ROUTE_API.REGISTER, { body })
+  const register = async (body: {
+    fullName: string
+    email: string
+    password: string
+    username: string
+  }) => apiService.post(ROUTE_API.REGISTER, { body })
 
   const getMe = async () => apiService.get<UserEntity>(ROUTE_API.ME)
 

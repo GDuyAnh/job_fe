@@ -9,6 +9,7 @@ export const CONSTANTS = {
   MAX_LENGTH: {
     DEFAULT: 255,
     PASSWORD: 255,
+    NAME: 255,
   },
 
   MIN_LENGTH: {

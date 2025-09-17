@@ -185,7 +185,8 @@
     },
     "featuredJobOffers": {
       "title": "Việc Làm Nổi bật",
-      "by": "by"
+      "by": "bởi",
+      "uploadBy": "Đăng tải ngày "
     },
     "featuredCities": {
       "title1": "Việc làm theo tỉnh thành",
@@ -235,11 +236,11 @@
     "headline": "Find the perfect job for you",
     "subheadline": "Search your career opportunity through 12,800 jobs",
     "search": {
-      "placeholderKeyword": "Job Title or Keyword",
-      "placeholderCategory": "All Categories",
-      "placeholderLocation": "All Locations",
-      "placeholderOrganizationType": "All Organizations",
-      "button": "Search",
+      "placeholderKeyword": "Nhập từ khóa việc làm",
+      "placeholderCategory": "Lĩnh vực",
+      "placeholderLocation": "Tỉnh thành",
+      "placeholderOrganizationType": "Loại hình tổ chức",
+      "button": "Tìm kiếm",
       "placeholderOrganizationTypeAll": "Chọn loại hình tổ chức"
     },
     "popularTags": {
@@ -275,9 +276,9 @@
     },
     "filters": {
       "searchByKeywords": "Search by Keywords",
-      "placeholderKeyword": "Job Title or Keyword",
-      "placeholderCategory": "All Categories",
-      "placeholderLocation": "All Locations",
+      "placeholderKeyword": "Nhập từ khóa việc làm",
+      "placeholderCategory": "Lĩnh vực",
+      "placeholderLocation": "Tỉnh thành",
       "typeOfEmployment": "Type of Employment",
       "experienceLevel": "Experience Level"
     },
@@ -289,16 +290,17 @@
     }
   },
   "search": {
-    "results": "Search Results",
-    "foundResults": "Found {count} jobs",
-    "filters": "Filters",
-    "employmentType": "Employment Type",
-    "experienceLevel": "Experience Level",
-    "clearFilters": "Clear Filters",
-    "viewJob": "View Job",
-    "noResults": "No jobs found",
-    "noResultsDescription": "Try adjusting your search criteria or filters to find more jobs.",
-    "clearSearch": "Clear Search"
+    "results": "Kết quả tìm kiếm",
+    "searchFound": "Tìm thấy",
+    "searchResults": "việc làm",
+    "filters": "Bộ lọc",
+    "employmentType": "Hình thức làm việc",
+    "experienceLevel": "Kinh nghiệm",
+    "clearFilters": "Xóa lọc",
+    "viewJob": "Xem việc làm",
+    "noResults": "Không tìm thấy việc làm",
+    "noResultsDescription": "Thử điều chỉnh tiêu chí tìm kiếm hoặc lọc để tìm thấy nhiều việc làm hơn.",
+    "clearSearch": "Xóa tìm kiếm"
   },
   "job": {
     "detail": {
@@ -341,7 +343,8 @@
       "foundResults": "Tổng cộng {count} việc làm",
       "addJob": "Chỉnh sửa Job",
       "updateJob": "Chỉnh sửa Job",
-      "deleteJob": "Xóa Job"
+      "deleteJob": "Xóa Job",
+      "waitingJob": "Chờ duyệt"
     },
     "uploadJob": {
       "title": "Đăng việc làm mới",
@@ -368,12 +371,25 @@
       "and": " và ",
       "uploadJobContent": "Đăng việc làm",
       "uploadJobComplete": "Đăng tải công việc thành công.",
-      "chooseSchool": "Tra cứu công ty / trường học"
+      "uploadJobFailed": "Đăng tải công việc thất bại. Vui lòng thử lại.",
+      "chooseSchool": "Tra cứu công ty / trường học",
+      "viewJob": "Xem trước công việc"
     },
     "editJob": {
       "title": "Chỉnh sửa việc làm",
       "editJobContent": "Xác nhận chỉnh sửa",
       "editJobComplete": "Chỉnh sửa công việc thành công."
+    },
+    "preview": {
+      "title": "Xem trước công việc",
+      "previewMode": "Chế độ xem trước",
+      "actions": "Hành động",
+      "backToEdit": "Quay lại chỉnh sửa",
+      "confirmAndPublish": "Xác nhận và đăng tải",
+      "publishSuccess": "Đăng tải công việc thành công!",
+      "noData": "Không có dữ liệu",
+      "noDataDescription": "Không tìm thấy thông tin công việc để xem trước.",
+      "loadError": "Lỗi khi tải dữ liệu công việc"
     }
   },
   "company": {

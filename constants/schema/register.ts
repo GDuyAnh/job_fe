@@ -23,4 +23,3 @@ export const registerSchema = () => {
 }
 
 export type RegisterType = z.infer<ReturnType<typeof registerSchema>>
-

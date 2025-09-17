@@ -207,16 +207,16 @@ async function onSubmit(event: FormSubmitEvent<RegisterType>) {
     }
   } catch (error: any) {
     console.error('Registration error:', error)
-    
+
     // Handle specific error messages
     let errorMessage = t('auth.registerFailed')
-    
+
     if (error?.response?.data?.message) {
       errorMessage = error.response.data.message
     } else if (error?.message) {
       errorMessage = error.message
     }
-    
+
     useNotify({
       type: 'error',
       message: errorMessage,
@@ -242,4 +242,3 @@ onMounted(() => {
   }
 })
 </script>
-
