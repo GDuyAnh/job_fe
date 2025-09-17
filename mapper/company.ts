@@ -57,7 +57,10 @@ export class CompanyMapper {
       id: value.id,
       insight: value.insight ?? '',
       overview: value.overview ?? '',
-      logo: value.logo ?? '',
+      image:
+        value.companyImages && value.companyImages.length > 0
+          ? (value.companyImages[0].url ?? '')
+          : (value.logo ?? ''),
     }
   }
 }

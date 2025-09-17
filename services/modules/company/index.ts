@@ -14,12 +14,9 @@ const CompanyModule = (apiService: FetchFactory) => {
 
   // giống với search nhưng sẽ liệt kê tất cả entity ở 2 status isWaiting
   const adminListCompany = async (params: Record<string, any>) => {
-    return (
-      apiService.get<CompanyEntity[]>(ROUTE_API.COMPANY.ADMIN_LIST),
-      {
-        params,
-      }
-    )
+    return apiService.get<CompanyEntity[]>(ROUTE_API.COMPANY.ADMIN_LIST, {
+      params,
+    })
   }
 
   const getCompanyDetail = async (id: number) => {
@@ -31,6 +28,12 @@ const CompanyModule = (apiService: FetchFactory) => {
   const getCompanyByMst = async (mst: string) => {
     return apiService.get<VietQRBusinessResponse>(
       `${ROUTE_API.COMPANY.GET_COMPANY_BY_MST}/${mst}`,
+    )
+  }
+
+  const checkExistMst = async (mst: string) => {
+    return apiService.get<CompanyEntity>(
+      `${ROUTE_API.COMPANY.CHECK_EXIST_MST}/${mst}`,
     )
   }
 
@@ -66,6 +69,7 @@ const CompanyModule = (apiService: FetchFactory) => {
     adminListCompany,
     getCompanyDetail,
     getCompanyByMst,
+    checkExistMst,
     addCompany,
     editCompany,
     delCompany,

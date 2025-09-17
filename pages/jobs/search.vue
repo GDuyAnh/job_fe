@@ -1,7 +1,9 @@
 <template>
-  <div class="min-h-screen bg-gray-50">
+  <div class="min-h-screen bg-white">
     <!-- Header với search bar -->
-    <div class="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-40">
+    <div
+      class="bg-[#eaf3fc] shadow-sm border-b border-gray-200 sticky top-0 z-40"
+    >
       <UContainer>
         <div class="py-4">
           <div class="flex items-center gap-4">
@@ -14,40 +16,70 @@
             />
 
             <!-- Search bar -->
-            <div class="flex-1 max-w-4xl">
+            <div class="flex-1 w-full">
               <div
-                class="flex items-stretch gap-3 bg-white rounded-full shadow-lg px-4 py-2 border border-gray-200"
+                class="flex items-center bg-white rounded-full shadow-lg px-3 py-2 border border-gray-200"
               >
-                <input
-                  v-model="searchParams.keyword"
-                  :placeholder="$t('home.search.placeholderKeyword')"
-                  class="flex-1 min-w-0 bg-transparent border-none outline-none text-base placeholder-gray-500 font-medium"
-                  @keyup.enter="performSearch"
-                />
+                <!-- Job Title/Keyword Search -->
+                <div class="flex items-center flex-1 min-w-0">
+                  <UIcon
+                    name="i-heroicons-magnifying-glass"
+                    class="w-5 h-5 text-gray-600 mr-3 flex-shrink-0"
+                  />
+                  <input
+                    v-model="searchParams.keyword"
+                    :placeholder="$t('home.search.placeholderKeyword')"
+                    class="flex-1 min-w-0 bg-transparent border-none outline-none text-base placeholder-gray-500 font-medium"
+                    @keyup.enter="performSearch"
+                  />
+                </div>
 
-                <USelect
-                  v-model="searchParams.category"
-                  :items="categoryItems"
-                  class="flex-1 min-w-0"
-                  variant="none"
-                  size="lg"
-                />
+                <!-- Divider -->
+                <div class="w-px h-8 bg-gray-300 mx-4"></div>
 
-                <USelect
-                  v-model="searchParams.location"
-                  :items="locationItems"
-                  class="flex-1 min-w-0"
-                  variant="none"
-                  size="lg"
-                />
+                <!-- Location Dropdown -->
+                <div class="flex items-center flex-1 min-w-0">
+                  <UIcon
+                    name="i-heroicons-globe-alt"
+                    class="w-5 h-5 text-gray-600 mr-3 flex-shrink-0"
+                  />
+                  <USelect
+                    v-model="searchParams.location"
+                    :items="locationItems"
+                    class="flex-1 min-w-0"
+                    variant="none"
+                    size="lg"
+                    :placeholder="$t('home.search.placeholderLocation')"
+                  />
+                </div>
 
+                <!-- Divider -->
+                <div class="w-px h-8 bg-gray-300 mx-4"></div>
+
+                <!-- Category Dropdown -->
+                <div class="flex items-center flex-1 min-w-0">
+                  <UIcon
+                    name="i-heroicons-folder"
+                    class="w-5 h-5 text-gray-600 mr-3 flex-shrink-0"
+                  />
+                  <USelect
+                    v-model="searchParams.category"
+                    :items="categoryItems"
+                    class="flex-1 min-w-0"
+                    variant="none"
+                    size="lg"
+                    :placeholder="$t('home.search.placeholderCategory')"
+                  />
+                </div>
+
+                <!-- Find Jobs Button -->
                 <UButton
-                  icon="i-heroicons-magnifying-glass"
-                  color="primary"
                   variant="solid"
-                  class="flex-shrink-0"
+                  class="ml-4 px-8 py-3 rounded-full font-semibold bg-[#0969C3] hover:bg-[#002745]"
                   @click="performSearch"
-                />
+                >
+                  {{ $t('home.search.button') }}
+                </UButton>
               </div>
             </div>
           </div>
@@ -57,17 +89,7 @@
 
     <!-- Main content -->
     <UContainer>
-      <div class="py-8">
-        <!-- Search results header -->
-        <div class="mb-8">
-          <h1 class="text-3xl font-bold text-gray-900 mb-2">
-            {{ $t('search.results') }}
-          </h1>
-          <p class="text-gray-600">
-            {{ $t('search.foundResults', { count: jobs.length }) }}
-          </p>
-        </div>
-
+      <div class="py-8 bg-white">
         <!-- Filters and results -->
         <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
           <!-- Filters sidebar -->
@@ -75,13 +97,15 @@
             <div
               class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 sticky top-24"
             >
-              <h3 class="text-lg font-semibold text-gray-900 mb-4">
+              <h3
+                class="text-lg font-semibold text-gray-900 mb-4 border-b-2 border-gray-200 pb-2"
+              >
                 {{ $t('search.filters') }}
               </h3>
 
               <!-- Employment Type Filter -->
               <div class="mb-6">
-                <h4 class="text-sm font-medium text-gray-700 mb-3">
+                <h4 class="text-sm text-gray-700 mb-3 font-semibold">
                   {{ $t('search.employmentType') }}
                 </h4>
                 <div class="space-y-2">
@@ -102,7 +126,7 @@
 
               <!-- Experience Level Filter -->
               <div class="mb-6">
-                <h4 class="text-sm font-medium text-gray-700 mb-3">
+                <h4 class="text-sm text-gray-700 mb-3 font-semibold">
                   {{ $t('search.experienceLevel') }}
                 </h4>
                 <div class="space-y-2">
@@ -142,81 +166,85 @@
 
             <!-- Results list -->
             <div v-else-if="filteredJobs.length > 0" class="space-y-4">
-              <div
-                v-for="job in filteredJobs"
-                :key="job.id"
-                class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow duration-200 cursor-pointer"
-                @click="viewJob(job)"
-              >
-                <div class="flex items-start justify-between mb-4">
-                  <div class="flex-1">
-                    <h3
-                      class="text-xl font-semibold text-gray-900 mb-2 hover:text-blue-600 transition-colors"
-                    >
-                      {{ job.title }}
-                    </h3>
-                    <div
-                      class="flex items-center gap-4 text-sm text-gray-600 mb-3"
-                    >
-                      <div class="flex items-center gap-1">
-                        <UIcon
-                          name="i-heroicons-building-office"
-                          class="w-4 h-4"
-                        />
-                        <span>{{
-                          categoryEnumLabel?.[
-                            job.category as unknown as number
-                          ] ?? job.category
-                        }}</span>
+              <p class="text-gray-600">
+                {{ $t('search.searchFound') }}
+                <strong class="font-bold text-gray-900">{{
+                  jobs.length
+                }}</strong>
+                {{ $t('search.searchResults') }}
+              </p>
+              <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
+                <div
+                  v-for="job in filteredJobs"
+                  :key="job.id"
+                  class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow duration-200 cursor-pointer"
+                  @click="viewJob(job)"
+                >
+                  <div>
+                    <div class="flex items-center gap-4">
+                      <div class="bg-black p-3 rounded-lg text-white w-15 h-15">
+                        {{
+                          job.title
+                            .split(' ')
+                            .map((word) => word[0])
+                            .join('')
+                            .toUpperCase()
+                        }}
                       </div>
-                      <div class="flex items-center gap-1">
-                        <UIcon name="i-heroicons-map-pin" class="w-4 h-4" />
-                        <span>{{
-                          locationEnumLabel?.[
-                            job.location as unknown as number
-                          ] ?? job.location
-                        }}</span>
-                      </div>
-                      <div class="flex items-center gap-1">
-                        <UIcon name="i-heroicons-clock" class="w-4 h-4" />
-                        <span>{{
-                          employmentTypesEnumLabel?.[
-                            job.typeOfEmployment as unknown as number
-                          ] ?? job.typeOfEmployment
-                        }}</span>
+                      <div>
+                        <h2 class="font-bold text-lg">{{ job.title }}</h2>
+                        <span class="text-sm font-bold">
+                          <UIcon
+                            name="i-raphael:globealt"
+                            style="font-size: 12px !important"
+                          />
+                          {{
+                            locationEnumLabel?.[
+                              job.location as unknown as number
+                            ] ?? job.location
+                          }}
+                        </span>
+                        <span class="text-sm text-gray-600 pl-6">
+                          {{
+                            employmentTypesEnumLabel?.[
+                              job.typeOfEmployment as unknown as number
+                            ] ?? job.typeOfEmployment
+                          }}
+                        </span>
                       </div>
                     </div>
                   </div>
-                  <UBadge
-                    :color="getExperienceColor(job.experienceLevel)"
-                    variant="soft"
-                    class="flex-shrink-0"
-                  >
-                    {{
-                      experienceLevelsEnumLabel?.[
-                        job.experienceLevel as unknown as number
-                      ] ?? job.experienceLevel
-                    }}
-                  </UBadge>
-                </div>
-
-                <p class="text-gray-600 text-sm line-clamp-2 mb-4">
-                  {{ job.description }}
-                </p>
-
-                <div class="flex items-center justify-between">
-                  <div class="flex items-center gap-2 text-xs text-gray-500">
-                    <UIcon name="i-heroicons-calendar" class="w-4 h-4" />
-                    <span>{{ formatDate(job.createdAt) }}</span>
+                  <div class="flex flex-col mt-4">
+                    <div class="flex items-center gap-2 justify-between">
+                      <p class="text-sm text-gray-500">
+                        {{
+                          categoryEnumLabel?.[
+                            job.category as unknown as number
+                          ] ?? job.category
+                        }}
+                      </p>
+                      <UBadge
+                        :color="getExperienceColor(job.experienceLevel)"
+                        variant="soft"
+                        class="flex-shrink-0"
+                      >
+                        {{
+                          experienceLevelsEnumLabel?.[
+                            job.experienceLevel as unknown as number
+                          ] ?? job.experienceLevel
+                        }}
+                      </UBadge>
+                    </div>
+                    <div class="text-left text-xs mt-2">
+                      <span>{{
+                        job.createdAt
+                          ? formatDateVN(new Date(job.createdAt))
+                          : $t('common.nanValue')
+                      }}</span>
+                      {{ $t('homePage.featuredJobOffers.by') }}
+                      <span class="font-semibold">{{ job.companyName }}</span>
+                    </div>
                   </div>
-                  <UButton
-                    variant="outline"
-                    color="neutral"
-                    size="sm"
-                    @click.stop="viewJob(job)"
-                  >
-                    {{ $t('search.viewJob') }}
-                  </UButton>
                 </div>
               </div>
             </div>
@@ -433,16 +461,6 @@ const getExperienceColor = (level: string) => {
     default:
       return 'neutral'
   }
-}
-
-const formatDate = (date?: Date) => {
-  if (!date) return ''
-
-  return new Intl.DateTimeFormat('en-US', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-  }).format(new Date(date))
 }
 
 // Initialize search from route query

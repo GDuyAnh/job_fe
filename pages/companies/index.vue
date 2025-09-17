@@ -1,52 +1,86 @@
 <template>
   <div class="min-h-screen bg-white">
     <!-- Header -->
-    <div class="bg-cream shadow-sm border-b border-gray-200 sticky top-0 z-40">
+    <div
+      class="bg-[#eaf3fc] shadow-sm border-b border-gray-200 sticky top-0 z-40"
+    >
       <UContainer>
-        <div class="py-4 flex items-center gap-4">
-          <UButton
-            icon="i-heroicons-arrow-left"
-            variant="ghost"
-            color="neutral"
-            class="flex-shrink-0"
-            @click="goBack"
-          />
+        <div class="py-4">
+          <div class="flex items-center gap-4">
+            <UButton
+              icon="i-heroicons-arrow-left"
+              variant="ghost"
+              color="neutral"
+              class="flex-shrink-0"
+              @click="goBack"
+            />
 
-          <!-- Search bar -->
-          <div class="flex-1 max-w-4xl">
-            <div
-              class="flex items-stretch gap-3 bg-white rounded-full shadow-lg px-4 py-2 border border-gray-200"
-            >
-              <input
-                v-model="searchParams.keyword"
-                :placeholder="$t('companies.search.placeholder')"
-                class="flex-1 min-w-0 bg-transparent border-none outline-none text-base placeholder-gray-500 font-medium"
-                @keyup.enter="performSearch"
-              />
+            <!-- Search bar -->
+            <div class="flex-1 w-full">
+              <div
+                class="flex items-center bg-white rounded-full shadow-lg px-3 py-2 border border-gray-200"
+              >
+                <!-- Company Name/Keyword Search -->
+                <div class="flex items-center flex-1 min-w-0">
+                  <UIcon
+                    name="i-heroicons-magnifying-glass"
+                    class="w-5 h-5 text-gray-600 mr-3 flex-shrink-0"
+                  />
+                  <input
+                    v-model="searchParams.keyword"
+                    :placeholder="$t('companies.search.placeholder')"
+                    class="flex-1 min-w-0 bg-transparent border-none outline-none text-base placeholder-gray-500 font-medium"
+                    @keyup.enter="performSearch"
+                  />
+                </div>
 
-              <USelect
-                v-model="searchParams.location"
-                :items="locationItems"
-                class="flex-1 min-w-0"
-                variant="none"
-                size="lg"
-              />
+                <!-- Divider -->
+                <div class="w-px h-8 bg-gray-300 mx-4"></div>
 
-              <USelect
-                v-model="searchParams.organizationType"
-                :items="organizationTypeItems"
-                class="flex-1 min-w-0"
-                variant="none"
-                size="lg"
-              />
+                <!-- Location Dropdown -->
+                <div class="flex items-center flex-1 min-w-0">
+                  <UIcon
+                    name="i-heroicons-globe-alt"
+                    class="w-5 h-5 text-gray-600 mr-3 flex-shrink-0"
+                  />
+                  <USelect
+                    v-model="searchParams.location"
+                    :items="locationItems"
+                    class="flex-1 min-w-0"
+                    variant="none"
+                    size="lg"
+                    :placeholder="$t('home.search.placeholderLocation')"
+                  />
+                </div>
 
-              <UButton
-                icon="i-heroicons-magnifying-glass"
-                color="primary"
-                variant="solid"
-                class="flex-shrink-0"
-                @click="performSearch"
-              />
+                <!-- Divider -->
+                <div class="w-px h-8 bg-gray-300 mx-4"></div>
+
+                <!-- Organization Type Dropdown -->
+                <div class="flex items-center flex-1 min-w-0">
+                  <UIcon
+                    name="i-heroicons-building-office-2"
+                    class="w-5 h-5 text-gray-600 mr-3 flex-shrink-0"
+                  />
+                  <USelect
+                    v-model="searchParams.organizationType"
+                    :items="organizationTypeItems"
+                    class="flex-1 min-w-0"
+                    variant="none"
+                    size="lg"
+                    :placeholder="$t('home.search.placeholderOrganizationType')"
+                  />
+                </div>
+
+                <!-- Search Button -->
+                <UButton
+                  variant="solid"
+                  class="ml-4 px-8 py-3 rounded-full font-semibold bg-[#0969C3] hover:bg-[#002745]"
+                  @click="performSearch"
+                >
+                  {{ $t('home.search.button') }}
+                </UButton>
+              </div>
             </div>
           </div>
         </div>

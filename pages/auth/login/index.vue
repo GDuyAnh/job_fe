@@ -1,6 +1,6 @@
 <template>
   <div
-    class="auth-login fixed inset-0 flex items-center justify-center bg-gray-50 bg-opacity-50 backdrop-blur-sm z-50"
+    class="auth-login fixed inset-0 flex items-center justify-center bg-[#eaf3fc] bg-opacity-50 backdrop-blur-sm z-50"
   >
     <div class="w-full max-w-md mx-4">
       <div class="relative bg-white rounded-2xl shadow-2xl p-6">
@@ -195,7 +195,7 @@ async function onSubmit(event: FormSubmitEvent<LoginType>) {
 function handleForgotPassword() {
   // TODO: Implement forgot password functionality
   useNotify({
-    type: 'info',
+    type: 'success',
     message: 'Forgot password functionality coming soon!',
   })
 }

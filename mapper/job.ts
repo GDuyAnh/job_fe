@@ -30,6 +30,7 @@ export class JobMapper {
       salaryTypeValue: value.salaryTypeValue,
       benefits: value.benefits,
       isFeatured: value.isFeatured,
+      isWaiting: value.isWaiting,
       createdAt: value.createdAt || new Date(),
       deadline: value.deadline,
       detailDescription: value.detailDescription,
