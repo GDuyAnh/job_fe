@@ -501,42 +501,52 @@
     },
     "sidebar": {
       "adminTools": "Công cụ quản trị",
-      "dashboard": "Dashboard",
-      "editProfile": "Chỉnh sửa hồ sơ",
-      "newJob": "Tin tuyển dụng mới",
-      "manageJobs": "Quản lý tin tuyển dụng",
-      "candidates": "Ứng viên",
-      "changePassword": "Đổi mật khẩu",
-      "insights": "Thống kê",
-      "notifications": "Thông báo"
+      "dashboard": "Tổng quan ",
+      "editProfile": "Edit Profile",
+      "newJob": "New Job Offer",
+      "manageJobs": "Manage Jobs",
+      "candidates": "Candidates",
+      "changePassword": "Change Password",
+      "insights": "Insights",
+      "inbox": "Inbox",
+      "notifications": "Notifications"
     },
     "main": {
       "title": "Tổng quan",
-      "welcome": "Xin chào, {name}!",
+      "welcome": "Xin chào , {name}!",
       "metrics": {
         "postedJobs": "Công việc đăng tải",
-        "pendingJobs": "Tin đăng chờ duyệt",
+        "applications": "Tin đăng chờ duyệt",
         "expiredJobs": "Tin hết hạn",
         "expiringSoonJobs": "Tin sắp hết hạn"
       },
-      "charts": {
-        "jobPosting": "Biểu đồ đăng tin tuyển dụng",
-        "candidateApplications": "Biểu đồ ứng viên ứng tuyển",
-        "vsLastWeek": "so với 7 ngày trước"
+      "analytics": {
+        "companyJobsVisitors": "Company's Jobs Visitors",
+        "applications": "Applications",
+        "vsLastWeek": "vs last 7 days",
+        "noDataAvailable": "No data available",
+        "percentage": "↑{value}%"
       },
       "timeRange": {
-        "last7Days": "7 ngày qua",
-        "last30Days": "30 ngày qua",
-        "last3Months": "3 tháng qua",
-        "lastYear": "1 năm qua"
+        "last7Days": "Last 7 days",
+        "last30Days": "Last 30 days",
+        "last3Months": "Last 3 months",
+        "lastYear": "Last year"
+      },
+      "charts": {
+        "jobPosting": "Tin đăng",
+        "candidateApplications": "Ứng viên"
       }
     },
+    "errors": {
+      "loadJobStatsFailed": "Không thể tải thống kê công việc"
+    },
     "userMenu": {
-      "dashboard": "Dashboard",
-      "editProfile": "Chỉnh sửa hồ sơ",
-      "createCompany": "Tạo mới công ty",
-      "postJob": "Đăng tải công việc",
-      "logout": "Đăng xuất"
+      "dashboard": "Tổng quan",
+      "editProfile": "Edit Profile",
+      "createCompany": "Create Company",
+      "postJob": "Post a Job",
+      "logout": "Logout"
     }
   }
 }
