@@ -672,6 +672,7 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
 import type { JobModel } from '~/models/job'
+import { RoleStatus } from '~/enums/role'
 import { JobMapper } from '~/mapper/job'
 import type { CategoryJobModel } from '~/models/category'
 import { CategoryJobMapper } from '~/mapper/category'
@@ -992,13 +993,25 @@ const userMenuItems = computed(() => [
   {
     label: 'Dashboard',
     icon: 'i-lucide-layout-dashboard',
-    click: () => router.push(ROUTE_PAGE.DASHBOARD),
+    click: () => {
+      const authStore = useAuthStore()
+      const userRole = authStore.user?.role
+
+      if (userRole === RoleStatus.COMPANY) {
+        router.push(ROUTE_PAGE.DASHBOARD.COMPANY)
+      } else if (userRole === RoleStatus.USER) {
+        router.push(ROUTE_PAGE.DASHBOARD.USER)
+      } else {
+        // Default fallback for ADMIN or unknown roles
+        router.push(ROUTE_PAGE.DASHBOARD.USER)
+      }
+    },
   },
-  {
-    label: 'Edit Profile',
-    icon: 'i-lucide-user',
-    click: () => router.push('/profile/edit'),
-  },
+  // {
+  //   label: 'Edit Profile',
+  //   icon: 'i-lucide-user',
+  //   click: () => router.push('/profile/edit'),
+  // },
   {
     label: 'Tạo mới công ty',
     icon: 'i-lucide-building-2',

@@ -432,6 +432,13 @@
         </UCard>
       </div>
     </UContainer>
+
+    <!-- Job Application Modal -->
+    <JobApplicationModal
+      v-model="showApplicationModal"
+      :job-id="job?.id"
+      @submit="handleApplicationSubmit"
+    />
   </div>
 </template>
 
@@ -440,6 +447,7 @@ import type { JobModel } from '~/models/job'
 import { JobMapper } from '~/mapper/job'
 import { formatDate, formatNumber } from '~/utils/helper'
 import { processEnumArray } from '~/utils/enum-helper'
+import JobApplicationModal from '~/components/JobApplicationModal.vue'
 
 const {
   categoryEnumLabel,
@@ -451,7 +459,6 @@ const {
 } = useJobFilters()
 const route = useRoute()
 const router = useRouter()
-const { t } = useI18n()
 const { $api } = useNuxtApp()
 
 const loading = ref(false)
@@ -479,8 +486,52 @@ const loadJobDetail = async () => {
   }
 }
 
+const showApplicationModal = ref(false)
+
 const applyForJob = () => {
-  useNotify({ message: t('job.detail.applicationSubmitted'), type: 'success' })
+  showApplicationModal.value = true
+}
+
+const handleApplicationSubmit = async (data: any) => {
+  console.log('Application submitted:', data)
+
+  try {
+    // Here you would typically:
+    // 1. Upload files to server
+    // 2. Save application data to database
+    // 3. Send notification to employer
+
+    // Example API call:
+    // const response = await $api.job.submitApplication({
+    //   jobId: job.value?.id,
+    //   ...data
+    // })
+
+    console.log('Application data:', {
+      jobId: job.value?.id,
+      personalInfo: {
+        firstName: data.firstName,
+        lastName: data.lastName,
+        phone: data.phone,
+        email: data.email,
+      },
+      cvFile: data.cvFile,
+      coverLetter: data.coverLetter,
+      coverLetterFile: data.coverLetterFile,
+      agreeTerms: data.agreeTerms,
+    })
+
+    useNotify({
+      message: 'Đơn ứng tuyển đã được gửi thành công!',
+      type: 'success',
+    })
+  } catch (error) {
+    console.error('Error submitting application:', error)
+    useNotify({
+      message: 'Có lỗi xảy ra khi gửi đơn ứng tuyển. Vui lòng thử lại.',
+      type: 'error',
+    })
+  }
 }
 
 const viewCompany = () => {
