@@ -6,9 +6,11 @@
         <div class="flex justify-between items-center h-16">
           <!-- Logo -->
           <div class="flex items-center">
-            <h1 class="text-2xl font-bold text-blue-900">{{ $t('dashboard.header.logo') }}</h1>
+            <h1 class="text-2xl font-bold text-blue-900">
+              {{ $t('dashboard.header.logo') }}
+            </h1>
           </div>
-          
+
           <!-- Right side actions -->
           <div class="flex items-center space-x-4">
             <!-- Post a Job Button -->
@@ -18,7 +20,7 @@
             >
               {{ $t('dashboard.header.postJob') }}
             </button>
-            
+
             <!-- Notifications -->
             <button class="relative p-2 text-gray-600 hover:text-gray-900">
               <UIcon name="i-lucide-bell" class="w-6 h-6" />
@@ -29,22 +31,31 @@
                 {{ unreadNotifications }}
               </span>
             </button>
-            
+
             <!-- User Profile -->
             <div class="relative">
               <button
                 class="flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-100"
                 @click="toggleUserDropdown"
               >
-                <div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
+                <div
+                  class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center"
+                >
                   <span class="text-white font-semibold text-sm">
-                    {{ authStore.user?.fullName?.charAt(0)?.toUpperCase() || 'U' }}
+                    {{
+                      authStore.user?.fullName?.charAt(0)?.toUpperCase() || 'U'
+                    }}
                   </span>
                 </div>
-                <span class="text-gray-900 font-medium">{{ authStore.user?.fullName || 'User' }}</span>
-                <UIcon name="i-lucide-chevron-down" class="w-4 h-4 text-gray-500" />
+                <span class="text-gray-900 font-medium">{{
+                  authStore.user?.fullName || 'User'
+                }}</span>
+                <UIcon
+                  name="i-lucide-chevron-down"
+                  class="w-4 h-4 text-gray-500"
+                />
               </button>
-              
+
               <!-- User Dropdown -->
               <div
                 v-if="showUserDropdown"
@@ -74,7 +85,9 @@
         <nav class="mt-8">
           <!-- Admin Tools -->
           <div class="px-4 mb-6">
-            <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
+            <h3
+              class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3"
+            >
               {{ $t('dashboard.sidebar.adminTools') }}
             </h3>
             <div class="space-y-1">
@@ -82,58 +95,43 @@
                 class="w-full flex items-center px-3 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg"
               >
                 <UIcon name="i-lucide-layout-dashboard" class="w-5 h-5 mr-3" />
-                {{ $t('dashboard.sidebar.dashboard') }}
+                {{ $t('dashboard.sidebar.overview') }}
               </button>
               <button
                 class="w-full flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:bg-blue-100 rounded-lg transition-colors"
                 @click="navigateToEditProfile"
               >
                 <UIcon name="i-lucide-user" class="w-5 h-5 mr-3" />
-                {{ $t('dashboard.sidebar.editProfile') }}
+                {{ $t('dashboard.sidebar.accountInfo') }}
               </button>
               <button
                 class="w-full flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:bg-blue-100 rounded-lg transition-colors"
-                @click="navigateToNewJob"
               >
                 <UIcon name="i-lucide-file-text" class="w-5 h-5 mr-3" />
-                {{ $t('dashboard.sidebar.newJob') }}
+                {{ $t('dashboard.sidebar.appliedJobs') }}
               </button>
               <button
                 class="w-full flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:bg-blue-100 rounded-lg transition-colors"
-                @click="navigateToManageJobs"
-              >
-                <UIcon name="i-lucide-briefcase" class="w-5 h-5 mr-3" />
-                {{ $t('dashboard.sidebar.manageJobs') }}
-              </button>
-              <button
-                class="w-full flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:bg-blue-100 rounded-lg transition-colors"
-                @click="navigateToCandidates"
-              >
-                <UIcon name="i-lucide-users" class="w-5 h-5 mr-3" />
-                {{ $t('dashboard.sidebar.candidates') }}
-              </button>
-              <button
-                class="w-full flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:bg-blue-100 rounded-lg transition-colors"
-                @click="navigateToChangePassword"
               >
                 <UIcon name="i-lucide-lock" class="w-5 h-5 mr-3" />
                 {{ $t('dashboard.sidebar.changePassword') }}
               </button>
             </div>
           </div>
-          
+
           <!-- Insights -->
           <div class="px-4">
-            <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
-              {{ $t('dashboard.sidebar.insights') }}
+            <h3
+              class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3"
+            >
+              {{ $t('dashboard.sidebar.options') }}
             </h3>
             <div class="space-y-1">
               <button
-                class="w-full flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:bg-blue-100 rounded-lg transition-colors"
-                @click="navigateToNotifications"
+                class="w-full flex items-center px-3 py-2 text-sm font-medium text-white bg-[#f44141] hover:bg-[#f44141]/50 rounded-lg transition-colors"
               >
-                <UIcon name="i-lucide-bell" class="w-5 h-5 mr-3" />
-                {{ $t('dashboard.sidebar.notifications') }}
+                <UIcon name="i-lucide-trash" class="w-5 h-5 mr-3" />
+                {{ $t('dashboard.sidebar.deleteAccount') }}
               </button>
             </div>
           </div>
@@ -144,8 +142,16 @@
       <main class="flex-1 p-8">
         <!-- Page Title -->
         <div class="mb-8">
-          <h1 class="text-3xl font-bold text-gray-900">{{ $t('dashboard.main.title') }}</h1>
-          <p class="text-gray-600 mt-2">{{ $t('dashboard.main.welcome', { name: authStore.user?.fullName || 'User' }) }}</p>
+          <h1 class="text-3xl font-bold text-gray-900">
+            {{ $t('dashboard.main.title') }}
+          </h1>
+          <p class="text-gray-600 mt-2">
+            {{
+              $t('dashboard.main.welcome', {
+                name: authStore.user?.fullName || 'User',
+              })
+            }}
+          </p>
         </div>
 
         <!-- Summary Cards -->
@@ -154,11 +160,18 @@
           <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
             <div class="flex items-center">
               <div class="p-3 bg-blue-100 rounded-lg">
-                <UIcon name="i-lucide-file-text" class="w-6 h-6 text-blue-600" />
+                <UIcon
+                  name="i-lucide-file-text"
+                  class="w-6 h-6 text-blue-600"
+                />
               </div>
               <div class="ml-4">
-                <p class="text-sm font-medium text-gray-600">{{ $t('dashboard.main.metrics.postedJobs') }}</p>
-                <p class="text-2xl font-bold text-gray-900">{{ jobStats.postedJobs }}</p>
+                <p class="text-sm font-medium text-gray-600">
+                  {{ $t('dashboard.main.metrics.postedJobs') }}
+                </p>
+                <p class="text-2xl font-bold text-gray-900">
+                  {{ jobStats.postedJobs }}
+                </p>
               </div>
             </div>
           </div>
@@ -170,8 +183,12 @@
                 <UIcon name="i-lucide-clock" class="w-6 h-6 text-yellow-600" />
               </div>
               <div class="ml-4">
-                <p class="text-sm font-medium text-gray-600">{{ $t('dashboard.main.metrics.pendingJobs') }}</p>
-                <p class="text-2xl font-bold text-gray-900">{{ jobStats.pendingJobs }}</p>
+                <p class="text-sm font-medium text-gray-600">
+                  {{ $t('dashboard.main.metrics.pendingJobs') }}
+                </p>
+                <p class="text-2xl font-bold text-gray-900">
+                  {{ jobStats.pendingJobs }}
+                </p>
               </div>
             </div>
           </div>
@@ -183,8 +200,12 @@
                 <UIcon name="i-lucide-x-circle" class="w-6 h-6 text-red-600" />
               </div>
               <div class="ml-4">
-                <p class="text-sm font-medium text-gray-600">{{ $t('dashboard.main.metrics.expiredJobs') }}</p>
-                <p class="text-2xl font-bold text-gray-900">{{ jobStats.expiredJobs }}</p>
+                <p class="text-sm font-medium text-gray-600">
+                  {{ $t('dashboard.main.metrics.expiredJobs') }}
+                </p>
+                <p class="text-2xl font-bold text-gray-900">
+                  {{ jobStats.expiredJobs }}
+                </p>
               </div>
             </div>
           </div>
@@ -193,11 +214,18 @@
           <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
             <div class="flex items-center">
               <div class="p-3 bg-orange-100 rounded-lg">
-                <UIcon name="i-lucide-alert-triangle" class="w-6 h-6 text-orange-600" />
+                <UIcon
+                  name="i-lucide-alert-triangle"
+                  class="w-6 h-6 text-orange-600"
+                />
               </div>
               <div class="ml-4">
-                <p class="text-sm font-medium text-gray-600">{{ $t('dashboard.main.metrics.expiringSoonJobs') }}</p>
-                <p class="text-2xl font-bold text-gray-900">{{ jobStats.expiringSoonJobs }}</p>
+                <p class="text-sm font-medium text-gray-600">
+                  {{ $t('dashboard.main.metrics.expiringSoonJobs') }}
+                </p>
+                <p class="text-2xl font-bold text-gray-900">
+                  {{ jobStats.expiringSoonJobs }}
+                </p>
               </div>
             </div>
           </div>
@@ -208,9 +236,15 @@
           <!-- Job Posting Chart -->
           <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
             <div class="flex items-center justify-between mb-6">
-              <h3 class="text-lg font-semibold text-gray-900">Biểu đồ đăng tin tuyển dụng</h3>
+              <h3 class="text-lg font-semibold text-gray-900">
+                {{ $t('dashboard.charts.jobPostings') }}
+              </h3>
               <div class="flex items-center space-x-2">
-                <span class="text-sm text-gray-600">{{ jobPostingStats.total }} ↑{{ jobPostingStats.percentage }}% so với 7 ngày trước</span>
+                <span class="text-sm text-gray-600"
+                  >{{ jobPostingStats.total }} {{ $t('dashboard.charts.growth')
+                  }}{{ jobPostingStats.percentage
+                  }}{{ $t('dashboard.charts.growthText') }}</span
+                >
                 <USelect
                   v-model="selectedTimeRange"
                   :options="timeRangeOptions"
@@ -228,9 +262,15 @@
           <!-- Candidate Applications Chart -->
           <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
             <div class="flex items-center justify-between mb-6">
-              <h3 class="text-lg font-semibold text-gray-900">Biểu đồ ứng viên ứng tuyển</h3>
+              <h3 class="text-lg font-semibold text-gray-900">
+                {{ $t('dashboard.charts.candidates') }}
+              </h3>
               <div class="flex items-center space-x-2">
-                <span class="text-sm text-gray-600">{{ candidateStats.total }} ↑{{ candidateStats.percentage }}% so với 7 ngày trước</span>
+                <span class="text-sm text-gray-600"
+                  >{{ candidateStats.total }} {{ $t('dashboard.charts.growth')
+                  }}{{ candidateStats.percentage
+                  }}{{ $t('dashboard.charts.growthText') }}</span
+                >
                 <USelect
                   v-model="selectedTimeRange"
                   :options="timeRangeOptions"
@@ -271,18 +311,18 @@ const jobStats = ref({
   postedJobs: 0,
   pendingJobs: 0,
   expiredJobs: 0,
-  expiringSoonJobs: 0
+  expiringSoonJobs: 0,
 })
 
 // Chart statistics
 const jobPostingStats = ref({
   total: 0,
-  percentage: 0
+  percentage: 0,
 })
 
 const candidateStats = ref({
   total: 0,
-  percentage: 0
+  percentage: 0,
 })
 
 // Time range options
@@ -290,7 +330,7 @@ const timeRangeOptions = [
   { label: '7 ngày qua', value: '7days' },
   { label: '30 ngày qua', value: '30days' },
   { label: '3 tháng qua', value: '3months' },
-  { label: '1 năm qua', value: '1year' }
+  { label: '1 năm qua', value: '1year' },
 ]
 
 // Chart references
@@ -308,7 +348,7 @@ const userMenuItems = [
   {
     label: 'Dashboard',
     icon: 'i-lucide-layout-dashboard',
-    click: () => router.push(ROUTE_PAGE.DASHBOARD),
+    click: () => router.push(ROUTE_PAGE.DASHBOARD.USER),
   },
   {
     label: 'Chỉnh sửa hồ sơ',
@@ -366,23 +406,23 @@ const navigateToEditProfile = () => {
   }
 }
 
-const navigateToNewJob = () => {
+const _navigateToNewJob = () => {
   router.push('/jobs/upload')
 }
 
-const navigateToManageJobs = () => {
+const _navigateToManageJobs = () => {
   router.push('/jobs/list')
 }
 
-const navigateToCandidates = () => {
+const _navigateToCandidates = () => {
   router.push('/candidates')
 }
 
-const navigateToChangePassword = () => {
+const _navigateToChangePassword = () => {
   router.push('/change-password')
 }
 
-const navigateToNotifications = () => {
+const _navigateToNotifications = () => {
   router.push('/notifications')
 }
 
@@ -393,26 +433,29 @@ const fetchJobStatistics = async () => {
   try {
     // Fetch all jobs for the current user
     const response = await $api.job.searchJob({ userId: authStore.user?.id })
-    
+
     if (response && Array.isArray(response)) {
       const now = new Date()
       const sevenDaysFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000)
-      
+
       jobStats.value = {
         postedJobs: response.length,
-        pendingJobs: response.filter(job => job.isWaiting).length,
-        expiredJobs: response.filter(job => job.deadline && new Date(job.deadline) < now).length,
-        expiringSoonJobs: response.filter(job => 
-          job.deadline && 
-          new Date(job.deadline) > now && 
-          new Date(job.deadline) <= sevenDaysFromNow
-        ).length
+        pendingJobs: response.filter((job) => job.isWaiting).length,
+        expiredJobs: response.filter(
+          (job) => job.deadline && new Date(job.deadline) < now,
+        ).length,
+        expiringSoonJobs: response.filter(
+          (job) =>
+            job.deadline &&
+            new Date(job.deadline) > now &&
+            new Date(job.deadline) <= sevenDaysFromNow,
+        ).length,
       }
-      
+
       // Calculate job posting stats
       jobPostingStats.value = {
         total: response.length,
-        percentage: Math.floor(Math.random() * 20) + 5 // Random percentage for demo
+        percentage: Math.floor(Math.random() * 20) + 5, // Random percentage for demo
       }
     }
   } catch (error: any) {
@@ -427,7 +470,7 @@ const generateFakeCandidateData = () => {
   // Generate fake candidate application data
   candidateStats.value = {
     total: Math.floor(Math.random() * 100) + 50,
-    percentage: Math.floor(Math.random() * 30) + 10
+    percentage: Math.floor(Math.random() * 30) + 10,
   }
 }
 
@@ -437,82 +480,88 @@ const initializeCharts = () => {
 
   // Job Posting Chart
   const jobCtx = jobPostingChart.value.getContext('2d')
+
   if (jobCtx) {
     new Chart(jobCtx, {
       type: 'line',
       data: {
         labels: ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'],
-        datasets: [{
-          label: 'Tin đăng',
-          data: [12, 19, 3, 5, 2, 3, 8],
-          borderColor: 'rgb(59, 130, 246)',
-          backgroundColor: 'rgba(59, 130, 246, 0.1)',
-          tension: 0.4,
-          fill: true
-        }]
+        datasets: [
+          {
+            label: 'Tin đăng',
+            data: [12, 19, 3, 5, 2, 3, 8],
+            borderColor: 'rgb(59, 130, 246)',
+            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+            tension: 0.4,
+            fill: true,
+          },
+        ],
       },
       options: {
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
           legend: {
-            display: false
-          }
+            display: false,
+          },
         },
         scales: {
           y: {
             beginAtZero: true,
             grid: {
-              color: 'rgba(0, 0, 0, 0.1)'
-            }
+              color: 'rgba(0, 0, 0, 0.1)',
+            },
           },
           x: {
             grid: {
-              display: false
-            }
-          }
-        }
-      }
+              display: false,
+            },
+          },
+        },
+      },
     })
   }
 
   // Candidate Applications Chart
   const candidateCtx = candidateChart.value.getContext('2d')
+
   if (candidateCtx) {
     new Chart(candidateCtx, {
       type: 'bar',
       data: {
         labels: ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'],
-        datasets: [{
-          label: 'Ứng viên',
-          data: [5, 8, 12, 6, 9, 15, 7],
-          backgroundColor: 'rgba(34, 197, 94, 0.8)',
-          borderColor: 'rgb(34, 197, 94)',
-          borderWidth: 1
-        }]
+        datasets: [
+          {
+            label: 'Ứng viên',
+            data: [5, 8, 12, 6, 9, 15, 7],
+            backgroundColor: 'rgba(34, 197, 94, 0.8)',
+            borderColor: 'rgb(34, 197, 94)',
+            borderWidth: 1,
+          },
+        ],
       },
       options: {
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
           legend: {
-            display: false
-          }
+            display: false,
+          },
         },
         scales: {
           y: {
             beginAtZero: true,
             grid: {
-              color: 'rgba(0, 0, 0, 0.1)'
-            }
+              color: 'rgba(0, 0, 0, 0.1)',
+            },
           },
           x: {
             grid: {
-              display: false
-            }
-          }
-        }
-      }
+              display: false,
+            },
+          },
+        },
+      },
     })
   }
 }
@@ -521,12 +570,12 @@ const initializeCharts = () => {
 onMounted(async () => {
   await fetchJobStatistics()
   generateFakeCandidateData()
-  
+
   // Initialize charts after data is loaded
   nextTick(() => {
     initializeCharts()
   })
-  
+
   // Add click outside listener for dropdown
   document.addEventListener('click', handleClickOutside)
 })
@@ -538,6 +587,7 @@ onUnmounted(() => {
 // Close dropdown when clicking outside
 const handleClickOutside = (event: Event) => {
   const target = event.target as HTMLElement
+
   if (!target.closest('.relative')) {
     showUserDropdown.value = false
   }

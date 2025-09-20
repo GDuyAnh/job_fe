@@ -2,7 +2,10 @@ export const ROUTE_PAGE = {
   HOME: '/',
   SEARCH: '/jobs/search',
   TEST: '/test',
-  DASHBOARD: '/dashboard',
+  DASHBOARD: {
+    USER: '/users/dashboard',
+    COMPANY: '/companies/dashboard',
+  },
   AUTH: {
     LOGIN: '/auth/login',
   },

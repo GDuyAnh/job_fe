@@ -390,6 +390,36 @@
       "noData": "Không có dữ liệu",
       "noDataDescription": "Không tìm thấy thông tin công việc để xem trước.",
       "loadError": "Lỗi khi tải dữ liệu công việc"
+    },
+    "application": {
+      "title": "GỬI ĐƠN ỨNG TUYỂN",
+      "personalInfo": "Thông tin cá nhân",
+      "firstName": "Tên",
+      "lastName": "Họ",
+      "phone": "Số điện thoại",
+      "email": "Địa chỉ Email",
+      "firstNamePlaceholder": "Nhập tên của bạn",
+      "lastNamePlaceholder": "Nhập họ của bạn",
+      "phonePlaceholder": "Nhập số điện thoại",
+      "emailPlaceholder": "Nhập email của bạn",
+      "required": "*",
+      "cvUpload": "Tải lên CV",
+      "cvUploadDescription": "Kéo thả tệp hoặc nhấn để tải lên",
+      "cvUploadLimit": "Tối đa 10Mb và loại tệp được phép là (.doc, .docx, .xlsx, .pdf)",
+      "or": "hoặc",
+      "cvUploadButton": "Tải lên CV",
+      "coverLetter": "Thư ứng tuyển",
+      "coverLetterPlaceholder": "Viết ngắn gọn giới thiệu bản thân và nêu rõ mục đích của việc ứng tuyển. Nói về kinh nghiệm, kỹ năng và thành tích của bạn trong lĩnh vực tương ứng. Bạn cần trình bày lý do tại sao bạn muốn làm việc tại công ty đó và những đóng góp mà bạn có thể đưa ra. Điều này sẽ giúp nhà tuyển dụng hiểu rõ hơn về ứng viên và đánh giá năng lực của bạn.",
+      "coverLetterUpload": "Tải lên thư ứng tuyển",
+      "coverLetterUploadLimit": "Kích thước tệp tải thư giới thiệu lên là (Tối đa 5Mb) và loại tệp được phép là (.doc, .docx, .pdf)",
+      "termsAgreement": "Bằng cách ấn vào đây, tôi đồng ý với",
+      "termsAndConditions": "Điều khoản và Điều kiện",
+      "and": "và",
+      "privacyPolicy": "Chính sách quyền riêng tư",
+      "cancel": "Hủy",
+      "submit": "Nộp Đơn Ứng Tuyển",
+      "submitSuccess": "Đơn ứng tuyển đã được gửi thành công!",
+      "submitError": "Có lỗi xảy ra khi gửi đơn ứng tuyển. Vui lòng thử lại."
     }
   },
   "company": {
@@ -508,7 +538,12 @@
       "candidates": "Ứng viên",
       "changePassword": "Đổi mật khẩu",
       "insights": "Thống kê",
-      "notifications": "Thông báo"
+      "notifications": "Thông báo",
+      "overview": "Tổng quan",
+      "accountInfo": "Thông tin tài khoản",
+      "appliedJobs": "Công việc đã ứng tuyển",
+      "options": "Tùy chọn",
+      "deleteAccount": "Xoá tài khoản"
     },
     "main": {
       "title": "Tổng quan",
@@ -537,6 +572,12 @@
       "createCompany": "Tạo mới công ty",
       "postJob": "Đăng tải công việc",
       "logout": "Đăng xuất"
+    },
+    "charts": {
+      "jobPostings": "Biểu đồ đăng tin tuyển dụng",
+      "candidates": "Biểu đồ ứng viên ứng tuyển",
+      "growth": "↑",
+      "growthText": "% so với 7 ngày trước"
     }
   }
 }

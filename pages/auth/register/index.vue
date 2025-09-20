@@ -184,9 +184,9 @@ async function onSubmit(event: FormSubmitEvent<RegisterType>) {
 
   try {
     const response = await authStore.register({
-      fullName: event.data.fullName,
-      email: event.data.email,
-      password: event.data.password,
+      fullName: (event.data as any).fullName as string,
+      email: (event.data as any).email as string,
+      password: (event.data as any).password as string,
     })
 
     console.log('Register response:', response)
