@@ -106,9 +106,11 @@
                       </div>
                     </div>
                     <div>
-                      <p class="text-gray-600 text-sm line-clamp-2 mb-4">
-                        {{ job.description }}
-                      </p>
+                      <div
+                        v-if="job.description"
+                        class="text-gray-600 text-sm line-clamp-2 mb-4 rich-text-output"
+                        v-html="job.description"
+                      />
                     </div>
                     <div>
                       <div
@@ -323,3 +325,14 @@ onMounted(() => {
   performGetJobByUserId(authStore.user?.id)
 })
 </script>
+
+<style scoped>
+/* Line clamp workaround for HTML content */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  line-clamp: 2;
+}
+</style>

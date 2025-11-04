@@ -6,6 +6,9 @@ export interface JobEntity {
   location: string
   typeOfEmployment: string
   experienceLevel: string
+  requiredQualification?: string | null
+  gender?: string | null
+  grade?: string | null
   companyId: number
   userId: number
   companyName: string
@@ -29,4 +32,5 @@ export interface JobEntity {
   createdAt?: Date
   deadline?: Date
   detailDescription?: string | null
+  email?: string | null
 }

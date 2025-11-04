@@ -119,9 +119,10 @@
                 <div class="space-y-6">
                   <!-- Company description -->
                   <div v-if="company.description">
-                    <p class="text-gray-700 leading-relaxed">
-                      {{ company.description }}
-                    </p>
+                    <div
+                      class="text-gray-700 leading-relaxed rich-text-output"
+                      v-html="company.description"
+                    />
                   </div>
 
                   <!-- Company images -->

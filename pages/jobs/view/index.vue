@@ -149,7 +149,11 @@
                   {{ $t('job.detail.description') }}
                 </h2>
                 <div class="prose prose-gray max-w-none">
-                  <p>{{ job.description }}</p>
+                  <div
+                    v-if="job.description"
+                    class="rich-text-output"
+                    v-html="job.description"
+                  />
                 </div>
               </UCard>
             </div>

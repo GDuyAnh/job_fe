@@ -6,6 +6,9 @@ export interface JobModel {
   location: string
   typeOfEmployment: string
   experienceLevel: string
+  requiredQualification: string
+  gender?: string | null
+  grade?: string | null
   companyId: number
   userId: number
   companyName: string
@@ -29,6 +32,7 @@ export interface JobModel {
   createdAt?: Date
   deadline?: Date
   detailDescription?: string | null
+  email?: string | null
 }
 
 export interface JobModelAddUpdate {
@@ -38,6 +42,9 @@ export interface JobModelAddUpdate {
   location: number
   typeOfEmployment: number
   experienceLevel: number
+  requiredQualification: number
+  gender?: number
+  grade?: number
   companyId?: number
   userId?: number
   imageLogo: string
@@ -50,6 +57,7 @@ export interface JobModelAddUpdate {
   salaryTypeValue?: string
   benefits?: string[]
   detailDescription?: string
+  email?: string
   isFeatured: boolean
   isWaiting: boolean
 }

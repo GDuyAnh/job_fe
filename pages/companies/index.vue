@@ -150,14 +150,16 @@
 
               <!-- Description -->
               <div class="mb-1">
+                <div
+                  v-if="company.description || company.overview"
+                  class="text-gray-600 text-sm line-clamp-8 text-left leading-relaxed rich-text-output"
+                  v-html="company.description || company.overview"
+                />
                 <p
+                  v-else
                   class="text-gray-600 text-sm line-clamp-8 text-left leading-relaxed"
                 >
-                  {{
-                    company.description ||
-                    company.overview ||
-                    'No description available.'
-                  }}
+                  {{ $t('companies.noResults.noDescriptionAvailable') }}
                 </p>
               </div>
 
@@ -298,3 +300,37 @@ onMounted(() => {
   performSearch()
 })
 </script>
+
+<style scoped>
+/* Style for HTML content in description */
+.prose :deep(p) {
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+}
+
+.prose :deep(p:last-child) {
+  margin-bottom: 0;
+}
+
+.prose :deep(ul),
+.prose :deep(ol) {
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.prose :deep(h1),
+.prose :deep(h2),
+.prose :deep(h3) {
+  margin-top: 0.5rem;
+  margin-bottom: 0.25rem;
+}
+
+/* Line clamp workaround for HTML content */
+.line-clamp-8 {
+  display: -webkit-box;
+  -webkit-line-clamp: 8;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  line-clamp: 8;
+}
+</style>

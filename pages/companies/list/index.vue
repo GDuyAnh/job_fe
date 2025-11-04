@@ -99,12 +99,11 @@
                         </div>
                       </div>
 
-                      <p
+                      <div
                         v-if="company.description"
-                        class="text-gray-600 text-sm line-clamp-2"
-                      >
-                        {{ company.description }}
-                      </p>
+                        class="text-gray-600 text-sm line-clamp-2 rich-text-output"
+                        v-html="company.description"
+                      />
                     </div>
                   </div>
 
@@ -234,3 +233,30 @@ const deleteCompany = async (company: CompanyModel) => {
 
 onMounted(fetchCompanies)
 </script>
+
+<style scoped>
+/* Style for HTML content in description */
+.prose :deep(p) {
+  margin-top: 0;
+  margin-bottom: 0.25rem;
+}
+
+.prose :deep(p:last-child) {
+  margin-bottom: 0;
+}
+
+.prose :deep(ul),
+.prose :deep(ol) {
+  margin-top: 0.25rem;
+  margin-bottom: 0.25rem;
+}
+
+/* Line clamp workaround for HTML content */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  line-clamp: 2;
+}
+</style>

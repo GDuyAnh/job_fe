@@ -1,288 +1,287 @@
 <template>
-  <UModal v-model="isOpen" :ui="{ content: 'w-full sm:max-w-2xl' }">
-    <UCard class="h-full flex flex-col rounded-xl divide-y divide-gray-100">
-      <!-- Header -->
-      <template #header>
-        <div class="flex items-center justify-between p-6 pb-4">
-          <h3 class="text-xl font-bold text-gray-900">
-            {{ $t('job.application.title') }}
-          </h3>
-          <UButton
-            icon="i-lucide-x"
-            variant="ghost"
-            color="neutral"
-            size="sm"
-            @click="closeModal"
-          />
-        </div>
-      </template>
+  <div class="p-4 w-full max-w-4xl mx-auto">
+    <!-- Body -->
+    <div class="space-y-6">
+      <!-- Personal Information -->
+      <div class="space-y-4">
+        <h4 class="text-lg font-semibold text-gray-900">
+          {{ $t('job.application.personalInfo') }}
+        </h4>
 
-      <!-- Body -->
-      <div class="px-6 pb-6 space-y-6">
-        <!-- Personal Information -->
-        <div class="space-y-4">
-          <h4 class="text-lg font-semibold text-gray-900">
-            {{ $t('job.application.personalInfo') }}
-          </h4>
-
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <!-- First Name -->
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">
-                {{ $t('job.application.firstName') }}
-                <span class="text-red-500">{{
-                  $t('job.application.required')
-                }}</span>
-              </label>
-              <UInput
-                v-model="formData.firstName"
-                :placeholder="$t('job.application.firstNamePlaceholder')"
-                :ui="{ base: 'w-full' }"
-              />
-            </div>
-
-            <!-- Last Name -->
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">
-                {{ $t('job.application.lastName') }}
-                <span class="text-red-500">{{
-                  $t('job.application.required')
-                }}</span>
-              </label>
-              <UInput
-                v-model="formData.lastName"
-                :placeholder="$t('job.application.lastNamePlaceholder')"
-                :ui="{ base: 'w-full' }"
-              />
-            </div>
-
-            <!-- Phone -->
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">
-                {{ $t('job.application.phone') }}
-                <span class="text-red-500">{{
-                  $t('job.application.required')
-                }}</span>
-              </label>
-              <UInput
-                v-model="formData.phone"
-                :placeholder="$t('job.application.phonePlaceholder')"
-                :ui="{ base: 'w-full' }"
-              />
-            </div>
-
-            <!-- Email -->
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">
-                {{ $t('job.application.email') }}
-                <span class="text-red-500">{{
-                  $t('job.application.required')
-                }}</span>
-              </label>
-              <UInput
-                v-model="formData.email"
-                type="email"
-                :placeholder="$t('job.application.emailPlaceholder')"
-                :ui="{ base: 'w-full' }"
-              />
-            </div>
-          </div>
-        </div>
-
-        <!-- CV Upload Section -->
-        <div class="space-y-4">
-          <h4 class="text-lg font-semibold text-gray-900">
-            {{ $t('job.application.cvUpload') }}
+        <!-- Full Name - Full width -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">
+            {{ $t('job.application.fullName') }}
             <span class="text-red-500">{{
               $t('job.application.required')
             }}</span>
-          </h4>
-
-          <!-- Drag and Drop Area -->
-          <div
-            class="border-2 border-dashed border-blue-300 rounded-xl p-8 text-center hover:border-blue-400 transition-colors cursor-pointer"
-            :class="{ 'border-blue-500 bg-blue-50': isDragOver }"
-            @dragover.prevent="onDragOver"
-            @dragleave.prevent="onDragLeave"
-            @drop.prevent="onDrop"
-            @click="triggerFileInput('cv')"
-          >
-            <UIcon
-              name="i-lucide-cloud-upload"
-              class="w-12 h-12 text-blue-500 mx-auto mb-4"
-            />
-            <p class="text-gray-600 mb-2">
-              {{ $t('job.application.cvUploadDescription') }}
-            </p>
-            <p class="text-sm text-gray-500">
-              {{ $t('job.application.cvUploadLimit') }}
-            </p>
-          </div>
-
-          <!-- File Input (Hidden) -->
-          <input
-            ref="cvFileInput"
-            type="file"
-            accept=".doc,.docx,.xlsx,.pdf"
-            class="hidden"
-            @change="onFileSelect('cv', $event)"
-          />
-
-          <!-- Or Separator -->
-          <div class="relative">
-            <div class="absolute inset-0 flex items-center">
-              <div class="w-full border-t border-gray-300"></div>
-            </div>
-            <div class="relative flex justify-center text-sm">
-              <span class="px-2 bg-white text-gray-500">{{
-                $t('job.application.or')
-              }}</span>
-            </div>
-          </div>
-
-          <!-- Upload Button -->
-          <UButton
-            variant="outline"
-            color="primary"
+          </label>
+          <UInput
+            v-model="formData.fullName"
+            :placeholder="$t('job.application.fullNamePlaceholder')"
             class="w-full"
-            @click="triggerFileInput('cv')"
-          >
-            <UIcon name="i-lucide-cloud-upload" class="w-4 h-4 mr-2" />
-            {{ $t('job.application.cvUploadButton') }}
-          </UButton>
-
-          <!-- Selected File Display -->
-          <div
-            v-if="formData.cvFile"
-            class="bg-green-50 border border-green-200 rounded-lg p-3"
-          >
-            <div class="flex items-center justify-between">
-              <div class="flex items-center space-x-2">
-                <UIcon name="i-lucide-file" class="w-4 h-4 text-green-600" />
-                <span class="text-sm text-green-800">{{
-                  formData.cvFile.name
-                }}</span>
-                <span class="text-xs text-green-600"
-                  >({{ formatFileSize(formData.cvFile.size) }})</span
-                >
-              </div>
-              <UButton
-                icon="i-lucide-x"
-                variant="ghost"
-                color="error"
-                size="xs"
-                @click="removeFile('cv')"
-              />
-            </div>
-          </div>
+          />
         </div>
 
-        <!-- Cover Letter Section -->
-        <div class="space-y-4">
-          <h4 class="text-lg font-semibold text-gray-900">
-            {{ $t('job.application.coverLetter') }}
-          </h4>
-
-          <!-- Text Area -->
+        <!-- Phone and Email - Two columns -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- Phone -->
           <div>
-            <UTextarea
-              v-model="formData.coverLetter"
-              :rows="6"
-              :placeholder="$t('job.application.coverLetterPlaceholder')"
-              :ui="{ base: 'w-full' }"
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              {{ $t('job.application.phone') }}
+              <span class="text-red-500">{{
+                $t('job.application.required')
+              }}</span>
+            </label>
+            <UInput
+              v-model="formData.phone"
+              :placeholder="$t('job.application.phonePlaceholder')"
+              class="w-full"
             />
           </div>
 
-          <!-- Upload Cover Letter Button -->
-          <UButton
-            variant="outline"
-            color="primary"
-            class="w-full"
-            @click="triggerFileInput('coverLetter')"
-          >
-            <UIcon name="i-lucide-cloud-upload" class="w-4 h-4 mr-2" />
-            {{ $t('job.application.coverLetterUpload') }}
-          </UButton>
-
-          <!-- File Input (Hidden) -->
-          <input
-            ref="coverLetterFileInput"
-            type="file"
-            accept=".doc,.docx,.pdf"
-            class="hidden"
-            @change="onFileSelect('coverLetter', $event)"
-          />
-
-          <p class="text-sm text-gray-500">
-            {{ $t('job.application.coverLetterUploadLimit') }}
-          </p>
-
-          <!-- Selected File Display -->
-          <div
-            v-if="formData.coverLetterFile"
-            class="bg-green-50 border border-green-200 rounded-lg p-3"
-          >
-            <div class="flex items-center justify-between">
-              <div class="flex items-center space-x-2">
-                <UIcon name="i-lucide-file" class="w-4 h-4 text-green-600" />
-                <span class="text-sm text-green-800">{{
-                  formData.coverLetterFile.name
-                }}</span>
-                <span class="text-xs text-green-600"
-                  >({{ formatFileSize(formData.coverLetterFile.size) }})</span
-                >
-              </div>
-              <UButton
-                icon="i-lucide-x"
-                variant="ghost"
-                color="error"
-                size="xs"
-                @click="removeFile('coverLetter')"
-              />
-            </div>
-          </div>
-        </div>
-
-        <!-- Terms and Conditions -->
-        <div class="flex items-start space-x-3">
-          <UCheckbox v-model="formData.agreeTerms" :ui="{ base: 'mt-1' }" />
-          <div class="text-sm text-gray-600">
-            {{ $t('job.application.termsAgreement') }}
-            <a href="#" class="text-blue-600 hover:underline">{{
-              $t('job.application.termsAndConditions')
-            }}</a>
-            {{ $t('job.application.and') }}
-            <a href="#" class="text-blue-600 hover:underline">{{
-              $t('job.application.privacyPolicy')
-            }}</a>
+          <!-- Email -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              {{ $t('job.application.email') }}
+              <span class="text-red-500">{{
+                $t('job.application.required')
+              }}</span>
+            </label>
+            <UInput
+              v-model="formData.email"
+              type="email"
+              :placeholder="$t('job.application.emailPlaceholder')"
+              class="w-full"
+            />
           </div>
         </div>
       </div>
 
-      <!-- Footer -->
-      <template #footer>
-        <div class="flex justify-end space-x-3 p-6 pt-4">
-          <UButton variant="outline" color="neutral" @click="closeModal">
-            {{ $t('job.application.cancel') }}
-          </UButton>
+      <!-- CV Upload -->
+      <div class="space-y-4">
+        <!-- Title -->
+        <h4 class="text-lg font-semibold text-gray-900">
+          {{ $t('job.application.cvUpload') }}
+          <span class="text-red-500">{{ $t('job.application.required') }}</span>
+        </h4>
+
+        <!-- Drag and Drop Area -->
+        <div
+          class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition-colors bg-white"
+          :class="{
+            'border-blue-500 bg-blue-50': isDragOver,
+            'border-red-500 bg-red-50': cvFileError,
+          }"
+          @dragover.prevent="handleDragOver"
+          @dragleave.prevent="handleDragLeave"
+          @drop.prevent="handleDrop"
+        >
+          <UIcon
+            name="i-lucide-upload-cloud"
+            class="mx-auto h-12 w-12 text-blue-400 mb-4"
+          />
+          <p class="text-sm font-medium text-gray-700 mb-2">
+            {{ $t('job.application.cvUploadDescription') }}
+          </p>
+          <p class="text-xs text-gray-500 mb-4">
+            {{ $t('job.application.cvUploadLimit') }}
+          </p>
+
+          <!-- Separator -->
+          <div class="flex items-center mb-4">
+            <div class="flex-1 border-t border-gray-300"></div>
+            <span class="px-3 text-xs text-gray-400">{{
+              $t('job.application.or')
+            }}</span>
+            <div class="flex-1 border-t border-gray-300"></div>
+          </div>
+
           <UButton
+            variant="outline"
             color="primary"
-            :loading="isSubmitting"
-            :disabled="!isFormValid"
-            @click="submitApplication"
+            size="sm"
+            icon="i-lucide-upload"
+            @click="triggerFileInput"
           >
-            {{ $t('job.application.submit') }}
+            {{ $t('job.application.cvUploadButton') }}
           </UButton>
+          <input
+            ref="fileInput"
+            type="file"
+            accept=".pdf,.doc,.docx"
+            class="hidden"
+            @change="handleFileSelect"
+          />
         </div>
-      </template>
-    </UCard>
-  </UModal>
+
+        <!-- Selected File Display -->
+        <div v-if="formData.cvFile" class="mt-4">
+          <div
+            class="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+          >
+            <div class="flex items-center space-x-3">
+              <UIcon name="i-lucide-file" class="h-5 w-5 text-gray-500" />
+              <div>
+                <p class="text-sm font-medium text-gray-900">
+                  {{ formData.cvFile.name }}
+                </p>
+                <p class="text-xs text-gray-500">
+                  {{ formatFileSize(formData.cvFile.size) }}
+                </p>
+              </div>
+            </div>
+            <UButton
+              icon="i-lucide-x"
+              variant="ghost"
+              color="error"
+              size="sm"
+              @click="removeCvFile"
+            />
+          </div>
+        </div>
+
+        <!-- Error Message -->
+        <div v-if="cvFileError" class="text-sm text-red-600">
+          {{ cvFileError }}
+        </div>
+      </div>
+
+      <!-- Cover Letter -->
+      <div class="space-y-4">
+        <h4 class="text-lg font-semibold text-gray-900">
+          {{ $t('job.application.coverLetter') }}
+        </h4>
+
+        <!-- Text Cover Letter -->
+        <div class="w-full">
+          <UTextarea
+            v-model="formData.coverLetter"
+            :placeholder="$t('job.application.coverLetterPlaceholder')"
+            :rows="4"
+            class="w-full"
+          />
+        </div>
+
+        <!-- Or Upload File -->
+        <div class="text-center">
+          <span class="text-sm text-gray-500">
+            {{ $t('job.application.or') }}
+          </span>
+        </div>
+
+        <!-- Cover Letter File Upload -->
+        <div
+          class="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-gray-400 transition-colors"
+          :class="{
+            'border-blue-500 bg-blue-50': isDragOverCoverLetter,
+            'border-red-500 bg-red-50': coverLetterFileError,
+          }"
+          @dragover.prevent="handleDragOverCoverLetter"
+          @dragleave.prevent="handleDragLeaveCoverLetter"
+          @drop.prevent="handleDropCoverLetter"
+        >
+          <UIcon
+            name="i-lucide-file-text"
+            class="mx-auto h-8 w-8 text-gray-400 mb-2"
+          />
+          <p class="text-sm text-gray-600 mb-2">
+            {{ $t('job.application.coverLetterUpload') }}
+          </p>
+          <p class="text-xs text-gray-500 mb-3">
+            {{ $t('job.application.coverLetterUploadLimit') }}
+          </p>
+          <UButton
+            variant="outline"
+            color="primary"
+            size="sm"
+            @click="triggerCoverLetterFileInput"
+          >
+            {{ $t('job.application.cvUploadButton') }}
+          </UButton>
+          <input
+            ref="coverLetterFileInput"
+            type="file"
+            accept=".pdf,.doc,.docx"
+            class="hidden"
+            @change="handleCoverLetterFileSelect"
+          />
+        </div>
+
+        <!-- Selected Cover Letter File Display -->
+        <div v-if="formData.coverLetterFile" class="mt-4">
+          <div
+            class="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+          >
+            <div class="flex items-center space-x-3">
+              <UIcon name="i-lucide-file-text" class="h-5 w-5 text-gray-500" />
+              <div>
+                <p class="text-sm font-medium text-gray-900">
+                  {{ formData.coverLetterFile.name }}
+                </p>
+                <p class="text-xs text-gray-500">
+                  {{ formatFileSize(formData.coverLetterFile.size) }}
+                </p>
+              </div>
+            </div>
+            <UButton
+              icon="i-lucide-x"
+              variant="ghost"
+              color="error"
+              size="sm"
+              @click="removeCoverLetterFile"
+            />
+          </div>
+        </div>
+
+        <!-- Cover Letter File Error -->
+        <div v-if="coverLetterFileError" class="text-sm text-red-600">
+          {{ coverLetterFileError }}
+        </div>
+      </div>
+
+      <!-- Terms Agreement -->
+      <div class="space-y-4">
+        <UCheckbox
+          v-model="formData.agreeTerms"
+          :label="$t('job.application.termsAgreement')"
+        >
+          <template #label>
+            <span class="text-sm text-gray-700">
+              {{ $t('job.application.termsAgreement') }}
+              <a href="#" class="text-blue-600 hover:text-blue-800 underline">{{
+                $t('job.application.termsAndConditions')
+              }}</a>
+              {{ $t('job.application.and') }}
+              <a href="#" class="text-blue-600 hover:text-blue-800 underline">{{
+                $t('job.application.privacyPolicy')
+              }}</a>
+            </span>
+          </template>
+        </UCheckbox>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="flex justify-end space-x-3">
+      <UButton variant="outline" color="neutral" @click="closeModal">
+        {{ $t('job.application.cancel') }}
+      </UButton>
+      <UButton
+        color="primary"
+        :loading="isSubmitting"
+        :disabled="!isFormValid"
+        @click="submitApplication"
+      >
+        {{ $t('job.application.submit') }}
+      </UButton>
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
 interface ApplicationFormData {
-  firstName: string
-  lastName: string
+  fullName: string
   phone: string
   email: string
   cvFile: File | null
@@ -294,6 +293,10 @@ interface ApplicationFormData {
 interface Props {
   modelValue: boolean
   jobId?: number
+  userInfo?: {
+    fullName: string
+    email: string
+  } | null
 }
 
 interface Emits {
@@ -309,15 +312,8 @@ const isOpen = computed({
   set: (value) => emit('update:modelValue', value),
 })
 
-const isSubmitting = ref(false)
-const isDragOver = ref(false)
-
-const cvFileInput = ref<HTMLInputElement>()
-const coverLetterFileInput = ref<HTMLInputElement>()
-
 const formData = ref<ApplicationFormData>({
-  firstName: '',
-  lastName: '',
+  fullName: '',
   phone: '',
   email: '',
   cvFile: null,
@@ -326,10 +322,19 @@ const formData = ref<ApplicationFormData>({
   agreeTerms: false,
 })
 
+const isSubmitting = ref(false)
+const isDragOver = ref(false)
+const isDragOverCoverLetter = ref(false)
+const cvFileError = ref('')
+const coverLetterFileError = ref('')
+
+const fileInput = ref<HTMLInputElement>()
+const coverLetterFileInput = ref<HTMLInputElement>()
+
+// Form validation
 const isFormValid = computed(() => {
   return (
-    formData.value.firstName.trim() !== '' &&
-    formData.value.lastName.trim() !== '' &&
+    formData.value.fullName.trim() !== '' &&
     formData.value.phone.trim() !== '' &&
     formData.value.email.trim() !== '' &&
     formData.value.cvFile !== null &&
@@ -337,105 +342,130 @@ const isFormValid = computed(() => {
   )
 })
 
-const closeModal = () => {
-  isOpen.value = false
-  resetForm()
-}
+// File handling functions
 
-const resetForm = () => {
-  formData.value = {
-    firstName: '',
-    lastName: '',
-    phone: '',
-    email: '',
-    cvFile: null,
-    coverLetter: '',
-    coverLetterFile: null,
-    agreeTerms: false,
+const handleFile = (file: File, type: 'cv' | 'coverLetter') => {
+  const maxSize = 5 * 1024 * 1024 // 5MB
+  const allowedTypes = [
+    'application/pdf',
+    'application/msword',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  ]
+
+  if (file.size > maxSize) {
+    if (type === 'cv') {
+      cvFileError.value = 'File size must be less than 5MB'
+    } else {
+      coverLetterFileError.value = 'File size must be less than 5MB'
+    }
+
+    return false
   }
-}
 
-const triggerFileInput = (type: 'cv' | 'coverLetter') => {
+  if (!allowedTypes.includes(file.type)) {
+    if (type === 'cv') {
+      cvFileError.value = 'Only PDF, DOC, and DOCX files are allowed'
+    } else {
+      coverLetterFileError.value = 'Only PDF, DOC, and DOCX files are allowed'
+    }
+
+    return false
+  }
+
   if (type === 'cv') {
-    cvFileInput.value?.click()
+    formData.value.cvFile = file
+    cvFileError.value = ''
   } else {
-    coverLetterFileInput.value?.click()
+    formData.value.coverLetterFile = file
+    coverLetterFileError.value = ''
   }
+
+  return true
 }
 
-const onDragOver = (e: DragEvent) => {
-  e.preventDefault()
+const handleDragOver = (event: DragEvent) => {
+  event.preventDefault()
   isDragOver.value = true
 }
 
-const onDragLeave = (e: DragEvent) => {
-  e.preventDefault()
+const handleDragLeave = () => {
   isDragOver.value = false
 }
 
-const onDrop = (e: DragEvent) => {
-  e.preventDefault()
+const handleDrop = (event: DragEvent) => {
   isDragOver.value = false
-
-  const files = e.dataTransfer?.files
+  const files = event.dataTransfer?.files
 
   if (files && files.length > 0) {
     handleFile(files[0], 'cv')
   }
 }
 
-const onFileSelect = (type: 'cv' | 'coverLetter', event: Event) => {
+const handleDragOverCoverLetter = (event: DragEvent) => {
+  event.preventDefault()
+  isDragOverCoverLetter.value = true
+}
+
+const handleDragLeaveCoverLetter = () => {
+  isDragOverCoverLetter.value = false
+}
+
+const handleDropCoverLetter = (event: DragEvent) => {
+  isDragOverCoverLetter.value = false
+  const files = event.dataTransfer?.files
+
+  if (files && files.length > 0) {
+    handleFile(files[0], 'coverLetter')
+  }
+}
+
+const triggerFileInput = () => {
+  fileInput.value?.click()
+}
+
+const triggerCoverLetterFileInput = () => {
+  coverLetterFileInput.value?.click()
+}
+
+const handleFileSelect = (event: Event) => {
   const target = event.target as HTMLInputElement
+  const files = target.files
 
-  if (target.files && target.files.length > 0) {
-    handleFile(target.files[0], type)
+  if (files && files.length > 0) {
+    handleFile(files[0], 'cv')
   }
 }
 
-const handleFile = (file: File, type: 'cv' | 'coverLetter') => {
-  const maxSize = type === 'cv' ? 10 * 1024 * 1024 : 5 * 1024 * 1024 // 10MB for CV, 5MB for cover letter
-  const allowedTypes =
-    type === 'cv'
-      ? ['.doc', '.docx', '.xlsx', '.pdf']
-      : ['.doc', '.docx', '.pdf']
+const handleCoverLetterFileSelect = (event: Event) => {
+  const target = event.target as HTMLInputElement
+  const files = target.files
 
-  if (file.size > maxSize) {
-    useNotify({
-      message: `Kích thước tệp quá lớn. Tối đa ${type === 'cv' ? '10MB' : '5MB'}`,
-      type: 'error',
-    })
-
-    return
-  }
-
-  const fileExtension = '.' + file.name.split('.').pop()?.toLowerCase()
-
-  if (!allowedTypes.includes(fileExtension)) {
-    useNotify({
-      message: `Loại tệp không được hỗ trợ. Chỉ chấp nhận ${allowedTypes.join(', ')}`,
-      type: 'error',
-    })
-
-    return
-  }
-
-  if (type === 'cv') {
-    formData.value.cvFile = file
-  } else {
-    formData.value.coverLetterFile = file
+  if (files && files.length > 0) {
+    handleFile(files[0], 'coverLetter')
   }
 }
 
-const removeFile = (type: 'cv' | 'coverLetter') => {
-  if (type === 'cv') {
-    formData.value.cvFile = null
-  } else {
-    formData.value.coverLetterFile = null
+const removeCvFile = () => {
+  formData.value.cvFile = null
+  cvFileError.value = ''
+
+  if (fileInput.value) {
+    fileInput.value.value = ''
+  }
+}
+
+const removeCoverLetterFile = () => {
+  formData.value.coverLetterFile = null
+  coverLetterFileError.value = ''
+
+  if (coverLetterFileInput.value) {
+    coverLetterFileInput.value.value = ''
   }
 }
 
 const formatFileSize = (bytes: number): string => {
   if (bytes === 0) return '0 Bytes'
+
   const k = 1024
   const sizes = ['Bytes', 'KB', 'MB', 'GB']
   const i = Math.floor(Math.log(bytes) / Math.log(k))
@@ -443,13 +473,52 @@ const formatFileSize = (bytes: number): string => {
   return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
 }
 
+const closeModal = () => {
+  isOpen.value = false
+}
+
+// Auto-fill user info if logged in
+const autoFillUserInfo = () => {
+  console.log('autoFillUserInfo called with props.userInfo:', props.userInfo)
+  if (props.userInfo) {
+    console.log('Setting formData:', {
+      fullName: props.userInfo?.fullName,
+      email: props.userInfo?.email,
+    })
+
+    // Use nextTick to ensure DOM is updated
+    nextTick(() => {
+      formData.value.fullName = props.userInfo?.fullName || ''
+      formData.value.email = props.userInfo?.email || ''
+      console.log('formData after setting:', formData.value)
+    })
+  } else {
+    console.log('No userInfo provided')
+  }
+}
+
+const resetForm = () => {
+  formData.value = {
+    fullName: '',
+    phone: '',
+    email: '',
+    cvFile: null,
+    coverLetter: '',
+    coverLetterFile: null,
+    agreeTerms: false,
+  }
+  cvFileError.value = ''
+  coverLetterFileError.value = ''
+  isDragOver.value = false
+  isDragOverCoverLetter.value = false
+}
+
 const submitApplication = async () => {
   if (!isFormValid.value) return
 
   isSubmitting.value = true
-
   try {
-    emit('submit', formData.value)
+    emit('submit', { ...formData.value })
     useNotify({
       message: 'Đơn ứng tuyển đã được gửi thành công!',
       type: 'success',
@@ -465,10 +534,27 @@ const submitApplication = async () => {
   }
 }
 
-// Watch for modal close to reset form
+// Watch for modal open/close
 watch(isOpen, (newValue) => {
-  if (!newValue) {
+  if (newValue) {
+    // Modal opened - auto-fill user info
+    autoFillUserInfo()
+  } else {
+    // Modal closed - reset form
     resetForm()
   }
 })
+
+// Watch for userInfo prop changes
+watch(
+  () => props.userInfo,
+  (newUserInfo) => {
+    console.log('props.userInfo changed:', newUserInfo)
+    if (newUserInfo) {
+      // Auto-fill when userInfo changes (regardless of modal state)
+      autoFillUserInfo()
+    }
+  },
+  { immediate: true },
+)
 </script>

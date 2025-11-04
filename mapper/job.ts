@@ -11,6 +11,9 @@ export class JobMapper {
       location: value.location,
       typeOfEmployment: value.typeOfEmployment,
       experienceLevel: value.experienceLevel,
+      requiredQualification: value.requiredQualification ?? '',
+      gender: value.gender ?? null,
+      grade: value.grade ?? null,
       companyId: value.companyId,
       userId: value.userId,
       companyName: value.companyName,
@@ -34,6 +37,7 @@ export class JobMapper {
       createdAt: value.createdAt || new Date(),
       deadline: value.deadline,
       detailDescription: value.detailDescription,
+      email: value.email,
     }
   }
 
@@ -49,6 +53,12 @@ export class JobMapper {
           : 0,
       experienceLevel:
         value.experienceLevel !== undefined ? Number(value.experienceLevel) : 0,
+      requiredQualification:
+        value.requiredQualification !== undefined
+          ? Number(value.requiredQualification)
+          : 0,
+      gender: value.gender !== undefined ? Number(value.gender) : undefined,
+      grade: value.grade !== undefined ? Number(value.grade) : undefined,
       salaryMin: value.salaryMin ?? undefined,
       salaryMax: value.salaryMax ?? undefined,
       salaryType: value.salaryType ?? undefined,
@@ -65,6 +75,7 @@ export class JobMapper {
       userId: value.userId,
       companyId: value.companyId,
       isWaiting: false,
+      email: value.email,
     }
   }
 }

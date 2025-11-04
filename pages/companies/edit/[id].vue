@@ -81,19 +81,6 @@
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label class="font-medium text-sm text-gray-700">
-                {{ $t('company.email') }}
-              </label>
-              <UInput
-                v-model.trim="form.email"
-                type="email"
-                readonly
-                class="w-full opacity-70 cursor-not-allowed"
-                :placeholder="$t('company.form.placeholderEmail') as string"
-              />
-            </div>
-
-            <div>
-              <label class="font-medium text-sm text-gray-700">
                 {{ $t('company.website') }}
               </label>
               <UInput
@@ -183,7 +170,7 @@
         <!-- Ảnh: multiple, ảnh đầu = logo -->
         <UCard class="mb-6">
           <label class="font-medium text-sm text-gray-700">
-            {{ $t('company.form.imagesTitle') }}
+            {{ $t('company.form.logoTitle') }}
           </label>
 
           <div
@@ -335,11 +322,10 @@ const form = reactive({
   // readonly
   name: '',
   address: '',
-  mst: 0,
+  mst: '',
   organizationType: 0,
 
   // editable
-  email: '',
   website: '',
   foundedYear: undefined as number | undefined,
   companySize: undefined as number | undefined,
@@ -373,12 +359,11 @@ async function loadData() {
 
     // readonly
     form.name = res.name
-    form.mst = res.mst ?? 0
+    form.mst = res.mst ?? ''
     form.address = res.address ?? ''
     form.organizationType = res.organizationType ?? 0
 
     // editable
-    form.email = res.email
     form.website = res.website ?? ''
     form.foundedYear = res.foundedYear ?? undefined
     form.companySize = res.companySize ?? undefined
@@ -451,8 +436,6 @@ onBeforeUnmount(() => {
 })
 
 function validate(): string {
-  if (form.email && !/^\S+@\S+\.\S+$/.test(form.email))
-    return 'Email không hợp lệ.'
   if (form.website && !/^https?:\/\/.+/i.test(form.website))
     return 'Website không hợp lệ.'
   if (
@@ -508,7 +491,6 @@ async function save() {
       organizationType: form.organizationType, // readonly, gửi lại
 
       // phần editable
-      email: form.email || '',
       website: form.website || null,
       foundedYear: form.foundedYear ?? null,
       companySize: form.companySize ?? null,

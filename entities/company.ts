@@ -19,7 +19,7 @@ export interface CompanyAddUpdateImage {
 export interface CompanyEntity {
   id: number
   name: string
-  mst?: number
+  mst?: string
   logo: string | null
   organizationType: number | null
   isShow: boolean
@@ -43,7 +43,7 @@ export interface CompanyEntity {
 
 export interface CompanyAddUpdateEntity {
   id?: number
-  mst?: number | null
+  mst?: string | null
   name: string
   logo: string | null
   organizationType: number | null
@@ -57,7 +57,6 @@ export interface CompanyAddUpdateEntity {
   address: string | null
   companySize: number | null
   foundedYear: number | null
-  email: string
   description: string | null
   insight: string | null
   overview: string | null

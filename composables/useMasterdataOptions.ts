@@ -12,7 +12,11 @@ export const useJobFilters = () => {
   const jobBenefits = getLabel(MasterDataItem.JobBenefits)
   const organizationTypesLabel = getLabel(MasterDataItem.OrganizationType)
   const salaryTypeLabel = getLabel(MasterDataItem.SalaryType)
-
+  const genderLabel = getLabel(MasterDataItem.Gender)
+  const gradeLabel = getLabel(MasterDataItem.Grade)
+  const requiredQualificationLabel = getLabel(
+    MasterDataItem.RequiredQualification,
+  )
   const locationItems = computed(() => [
     {
       label: t('home.search.placeholderLocation'),
@@ -88,6 +92,27 @@ export const useJobFilters = () => {
     })),
   )
 
+  const genderItems = computed(() =>
+    Object.entries(genderLabel).map(([key, value]) => ({
+      label: value,
+      value: key,
+    })),
+  )
+
+  const gradeItems = computed(() =>
+    Object.entries(gradeLabel).map(([key, value]) => ({
+      label: value,
+      value: key,
+    })),
+  )
+
+  const requiredQualificationItems = computed(() =>
+    Object.entries(requiredQualificationLabel).map(([key, value]) => ({
+      label: value,
+      value: key,
+    })),
+  )
+
   return {
     locationEnumLabel,
     locationItems,
@@ -105,5 +130,11 @@ export const useJobFilters = () => {
     organizationTypeItems,
     salaryTypeLabel,
     salaryTypeItems,
+    genderLabel,
+    genderItems,
+    gradeLabel,
+    gradeItems,
+    requiredQualificationLabel,
+    requiredQualificationItems,
   }
 }

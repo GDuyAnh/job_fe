@@ -23,6 +23,7 @@ export enum ExperienceLevel {
   fouryears = 4,
   fiveyears = 5,
   sixyearsplus = 6,
+  notrequired = 7,
 }
 
 export enum TypeOfEmployment {
@@ -39,4 +40,30 @@ export enum SalaryType {
   hour = 3,
   contract = 4,
   more = 5,
+}
+
+export enum Gender {
+  male = 1,
+  female = 2,
+}
+
+export enum Grade {
+  preschool = 1,
+  primaryschool = 2,
+  secondaryschool = 3,
+  highschool = 4,
+  college = 5,
+  university = 6,
+  postgraduate = 7,
+  other = 8,
+}
+
+export enum RequiredQualification {
+  incomplete = 1,
+  associatedegree = 2,
+  bachelordegree = 3,
+  teachingdegree = 4,
+  masterdegree = 5,
+  postdoctoral = 6,
+  doctorate = 7,
 }
