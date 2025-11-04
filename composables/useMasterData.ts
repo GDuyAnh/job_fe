@@ -1,4 +1,12 @@
-import { JobBenefits, SalaryType } from '~/enums/job'
+import {
+  Grade,
+  JobBenefits,
+  SalaryType,
+  ExperienceLevel,
+  TypeOfEmployment,
+  Gender,
+  RequiredQualification,
+} from '~/enums/job'
 import { OrganizationType, Category } from '~/enums/master-data'
 
 import type { MasterData } from '~/types/master-data'
@@ -7,12 +15,15 @@ type MasterDataConfig = {
   [key in MasterDataItem]: {
     enum:
       | typeof Category
+      | typeof Gender
+      | typeof Grade
       | typeof Location
       | typeof JobBenefits
       | typeof ExperienceLevel
       | typeof TypeOfEmployment
       | typeof OrganizationType
       | typeof SalaryType
+      | typeof RequiredQualification
     translationKey: string
   }
 }
@@ -51,6 +62,18 @@ export const useMasterdata = (): MasterDataReturn => {
     salaryType: {
       enum: SalaryType,
       translationKey: 'common.masterData.salaryType',
+    },
+    gender: {
+      enum: Gender,
+      translationKey: 'common.masterData.gender',
+    },
+    grade: {
+      enum: Grade,
+      translationKey: 'common.masterData.grade',
+    },
+    requiredQualification: {
+      enum: RequiredQualification,
+      translationKey: 'common.masterData.requiredQualification',
     },
   }
 

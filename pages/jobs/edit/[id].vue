@@ -48,7 +48,7 @@
 
             <!-- Job description -->
             <div
-              class="flex flex-col gap-1 w-full"
+              class="flex flex-col gap-1 w-full rich-text-output"
               style="padding: 0px 20px 30px 20px !important"
             >
               <label class="font-medium text-sm text-gray-700">
@@ -57,76 +57,50 @@
                   $t('job.uploadJob.mandatoryChar')
                 }}</span>
               </label>
-              <!-- Input -->
-              <UInput
+              <!-- Text Editor -->
+              <RichTextEditor
                 id="job-description"
                 v-model="job.description"
-                class="w-full"
+                class="w-full rich-text-content"
               />
             </div>
 
-            <!-- Job email/name -->
+            <!-- Company name -->
             <div
-              class="grid grid-cols-1 md:grid-cols-2 gap-4"
+              class="flex flex-col gap-1 w-full"
               style="padding: 0px 20px 30px 20px !important"
             >
-              <div>
-                <!-- Label -->
-                <label
-                  for="job-title"
-                  class="font-medium text-sm text-gray-700"
-                >
-                  {{ $t('job.uploadJob.emailJobLabel') }}
-                  <span class="text-black">{{
-                    $t('job.uploadJob.mandatoryChar')
-                  }}</span>
-                </label>
+              <!-- Label -->
+              <label for="job-title" class="font-medium text-sm text-gray-700">
+                {{ $t('job.uploadJob.companyNameLabel') }}
+              </label>
 
-                <!-- Input email -->
-                <UInput
-                  id="job-email"
-                  :model-value="company ? company.email : ''"
-                  class="w-full"
-                  type="email"
-                  readonly
-                />
-              </div>
-              <div>
-                <!-- Label -->
-                <label
-                  for="job-title"
-                  class="font-medium text-sm text-gray-700"
-                >
-                  {{ $t('job.uploadJob.companyNameLabel') }}
-                </label>
-
-                <!-- Input -->
-                <UInput
-                  id="company-name"
-                  v-model="searchCompany"
-                  class="w-full"
-                  type="text"
-                  @input="
-                    (e: Event) =>
-                      filterCompanies((e.target as HTMLInputElement).value)
-                  "
-                  @keydown.enter.prevent="selectFirstOrClear"
-                  @blur="selectFirstOrClear"
-                />
-                <!-- Suggestion dropdown -->
+              <!-- Input -->
+              <UInput
+                id="company-name"
+                v-model="searchCompany"
+                class="w-full"
+                type="text"
+                @input="
+                  (e: Event) =>
+                    filterCompanies((e.target as HTMLInputElement).value)
+                "
+                @keydown.enter.prevent="selectFirstOrClear"
+                @blur="selectFirstOrClear"
+              />
+              <!-- Suggestion dropdown -->
+              <div
+                v-if="filteredCompanies.length > 0"
+                class="absolute z-10 bg-white border border-gray-300 rounded shadow max-h-60 overflow-auto"
+                style="width: 44.5%"
+              >
                 <div
-                  v-if="filteredCompanies.length > 0"
-                  class="absolute z-10 bg-white border border-gray-300 rounded shadow max-h-60 overflow-auto"
-                  style="width: 44.5%"
+                  v-for="c in filteredCompanies"
+                  :key="c.id"
+                  class="px-3 py-2 hover:bg-gray-100 cursor-pointer"
+                  @click="selectCompany(c)"
                 >
-                  <div
-                    v-for="c in filteredCompanies"
-                    :key="c.id"
-                    class="px-3 py-2 hover:bg-gray-100 cursor-pointer"
-                    @click="selectCompany(c)"
-                  >
-                    {{ c.name }}
-                  </div>
+                  {{ c.name }}
                 </div>
               </div>
             </div>
@@ -313,6 +287,83 @@
               />
             </div>
 
+            <!-- More information -->
+            <div>
+              <div
+                class="flex items-center py-4 border-gray-300 border-b mb-10"
+              >
+                <span class="text-[#378ecc] text-3xl ml-5">{{
+                  $t('job.uploadJob.moreInformation')
+                }}</span>
+              </div>
+
+              <!-- Job required qualification -->
+              <div
+                class="flex flex-col gap-1 w-full"
+                style="padding: 0px 20px 30px 20px !important"
+              >
+                <label
+                  for="job-title"
+                  class="font-medium text-sm text-gray-700"
+                >
+                  {{ $t('job.uploadJob.requiredQualificationLabel') }}
+                </label>
+                <USelect
+                  :items="requiredQualificationItems"
+                  :model-value="job.requiredQualification?.toString() || ''"
+                  class="w-full"
+                  searchable
+                  :placeholder="$t('job.uploadJob.requiredQualificationLabel')"
+                  :content="{ side: 'bottom' }"
+                  @update:model-value="
+                    (val) => (job.requiredQualification = Number(val ?? 0))
+                  "
+                />
+              </div>
+
+              <!-- Job gender Level -->
+              <div
+                class="flex flex-col gap-1 w-full"
+                style="padding: 0px 20px 30px 20px !important"
+              >
+                <!-- Label -->
+                <label
+                  for="job-title"
+                  class="font-medium text-sm text-gray-700"
+                >
+                  {{ $t('job.uploadJob.genderLabel') }}
+                </label>
+                <USelect
+                  :items="genderItems"
+                  :model-value="job.gender?.toString() || ''"
+                  class="w-full"
+                  :content="{ side: 'bottom' }"
+                  @update:model-value="(val) => (job.gender = Number(val ?? 0))"
+                />
+              </div>
+
+              <!-- Job grade Level -->
+              <div
+                class="flex flex-col gap-1 w-full"
+                style="padding: 0px 20px 30px 20px !important"
+              >
+                <!-- Label -->
+                <label
+                  for="job-title"
+                  class="font-medium text-sm text-gray-700"
+                >
+                  {{ $t('job.uploadJob.gradeLabel') }}
+                </label>
+                <USelect
+                  :items="gradeItems"
+                  :model-value="job.grade?.toString() || ''"
+                  class="w-full"
+                  :content="{ side: 'bottom' }"
+                  @update:model-value="(val) => (job.grade = Number(val ?? 0))"
+                />
+              </div>
+            </div>
+
             <!-- Job address -->
             <div
               class="flex flex-col gap-1 w-full"
@@ -360,6 +411,7 @@
               />
             </div>
           </template>
+
           <template #confirm>
             <div class="flex bg-[#f5f7fa] flex-col items-center">
               <div class="h-1/2">
@@ -423,6 +475,9 @@ const {
   locationItemsWithoutAll,
   jobBenefitsItems,
   salaryTypeItems,
+  requiredQualificationItems,
+  genderItems,
+  gradeItems,
 } = useJobFilters()
 
 // Route

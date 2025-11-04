@@ -135,15 +135,28 @@
                 <!-- Right Side Actions -->
                 <div class="flex items-center gap-2">
                   <!-- Apply Button -->
-                  <UButton
-                    color="primary"
-                    variant="solid"
-                    size="sm"
-                    class="min-w-[80px] ml-1"
-                    @click="applyForJob"
+                  <UModal
+                    :title="$t('job.application.title')"
+                    :ui="{ content: 'w-full sm:max-w-4xl' }"
                   >
-                    {{ $t('job.detail.applyNow') }}
-                  </UButton>
+                    <UButton
+                      color="primary"
+                      variant="solid"
+                      size="sm"
+                      class="min-w-[80px] ml-1"
+                    >
+                      {{ $t('job.detail.applyNow') }}
+                    </UButton>
+
+                    <template #body>
+                      <JobApplicationModal
+                        v-model="showApplicationModal"
+                        :job-id="job?.id"
+                        :user-info="userInfo"
+                        @submit="handleApplicationSubmit"
+                      />
+                    </template>
+                  </UModal>
                 </div>
               </div>
             </div>
@@ -159,9 +172,14 @@
                 <div class="prose prose-gray max-w-none">
                   <div
                     v-if="job.detailDescription"
+                    class="rich-text-output"
                     v-html="job.detailDescription"
-                  ></div>
-                  <p v-else>{{ job.description }}</p>
+                  />
+                  <div
+                    v-else-if="job.description"
+                    class="rich-text-output"
+                    v-html="job.description"
+                  />
                 </div>
               </UCard>
             </div>
@@ -432,13 +450,6 @@
         </UCard>
       </div>
     </UContainer>
-
-    <!-- Job Application Modal -->
-    <JobApplicationModal
-      v-model="showApplicationModal"
-      :job-id="job?.id"
-      @submit="handleApplicationSubmit"
-    />
   </div>
 </template>
 
@@ -464,6 +475,55 @@ const { $api } = useNuxtApp()
 const loading = ref(false)
 const job = ref<JobModel | null>(null)
 
+// Get auth store for user info
+const authStore = useAuthStore()
+
+// Debug auth store immediately
+console.log('Auth store debug:', {
+  user: authStore.user,
+  isLoggedIn: authStore.isLoggedIn,
+  token: authStore.token,
+})
+
+// Computed property for user info
+const userInfo = computed(() => {
+  console.log('userInfo computed - authStore.user:', authStore.user)
+  console.log('userInfo computed - authStore.isLoggedIn:', authStore.isLoggedIn)
+
+  if (authStore.isLoggedIn && authStore.user) {
+    const result = {
+      fullName: authStore.user.fullName || '',
+      email: authStore.user.email || '',
+    }
+
+    console.log('userInfo computed result:', result)
+
+    return result
+  }
+
+  console.log('userInfo computed - returning null')
+
+  return null
+})
+
+// Debug watcher
+watch(
+  () => authStore.user,
+  (newUser) => {
+    console.log('authStore.user changed:', newUser)
+  },
+  { immediate: true },
+)
+
+// Debug watcher for isLoggedIn
+watch(
+  () => authStore.isLoggedIn,
+  (isLoggedIn) => {
+    console.log('authStore.isLoggedIn changed:', isLoggedIn)
+  },
+  { immediate: true },
+)
+
 // Process benefits array using the utility
 const processBenefits = (benefits: string[] | null): string[] =>
   processEnumArray(jobBenefits, benefits)
@@ -488,10 +548,6 @@ const loadJobDetail = async () => {
 
 const showApplicationModal = ref(false)
 
-const applyForJob = () => {
-  showApplicationModal.value = true
-}
-
 const handleApplicationSubmit = async (data: any) => {
   console.log('Application submitted:', data)
 
@@ -510,8 +566,7 @@ const handleApplicationSubmit = async (data: any) => {
     console.log('Application data:', {
       jobId: job.value?.id,
       personalInfo: {
-        firstName: data.firstName,
-        lastName: data.lastName,
+        fullName: data.fullName,
         phone: data.phone,
         email: data.email,
       },

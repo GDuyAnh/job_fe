@@ -96,32 +96,19 @@
                 </div>
               </div>
 
-              <!-- Size + Email -->
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label class="font-medium text-sm text-gray-700">
-                    {{ $t('company.size') }}
-                  </label>
-                  <UInput
-                    v-model.number="companyAdd.companySize"
-                    type="number"
-                    min="0"
-                    step="1"
-                    class="w-full"
-                    :placeholder="$t('company.form.placeholderCompanySize')"
-                  />
-                </div>
-                <div>
-                  <label class="font-medium text-sm text-gray-700">
-                    {{ $t('company.email') }}
-                  </label>
-                  <UInput
-                    v-model.trim="companyAdd.email"
-                    type="email"
-                    class="w-full"
-                    :placeholder="$t('company.form.placeholderEmail')"
-                  />
-                </div>
+              <!-- Size -->
+              <div>
+                <label class="font-medium text-sm text-gray-700">
+                  {{ $t('company.size') }}
+                </label>
+                <UInput
+                  v-model.number="companyAdd.companySize"
+                  type="number"
+                  min="0"
+                  step="1"
+                  class="w-full"
+                  :placeholder="$t('company.form.placeholderCompanySize')"
+                />
               </div>
 
               <!-- Website -->
@@ -184,7 +171,7 @@
               <!-- Images uploader (MULTIPLE). images[0] = logo -->
               <div>
                 <label class="font-medium text-sm text-gray-700">
-                  {{ $t('company.form.imagesTitle') }}
+                  {{ $t('company.form.logoTitle') }}
                 </label>
 
                 <div

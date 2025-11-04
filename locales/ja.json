@@ -20,6 +20,14 @@
     "registerFailed": "Registration failed. Please try again."
   },
   "common": {
+    "crop": "Cắt",
+    "cropImage": "Cắt ảnh",
+    "zoomIn": "Phóng to",
+    "zoomOut": "Thu nhỏ",
+    "rotate": "Xoay",
+    "cancel": "Hủy",
+    "confirm": "Xác nhận",
+    "dragToMove": "Kéo để di chuyển",
     "actions": {
       "ok": "OK"
     },
@@ -122,7 +130,8 @@
         "threeyears": "3 năm",
         "fouryears": "4 năm",
         "fiveyears": "5 năm",
-        "sixyearsplus": "6 năm +"
+        "sixyearsplus": "6 năm +",
+        "notrequired": "Không yêu cầu"
       },
       "typeOfEmployment": {
         "intern": "Thực tập sinh",
@@ -147,6 +156,29 @@
         "hour": "Giờ",
         "contract": "Theo hợp đồng dự án",
         "more": "Thương lượng"
+      },
+      "gender": {
+        "male": "Nam",
+        "female": "Nữ"
+      },
+      "grade": {
+        "preschool": "Mầm non",
+        "primaryschool": "Tiểu học",
+        "secondaryschool": "Trung học",
+        "highschool": "Phổ thông",
+        "college": "Cao đẳng",
+        "university": "Đại học",
+        "postgraduate": "Sau đại học",
+        "other": "Khác"
+      },
+      "requiredQualification": {
+        "incomplete": "Chưa tốt nghiệp",
+        "associatedegree": "Cao đẳng",
+        "bachelordegree": "Đại học",
+        "teachingdegree": "Sư phạm",
+        "masterdegree": "Thạc sĩ",
+        "postdoctoral": "Phó tiến sĩ",
+        "doctorate": "Tiến sĩ"
       }
     },
     "separator": "•",
@@ -161,7 +193,8 @@
     "jobs": "Việc Làm",
     "noResults": {
       "title": "Không tìm thấy công ty",
-      "clearSearch": "Xóa tìm kiếm"
+      "clearSearch": "Xóa tìm kiếm",
+      "noDescriptionAvailable": "Không có mô tả"
     }
   },
   "homePage": {
@@ -353,14 +386,14 @@
       "nameJobPlaceHolder": "Ví dụ: Tuyển nhân viên trợ giảng, Tuyển giáo viên tiểu học,...",
       "detailJobLabel": "Chi tiết công việc",
       "emailJobLabel": "Địa chỉ email",
-      "companyNameLabel": "Tên trường học / công ty",
+      "companyNameLabel": "Tên công ty",
       "deadlineLabel": "Hạn ứng tuyển",
       "categoryLabel": "Lĩnh vực công việc",
       "typeJobLabel": "Hình thức làm việc",
       "currentSalaryLabel": "Mức lượng hiện tại",
       "minSalaryLabel": "Tối thiểu",
       "maxSalaryLabel": "Tối đa",
-      "experienceLabel": "Yêu cầu bằng cấp",
+      "experienceLabel": "Yêu cầu kinh nghiệm",
       "benefitLabel": "Phúc lợi",
       "addressJobLabel": "Địa chỉ làm việc",
       "subAddressJobLabel": "(Danh sách cơ sở giảng dạy của trường/trung tâm)",
@@ -373,7 +406,24 @@
       "uploadJobComplete": "Đăng tải công việc thành công.",
       "uploadJobFailed": "Đăng tải công việc thất bại. Vui lòng thử lại.",
       "chooseSchool": "Tra cứu công ty / trường học",
-      "viewJob": "Xem trước công việc"
+      "viewJob": "Xem trước công việc",
+      "emailJobPlaceholder": "Email nhận CV",
+      "chooseDate": "Chọn ngày",
+      "chooseCategory": "Chọn lĩnh vực",
+      "chooseTypeOfEmployment": "Chọn loại công việc",
+      "moreInformation": "Thông tin khác",
+      "requiredQualificationLabel": "Yêu cầu bằng cấp",
+      "genderLabel": "Giới tính",
+      "gradeLabel": "Khối",
+      "chooseSalaryType": "Chọn loại lương",
+      "enterSalary": "Nhập mức lương",
+      "minSalary": "Mức lương tối thiểu",
+      "maxSalary": "Mức lương tối đa",
+      "chooseExperienceLevel": "Chọn kinh nghiệm",
+      "chooseBenefitLevel": "Chọn phúc lợi (Chọn nhiều)",
+      "chooseGender": "Chọi giới tính",
+      "chooseGradeLevel": "Chọn khối",
+      "chooseLocation": "Chọn địa điểm"
     },
     "editJob": {
       "title": "Chỉnh sửa việc làm",
@@ -394,10 +444,12 @@
     "application": {
       "title": "GỬI ĐƠN ỨNG TUYỂN",
       "personalInfo": "Thông tin cá nhân",
+      "fullName": "Họ và tên",
       "firstName": "Tên",
       "lastName": "Họ",
       "phone": "Số điện thoại",
       "email": "Địa chỉ Email",
+      "fullNamePlaceholder": "Nhập họ và tên của bạn",
       "firstNamePlaceholder": "Nhập tên của bạn",
       "lastNamePlaceholder": "Nhập họ của bạn",
       "phonePlaceholder": "Nhập số điện thoại",
@@ -480,18 +532,20 @@
     "action": {
       "inputMST": "Mã số thuế trường học / công ty",
       "placeHolderMST": "Ví dụ : 2100234326",
-      "placeHolderInputName": "Nhập tên trường học / công ty"
+      "placeHolderInputName": "Nhập tên công ty"
     },
     "form": {
       "stepCompany": "Công ty / Trường học",
       "stepConfirm": "Xác nhận hoàn tất",
       "createTitle": "Thêm công ty / trường học",
-      "imagesTitle": "Hình ảnh công ty (kéo thả nhiều ảnh) — ảnh đầu tiên là Logo",
+      "logoTitle": "Logo công ty",
+      "imagesTitleAdditional": "Ảnh phụ công ty",
+      "dropHintLogo": "Kéo thả logo vào đây hoặc nhấn để chọn",
       "dropHint": "Kéo thả ảnh vào đây hoặc nhấn để chọn (nhiều ảnh)",
       "addMore": "Thêm ảnh",
       "logoBadge": "Logo",
       "insightLabel": "Mô tả tầm nhìn của công ty",
-      "descLabel": "Mô tả công ty",
+      "descLabel": "Giới thiệu công ty",
       "descPlaceholder": "Giới thiệu ngắn gọn về công ty: lĩnh vực hoạt động, sứ mệnh, văn hoá, các thành tựu chính...",
       "overviewLabel": "Tổng quan",
       "overviewPlaceholder": "Tổng quan chi tiết: quy mô, cơ cấu, môi trường làm việc, lợi thế cạnh tranh, mục tiêu sắp tới...",
