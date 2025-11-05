@@ -1905,7 +1905,7 @@ const findCompanyByMst = async () => {
           // Fill data from VietQR
           companyAdd.value.name = companyByMST.value.data.name ?? ''
           companyAdd.value.address = companyByMST.value.data.address ?? ''
-          companyAdd.value.mst = companyByMST.value.data.mst ?? ''
+          companyAdd.value.mst = companyByMST.value.data.id ?? ''
 
           // Init default data for new company
           companyAdd.value.logo = ''
