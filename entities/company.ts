@@ -69,7 +69,7 @@ export interface VietQRBusinessResponse {
   code: string
   desc: string
   data: {
-    id: number
+    id: string
     name: string
     shortName: string
     mst: string
