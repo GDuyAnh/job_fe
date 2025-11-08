@@ -15,7 +15,6 @@ export interface JobModel {
   companyLogo: string
   organizationType?: string | null
   foundedYear?: number | null
-  address?: string | null
   website?: string | null
   facebookLink?: string | null
   instagramLink?: string | null
@@ -25,25 +24,26 @@ export interface JobModel {
   salaryMin?: string | null
   salaryMax?: string | null
   salaryType: number
-  salaryTypeValue?: string | null
-  benefits?: string[] | null
+  benefits?: string | null
   isFeatured: boolean
   isWaiting: boolean
   createdAt?: Date
   deadline?: Date
   detailDescription?: string | null
   email?: string | null
+  phoneNumber?: string | null
+  address: string
 }
 
 export interface JobModelAddUpdate {
   title: string
   description: string
-  category: number
-  location: number
+  category?: string[] // Array for UI binding, will be converted to string when sending
+  location?: string[] // Array for UI binding, will be converted to string when sending
   typeOfEmployment: number
   experienceLevel: number
   requiredQualification: number
-  gender?: number
+  gender?: string[] // Array for UI binding, will be converted to string when sending
   grade?: number
   companyId?: number
   userId?: number
@@ -54,10 +54,11 @@ export interface JobModelAddUpdate {
   salaryMin?: string
   salaryMax?: string
   salaryType: number
-  salaryTypeValue?: string
-  benefits?: string[]
+  benefits?: string[] // Array for UI binding, will be converted to string when sending
   detailDescription?: string
   email?: string
+  phoneNumber?: string
+  address: string
   isFeatured: boolean
   isWaiting: boolean
 }

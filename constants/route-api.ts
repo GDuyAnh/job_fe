@@ -22,6 +22,7 @@ export const ROUTE_API = {
     GET_COMPANY_BY_MST: 'https://api.vietqr.io/v2/business',
     ADMIN_LIST: 'companies/list',
     CHECK_EXIST_MST: 'companies/mst',
+    GET_APPLICATIONS: 'companies/applications',
   },
 
   BLOG: {

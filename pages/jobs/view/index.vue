@@ -105,15 +105,25 @@
                     }}</span>
                     &nbsp;
                     <span>{{
-                      locationEnumLabel?.[job.location as unknown as number] ??
-                      job.location
+                      (() => {
+                        // Get first location from comma-separated string or array
+                        if (!job.location) return ''
+                        const locationStr = Array.isArray(job.location) ? job.location[0] : String(job.location)
+                        const firstLocation = locationStr.split(',')[0].trim()
+                        return locationEnumLabel?.[firstLocation as unknown as number] ?? (firstLocation || locationStr)
+                      })()
                     }}</span>
                   </div>
                   <!-- Category, Created Date and Deadline -->
                   <div class="flex items-center gap-3 text-xs text-gray-500">
                     <span>{{
-                      categoryEnumLabel?.[job.category as unknown as number] ??
-                      job.category
+                      (() => {
+                        // Get first category from comma-separated string or array
+                        if (!job.category) return ''
+                        const categoryStr = Array.isArray(job.category) ? job.category[0] : String(job.category)
+                        const firstCategory = categoryStr.split(',')[0].trim()
+                        return categoryEnumLabel?.[firstCategory as unknown as number] ?? (firstCategory || categoryStr)
+                      })()
                     }}</span>
                     &nbsp;
                     <span>{{
@@ -202,9 +212,13 @@
                     }}</span>
                     <span class="font-medium text-gray-900">
                       {{
-                        categoryEnumLabel?.[
-                          job.category as unknown as number
-                        ] ?? job.category
+                        (() => {
+                          // Get first category from comma-separated string or array
+                          if (!job.category) return ''
+                          const categoryStr = Array.isArray(job.category) ? job.category[0] : String(job.category)
+                          const firstCategory = categoryStr.split(',')[0].trim()
+                          return categoryEnumLabel?.[firstCategory as unknown as number] ?? (firstCategory || categoryStr)
+                        })()
                       }}
                     </span>
                   </div>
@@ -236,7 +250,7 @@
 
                 <!-- Benefits -->
                 <div
-                  v-if="job.benefits && job.benefits.length > 0"
+                  v-if="job.benefits && processedBenefits.length > 0"
                   class="mt-6"
                 >
                   <h4 class="text-md font-semibold mb-2">
@@ -270,9 +284,6 @@
                     <span v-if="job.salaryMax">{{
                       formatNumber(job.salaryMax)
                     }}</span>
-                    <span v-if="job.salaryTypeValue">
-                      {{ job.salaryTypeValue }}</span
-                    >
                   </p>
                 </div>
               </UCard>
@@ -468,9 +479,20 @@ const loading = ref(false)
 const job = ref<JobModelAddUpdate | null>(null)
 const company = ref<CompanyEntity | null>(null)
 
-// Process benefits array using the utility
-const processBenefits = (benefits: string[] | null): string[] =>
-  processEnumArray(jobBenefits, benefits)
+// Process benefits string (comma-separated) or array using the utility
+const processBenefits = (benefits: string | string[] | null | undefined): string[] => {
+  if (!benefits) return []
+
+  // Handle array case
+  if (Array.isArray(benefits)) {
+    return processEnumArray(jobBenefits, benefits)
+  }
+
+  // Handle string case - split comma-separated string into array
+  const benefitsArray = String(benefits).split(',').map(b => b.trim()).filter(b => b)
+
+  return processEnumArray(jobBenefits, benefitsArray)
+}
 
 const goBack = () => router.back()
 

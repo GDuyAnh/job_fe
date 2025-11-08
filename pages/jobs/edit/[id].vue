@@ -143,13 +143,14 @@
                 </label>
 
                 <!-- Input -->
-                <USelect
-                  :model-value="job.category?.toString()"
+                <USelectMenu
+                  v-model="categoryForSelect"
                   :items="categoryItemsWithoutAll"
-                  class="w-full"
-                  @update:model-value="
-                    (val) => (job.category = Number(val ?? 0))
-                  "
+                  multiple
+                  searchable
+                  class="w-full text-sm"
+                  :content="{ side: 'bottom' }"
+                  :placeholder="$t('job.uploadJob.chooseCategory')"
                 />
               </div>
               <div>
@@ -159,6 +160,9 @@
                   class="font-medium text-sm text-gray-700"
                 >
                   {{ $t('job.uploadJob.typeJobLabel') }}
+                  <span class="text-black">{{
+                    $t('job.uploadJob.mandatoryChar')
+                  }}</span>
                 </label>
 
                 <!-- Input job type -->
@@ -175,68 +179,72 @@
 
             <!-- Job salary -->
             <div
-              class="grid grid-cols-4 gap-4"
+              class="grid grid-cols-3 gap-4"
               style="padding: 0px 20px 30px 20px !important"
             >
-              <div class="col-span-2">
-                <!-- Label -->
+              <!-- Salary Type -->
+              <div>
                 <label
-                  for="job-title"
+                  for="job-salary-type"
                   class="font-medium text-sm text-gray-700"
                 >
                   {{ $t('job.uploadJob.currentSalaryLabel') }}
+                  <span class="text-black">{{
+                    $t('job.uploadJob.mandatoryChar')
+                  }}</span>
                 </label>
-
-                <!-- Input -->
-                <div>
-                  <USelect
-                    :items="salaryTypeItems"
-                    :model-value="job.salaryType?.toString()"
-                    class="w-3/10 pt-2 rounded-r-none border-r-0"
-                    @update:model-value="
-                      (val) => (job.salaryType = Number(val ?? 0))
-                    "
-                  />
-                  <UInput
-                    id="job-title"
-                    v-model="job.salaryTypeValue"
-                    class="w-7/10 rounded-l-none border-l-0"
-                    type="text"
-                  />
-                </div>
+                <USelect
+                  id="job-salary-type"
+                  :items="salaryTypeItems"
+                  :model-value="job.salaryType?.toString()"
+                  class="w-full text-sm mt-1"
+                  :content="{ side: 'bottom' }"
+                  :placeholder="$t('job.uploadJob.chooseSalaryType')"
+                  @update:model-value="
+                    (val) => (job.salaryType = Number(val ?? 0))
+                  "
+                />
               </div>
+
+              <!-- Min Salary -->
               <div v-if="job.salaryType != 5">
-                <!-- Label -->
                 <label
-                  for="job-title"
+                  for="job-salary-min"
                   class="font-medium text-sm text-gray-700"
                 >
                   {{ $t('job.uploadJob.minSalaryLabel') }}
+                  <span class="text-black">{{
+                    $t('job.uploadJob.mandatoryChar')
+                  }}</span>
                 </label>
-
-                <!-- Input -->
                 <UInput
-                  id="job-title"
-                  v-model="job.salaryMin"
-                  class="w-full"
+                  id="job-salary-min"
+                  :model-value="formatCurrency(job.salaryMin)"
+                  class="w-full text-sm mt-1"
                   type="text"
+                  :placeholder="$t('job.uploadJob.minSalary')"
+                  @update:model-value="(val) => job.salaryMin = unformatCurrency(val)"
                 />
               </div>
+
+              <!-- Max Salary -->
               <div v-if="job.salaryType != 5">
-                <!-- Label -->
                 <label
-                  for="job-title"
+                  for="job-salary-max"
                   class="font-medium text-sm text-gray-700"
                 >
                   {{ $t('job.uploadJob.maxSalaryLabel') }}
+                  <span class="text-black">{{
+                    $t('job.uploadJob.mandatoryChar')
+                  }}</span>
                 </label>
-
-                <!-- Input -->
                 <UInput
-                  id="job-title"
-                  v-model="job.salaryMax"
-                  class="w-full"
+                  id="job-salary-max"
+                  :model-value="formatCurrency(job.salaryMax)"
+                  class="w-full text-sm mt-1"
                   type="text"
+                  :placeholder="$t('job.uploadJob.maxSalary')"
+                  @update:model-value="(val) => job.salaryMax = unformatCurrency(val)"
                 />
               </div>
             </div>
@@ -249,9 +257,6 @@
               <!-- Label -->
               <label for="job-title" class="font-medium text-sm text-gray-700">
                 {{ $t('job.uploadJob.experienceLabel') }}
-                <span class="text-black">{{
-                  $t('job.uploadJob.mandatoryChar')
-                }}</span>
               </label>
 
               <!-- Input Experience Level -->
@@ -297,28 +302,71 @@
                 }}</span>
               </div>
 
-              <!-- Job required qualification -->
+              <!-- Job email/phone/required qualification -->
               <div
-                class="flex flex-col gap-1 w-full"
+                class="grid grid-cols-1 md:grid-cols-3 gap-4"
                 style="padding: 0px 20px 30px 20px !important"
               >
-                <label
-                  for="job-title"
-                  class="font-medium text-sm text-gray-700"
-                >
-                  {{ $t('job.uploadJob.requiredQualificationLabel') }}
-                </label>
-                <USelect
-                  :items="requiredQualificationItems"
-                  :model-value="job.requiredQualification?.toString() || ''"
-                  class="w-full"
-                  searchable
-                  :placeholder="$t('job.uploadJob.requiredQualificationLabel')"
-                  :content="{ side: 'bottom' }"
-                  @update:model-value="
-                    (val) => (job.requiredQualification = Number(val ?? 0))
-                  "
-                />
+                <!-- Job email -->
+                <div>
+                  <!-- Label -->
+                  <label
+                    for="job-email"
+                    class="font-medium text-sm text-gray-700"
+                  >
+                    {{ $t('job.uploadJob.emailJobLabel') }}
+                  </label>
+
+                  <!-- Input email -->
+                  <UInput
+                    id="job-email"
+                    v-model.trim="job.email"
+                    class="w-full text-sm"
+                    type="email"
+                    :placeholder="$t('job.uploadJob.emailJobPlaceholder')"
+                  />
+                </div>
+
+                <!-- Job phone number -->
+                <div>
+                  <!-- Label -->
+                  <label
+                    for="job-phone"
+                    class="font-medium text-sm text-gray-700"
+                  >
+                    {{ $t('job.uploadJob.phoneJobLabel') }}
+                  </label>
+
+                  <!-- Input phone -->
+                  <UInput
+                    id="job-phone"
+                    v-model.trim="job.phoneNumber"
+                    class="w-full text-sm"
+                    type="tel"
+                    :placeholder="$t('job.uploadJob.phoneJobPlaceholder')"
+                  />
+                </div>
+
+                <!-- Job required qualification -->
+                <div>
+                  <label
+                    for="job-title"
+                    class="font-medium text-sm text-gray-700"
+                  >
+                    {{ $t('job.uploadJob.requiredQualificationLabel') }}
+                  </label>
+                  <USelect
+                    :items="requiredQualificationItems"
+                    :model-value="job.requiredQualification?.toString() || ''"
+                    class="w-full"
+                    searchable
+                    :placeholder="$t('job.uploadJob.requiredQualificationLabel')"
+                    :content="{ side: 'bottom' }"
+                    @update:model-value="
+                      (val) => (job.requiredQualification = Number(val ?? 0))
+                    "
+                  />
+                </div>
               </div>
 
               <!-- Job gender Level -->
@@ -335,10 +383,11 @@
                 </label>
                 <USelect
                   :items="genderItems"
-                  :model-value="job.gender?.toString() || ''"
+                  v-model="job.gender"
+                  multiple
                   class="w-full"
                   :content="{ side: 'bottom' }"
-                  @update:model-value="(val) => (job.gender = Number(val ?? 0))"
+                  :placeholder="$t('job.uploadJob.chooseGender')"
                 />
               </div>
 
@@ -380,12 +429,12 @@
                 }}
               </label>
 
-              <!-- Input -->
-              <UInput
-                id="company-address"
-                :model-value="company ? company.address : ''"
-                class="w-full"
-                readonly
+              <!-- Text Editor -->
+              <RichTextEditor
+                id="job-address"
+                v-model="job.address"
+                class="w-full rich-text-content"
+                :placeholder="$t('job.uploadJob.addressJobPlaceholder')"
               />
             </div>
 
@@ -403,11 +452,14 @@
               </label>
 
               <!-- Input locations -->
-              <USelect
+              <USelectMenu
+                v-model="locationForSelect"
                 :items="locationItemsWithoutAll"
-                :model-value="job.location?.toString()"
+                multiple
+                searchable
                 class="w-full"
-                @update:model-value="(val) => (job.location = Number(val ?? 0))"
+                :content="{ side: 'bottom' }"
+                :placeholder="$t('job.uploadJob.chooseLocation')"
               />
             </div>
           </template>
@@ -452,6 +504,7 @@ import type { StepperItem } from '@nuxt/ui'
 import type { CompanyEntity } from '~/entities/company'
 import { JobMapper } from '~/mapper/job'
 import type { JobModelAddUpdate } from '~/models/job'
+import RichTextEditor from '~/components/RichTextEditor.vue'
 const authStore = useAuthStore()
 const stepper = useTemplateRef('stepper')
 const steppers = ref<StepperItem[]>([
@@ -479,6 +532,45 @@ const {
   genderItems,
   gradeItems,
 } = useJobFilters()
+
+// Computed properties for USelectMenu (convert between string[] and object[])
+const categoryForSelect = computed({
+  get: () => {
+    if (!job.value.category || !Array.isArray(job.value.category)) return []
+
+    return job.value.category
+      .filter(c => c)
+      .map(c => {
+        const value = typeof c === 'object' && c !== null && 'value' in c ? (c as { value: string }).value : String(c)
+
+        return categoryItemsWithoutAll.value.find(item => item.value === value) || { label: value, value }
+      })
+  },
+  set: (val: any[]) => {
+    job.value.category = val
+      ? val.map(v => typeof v === 'object' && v !== null && 'value' in v ? (v as { value: string }).value : String(v))
+      : []
+  }
+})
+
+const locationForSelect = computed({
+  get: () => {
+    if (!job.value.location || !Array.isArray(job.value.location)) return []
+
+    return job.value.location
+      .filter(l => l)
+      .map(l => {
+        const value = typeof l === 'object' && l !== null && 'value' in l ? (l as { value: string }).value : String(l)
+
+        return locationItemsWithoutAll.value.find(item => item.value === value) || { label: value, value }
+      })
+  },
+  set: (val: any[]) => {
+    job.value.location = val
+      ? val.map(v => typeof v === 'object' && v !== null && 'value' in v ? (v as { value: string }).value : String(v))
+      : []
+  }
+})
 
 // Route
 const route = useRoute()
@@ -530,9 +622,72 @@ const editJob = async () => {
   loading.value = true
 
   try {
+    // Convert benefits array to comma-separated string before sending
+    let benefitsString = ''
+
+    if (Array.isArray(job.value.benefits)) {
+      benefitsString = job.value.benefits
+        .filter(b => b != null && b !== '')
+        .map(b => String(b).trim())
+        .filter(b => b)
+        .join(',')
+    } else if (typeof job.value.benefits === 'string') {
+      benefitsString = job.value.benefits
+    }
+
+    // Convert category array to comma-separated string before sending
+    let categoryString = ''
+
+    if (Array.isArray(job.value.category)) {
+      categoryString = job.value.category
+        .filter(c => c != null && c !== '')
+        .map(c => String(c).trim())
+        .filter(c => c)
+        .join(',')
+    } else if (typeof job.value.category === 'string') {
+      categoryString = job.value.category
+    }
+
+    // Convert gender array to comma-separated string before sending
+    let genderString = ''
+
+    if (Array.isArray(job.value.gender)) {
+      genderString = job.value.gender
+        .filter(g => g != null && g !== '')
+        .map(g => String(g).trim())
+        .filter(g => g)
+        .join(',')
+    } else if (typeof job.value.gender === 'string') {
+      genderString = job.value.gender
+    }
+
+    // Convert location array to comma-separated string before sending
+    let locationString = ''
+
+    if (Array.isArray(job.value.location)) {
+      locationString = job.value.location
+        .filter(l => l != null && l !== '')
+        .map(l => String(l).trim())
+        .filter(l => l)
+        .join(',')
+    } else if (typeof job.value.location === 'string') {
+      locationString = job.value.location
+    }
+
+    // Ensure salary values are unformatted (no commas) before sending
+    const jobDataToSend: any = {
+      ...job.value,
+      benefits: benefitsString,
+      category: categoryString,
+      gender: genderString || undefined,
+      location: locationString || undefined,
+      salaryMin: job.value.salaryMin ? unformatCurrency(job.value.salaryMin) : undefined,
+      salaryMax: job.value.salaryMax ? unformatCurrency(job.value.salaryMax) : undefined,
+    }
+
     // Call API
-    console.log('Job : ', job.value)
-    const response = await $api.job.editJob(jobId, job.value)
+    console.log('Job : ', jobDataToSend)
+    const response = await $api.job.editJob(jobId, jobDataToSend)
 
     if (response) {
       if (stepper.value?.hasNext) {
@@ -566,6 +721,27 @@ const fetchAllCompany = async () => {
   }
 }
 
+// Format currency with commas
+const formatCurrency = (value: string | undefined | null): string => {
+  if (!value) return ''
+
+  // Remove all non-digit characters
+  const numericValue = String(value).replace(/\D/g, '')
+
+  if (!numericValue) return ''
+
+  // Format with commas
+  return Number(numericValue).toLocaleString('en-US')
+}
+
+// Unformat currency (remove commas)
+const unformatCurrency = (value: string): string => {
+  if (!value) return ''
+
+  // Remove all non-digit characters
+  return String(value).replace(/\D/g, '')
+}
+
 const loadJobDetail = async () => {
   if (!jobId) return
   loading.value = true
@@ -574,9 +750,7 @@ const loadJobDetail = async () => {
 
     if (response) {
       job.value = JobMapper.toModelAddUpdate(response)
-      job.value.benefits = job.value.benefits
-        ? job.value.benefits.map((b: unknown) => String(b))
-        : []
+      // Benefits and category are already converted to arrays in mapper
     }
   } catch (error: any) {
     useNotify({ message: error.message })

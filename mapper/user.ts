@@ -8,6 +8,7 @@ export class UserMapper {
       email: value.email,
       username: value.username,
       fullName: value.fullName,
+      phoneNumber: value.phoneNumber ?? null,
       role: value.role,
       companyId: value.companyId,
     }

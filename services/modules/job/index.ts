@@ -27,11 +27,11 @@ const JobModule = (apiService: FetchFactory) => {
     return apiService.get<JobEntity>(`${ROUTE_API.JOB.GET_JOB}/${id}`)
   }
 
-  const addJob = async (model: JobModelAddUpdate) => {
+  const addJob = async (model: JobModelAddUpdate | any) => {
     return apiService.post<JobEntity>(ROUTE_API.JOB.GET_JOB, { body: model })
   }
 
-  const editJob = async (id: number, model: JobModelAddUpdate) => {
+  const editJob = async (id: number, model: JobModelAddUpdate | any) => {
     return apiService.put<JobEntity>(`${ROUTE_API.JOB.GET_JOB}/${id}`, {
       body: model,
     })
@@ -47,6 +47,10 @@ const JobModule = (apiService: FetchFactory) => {
     )
   }
 
+  const approveJob = async (id: number) => {
+    return apiService.patch<JobEntity>(`${ROUTE_API.JOB.GET_JOB}/${id}/approve`)
+  }
+
   return {
     getJob,
     searchJob,
@@ -57,6 +61,7 @@ const JobModule = (apiService: FetchFactory) => {
     editJob,
     delJob,
     findJobByUserId,
+    approveJob,
   }
 }
 

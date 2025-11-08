@@ -28,12 +28,18 @@ export const useJobFilters = () => {
     })),
   ])
 
-  const locationItemsWithoutAll = computed(() =>
-    Object.entries(locationEnumLabel).map(([key, value]) => ({
-      label: value,
-      value: key,
-    })),
-  )
+  const locationItemsWithoutAll = computed(() => [
+    {
+      label: 'Toàn Quốc',
+      value: '0',
+    },
+    ...Object.entries(locationEnumLabel)
+      .filter(([key]) => key !== '0') // Filter out '0' to avoid duplicate with "Toàn Quốc"
+      .map(([key, value]) => ({
+        label: value,
+        value: key,
+      })),
+  ])
 
   const categoryItems = computed(() => [
     {

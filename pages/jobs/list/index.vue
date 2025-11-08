@@ -77,9 +77,11 @@
                           />
                           <span>
                             {{
-                              categoryEnumLabel?.[
-                                job.category as unknown as number
-                              ] ?? job.category
+                              (() => {
+                                // Get first category from comma-separated string
+                                const firstCategory = job.category ? job.category.split(',')[0].trim() : ''
+                                return categoryEnumLabel?.[firstCategory as unknown as number] ?? (firstCategory || job.category)
+                              })()
                             }}
                           </span>
                         </div>
@@ -87,9 +89,13 @@
                           <UIcon name="i-heroicons-map-pin" class="w-4 h-4" />
                           <span>
                             {{
-                              locationEnumLabel?.[
-                                job.location as unknown as number
-                              ] ?? job.location
+                              (() => {
+                                // Get first location from comma-separated string
+                                if (!job.location) return ''
+                                const locationStr = String(job.location)
+                                const firstLocation = locationStr.split(',')[0].trim()
+                                return locationEnumLabel?.[firstLocation as unknown as number] ?? (firstLocation || locationStr)
+                              })()
                             }}
                           </span>
                         </div>
