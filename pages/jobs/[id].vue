@@ -107,15 +107,23 @@
                     >
                     &nbsp;
                     <span>{{
-                      locationEnumLabel?.[job.location as unknown as number] ??
-                      job.location
+                      (() => {
+                        // Get first location from comma-separated string
+                        if (!job.location) return ''
+                        const locationStr = String(job.location)
+                        const firstLocation = locationStr.split(',')[0].trim()
+                        return locationEnumLabel?.[firstLocation as unknown as number] ?? (firstLocation || locationStr)
+                      })()
                     }}</span>
                   </div>
                   <!-- Category, Created Date and Deadline -->
                   <div class="flex items-center gap-3 text-xs text-gray-500">
                     <span>{{
-                      categoryEnumLabel?.[job.category as unknown as number] ??
-                      job.category
+                      (() => {
+                        // Get first category from comma-separated string
+                        const firstCategory = job.category ? job.category.split(',')[0].trim() : ''
+                        return categoryEnumLabel?.[firstCategory as unknown as number] ?? (firstCategory || job.category)
+                      })()
                     }}</span>
                     &nbsp;
                     <span>{{
@@ -228,9 +236,11 @@
                     }}</span>
                     <span class="font-medium text-gray-900">
                       {{
-                        categoryEnumLabel?.[
-                          job.category as unknown as number
-                        ] ?? job.category
+                        (() => {
+                          // Get first category from comma-separated string
+                          const firstCategory = job.category ? job.category.split(',')[0].trim() : ''
+                          return categoryEnumLabel?.[firstCategory as unknown as number] ?? (firstCategory || job.category)
+                        })()
                       }}
                     </span>
                   </div>
@@ -262,7 +272,7 @@
 
                 <!-- Benefits -->
                 <div
-                  v-if="job.benefits && job.benefits.length > 0"
+                  v-if="job.benefits && processedBenefits.length > 0"
                   class="mt-6"
                 >
                   <h4 class="text-md font-semibold mb-2">
@@ -524,9 +534,13 @@ watch(
   { immediate: true },
 )
 
-// Process benefits array using the utility
-const processBenefits = (benefits: string[] | null): string[] =>
-  processEnumArray(jobBenefits, benefits)
+// Process benefits string (comma-separated) using the utility
+const processBenefits = (benefits: string | null): string[] => {
+  if (!benefits) return []
+  // Split comma-separated string into array
+  const benefitsArray = benefits.split(',').map(b => b.trim()).filter(b => b)
+  return processEnumArray(jobBenefits, benefitsArray)
+}
 
 const goBack = () => router.back()
 

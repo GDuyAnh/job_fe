@@ -15,7 +15,6 @@ export interface JobEntity {
   companyLogo: string
   organizationType?: string | null
   foundedYear?: number | null
-  address?: string | null
   website?: string | null
   facebookLink?: string | null
   instagramLink?: string | null
@@ -25,12 +24,13 @@ export interface JobEntity {
   salaryMin?: string | null
   salaryMax?: string | null
   salaryType: number
-  salaryTypeValue?: string | null
-  benefits?: string[] | null
+  benefits?: string | null
   isFeatured: boolean
   isWaiting: boolean
   createdAt?: Date
   deadline?: Date
   detailDescription?: string | null
   email?: string | null
+  phoneNumber?: string | null
+  address: string
 }

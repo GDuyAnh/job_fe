@@ -64,6 +64,12 @@ const CompanyModule = (apiService: FetchFactory) => {
     )
   }
 
+  const getApplications = async (userId: number) => {
+    return apiService.get<CompanyEntity[]>(ROUTE_API.COMPANY.GET_APPLICATIONS, {
+      params: { userId },
+    })
+  }
+
   return {
     searchCompany,
     adminListCompany,
@@ -74,6 +80,7 @@ const CompanyModule = (apiService: FetchFactory) => {
     editCompany,
     delCompany,
     approveCompany,
+    getApplications,
   }
 }
 

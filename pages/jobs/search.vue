@@ -199,9 +199,13 @@
                             style="font-size: 12px !important"
                           />
                           {{
-                            locationEnumLabel?.[
-                              job.location as unknown as number
-                            ] ?? job.location
+                            (() => {
+                              // Get first location from comma-separated string
+                              if (!job.location) return ''
+                              const locationStr = String(job.location)
+                              const firstLocation = locationStr.split(',')[0].trim()
+                              return locationEnumLabel?.[firstLocation as unknown as number] ?? (firstLocation || locationStr)
+                            })()
                           }}
                         </span>
                         <span class="text-sm text-gray-600 pl-6">
@@ -218,9 +222,7 @@
                     <div class="flex items-center gap-2 justify-between">
                       <p class="text-sm text-gray-500">
                         {{
-                          categoryEnumLabel?.[
-                            job.category as unknown as number
-                          ] ?? job.category
+                          getDisplayCategory(job.category)
                         }}
                       </p>
                       <UBadge
@@ -437,6 +439,35 @@ const clearSearch = () => {
     location: '',
   }
   jobs.value = []
+}
+
+// Function to get display category with priority for searched category
+const getDisplayCategory = (jobCategory: string | null | undefined): string => {
+  if (!jobCategory) return ''
+
+  // Split category string into array
+  const categories = jobCategory.split(',').map((cat) => cat.trim()).filter((cat) => cat !== '')
+
+  if (categories.length === 0) return jobCategory
+
+  // Check if there's a searched category
+  const searchedCategory = searchParams.value.category
+  const hasSearchedCategory = searchedCategory && 
+    searchedCategory !== t('home.search.placeholderCategory') &&
+    searchedCategory !== ''
+
+  if (hasSearchedCategory) {
+    // Find the searched category in the job's categories
+    const foundCategory = categories.find((cat) => cat === searchedCategory)
+    if (foundCategory) {
+      // If found, display the searched category
+      return categoryEnumLabel?.[foundCategory as unknown as number] ?? foundCategory
+    }
+  }
+
+  // If no searched category or not found, display the first category
+  const firstCategory = categories[0]
+  return categoryEnumLabel?.[firstCategory as unknown as number] ?? (firstCategory || jobCategory)
 }
 
 const viewJob = (job: JobModel) => {

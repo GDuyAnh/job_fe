@@ -92,51 +92,82 @@
             </h3>
             <div class="space-y-1">
               <button
-                class="w-full flex items-center px-3 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg"
+                :class="[
+                  'w-full flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors',
+                  activeView === 'dashboard'
+                    ? 'text-white bg-blue-600'
+                    : 'text-gray-700 hover:bg-blue-100'
+                ]"
+                @click="setActiveView('dashboard')"
               >
                 <UIcon name="i-lucide-layout-dashboard" class="w-5 h-5 mr-3" />
                 {{ $t('dashboard.sidebar.dashboard') }}
               </button>
               <button
-                class="w-full flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:bg-blue-100 rounded-lg transition-colors"
-                @click="navigateToEditProfile"
+                :class="[
+                  'w-full flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors',
+                  activeView === 'editProfile'
+                    ? 'text-white bg-blue-600'
+                    : 'text-gray-700 hover:bg-blue-100'
+                ]"
+                @click="setActiveView('editProfile')"
               >
                 <UIcon name="i-lucide-user" class="w-5 h-5 mr-3" />
                 {{ $t('dashboard.sidebar.editProfile') }}
               </button>
               <button
-                class="w-full flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:bg-blue-100 rounded-lg transition-colors"
-                @click="navigateToNewJob"
+                :class="[
+                  'w-full flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors',
+                  activeView === 'newJob'
+                    ? 'text-white bg-blue-600'
+                    : 'text-gray-700 hover:bg-blue-100'
+                ]"
+                @click="handleCreateNewJob"
               >
                 <UIcon name="i-lucide-file-text" class="w-5 h-5 mr-3" />
                 {{ $t('dashboard.sidebar.newJob') }}
               </button>
               <button
-                class="w-full flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:bg-blue-100 rounded-lg transition-colors"
-                @click="navigateToManageJobs"
+                :class="[
+                  'w-full flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors',
+                  activeView === 'manageJobs'
+                    ? 'text-white bg-blue-600'
+                    : 'text-gray-700 hover:bg-blue-100'
+                ]"
+                @click="setActiveView('manageJobs')"
               >
                 <UIcon name="i-lucide-briefcase" class="w-5 h-5 mr-3" />
                 {{ $t('dashboard.sidebar.manageJobs') }}
               </button>
               <button
-                class="w-full flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:bg-blue-100 rounded-lg transition-colors"
-                @click="navigateToCandidates"
+                :class="[
+                  'w-full flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors',
+                  activeView === 'candidates'
+                    ? 'text-white bg-blue-600'
+                    : 'text-gray-700 hover:bg-blue-100'
+                ]"
+                @click="setActiveView('candidates')"
               >
                 <UIcon name="i-lucide-users" class="w-5 h-5 mr-3" />
                 {{ $t('dashboard.sidebar.candidates') }}
               </button>
               <button
-                class="w-full flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:bg-blue-100 rounded-lg transition-colors"
-                @click="navigateToChangePassword"
+                :class="[
+                  'w-full flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors',
+                  activeView === 'settings'
+                    ? 'text-white bg-blue-600'
+                    : 'text-gray-700 hover:bg-blue-100'
+                ]"
+                @click="setActiveView('settings')"
               >
-                <UIcon name="i-lucide-lock" class="w-5 h-5 mr-3" />
-                {{ $t('dashboard.sidebar.changePassword') }}
+                <UIcon name="i-lucide-settings" class="w-5 h-5 mr-3" />
+                {{ $t('dashboard.sidebar.settings') }}
               </button>
             </div>
           </div>
 
           <!-- Insights -->
-          <div class="px-4">
+          <!-- <div class="px-4">
             <h3
               class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3"
             >
@@ -144,19 +175,26 @@
             </h3>
             <div class="space-y-1">
               <button
-                class="w-full flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:bg-blue-100 rounded-lg transition-colors"
-                @click="navigateToNotifications"
+                :class="[
+                  'w-full flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors',
+                  activeView === 'notifications'
+                    ? 'text-white bg-blue-600'
+                    : 'text-gray-700 hover:bg-blue-100'
+                ]"
+                @click="setActiveView('notifications')"
               >
                 <UIcon name="i-lucide-bell" class="w-5 h-5 mr-3" />
                 {{ $t('dashboard.sidebar.notifications') }}
               </button>
             </div>
-          </div>
+          </div> -->
         </nav>
       </aside>
 
       <!-- Main Content -->
       <main class="flex-1 p-8">
+        <!-- Dashboard View -->
+        <div v-if="activeView === 'dashboard'">
         <!-- Page Title -->
         <div class="mb-8">
           <h1 class="text-3xl font-bold text-gray-900">
@@ -248,80 +286,213 @@
           </div>
         </div>
 
-        <!-- Charts Section -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <!-- Job Posting Chart -->
-          <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
-            <div class="flex items-center justify-between mb-6">
+          <!-- Recent Applications Section -->
+          <div class="bg-white rounded-xl shadow-sm border border-gray-200">
+            <div class="p-6 border-b border-gray-200">
               <h3 class="text-lg font-semibold text-gray-900">
-                {{ $t('dashboard.charts.jobPostings') }}
+                {{ $t('dashboard.main.recentApplications') }}
               </h3>
-              <div class="flex items-center space-x-2">
-                <span class="text-sm text-gray-600"
-                  >{{ jobPostingStats.total }} {{ $t('dashboard.charts.growth')
-                  }}{{ jobPostingStats.percentage
-                  }}{{ $t('dashboard.charts.growthText') }}</span
-                >
-                <USelect
-                  v-model="selectedTimeRange"
-                  :options="timeRangeOptions"
-                  class="w-32"
-                />
-              </div>
             </div>
-            <div class="h-64 flex items-center justify-center">
-              <div class="w-full h-full">
-                <canvas ref="jobPostingChart" class="w-full h-full"></canvas>
+
+            <!-- Applications Table -->
+            <div class="overflow-x-auto">
+              <table class="w-full">
+                <thead class="bg-blue-50 border-b border-gray-200">
+                  <tr>
+                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                      {{ $t('dashboard.main.applicationsTable.position') }}
+                    </th>
+                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                      {{ $t('dashboard.main.applicationsTable.applicant') }}
+                    </th>
+                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                      {{ $t('dashboard.main.applicationsTable.email') }}
+                    </th>
+                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                      {{ $t('dashboard.main.applicationsTable.cv') }}
+                    </th>
+                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                      {{ $t('dashboard.main.applicationsTable.applicationDate') }}
+                    </th>
+                    <th class="px-6 py-4 text-right text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                      {{ $t('dashboard.main.applicationsTable.actions') }}
+                    </th>
+                  </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                  <tr
+                    v-for="application in recentApplications"
+                    :key="application.id"
+                    class="hover:bg-gray-50 transition-colors"
+                  >
+                    <!-- Position -->
+                    <td class="px-6 py-4 whitespace-nowrap">
+                      <div class="text-sm font-medium text-gray-900">
+                        {{ application.jobTitle }}
+                      </div>
+                    </td>
+
+                    <!-- Applicant -->
+                    <td class="px-6 py-4 whitespace-nowrap">
+                      <div class="flex items-center gap-3">
+                        <div
+                          class="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center text-white font-semibold"
+                        >
+                          {{ application.applicantName.charAt(0).toUpperCase() }}
+                        </div>
+                        <div>
+                          <div class="text-sm font-medium text-gray-900">
+                            {{ application.applicantName }}
+                          </div>
+                          <div class="flex items-center gap-1 text-sm text-gray-500 mt-1">
+                            <UIcon name="i-lucide-phone" class="w-4 h-4" />
+                            {{ application.phone }}
               </div>
             </div>
           </div>
+                    </td>
 
-          <!-- Candidate Applications Chart -->
-          <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
-            <div class="flex items-center justify-between mb-6">
-              <h3 class="text-lg font-semibold text-gray-900">
-                {{ $t('dashboard.charts.candidates') }}
-              </h3>
-              <div class="flex items-center space-x-2">
-                <span class="text-sm text-gray-600"
-                  >{{ candidateStats.total }} {{ $t('dashboard.charts.growth')
-                  }}{{ candidateStats.percentage
-                  }}{{ $t('dashboard.charts.growthText') }}</span
-                >
-                <USelect
-                  v-model="selectedTimeRange"
-                  :options="timeRangeOptions"
-                  class="w-32"
-                />
+                    <!-- Email -->
+                    <td class="px-6 py-4 whitespace-nowrap">
+                      <div class="text-sm text-gray-900">
+                        {{ application.email }}
+                      </div>
+                    </td>
+
+                    <!-- CV -->
+                    <td class="px-6 py-4 whitespace-nowrap">
+                      <a
+                        v-if="application.cvUrl"
+                        :href="application.cvUrl"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-blue-100 text-blue-600 hover:bg-blue-200 transition-colors"
+                      >
+                        <UIcon name="i-lucide-file-text" class="w-5 h-5" />
+                      </a>
+                      <span v-else class="text-sm text-gray-400">-</span>
+                    </td>
+
+                    <!-- Application Date -->
+                    <td class="px-6 py-4 whitespace-nowrap">
+                      <div class="text-sm text-gray-900">
+                        {{ formatDate(application.applicationDate) }}
               </div>
+                    </td>
+
+                    <!-- Actions -->
+                    <td class="px-6 py-4 whitespace-nowrap text-right">
+                      <div class="flex items-center justify-end gap-2">
+                        <button
+                          class="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-600 hover:text-gray-900 transition-colors"
+                          @click="viewApplication(application)"
+                        >
+                          <UIcon name="i-lucide-eye" class="w-4 h-4" />
+                        </button>
+                        <button
+                          class="w-8 h-8 rounded-full bg-gray-100 hover:bg-red-100 flex items-center justify-center text-gray-600 hover:text-red-600 transition-colors"
+                          @click="deleteApplication(application.id)"
+                        >
+                          <UIcon name="i-lucide-trash-2" class="w-4 h-4" />
+                        </button>
             </div>
-            <div class="h-64 flex items-center justify-center">
-              <div class="w-full h-full">
-                <canvas ref="candidateChart" class="w-full h-full"></canvas>
-              </div>
+                    </td>
+                  </tr>
+
+                  <!-- Empty State -->
+                  <tr v-if="recentApplications.length === 0">
+                    <td colspan="6" class="px-6 py-12 text-center">
+                      <UIcon
+                        name="i-lucide-inbox"
+                        class="w-12 h-12 text-gray-400 mx-auto mb-3"
+                      />
+                      <p class="text-gray-500 text-sm">
+                        {{ $t('dashboard.main.applicationsTable.noApplications') }}
+                      </p>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
           </div>
         </div>
+
+        <!-- Edit Profile View -->
+        <div v-else-if="activeView === 'editProfile'">
+          <DashboardEditProfile
+            :company-data="companyData"
+            @back="setActiveView('dashboard')"
+            @company-updated="handleCompanyUpdated"
+          />
+        </div>
+
+        <!-- New Job View -->
+        <div v-else-if="activeView === 'newJob'">
+          <DashboardNewJob
+            :company-data="companyData"
+            :job-to-edit="jobToEdit"
+            @back="handleBackFromNewJob"
+            @job-created="handleJobCreated"
+          />
+        </div>
+
+        <!-- Manage Jobs View -->
+        <div v-else-if="activeView === 'manageJobs'">
+          <DashboardManageJobs
+            ref="manageJobsRef"
+            @back="setActiveView('dashboard')"
+            @create-new-job="handleCreateNewJob"
+            @edit-job="handleEditJob"
+          />
+        </div>
+
+        <!-- Candidates View -->
+        <div v-else-if="activeView === 'candidates'">
+          <DashboardCandidates @back="setActiveView('dashboard')" />
+        </div>
+
+        <!-- Settings View -->
+        <div v-else-if="activeView === 'settings'">
+          <DashboardSettings
+            @back="setActiveView('dashboard')"
+            @edit-profile="setActiveView('editProfile')"
+          />
+        </div>
+
+        <!-- Notifications View -->
+        <!-- <div v-else-if="activeView === 'notifications'">
+          <DashboardNotifications @back="setActiveView('dashboard')" />
+        </div> -->
       </main>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { Chart, registerables } from 'chart.js'
 import { useRouter } from 'vue-router'
-import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
-
-// Register Chart.js components
-Chart.register(...registerables)
+import { ref, computed, onMounted, onUnmounted } from 'vue'
+import type { CompanyEntity } from '~/entities/company'
 
 // Composables
 const router = useRouter()
 const authStore = useAuthStore()
 
+// Dashboard view types
+type DashboardView = 
+  | 'dashboard' 
+  | 'editProfile' 
+  | 'newJob' 
+  | 'manageJobs' 
+  | 'candidates' 
+  | 'settings' 
+  | 'notifications'
+
+// Active view state
+const activeView = ref<DashboardView>('dashboard')
+
 // Reactive data
 const showUserDropdown = ref(false)
-const selectedTimeRange = ref('7days')
+const manageJobsRef = ref<any>(null)
 
 // Job statistics
 const jobStats = ref({
@@ -331,28 +502,27 @@ const jobStats = ref({
   expiringSoonJobs: 0,
 })
 
-// Chart statistics
-const jobPostingStats = ref({
-  total: 0,
-  percentage: 0,
-})
+// Application interface
+interface JobApplication {
+  id: number
+  jobTitle: string
+  jobId: number
+  applicantName: string
+  phone: string
+  email: string
+  cvUrl?: string
+  applicationDate: Date | string
+}
 
-const candidateStats = ref({
-  total: 0,
-  percentage: 0,
-})
+// Recent applications
+const recentApplications = ref<JobApplication[]>([])
 
-// Time range options
-const timeRangeOptions = [
-  { label: '7 ngày qua', value: '7days' },
-  { label: '30 ngày qua', value: '30days' },
-  { label: '3 tháng qua', value: '3months' },
-  { label: '1 năm qua', value: '1year' },
-]
+// Company data - loaded once and shared across all menu items
+const companyData = ref<CompanyEntity | null>(null)
+const loadingCompany = ref(false)
 
-// Chart references
-const jobPostingChart = ref<HTMLCanvasElement>()
-const candidateChart = ref<HTMLCanvasElement>()
+// Job to edit - used when switching from manageJobs to newJob for editing
+const jobToEdit = ref<import('~/models/job').JobModel | null>(null)
 
 // Methods
 const logout = () => {
@@ -360,28 +530,40 @@ const logout = () => {
   router.push('/')
 }
 
+// Load company data once when dashboard mounts
+const loadCompanyData = async () => {
+  if (!authStore.user?.companyId) {
+    companyData.value = null
+
+    return
+  }
+
+  loadingCompany.value = true
+  try {
+    const company = await $api.company.getCompanyDetail(
+      authStore.user.companyId,
+    )
+
+    companyData.value = company
+  } catch (error: any) {
+    console.error('Failed to load company data:', error)
+    companyData.value = null
+    useNotify({
+      message: 'Không thể tải thông tin công ty',
+    })
+  } finally {
+    loadingCompany.value = false
+  }
+}
+
+// Handle company updated event from DashboardEditProfile
+const handleCompanyUpdated = async () => {
+  // Reload company data after update
+  await loadCompanyData()
+}
+
 // User dropdown menu items
 const userMenuItems = [
-  {
-    label: 'Dashboard',
-    icon: 'i-lucide-layout-dashboard',
-    click: () => router.push(ROUTE_PAGE.DASHBOARD.COMPANY),
-  },
-  {
-    label: 'Chỉnh sửa hồ sơ',
-    icon: 'i-lucide-user',
-    click: () => router.push('/profile/edit'),
-  },
-  {
-    label: 'Tạo mới công ty',
-    icon: 'i-lucide-building-2',
-    click: () => router.push('/companies/list'),
-  },
-  {
-    label: 'Đăng tải công việc',
-    icon: 'i-lucide-briefcase',
-    click: () => router.push('/jobs/list'),
-  },
   {
     label: 'Đăng xuất',
     icon: 'i-lucide-log-out',
@@ -407,72 +589,112 @@ const handleMenuItemClick = (item: any) => {
   }
 }
 
-// Navigation methods
+// Set active view method
+const setActiveView = (view: DashboardView) => {
+  activeView.value = view
+  // Scroll to top when changing view
+  window.scrollTo({ top: 0, behavior: 'smooth' })
+}
+
+// Handle job created event
+const handleJobCreated = () => {
+  // Navigate to manage jobs view
+  setActiveView('manageJobs')
+  // Refresh job statistics
+  fetchJobStatistics()
+  // Refresh jobs list in manage jobs view
+  setTimeout(() => {
+    if (manageJobsRef.value) {
+      manageJobsRef.value.refreshJobs()
+    }
+  }, 100)
+}
+
+// Navigation methods (for external navigation only)
 const navigateToPostJob = () => {
-  router.push('/jobs/upload')
+  jobToEdit.value = null
+  setActiveView('newJob')
 }
 
-const navigateToEditProfile = () => {
-  // Redirect to company edit page - assuming user has a company
-  // You might need to get the company ID from user data or API
-  if (authStore.user?.companyId) {
-    router.push(`/companies/edit/${authStore.user.companyId}`)
-  } else {
-    // If no company ID, redirect to company list or create new company
-    router.push('/companies/list')
-  }
+// Handle create new job from manage jobs
+const handleCreateNewJob = () => {
+  jobToEdit.value = null
+  setActiveView('newJob')
 }
 
-const navigateToNewJob = () => {
-  router.push('/jobs/upload')
+// Handle edit job from manage jobs
+const handleEditJob = (job: import('~/models/job').JobModel) => {
+  jobToEdit.value = job
+  setActiveView('newJob')
 }
 
-const navigateToManageJobs = () => {
-  router.push('/jobs/list')
-}
-
-const navigateToCandidates = () => {
-  router.push('/candidates')
-}
-
-const navigateToChangePassword = () => {
-  router.push('/change-password')
-}
-
-const navigateToNotifications = () => {
-  router.push('/notifications')
+// Handle back from new job view
+const handleBackFromNewJob = () => {
+  jobToEdit.value = null
+  setActiveView('dashboard')
 }
 
 // API calls
 const { $api } = useNuxtApp()
 
 const fetchJobStatistics = async () => {
+  if (!authStore.user?.id) {
+    console.error('User ID not found')
+
+    return
+  }
+
   try {
-    // Fetch all jobs for the current user
-    const response = await $api.job.searchJob({ userId: authStore.user?.id })
+    // Fetch all jobs for the current user (including pending jobs)
+    const response = await $api.job.findJobByUserId(authStore.user.id)
 
     if (response && Array.isArray(response)) {
       const now = new Date()
-      const sevenDaysFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000)
+
+      // Set time to start of day for accurate date comparison
+      const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+
+      // 5 days from now (for expiring soon)
+      const fiveDaysFromNow = new Date(todayStart)
+
+      fiveDaysFromNow.setDate(fiveDaysFromNow.getDate() + 5)
 
       jobStats.value = {
+        // Total posted jobs
         postedJobs: response.length,
-        pendingJobs: response.filter((job) => job.isWaiting).length,
-        expiredJobs: response.filter(
-          (job) => job.deadline && new Date(job.deadline) < now,
-        ).length,
-        expiringSoonJobs: response.filter(
-          (job) =>
-            job.deadline &&
-            new Date(job.deadline) > now &&
-            new Date(job.deadline) <= sevenDaysFromNow,
-        ).length,
-      }
 
-      // Calculate job posting stats
-      jobPostingStats.value = {
-        total: response.length,
-        percentage: Math.floor(Math.random() * 20) + 5, // Random percentage for demo
+        // Pending jobs (waiting for approval)
+        pendingJobs: response.filter((job) => job.isWaiting === true).length,
+
+        // Expired jobs: deadline < today (compare dates only, not time)
+        expiredJobs: response.filter((job) => {
+          if (!job.deadline) return false
+
+          const deadlineDate = new Date(job.deadline)
+          const deadlineStart = new Date(
+            deadlineDate.getFullYear(),
+            deadlineDate.getMonth(),
+            deadlineDate.getDate()
+          )
+
+          return deadlineStart < todayStart
+        }).length,
+
+        // Expiring soon: deadline within 5 days (from today to 5 days later)
+        // Only count jobs that are NOT expired and NOT pending
+        expiringSoonJobs: response.filter((job) => {
+          if (!job.deadline || job.isWaiting) return false
+
+          const deadlineDate = new Date(job.deadline)
+          const deadlineStart = new Date(
+            deadlineDate.getFullYear(),
+            deadlineDate.getMonth(),
+            deadlineDate.getDate()
+          )
+
+          // Must be >= today and <= 5 days from now
+          return deadlineStart >= todayStart && deadlineStart <= fiveDaysFromNow
+        }).length,
       }
     }
   } catch (error: any) {
@@ -483,115 +705,95 @@ const fetchJobStatistics = async () => {
   }
 }
 
-const generateFakeCandidateData = () => {
-  // Generate fake candidate application data
-  candidateStats.value = {
-    total: Math.floor(Math.random() * 100) + 50,
-    percentage: Math.floor(Math.random() * 30) + 10,
-  }
+// Format date helper
+const formatDate = (date: Date | string): string => {
+  const d = typeof date === 'string' ? new Date(date) : date
+  const day = String(d.getDate()).padStart(2, '0')
+  const month = String(d.getMonth() + 1).padStart(2, '0')
+  const year = d.getFullYear()
+
+  return `${day}/${month}/${year}`
 }
 
-// Chart initialization
-const initializeCharts = () => {
-  if (!jobPostingChart.value || !candidateChart.value) return
+// Fetch recent applications
+const fetchRecentApplications = async () => {
+  if (!authStore.user?.id) {
+    console.error('User ID not found')
 
-  // Job Posting Chart
-  const jobCtx = jobPostingChart.value.getContext('2d')
-
-  if (jobCtx) {
-    new Chart(jobCtx, {
-      type: 'line',
-      data: {
-        labels: ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'],
-        datasets: [
-          {
-            label: 'Tin đăng',
-            data: [12, 19, 3, 5, 2, 3, 8],
-            borderColor: 'rgb(59, 130, 246)',
-            backgroundColor: 'rgba(59, 130, 246, 0.1)',
-            tension: 0.4,
-            fill: true,
-          },
-        ],
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: {
-            display: false,
-          },
-        },
-        scales: {
-          y: {
-            beginAtZero: true,
-            grid: {
-              color: 'rgba(0, 0, 0, 0.1)',
-            },
-          },
-          x: {
-            grid: {
-              display: false,
-            },
-          },
-        },
-      },
-    })
+    return
   }
 
-  // Candidate Applications Chart
-  const candidateCtx = candidateChart.value.getContext('2d')
+  try {
+    const userId = authStore.user.id
+    const response = await $api.company.getApplications(userId)
 
-  if (candidateCtx) {
-    new Chart(candidateCtx, {
-      type: 'bar',
-      data: {
-        labels: ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'],
-        datasets: [
-          {
-            label: 'Ứng viên',
-            data: [5, 8, 12, 6, 9, 15, 7],
-            backgroundColor: 'rgba(34, 197, 94, 0.8)',
-            borderColor: 'rgb(34, 197, 94)',
-            borderWidth: 1,
-          },
-        ],
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: {
-            display: false,
-          },
-        },
-        scales: {
-          y: {
-            beginAtZero: true,
-            grid: {
-              color: 'rgba(0, 0, 0, 0.1)',
-            },
-          },
-          x: {
-            grid: {
-              display: false,
-            },
-          },
-        },
-      },
+    if (response && Array.isArray(response)) {
+      recentApplications.value = response.map((app: any) => ({
+        id: app.id,
+        jobTitle: app.jobTitle,
+        jobId: app.jobId,
+        applicantName: app.applicantName,
+        phone: app.phone || '',
+        email: app.email,
+        cvUrl: app.cvUrl,
+        applicationDate: app.applicationDate,
+      }))
+    }
+  } catch (error: any) {
+    console.error('Failed to fetch applications:', error)
+    useNotify({
+      message: error.message || 'Không thể tải danh sách ứng tuyển',
+    })
+  }
+  }
+
+// View application details
+const viewApplication = (application: JobApplication) => {
+  // TODO: Implement view application modal or navigate to detail page
+  console.log('View application:', application)
+  useNotify({
+    message: 'Tính năng xem chi tiết đang được phát triển',
+  })
+}
+
+// Delete application
+const deleteApplication = async (applicationId: number) => {
+  if (
+    !confirm('Bạn có chắc chắn muốn xóa đơn ứng tuyển này không?')
+  ) {
+    return
+  }
+
+  try {
+    // TODO: Replace with actual API call when backend is ready
+    // await $api.job.deleteApplication(applicationId)
+    // recentApplications.value = recentApplications.value.filter(
+    //   (app) => app.id !== applicationId
+    // )
+
+    // Mock delete for now
+    recentApplications.value = recentApplications.value.filter(
+      (app) => app.id !== applicationId,
+    )
+
+    useNotify({
+      message: 'Đã xóa đơn ứng tuyển thành công',
+      type: 'success',
+    })
+  } catch (error: any) {
+    console.error('Failed to delete application:', error)
+    useNotify({
+      message: error.message || 'Không thể xóa đơn ứng tuyển',
     })
   }
 }
 
 // Lifecycle
 onMounted(async () => {
+  // Load company data first (shared across all menu items)
+  await loadCompanyData()
   await fetchJobStatistics()
-  generateFakeCandidateData()
-
-  // Initialize charts after data is loaded
-  nextTick(() => {
-    initializeCharts()
-  })
+  await fetchRecentApplications()
 
   // Add click outside listener for dropdown
   document.addEventListener('click', handleClickOutside)

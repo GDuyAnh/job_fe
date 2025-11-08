@@ -386,6 +386,9 @@
       "nameJobPlaceHolder": "Ví dụ: Tuyển nhân viên trợ giảng, Tuyển giáo viên tiểu học,...",
       "detailJobLabel": "Chi tiết công việc",
       "emailJobLabel": "Địa chỉ email",
+      "emailJobPlaceholder": "Nhập địa chỉ email",
+      "phoneJobLabel": "Số điện thoại",
+      "phoneJobPlaceholder": "Nhập số điện thoại",
       "companyNameLabel": "Tên công ty",
       "deadlineLabel": "Hạn ứng tuyển",
       "categoryLabel": "Lĩnh vực công việc",
@@ -396,6 +399,7 @@
       "experienceLabel": "Yêu cầu kinh nghiệm",
       "benefitLabel": "Phúc lợi",
       "addressJobLabel": "Địa chỉ làm việc",
+      "addressJobPlaceholder": "Nhập địa chỉ làm việc",
       "subAddressJobLabel": "(Danh sách cơ sở giảng dạy của trường/trung tâm)",
       "locationJobLabel": "Tỉnh/Thành",
       "agreeUploadJobLabel": "Bằng cách ấn vào đây, tôi đồng ý với",
@@ -403,11 +407,11 @@
       "agreePrivacy": "Chính sách quyền riêng tư",
       "and": " và ",
       "uploadJobContent": "Đăng việc làm",
+      "updateJobContent": "Cập nhật công việc",
       "uploadJobComplete": "Đăng tải công việc thành công.",
       "uploadJobFailed": "Đăng tải công việc thất bại. Vui lòng thử lại.",
       "chooseSchool": "Tra cứu công ty / trường học",
       "viewJob": "Xem trước công việc",
-      "emailJobPlaceholder": "Email nhận CV",
       "chooseDate": "Chọn ngày",
       "chooseCategory": "Chọn lĩnh vực",
       "chooseTypeOfEmployment": "Chọn loại công việc",
@@ -421,7 +425,7 @@
       "maxSalary": "Mức lương tối đa",
       "chooseExperienceLevel": "Chọn kinh nghiệm",
       "chooseBenefitLevel": "Chọn phúc lợi (Chọn nhiều)",
-      "chooseGender": "Chọi giới tính",
+      "chooseGender": "Chọn giới tính",
       "chooseGradeLevel": "Chọn khối",
       "chooseLocation": "Chọn địa điểm"
     },
@@ -586,10 +590,11 @@
     "sidebar": {
       "adminTools": "Công cụ quản trị",
       "dashboard": "Dashboard",
-      "editProfile": "Chỉnh sửa hồ sơ",
-      "newJob": "Tin tuyển dụng mới",
-      "manageJobs": "Quản lý tin tuyển dụng",
-      "candidates": "Ứng viên",
+      "editProfile": "Hồ sơ công ty",
+      "newJob": "Đăng tin mới",
+      "manageJobs": "Quản lý tin đăng",
+      "candidates": "Quản lý ứng viên",
+      "settings": "Cài đặt",
       "changePassword": "Đổi mật khẩu",
       "insights": "Thống kê",
       "notifications": "Thông báo",
@@ -602,11 +607,21 @@
     "main": {
       "title": "Tổng quan",
       "welcome": "Xin chào, {name}!",
+      "recentApplications": "Những đơn ứng tuyển gần đây",
       "metrics": {
         "postedJobs": "Công việc đăng tải",
         "pendingJobs": "Tin đăng chờ duyệt",
         "expiredJobs": "Tin hết hạn",
         "expiringSoonJobs": "Tin sắp hết hạn"
+      },
+      "applicationsTable": {
+        "position": "VỊ TRÍ ỨNG TUYỂN",
+        "applicant": "ỨNG VIÊN",
+        "email": "ĐỊA CHỈ EMAIL",
+        "cv": "CV",
+        "applicationDate": "NGÀY ỨNG TUYỂN",
+        "actions": "THAO TÁC",
+        "noApplications": "Chưa có đơn ứng tuyển nào"
       },
       "charts": {
         "jobPosting": "Biểu đồ đăng tin tuyển dụng",
@@ -626,6 +641,64 @@
       "createCompany": "Tạo mới công ty",
       "postJob": "Đăng tải công việc",
       "logout": "Đăng xuất"
+    },
+    "manageJobs": {
+      "description": "Quản lý các công việc đã đăng tải của bạn",
+      "totalJobs": "Tổng cộng",
+      "jobs": "tin đăng",
+      "deadline": "Hạn nộp",
+      "approve": "Duyệt",
+      "viewDetail": "Xem chi tiết",
+      "edit": "Chỉnh sửa",
+      "delete": "Xóa",
+      "noJobs": "Chưa có tin đăng nào",
+      "noJobsDescription": "Bắt đầu đăng tin tuyển dụng đầu tiên của bạn",
+      "createNewJob": "Đăng tin mới",
+      "approveModal": {
+        "title": "Xác nhận duyệt tin đăng",
+        "subtitle": "Bạn có chắc chắn muốn duyệt tin đăng này?",
+        "jobTitle": "Tin đăng",
+        "warning": "Sau khi duyệt, tin đăng sẽ được hiển thị công khai trên hệ thống.",
+        "cancel": "Hủy",
+        "confirm": "Xác nhận duyệt"
+      }
+    },
+    "newJob": {
+      "description": "Tạo công việc mới cho công ty của bạn"
+    },
+    "candidates": {
+      "description": "Xem danh sách ứng viên đã ứng tuyển"
+    },
+    "settings": {
+      "description": "Quản lý cài đặt tài khoản của bạn",
+      "accountInfo": {
+        "title": "Thông tin tài khoản",
+        "email": "Email:",
+        "emailWarning": "Bạn không thể thay đổi tài khoản email của bạn",
+        "fullName": "Họ và tên",
+        "fullNamePlaceholder": "Nhập họ và tên",
+        "username": "Tên đăng nhập",
+        "usernamePlaceholder": "Nhập tên đăng nhập",
+        "phoneNumber": "Số điện thoại",
+        "phoneNumberPlaceholder": "Nhập số điện thoại",
+        "save": "Lưu thông tin"
+      },
+      "changePassword": {
+        "title": "Đổi mật khẩu",
+        "currentPassword": "Mật khẩu",
+        "currentPasswordPlaceholder": "Mật khẩu",
+        "newPassword": "Mật khẩu mới",
+        "newPasswordPlaceholder": "Mật khẩu mới",
+        "confirmPassword": "Xác nhận mật khẩu",
+        "confirmPasswordPlaceholder": "Xác nhận mật khẩu",
+        "submit": "Đổi mật khẩu"
+      },
+      "deleteAccount": {
+        "title": "Xóa tài khoản",
+        "warning1": "Xóa tài khoản là hành động vĩnh viễn và không thể hoàn tác.",
+        "warning2": "Nếu bạn xóa tài khoản do nhận quá nhiều thông báo qua email, bạn có thể hủy đăng ký nhận email",
+        "button": "Xóa tài khoản của bạn"
+      }
     },
     "charts": {
       "jobPostings": "Biểu đồ đăng tin tuyển dụng",

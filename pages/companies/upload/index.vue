@@ -168,7 +168,6 @@
                 </div>
               </div>
 
-              <!-- Images uploader (MULTIPLE). images[0] = logo -->
               <div>
                 <label class="font-medium text-sm text-gray-700">
                   {{ $t('company.form.logoTitle') }}

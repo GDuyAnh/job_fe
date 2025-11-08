@@ -249,21 +249,20 @@
                 class="bg-white p-4 rounded-2xl shadow-sm mb-4 w-30 h-30 flex items-center justify-center text-3xl text-[#002b57]"
               >
                 {{
-                  (
-                    categoryEnumLabel?.[item.category as unknown as number] ??
-                    item.category
-                  )
-                    .split(' ')
-                    .map((word) => word[0])
-                    .join('')
-                    .toUpperCase()
+                  (() => {
+                    const categoryLabel = categoryEnumLabel?.[item.category as unknown as number] ?? item.category
+                    return categoryLabel
+                      .split(' ')
+                      .map((word) => word[0])
+                      .join('')
+                      .toUpperCase()
+                  })()
                 }}
               </div>
 
               <h3 class="text-center font-semibold text-black">
                 {{
-                  categoryEnumLabel?.[item.category as unknown as number] ??
-                  item.category
+                  categoryEnumLabel?.[item.category as unknown as number] ?? item.category
                 }}
               </h3>
               <p class="text-sm text-gray-600 mt-8">
@@ -376,8 +375,11 @@
                 <div>
                   <p class="text-sm text-gray-500">
                     {{
-                      categoryEnumLabel?.[job.category as unknown as number] ??
-                      job.category
+                      (() => {
+                        // Get first category from comma-separated string
+                        const firstCategory = job.category ? job.category.split(',')[0].trim() : ''
+                        return categoryEnumLabel?.[firstCategory as unknown as number] ?? (firstCategory || job.category)
+                      })()
                     }}
                   </p>
                 </div>
@@ -1006,21 +1008,6 @@ const userMenuItems = computed(() => [
         router.push(ROUTE_PAGE.DASHBOARD.USER)
       }
     },
-  },
-  // {
-  //   label: 'Edit Profile',
-  //   icon: 'i-lucide-user',
-  //   click: () => router.push('/profile/edit'),
-  // },
-  {
-    label: 'Tạo mới công ty',
-    icon: 'i-lucide-building-2',
-    click: () => router.push(ROUTE_PAGE.COMPANY.LIST),
-  },
-  {
-    label: 'Đăng tải công việc',
-    icon: 'i-lucide-briefcase',
-    click: () => router.push(ROUTE_PAGE.USER_JOB.LIST),
   },
   {
     label: 'Đăng xuất',

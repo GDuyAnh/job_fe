@@ -20,7 +20,6 @@ export class JobMapper {
       companyLogo: value.companyLogo,
       organizationType: value.organizationType,
       foundedYear: value.foundedYear,
-      address: value.address,
       website: value.website,
       facebookLink: value.facebookLink,
       instagramLink: value.instagramLink,
@@ -30,7 +29,6 @@ export class JobMapper {
       salaryMin: value.salaryMin,
       salaryMax: value.salaryMax,
       salaryType: value.salaryType,
-      salaryTypeValue: value.salaryTypeValue,
       benefits: value.benefits,
       isFeatured: value.isFeatured,
       isWaiting: value.isWaiting,
@@ -38,6 +36,8 @@ export class JobMapper {
       deadline: value.deadline,
       detailDescription: value.detailDescription,
       email: value.email,
+      phoneNumber: value.phoneNumber,
+      address: value.address || '',
     }
   }
 
@@ -45,8 +45,12 @@ export class JobMapper {
     return {
       title: value.title,
       description: value.description,
-      category: value.category !== undefined ? Number(value.category) : 0,
-      location: value.location !== undefined ? Number(value.location) : 0,
+      category: value.category 
+        ? value.category.split(',').map(c => c.trim()).filter(c => c)
+        : undefined,
+      location: value.location 
+        ? value.location.split(',').map(l => l.trim()).filter(l => l)
+        : undefined,
       typeOfEmployment:
         value.typeOfEmployment !== undefined
           ? Number(value.typeOfEmployment)
@@ -57,13 +61,16 @@ export class JobMapper {
         value.requiredQualification !== undefined
           ? Number(value.requiredQualification)
           : 0,
-      gender: value.gender !== undefined ? Number(value.gender) : undefined,
+      gender: value.gender 
+        ? value.gender.split(',').map(g => g.trim()).filter(g => g)
+        : undefined,
       grade: value.grade !== undefined ? Number(value.grade) : undefined,
       salaryMin: value.salaryMin ?? undefined,
       salaryMax: value.salaryMax ?? undefined,
       salaryType: value.salaryType ?? undefined,
-      salaryTypeValue: value.salaryTypeValue ?? undefined,
-      benefits: value.benefits ?? undefined,
+      benefits: value.benefits 
+        ? value.benefits.split(',').map(b => b.trim()).filter(b => b)
+        : undefined,
       isFeatured: value.isFeatured,
       deadline: value.deadline
         ? new Date(value.deadline).toISOString().split('T')[0]
@@ -75,7 +82,9 @@ export class JobMapper {
       userId: value.userId,
       companyId: value.companyId,
       isWaiting: false,
-      email: value.email,
+      email: value.email ?? undefined,
+      phoneNumber: value.phoneNumber ?? undefined,
+      address: value.address || '',
     }
   }
 }
