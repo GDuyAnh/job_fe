@@ -61,6 +61,7 @@
                   variant="outline"
                   class="w-full text-sm"
                   :placeholder="$t('company.action.placeHolderMST')"
+                  @keydown.enter="findCompanyByMst()"
                 />
                 <UButton
                   label="Tra cứu"
@@ -87,9 +88,51 @@
                     v-model="companyAdd.name"
                     variant="outline"
                     class="w-full text-sm"
+                    :class="{ 'border-red-500': companyErrors.name }"
                     :readonly="isExistCompany"
+                    @input="companyErrors.name = ''"
                   />
+                  <p v-if="companyErrors.name" class="!text-red-500 text-sm mt-1">
+                    {{ companyErrors.name }}
+                  </p>
                 </div>
+
+                <!-- Địa chỉ thuế -->
+                <div class="pt-5">
+                  <label class="font-medium text-sm text-gray-700">
+                    Địa chỉ thuế
+                  </label>
+                  <UInput
+                    v-model.trim="companyAdd.taxAddress"
+                    class="w-full text-sm"
+                    :class="{ 'border-red-500': companyErrors.taxAddress }"
+                    placeholder="Địa chỉ thuế"
+                    :readonly="isExistCompany"
+                    @input="companyErrors.taxAddress = ''"
+                  />
+                  <p v-if="companyErrors.taxAddress" class="!text-red-500 text-sm mt-1">
+                    {{ companyErrors.taxAddress }}
+                  </p>
+                </div>
+
+                <!-- Description & Overview -->
+                <div class="pt-5">
+                  <div class="flex flex-col gap-1 rich-text-output">
+                    <label class="font-medium text-sm text-gray-700">
+                      {{ $t('company.form.descLabel') }}
+                    </label>
+                    <RichTextEditor
+                      :model-value="companyAdd.description || undefined"
+                      class="w-full rich-text-content"
+                      :readonly="isExistCompany"
+                      :placeholder="$t('company.form.descPlaceholder')"
+                      @update:model-value="
+                        (val) => (companyAdd.description = val || null)
+                      "
+                    />
+                  </div>
+                </div>
+
                 <!-- Address -->
                 <div class="pt-5">
                   <!-- Label -->
@@ -103,9 +146,13 @@
                   <RichTextEditor
                     v-model="companyAdd.address"
                     class="w-full text-sm rich-text-content"
+                    :class="{ 'border-red-500': companyErrors.address }"
                     :placeholder="$t('company.form.placeholderAddress')"
                     :readonly="isExistCompany"
                   />
+                  <p v-if="companyErrors.address" class="!text-red-500 text-sm mt-1">
+                    {{ companyErrors.address }}
+                  </p>
                 </div>
 
                 <!-- Org type + Founded -->
@@ -123,31 +170,21 @@
                       :model-value="companyAdd.organizationType?.toString()"
                       :content="{ side: 'bottom' }"
                       class="w-full text-sm"
+                      :class="{ 'border-red-500': companyErrors.organizationType }"
                       @update:model-value="
-                        (v) => (companyAdd.organizationType = Number(v ?? 0))
+                        (v) => {
+                          companyAdd.organizationType = Number(v ?? 0)
+                          companyErrors.organizationType = ''
+                        }
                       "
                     />
-                    <UInput
-                      v-else
-                      :model-value="
-                        organizationTypeItems.find(
-                          (item) =>
-                            item.value ===
-                            companyAdd?.organizationType?.toString(),
-                        )?.label ||
-                        companyAdd?.organizationType?.toString() ||
-                        ''
-                      "
-                      class="w-full text-sm"
-                      readonly
-                    />
+                    <p v-if="companyErrors.organizationType" class="!text-red-500 text-sm mt-1">
+                      {{ companyErrors.organizationType }}
+                    </p>
                   </div>
                   <div class="pt-5">
                     <label class="font-medium text-sm text-gray-700">
                       {{ $t('company.founded') }}
-                      <span aria-hidden="true" class="text-black">{{
-                        $t('common.requiredMark')
-                      }}</span>
                     </label>
                     <UInput
                       v-model.number="companyAdd.foundedYear"
@@ -155,11 +192,16 @@
                       min="1800"
                       max="2100"
                       class="w-full text-sm"
+                      :class="{ 'border-red-500': companyErrors.foundedYear }"
                       :readonly="isExistCompany"
                       :placeholder="
                         $t('company.form.placeholderFounded') as string
                       "
+                      @input="companyErrors.foundedYear = ''"
                     />
+                    <p v-if="companyErrors.foundedYear" class="!text-red-500 text-sm mt-1">
+                      {{ companyErrors.foundedYear }}
+                    </p>
                   </div>
                 </div>
 
@@ -168,9 +210,6 @@
                   <div class="pt-5">
                     <label class="font-medium text-sm text-gray-700">
                       {{ $t('company.size') }}
-                      <span aria-hidden="true" class="text-black">{{
-                        $t('common.requiredMark')
-                      }}</span>
                     </label>
                     <UInput
                       v-model.number="companyAdd.companySize"
@@ -178,9 +217,14 @@
                       min="0"
                       step="1"
                       class="w-full text-sm"
+                      :class="{ 'border-red-500': companyErrors.companySize }"
                       :readonly="isExistCompany"
                       :placeholder="$t('company.form.placeholderCompanySize')"
+                      @input="companyErrors.companySize = ''"
                     />
+                    <p v-if="companyErrors.companySize" class="!text-red-500 text-sm mt-1">
+                      {{ companyErrors.companySize }}
+                    </p>
                   </div>
                   <!-- Website -->
                   <div class="pt-5">
@@ -191,9 +235,14 @@
                       v-model.trim="companyAdd.website"
                       type="url"
                       class="w-full text-sm"
+                      :class="{ 'border-red-500': companyErrors.website }"
                       :readonly="isExistCompany"
                       :placeholder="$t('company.form.placeholderWebsite')"
+                      @input="companyErrors.website = ''"
                     />
+                    <p v-if="companyErrors.website" class="!text-red-500 text-sm mt-1">
+                      {{ companyErrors.website }}
+                    </p>
                   </div>
                 </div>
 
@@ -245,6 +294,19 @@
                   </div>
                 </div>
 
+                <!-- Video URL -->
+                <div class="pt-5">
+                  <label class="font-medium text-sm text-gray-700">
+                    {{ $t('company.form.videoTitle') }}
+                  </label>
+                  <UInput
+                    v-model.trim="companyAdd.videoUrl"
+                    type="url"
+                    class="w-full text-sm"
+                    :readonly="isExistCompany"
+                    :placeholder="$t('company.form.placeholderVideo')"
+                  />
+                </div>
                 <!-- Logo uploader (REQUIRED) - Only show if not exist -->
                 <div v-if="!isExistCompany" class="pt-5">
                   <label class="font-medium text-sm text-gray-700">
@@ -256,11 +318,12 @@
 
                   <div
                     class="border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition bg-gray-50"
-                    :class="
+                    :class="[
                       isDraggingLogo
                         ? 'ring-2 ring-blue-400 bg-blue-50'
-                        : 'border-gray-400'
-                    "
+                        : 'border-gray-400',
+                      companyErrors.logo ? 'border-red-500' : ''
+                    ]"
                     @click="logoFileEl?.click()"
                     @dragenter.prevent="onDragEnterLogo"
                     @dragover.prevent
@@ -314,6 +377,65 @@
 
                     <div v-else class="text-gray-500">
                       {{ $t('company.form.dropHintLogo') }}
+                    </div>
+                  </div>
+                  <p v-if="companyErrors.logo" class="!text-red-500 text-sm mt-1">
+                    {{ companyErrors.logo }}
+                  </p>
+                </div>
+
+                <!-- Banner Image - Only show if not exist -->
+                <div v-if="!isExistCompany" class="pt-5">
+                  <label class="font-medium text-sm text-gray-700">
+                    {{ $t('company.form.bannerTitle') }}
+                  </label>
+
+                  <div
+                    class="border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition bg-gray-50"
+                    :class="
+                      isDraggingBanner
+                        ? 'ring-2 ring-blue-400 bg-blue-50'
+                        : 'border-gray-400'
+                    "
+                    @click="bannerFileEl?.click()"
+                    @dragenter.prevent="onDragEnterBanner"
+                    @dragover.prevent
+                    @dragleave.prevent="onDragLeaveBanner"
+                    @drop="onDropBanner"
+                  >
+                    <input
+                      ref="bannerFileEl"
+                      type="file"
+                      accept="image/*"
+                      class="hidden"
+                      @change="onPickBanner"
+                    />
+
+                    <div v-if="bannerPreview" class="flex flex-col gap-4">
+                      <div class="flex justify-center">
+                        <div
+                          class="relative p-2 bg-white rounded-lg border shadow-sm inline-flex items-center justify-center"
+                        >
+                          <img
+                            :src="bannerPreview"
+                            class="max-h-60 max-w-full h-auto w-auto object-contain rounded-md"
+                            draggable="false"
+                          />
+                          <UButton
+                            icon="i-lucide-trash-2"
+                            color="error"
+                            size="xs"
+                            variant="solid"
+                            class="absolute top-2 right-2"
+                            :aria-label="$t('common.remove')"
+                            @click.stop="removeBanner"
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div v-else class="text-gray-500">
+                      {{ $t('company.form.bannerDropHint') }}
                     </div>
                   </div>
                 </div>
@@ -388,27 +510,6 @@
                     </div>
                   </div>
                 </div>
-
-                <!-- Description & Overview -->
-                <div class="pt-5">
-                  <div class="flex flex-col gap-1 rich-text-output">
-                    <label class="font-medium text-sm text-gray-700">
-                      {{ $t('company.form.descLabel') }}
-                      <span aria-hidden="true" class="text-black">{{
-                        $t('common.requiredMark')
-                      }}</span>
-                    </label>
-                    <RichTextEditor
-                      :model-value="companyAdd.description || undefined"
-                      class="w-full rich-text-content"
-                      :readonly="isExistCompany"
-                      :placeholder="$t('company.form.descPlaceholder')"
-                      @update:model-value="
-                        (val) => (companyAdd.description = val || null)
-                      "
-                    />
-                  </div>
-                </div>
               </div>
             </div>
             <div
@@ -448,8 +549,13 @@
                 id="job-title"
                 v-model="job.title"
                 class="w-full text-base"
+                :class="{ 'border-red-500': jobErrors.title }"
                 :placeholder="$t('job.uploadJob.nameJobPlaceHolder')"
+                @input="jobErrors.title = ''"
               />
+              <p v-if="jobErrors.title" class="!text-red-500 text-sm mt-1">
+                {{ jobErrors.title }}
+              </p>
             </div>
 
             <!-- Job description -->
@@ -468,7 +574,11 @@
                 id="job-description"
                 v-model="job.description"
                 class="w-full rich-text-content"
+                :class="{ 'border-red-500': jobErrors.description }"
               />
+              <p v-if="jobErrors.description" class="!text-red-500 text-sm mt-1">
+                {{ jobErrors.description }}
+              </p>
             </div>
 
             <!-- Job name -->
@@ -486,8 +596,12 @@
                 id="company-name"
                 :model-value="companyAdd?.name || ''"
                 class="w-full text-sm"
+                :class="{ 'border-red-500': jobErrors.companyId }"
                 readonly
               />
+              <p v-if="jobErrors.companyId" class="!text-red-500 text-sm mt-1 px-5">
+                {{ jobErrors.companyId }}
+              </p>
             </div>
 
             <!-- Job category -->
@@ -508,30 +622,37 @@
                 </label>
 
                 <!-- Input deadline date -->
-                <UPopover>
-                  <UButton
-                    class="w-full justify-start bg-white text-sm"
-                    color="neutral"
-                    variant="outline"
-                    icon="i-lucide-calendar"
-                  >
-                    <template v-if="job.deadline">
-                      {{ formatDateDeadline(job.deadline) }}
+                <div>
+                  <UPopover>
+                    <UButton
+                      class="w-full justify-start bg-white text-sm"
+                      :class="{ 'border-red-500': jobErrors.deadline }"
+                      color="neutral"
+                      variant="outline"
+                      icon="i-lucide-calendar"
+                    >
+                      <template v-if="job.deadline">
+                        {{ formatDateDeadline(job.deadline) }}
+                      </template>
+                      <template v-else>
+                        {{ $t('job.uploadJob.chooseDate') }}
+                      </template>
+                    </UButton>
+                    <template #content>
+                      <UCalendar
+                        v-model="deadlineCalendarDate"
+                        class="p-2"
+                        :min-value="minDeadlineDate"
+                        :max-value="maxDeadlineDate"
+                        :is-hidden="isDeadlineDateHidden"
+                        @update:model-value="jobErrors.deadline = ''"
+                      />
                     </template>
-                    <template v-else>
-                      {{ $t('job.uploadJob.chooseDate') }}
-                    </template>
-                  </UButton>
-                  <template #content>
-                    <UCalendar
-                      v-model="deadlineCalendarDate"
-                      class="p-2"
-                      :min-value="minDeadlineDate"
-                      :max-value="maxDeadlineDate"
-                      :is-hidden="isDeadlineDateHidden"
-                    />
-                  </template>
-                </UPopover>
+                  </UPopover>
+                  <p v-if="jobErrors.deadline" class="!text-red-500 text-sm mt-1">
+                    {{ jobErrors.deadline }}
+                  </p>
+                </div>
               </div>
               <div>
                 <!-- Label -->
@@ -545,15 +666,19 @@
                   }}</span>
                 </label>
 
-                <USelectMenu
+                <v-select
                   v-model="categoryForSelect"
-                  :items="categoryItemsWithoutAll"
+                  :options="categoryItemsWithoutAll"
                   multiple
-                  searchable
                   class="w-full text-sm"
-                  :content="{ side: 'bottom' }"
+                  :class="{ 'border-red-500': jobErrors.category }"
                   :placeholder="$t('job.uploadJob.chooseCategory')"
+                  label="label"
+                  @update:model-value="jobErrors.category = ''"
                 />
+                <p v-if="jobErrors.category" class="!text-red-500 text-sm mt-1">
+                  {{ jobErrors.category }}
+                </p>
               </div>
               <div>
                 <!-- Label -->
@@ -573,11 +698,18 @@
                   :model-value="job.typeOfEmployment?.toString()"
                   :placeholder="$t('job.uploadJob.chooseTypeOfEmployment')"
                   class="w-full text-sm"
+                  :class="{ 'border-red-500': jobErrors.typeOfEmployment }"
                   :content="{ side: 'bottom' }"
                   @update:model-value="
-                    (val) => (job.typeOfEmployment = Number(val ?? 0))
+                    (val) => {
+                      job.typeOfEmployment = Number(val ?? 0)
+                      jobErrors.typeOfEmployment = ''
+                    }
                   "
                 />
+                <p v-if="jobErrors.typeOfEmployment" class="!text-red-500 text-sm mt-1">
+                  {{ jobErrors.typeOfEmployment }}
+                </p>
               </div>
             </div>
 
@@ -602,12 +734,19 @@
                     :items="salaryTypeItems"
                     :model-value="job.salaryType?.toString()"
                   class="w-full text-sm mt-1"
+                    :class="{ 'border-red-500': jobErrors.salaryType }"
                     :content="{ side: 'bottom' }"
                     :placeholder="$t('job.uploadJob.chooseSalaryType')"
                     @update:model-value="
-                      (val) => (job.salaryType = Number(val ?? 0))
+                      (val) => {
+                        job.salaryType = Number(val ?? 0)
+                        jobErrors.salaryType = ''
+                      }
                     "
                   />
+                  <p v-if="jobErrors.salaryType" class="!text-red-500 text-sm mt-1">
+                    {{ jobErrors.salaryType }}
+                  </p>
                 </div>
 
               <!-- Min Salary -->
@@ -625,10 +764,17 @@
                   id="job-salary-min"
                   :model-value="formatCurrency(job.salaryMin)"
                   class="w-full text-sm mt-1"
+                  :class="{ 'border-red-500': jobErrors.salaryMin }"
                   type="text"
                   :placeholder="$t('job.uploadJob.minSalary')"
-                  @update:model-value="(val) => job.salaryMin = unformatCurrency(val)"
+                  @update:model-value="(val) => {
+                    job.salaryMin = unformatCurrency(val)
+                    jobErrors.salaryMin = ''
+                  }"
                 />
+                <p v-if="jobErrors.salaryMin" class="!text-red-500 text-sm mt-1">
+                  {{ jobErrors.salaryMin }}
+                </p>
               </div>
 
               <!-- Max Salary -->
@@ -646,10 +792,17 @@
                   id="job-salary-max"
                   :model-value="formatCurrency(job.salaryMax)"
                   class="w-full text-sm mt-1"
+                  :class="{ 'border-red-500': jobErrors.salaryMax }"
                   type="text"
                   :placeholder="$t('job.uploadJob.maxSalary')"
-                  @update:model-value="(val) => job.salaryMax = unformatCurrency(val)"
+                  @update:model-value="(val) => {
+                    job.salaryMax = unformatCurrency(val)
+                    jobErrors.salaryMax = ''
+                  }"
                 />
+                <p v-if="jobErrors.salaryMax" class="!text-red-500 text-sm mt-1">
+                  {{ jobErrors.salaryMax }}
+                </p>
               </div>
             </div>
 
@@ -674,8 +827,12 @@
                 id="job-address"
                 v-model="job.address"
                 class="w-full rich-text-content"
+                :class="{ 'border-red-500': jobErrors.address }"
                 :placeholder="$t('job.uploadJob.addressJobPlaceholder')"
               />
+              <p v-if="jobErrors.address" class="!text-red-500 text-sm mt-1">
+                {{ jobErrors.address }}
+              </p>
             </div>
 
             <!-- Job location address -->
@@ -692,15 +849,19 @@
               </label>
 
               <!-- Input locations -->
-              <USelectMenu
+              <v-select
                 v-model="locationForSelect"
-                :items="locationItemsWithoutAll"
+                :options="locationItemsWithoutAll"
                 multiple
-                searchable
                 class="w-full text-sm"
-                :content="{ side: 'bottom' }"
+                :class="{ 'border-red-500': jobErrors.location }"
                 :placeholder="$t('job.uploadJob.chooseLocation')"
+                label="label"
+                @update:model-value="jobErrors.location = ''"
               />
+              <p v-if="jobErrors.location" class="!text-red-500 text-sm mt-1">
+                {{ jobErrors.location }}
+              </p>
             </div>
 
             <!-- More information -->
@@ -725,6 +886,9 @@
                     class="font-medium text-sm text-gray-700"
                   >
                   {{ $t('job.uploadJob.emailJobLabel') }}
+                  <span class="text-black">{{
+                    $t('job.uploadJob.mandatoryChar')
+                  }}</span>
                   </label>
 
                   <!-- Input email -->
@@ -732,9 +896,14 @@
                     id="job-email"
                     v-model.trim="job.email"
                     class="w-full text-sm"
+                    :class="{ 'border-red-500': jobErrors.email }"
                     type="email"
                     :placeholder="$t('job.uploadJob.emailJobPlaceholder')"
+                    @input="jobErrors.email = ''"
                   />
+                  <p v-if="jobErrors.email" class="!text-red-500 text-sm mt-1">
+                    {{ jobErrors.email }}
+                  </p>
                 </div>
 
                 <!-- Job phone number -->
@@ -745,6 +914,9 @@
                     class="font-medium text-sm text-gray-700"
                   >
                     {{ $t('job.uploadJob.phoneJobLabel') }}
+                    <span class="text-black">{{
+                      $t('job.uploadJob.mandatoryChar')
+                    }}</span>
                   </label>
 
                   <!-- Input phone -->
@@ -752,9 +924,14 @@
                     id="job-phone"
                     v-model.trim="job.phoneNumber"
                     class="w-full text-sm"
+                    :class="{ 'border-red-500': jobErrors.phoneNumber }"
                     type="tel"
                     :placeholder="$t('job.uploadJob.phoneJobPlaceholder')"
+                    @input="jobErrors.phoneNumber = ''"
                   />
+                  <p v-if="jobErrors.phoneNumber" class="!text-red-500 text-sm mt-1">
+                    {{ jobErrors.phoneNumber }}
+                  </p>
                 </div>
 
                 <!-- Job required qualification Level -->
@@ -764,20 +941,30 @@
                     class="font-medium text-sm text-gray-700"
                   >
                     {{ $t('job.uploadJob.requiredQualificationLabel') }}
+                    <span class="text-black">{{
+                      $t('job.uploadJob.mandatoryChar')
+                    }}</span>
                   </label>
                   <USelect
                     :items="requiredQualificationItems"
                     :model-value="job.requiredQualification?.toString() || ''"
                     class="w-full text-sm"
+                    :class="{ 'border-red-500': jobErrors.requiredQualification }"
                     searchable
                     :placeholder="
                       $t('job.uploadJob.requiredQualificationLabel')
                     "
                     :content="{ side: 'bottom' }"
                     @update:model-value="
-                      (val) => (job.requiredQualification = Number(val ?? 0))
+                      (val) => {
+                        job.requiredQualification = Number(val ?? 0)
+                        jobErrors.requiredQualification = ''
+                      }
                     "
                   />
+                  <p v-if="jobErrors.requiredQualification" class="!text-red-500 text-sm mt-1">
+                    {{ jobErrors.requiredQualification }}
+                  </p>
                 </div>
               </div>
 
@@ -794,18 +981,28 @@
                     class="font-medium text-sm text-gray-700"
                   >
                     {{ $t('job.uploadJob.experienceLabel') }}
+                    <span class="text-black">{{
+                      $t('job.uploadJob.mandatoryChar')
+                    }}</span>
                   </label>
                   <!-- Input Experience Level -->
                   <USelect
                     :items="experienceLevelItems"
                     :model-value="job.experienceLevel?.toString()"
                     class="w-full text-sm"
+                    :class="{ 'border-red-500': jobErrors.experienceLevel }"
                     :content="{ side: 'bottom' }"
                     :placeholder="$t('job.uploadJob.chooseExperienceLevel')"
                     @update:model-value="
-                      (val) => (job.experienceLevel = Number(val ?? 0))
+                      (val) => {
+                        job.experienceLevel = Number(val ?? 0)
+                        jobErrors.experienceLevel = ''
+                      }
                     "
                   />
+                  <p v-if="jobErrors.experienceLevel" class="!text-red-500 text-sm mt-1">
+                    {{ jobErrors.experienceLevel }}
+                  </p>
                 </div>
 
                 <!-- Job benefit Level -->
@@ -816,17 +1013,26 @@
                     class="font-medium text-sm text-gray-700"
                   >
                   {{ $t('job.uploadJob.benefitLabel') }}
+                  <span class="text-black">{{
+                    $t('job.uploadJob.mandatoryChar')
+                  }}</span>
                   </label>
 
                   <!-- Input Benefit -->
-                  <USelect
-                    v-model="job.benefits"
-                    :items="jobBenefitsItems"
+                  <v-select
+                    id="job-benefit"
+                    v-model="benefitsForSelect"
+                    :options="jobBenefitsItems"
                     multiple
                     class="w-full text-sm"
-                    :content="{ side: 'bottom' }"
+                    :class="{ 'border-red-500': jobErrors.benefits }"
                     :placeholder="$t('job.uploadJob.chooseBenefitLevel')"
+                    label="label"
+                    @update:model-value="jobErrors.benefits = ''"
                   />
+                  <p v-if="jobErrors.benefits" class="!text-red-500 text-sm mt-1">
+                    {{ jobErrors.benefits }}
+                  </p>
                 </div>
               </div>
 
@@ -843,15 +1049,23 @@
                     class="font-medium text-sm text-gray-700"
                   >
                     {{ $t('job.uploadJob.genderLabel') }}
+                    <span class="text-black">{{
+                      $t('job.uploadJob.mandatoryChar')
+                    }}</span>
                   </label>
-                  <USelect
-                    :items="genderItems"
-                    v-model="job.gender"
+                  <v-select
+                    v-model="genderForSelect"
+                    :options="genderItems"
                     multiple
                     class="w-full text-sm"
-                    :content="{ side: 'bottom' }"
+                    :class="{ 'border-red-500': jobErrors.gender }"
                     :placeholder="$t('job.uploadJob.chooseGender')"
+                    label="label"
+                    @update:model-value="jobErrors.gender = ''"
                   />
+                  <p v-if="jobErrors.gender" class="!text-red-500 text-sm mt-1">
+                    {{ jobErrors.gender }}
+                  </p>
                 </div>
 
                 <!-- Job grade Level -->
@@ -862,17 +1076,27 @@
                     class="font-medium text-sm text-gray-700"
                   >
                     {{ $t('job.uploadJob.gradeLabel') }}
+                    <span class="text-black">{{
+                      $t('job.uploadJob.mandatoryChar')
+                    }}</span>
                   </label>
                   <USelect
                     :items="gradeItems"
                     :model-value="job.grade?.toString() || ''"
                     class="w-full text-sm"
+                    :class="{ 'border-red-500': jobErrors.grade }"
                     :content="{ side: 'bottom' }"
                     :placeholder="$t('job.uploadJob.chooseGradeLevel')"
                     @update:model-value="
-                      (val) => (job.grade = Number(val ?? 0))
+                      (val) => {
+                        job.grade = Number(val ?? 0)
+                        jobErrors.grade = ''
+                      }
                     "
                   />
+                  <p v-if="jobErrors.grade" class="!text-red-500 text-sm mt-1">
+                    {{ jobErrors.grade }}
+                  </p>
                 </div>
               </div>
 
@@ -1148,11 +1372,57 @@ const locationForSelect = computed({
   }
 })
 
+// Computed property for v-select benefits (convert between string[] and object[])
+const benefitsForSelect = computed({
+  get: () => {
+    if (!job.value.benefits || !Array.isArray(job.value.benefits)) return []
+
+    return job.value.benefits
+      .filter(b => b)
+      .map(b => {
+        const value = typeof b === 'object' && b !== null && 'value' in b ? (b as { value: string }).value : String(b)
+
+        return jobBenefitsItems.value.find(item => item.value === value) || { label: value, value }
+      })
+  },
+  set: (val: any[]) => {
+    job.value.benefits = val
+      ? val.map(v => typeof v === 'object' && v !== null && 'value' in v ? (v as { value: string }).value : String(v))
+      : []
+  }
+})
+
+// Computed property for v-select gender (convert between string[] and object[])
+const genderForSelect = computed({
+  get: () => {
+    if (!job.value.gender || !Array.isArray(job.value.gender)) return []
+
+    return job.value.gender
+      .filter(g => g)
+      .map(g => {
+        const value = typeof g === 'object' && g !== null && 'value' in g ? (g as { value: string }).value : String(g)
+
+        return genderItems.value.find(item => item.value === value) || { label: value, value }
+      })
+  },
+  set: (val: any[]) => {
+    job.value.gender = val
+      ? val.map(v => typeof v === 'object' && v !== null && 'value' in v ? (v as { value: string }).value : String(v))
+      : []
+  }
+})
+
 /** Logo state (REQUIRED) */
 const logoFileEl = ref<HTMLInputElement | null>(null)
 const logoFile = ref<File | null>(null)
 const logoPreview = ref<string | null>(null)
 const isDraggingLogo = ref(false)
+
+/** Banner image state */
+const bannerFileEl = ref<HTMLInputElement | null>(null)
+const bannerFile = ref<File | null>(null)
+const bannerPreview = ref<string | null>(null)
+const isDraggingBanner = ref(false)
 
 /** Crop modal state */
 const showCropModal = ref(false)
@@ -1698,10 +1968,60 @@ function removeImage(idx: number) {
   imageFiles.value.splice(idx, 1)
 }
 
+// Banner image handlers
+function onDragEnterBanner() {
+  isDraggingBanner.value = true
+}
+function onDragLeaveBanner() {
+  isDraggingBanner.value = false
+}
+function onDropBanner(e: DragEvent) {
+  isDraggingBanner.value = false
+  const files = e.dataTransfer?.files
+
+  if (!files?.length) return
+  const file = files[0]
+
+  if (file.type.startsWith('image/')) {
+    if (bannerPreview.value?.startsWith('blob:')) {
+      URL.revokeObjectURL(bannerPreview.value)
+    }
+    bannerFile.value = file
+    bannerPreview.value = URL.createObjectURL(file)
+  }
+}
+function onPickBanner(e: Event) {
+  const files = (e.target as HTMLInputElement).files
+
+  if (!files?.length) return
+  const file = files[0]
+
+  if (file.type.startsWith('image/')) {
+    if (bannerPreview.value?.startsWith('blob:')) {
+      URL.revokeObjectURL(bannerPreview.value)
+    }
+    bannerFile.value = file
+    bannerPreview.value = URL.createObjectURL(file)
+  }
+  if (bannerFileEl.value) bannerFileEl.value.value = ''
+}
+function removeBanner() {
+  if (bannerPreview.value?.startsWith('blob:')) {
+    URL.revokeObjectURL(bannerPreview.value)
+  }
+  bannerFile.value = null
+  bannerPreview.value = null
+  companyAdd.value.bannerImage = null
+}
+
 onBeforeUnmount(() => {
   // Cleanup logo preview
   if (logoPreview.value?.startsWith('blob:')) {
     URL.revokeObjectURL(logoPreview.value)
+  }
+  // Cleanup banner preview
+  if (bannerPreview.value?.startsWith('blob:')) {
+    URL.revokeObjectURL(bannerPreview.value)
   }
   // Cleanup image previews
   imagePreviews.value.forEach((pv) => {
@@ -1724,8 +2044,9 @@ const job = ref<JobModelAddUpdate>({} as JobModelAddUpdate)
 const company = ref<CompanyEntity | null>(null)
 const companyAdd = ref<CompanyAddUpdateEntity>({
   name: '',
-  mst: null,
+  mst: '',
   address: '',
+  taxAddress: '',
   website: '',
   organizationType: 0,
   companySize: null,
@@ -1738,12 +2059,18 @@ const companyAdd = ref<CompanyAddUpdateEntity>({
   twitterLink: '',
   instagramLink: '',
   linkedInLink: '',
+  videoUrl: '',
   isShow: false,
   isWaiting: false,
   companyImages: [],
+  bannerImage: null,
 } as CompanyAddUpdateEntity)
 const selectedCompany = ref<CompanyEntity | null>(null)
 const companyByMST = ref<VietQRBusinessResponse | null>(null)
+
+/** Validation errors */
+const companyErrors = ref<Record<string, string>>({})
+const jobErrors = ref<Record<string, string>>({})
 
 // Initialize
 onMounted(() => {
@@ -1914,10 +2241,16 @@ const findCompanyByMst = async () => {
       job.value.companyId = existingCompany.id
 
       // Fill form with existing data (readonly)
-      if (!companyAdd.value) companyAdd.value = {} as CompanyAddUpdateEntity
+      if (!companyAdd.value) {
+        companyAdd.value = {
+          videoUrl: '',
+          bannerImage: null,
+        } as CompanyAddUpdateEntity
+      }
       companyAdd.value.id = existingCompany.id ?? null
       companyAdd.value.name = existingCompany.name ?? ''
       companyAdd.value.address = existingCompany.address ?? ''
+      companyAdd.value.taxAddress = existingCompany.taxAddress ?? ''
       companyAdd.value.mst = existingCompany.mst ?? null
       companyAdd.value.logo = existingCompany.logo ?? ''
       companyAdd.value.organizationType = existingCompany.organizationType ?? 0
@@ -1930,6 +2263,16 @@ const findCompanyByMst = async () => {
       companyAdd.value.description = existingCompany.description ?? ''
       companyAdd.value.insight = existingCompany.insight ?? ''
       companyAdd.value.overview = existingCompany.overview ?? ''
+      companyAdd.value.videoUrl = existingCompany.videoUrl ?? ''
+      companyAdd.value.bannerImage = existingCompany.bannerImage ?? null
+      // Load banner image preview if exists
+      if (existingCompany.bannerImage) {
+        bannerPreview.value = existingCompany.bannerImage
+        bannerFile.value = null
+      } else {
+        bannerPreview.value = null
+        bannerFile.value = null
+      }
       companyAdd.value.companyImages = existingCompany.companyImages ?? []
     } else {
       // Company doesn't exist - lookup from VietQR
@@ -1943,12 +2286,16 @@ const findCompanyByMst = async () => {
           companyByMST.value = response
           isAddCompany.value = true
           if (!companyAdd.value) {
-            companyAdd.value = {} as CompanyAddUpdateEntity
+            companyAdd.value = {
+              videoUrl: '',
+              bannerImage: null,
+            } as CompanyAddUpdateEntity
           }
 
           // Fill data from VietQR
           companyAdd.value.name = companyByMST.value.data.name ?? ''
           companyAdd.value.address = companyByMST.value.data.address ?? ''
+          companyAdd.value.taxAddress = companyByMST.value.data.address ?? '' // Địa chỉ thuế từ VietQR
           companyAdd.value.mst = companyByMST.value.data.id ?? ''
 
           // Init default data for new company
@@ -2022,13 +2369,9 @@ const confirmCreateSchool = () => {
   } else {
     // New company - validate and proceed
     isAddCompany.value = true
-    const msgErrComp = validateCompanyFields()
+    const isValidCompany = validateCompanyFields()
 
-    if (msgErrComp && msgErrComp.length > 0) {
-      useNotify({
-        message: msgErrComp,
-      })
-
+    if (!isValidCompany) {
       return
     }
 
@@ -2046,13 +2389,9 @@ const goBackToChooseSchool = () => {
 
 const addJob = async () => {
   // Validate job fields
-  const msgErrJob = validateJobFields()
+  const isValidJob = validateJobFields()
 
-  if (msgErrJob && msgErrJob.length > 0) {
-    useNotify({
-      message: msgErrJob,
-    })
-
+  if (!isValidJob) {
     return
   }
 
@@ -2069,12 +2408,10 @@ const addJob = async () => {
 
   // Check add Company
   if (isAddCompany.value && companyAdd.value) {
-    const msgErrComp = validateCompanyFields()
+    const isValidCompany = validateCompanyFields()
 
-    if (msgErrComp && msgErrComp.length > 0) {
-      useNotify({
-        message: msgErrComp,
-      })
+    if (!isValidCompany) {
+      loading.value = false
 
       return
     }
@@ -2110,6 +2447,20 @@ const addJob = async () => {
         loading.value = false
 
         return
+      }
+
+      // Upload banner image (OPTIONAL)
+      if (bannerFile.value) {
+        try {
+          const bannerUrl = await $api.upload.uploadImageAndGetUrl(bannerFile.value)
+
+          if (bannerUrl) {
+            companyAdd.value.bannerImage = bannerUrl
+          }
+        } catch (error) {
+          console.error('Error uploading banner:', error)
+          // Continue even if banner upload fails (it's optional)
+        }
       }
 
       // Upload company images (OPTIONAL)
@@ -2256,125 +2607,233 @@ const addJob = async () => {
   goToListJobUser()
 }
 
-function validateCompanyFields(): string {
-  if (!companyAdd.value.name?.trim()) return t('company.form.errName')
+/** Helper function to scroll to first error field */
+function scrollToFirstError(errors: Record<string, string>, fieldIdMap: Record<string, string>) {
+  const firstErrorField = Object.keys(errors)[0]
+  
+  if (firstErrorField && fieldIdMap[firstErrorField]) {
+    const elementId = fieldIdMap[firstErrorField]
+    const element = document.getElementById(elementId) || 
+                    document.querySelector(`[id="${elementId}"]`) ||
+                    document.querySelector(`input[id*="${elementId}"], select[id*="${elementId}"], textarea[id*="${elementId}"]`)
+    
+    if (element) {
+      setTimeout(() => {
+        element.scrollIntoView({ behavior: 'smooth', block: 'center' })
+        // Focus the element if it's an input
+        if (element instanceof HTMLInputElement || element instanceof HTMLSelectElement || element instanceof HTMLTextAreaElement) {
+          element.focus()
+        }
+      }, 100)
+    }
+  }
+}
+
+function validateCompanyFields(): boolean {
+  companyErrors.value = {}
+
+  let isValid = true
+
+  if (!companyAdd.value.name?.trim()) {
+    companyErrors.value.name = t('company.form.errName')
+    isValid = false
+  }
 
   // Check if address is empty or only contains empty HTML tags
   const addressHtml = companyAdd.value.address || ''
-
   const cleanAddress = addressHtml.replace(/<[^>]*>/g, '').trim()
 
-  if (cleanAddress.length === 0) return t('company.form.errAddress')
-
-  if (!companyAdd.value.organizationType) return t('company.form.errOrgType')
-
-  if (!companyAdd.value.foundedYear) {
-    return 'Năm thành lập không được để trống.'
+  if (cleanAddress.length === 0) {
+    companyErrors.value.address = t('company.form.errAddress')
+    isValid = false
   }
 
-  if (!Number.isFinite(companyAdd.value.foundedYear) || companyAdd.value.foundedYear < 1800 || companyAdd.value.foundedYear > 2100) {
-    return 'Năm thành lập phải là số hợp lệ từ 1800 đến 2100.'
+  if (!companyAdd.value.organizationType) {
+    companyErrors.value.organizationType = t('company.form.errOrgType')
+    isValid = false
   }
 
-  if (!companyAdd.value.companySize) {
-    return 'Quy mô công ty không được để trống.'
-  }
-
+  // Validate foundedYear only if provided (optional)
   if (
-    !Number.isFinite(companyAdd.value.companySize) ||
-    companyAdd.value.companySize < 0 ||
-    !Number.isInteger(companyAdd.value.companySize)
+    companyAdd.value.foundedYear != null &&
+    (!Number.isFinite(companyAdd.value.foundedYear) ||
+      !Number.isInteger(companyAdd.value.foundedYear) ||
+      companyAdd.value.foundedYear < 1800 ||
+      companyAdd.value.foundedYear > 2100)
   ) {
-    return t('company.form.errCompanySize')
+    companyErrors.value.foundedYear = 'Năm thành lập phải là số nguyên từ 1800 đến 2100.'
+    isValid = false
   }
 
-  // Validate logo is required
-  if (!logoFile.value && !companyAdd.value.logo) {
-    return 'Vui lòng tải lên logo công ty.'
-  }
-
-  // Check if description is empty or only contains empty HTML tags
-  const descriptionHtml = companyAdd.value.description || ''
-
-  const cleanDescription = descriptionHtml.replace(/<[^>]*>/g, '').trim()
-
-  if (cleanDescription.length === 0) {
-    return 'Giới thiệu công ty không được để trống.'
-  }
-
-  if (
-    companyAdd.value.website &&
-    !/^https?:\/\/.+/i.test(companyAdd.value.website)
-  )
-    return t('company.form.errWebsite')
+  // Validate companySize only if provided (optional)
   if (
     companyAdd.value.companySize != null &&
     (!Number.isFinite(companyAdd.value.companySize) ||
       companyAdd.value.companySize < 0 ||
       !Number.isInteger(companyAdd.value.companySize))
   ) {
-    return t('company.form.errCompanySize')
+    companyErrors.value.companySize = t('company.form.errCompanySize')
+    isValid = false
   }
 
-  return ''
+  // Validate logo is required
+  if (!logoFile.value && !companyAdd.value.logo) {
+    companyErrors.value.logo = 'Vui lòng tải lên logo công ty.'
+    isValid = false
+  }
+
+  // Description is optional, no validation needed
+
+  if (
+    companyAdd.value.website &&
+    !/^https?:\/\/.+/i.test(companyAdd.value.website)
+  ) {
+    companyErrors.value.website = t('company.form.errWebsite')
+    isValid = false
+  }
+
+  if (!isValid) {
+    const companyFieldIdMap: Record<string, string> = {
+      name: 'company-name',
+      address: 'company-address',
+      organizationType: 'company-organization-type',
+      foundedYear: 'company-founded-year',
+      companySize: 'company-size',
+      website: 'company-website',
+      logo: 'company-logo-upload',
+    }
+
+    // Hiển thị toast notification
+    useNotify({
+      type: 'error',
+      message: 'Vui lòng nhập đúng các thông tin.',
+    })
+
+    scrollToFirstError(companyErrors.value, companyFieldIdMap)
+  }
+
+  return isValid
 }
 
-function validateJobFields(): string {
+function validateJobFields(): boolean {
+  jobErrors.value = {}
+
+  let isValid = true
+
   if (!job.value.title || job.value.title.trim().length === 0) {
-    return 'Tên công việc không được để trống.'
+    jobErrors.value.title = 'Tên công việc không được để trống.'
+    isValid = false
   }
+
   // Check if description is empty or only contains empty HTML tags
   const descriptionHtml = job.value.description || ''
-
   const cleanDescription = descriptionHtml.replace(/<[^>]*>/g, '').trim()
 
   if (cleanDescription.length === 0) {
-    return 'Mô tả công việc không được để trống.'
+    jobErrors.value.description = 'Mô tả công việc không được để trống.'
+    isValid = false
   }
+
   if (!job.value.deadline) {
-    return 'Vui lòng chọn hạn nộp hồ sơ.'
+    jobErrors.value.deadline = 'Vui lòng chọn hạn nộp hồ sơ.'
+    isValid = false
   }
+
   if (!job.value.category || (Array.isArray(job.value.category) && job.value.category.length === 0)) {
-    return 'Vui lòng chọn ngành nghề.'
+    jobErrors.value.category = 'Vui lòng chọn ngành nghề.'
+    isValid = false
   }
+
   if (!job.value.typeOfEmployment) {
-    return 'Vui lòng chọn loại hình công việc.'
+    jobErrors.value.typeOfEmployment = 'Vui lòng chọn loại hình công việc.'
+    isValid = false
   }
+
   if (!job.value.location) {
-    return 'Vui lòng chọn địa điểm làm việc.'
+    jobErrors.value.location = 'Vui lòng chọn địa điểm làm việc.'
+    isValid = false
   }
+
   if (!job.value.salaryType) {
-    return 'Vui lòng chọn mức lương hiện tại.'
+    jobErrors.value.salaryType = 'Vui lòng chọn mức lương hiện tại.'
+    isValid = false
   }
+
   // Validate salary min/max only if salary type is not "Thỏa thuận" (5)
   if (job.value.salaryType != 5) {
     if (!job.value.salaryMin || unformatCurrency(job.value.salaryMin).trim() === '') {
-      return 'Vui lòng nhập mức lương tối thiểu.'
+      jobErrors.value.salaryMin = 'Vui lòng nhập mức lương tối thiểu.'
+      isValid = false
     }
     if (!job.value.salaryMax || unformatCurrency(job.value.salaryMax).trim() === '') {
-      return 'Vui lòng nhập mức lương tối đa.'
+      jobErrors.value.salaryMax = 'Vui lòng nhập mức lương tối đa.'
+      isValid = false
     }
   }
 
   // Check if address is empty or only contains empty HTML tags
   const addressHtml = job.value.address || ''
-
   const cleanAddress = addressHtml.replace(/<[^>]*>/g, '').trim()
 
   if (cleanAddress.length === 0) {
-    return 'Địa chỉ công việc không được để trống.'
+    jobErrors.value.address = 'Địa chỉ công việc không được để trống.'
+    isValid = false
   }
+
   if (isExistCompany.value && !job.value.companyId) {
-    return 'Vui lòng chọn trường học.'
+    jobErrors.value.companyId = 'Vui lòng chọn trường học.'
+    isValid = false
   }
-  // Email validation only if provided
-  if (job.value.email && job.value.email.trim().length > 0 && !/^\S+@\S+\.\S+$/.test(job.value.email.trim())) {
-    return 'Email không đúng định dạng.'
+
+  // Email validation - required
+  if (!job.value.email || job.value.email.trim().length === 0) {
+    jobErrors.value.email = 'Email không được để trống.'
+    isValid = false
+  } else if (!/^\S+@\S+\.\S+$/.test(job.value.email.trim())) {
+    jobErrors.value.email = 'Email không đúng định dạng.'
+    isValid = false
+  }
+
+  // Phone number validation - required
+  if (!job.value.phoneNumber || job.value.phoneNumber.trim().length === 0) {
+    jobErrors.value.phoneNumber = 'Số điện thoại không được để trống.'
+    isValid = false
+  }
+
+  // Required qualification validation - required
+  if (!job.value.requiredQualification || job.value.requiredQualification === 0) {
+    jobErrors.value.requiredQualification = 'Vui lòng chọn trình độ học vấn yêu cầu.'
+    isValid = false
+  }
+
+  // Experience level validation - required
+  if (!job.value.experienceLevel || job.value.experienceLevel === 0) {
+    jobErrors.value.experienceLevel = 'Vui lòng chọn mức độ kinh nghiệm.'
+    isValid = false
+  }
+
+  // Benefits validation - required
+  if (!job.value.benefits || (Array.isArray(job.value.benefits) && job.value.benefits.length === 0)) {
+    jobErrors.value.benefits = 'Vui lòng chọn ít nhất một phúc lợi.'
+    isValid = false
+  }
+
+  // Gender validation - required
+  if (!job.value.gender || (Array.isArray(job.value.gender) && job.value.gender.length === 0)) {
+    jobErrors.value.gender = 'Vui lòng chọn giới tính yêu cầu.'
+    isValid = false
+  }
+
+  // Grade validation - required
+  if (!job.value.grade || job.value.grade === 0) {
+    jobErrors.value.grade = 'Vui lòng chọn cấp bậc.'
+    isValid = false
   }
 
   // Kiểm tra độ dài
   if (job.value.title && job.value.title.length > 255) {
-    return 'Tên công việc không được vượt quá 255 ký tự.'
+    jobErrors.value.title = 'Tên công việc không được vượt quá 255 ký tự.'
+    isValid = false
   }
 
   // Kiểm tra lương (nếu có và không phải "Thỏa thuận")
@@ -2384,14 +2843,82 @@ function validateJobFields(): string {
     job.value.salaryMax &&
     Number(unformatCurrency(job.value.salaryMin)) > Number(unformatCurrency(job.value.salaryMax))
   ) {
-    return 'Lương tối thiểu không được lớn hơn lương tối đa.'
+    jobErrors.value.salaryMin = 'Lương tối thiểu không được lớn hơn lương tối đa.'
+    isValid = false
   }
 
-  return ''
+  if (!isValid) {
+    const jobFieldIdMap: Record<string, string> = {
+      title: 'job-title',
+      description: 'job-description',
+      deadline: 'job-deadline',
+      category: 'job-category',
+      typeOfEmployment: 'job-type-employment',
+      location: 'job-location',
+      salaryType: 'job-salary-type',
+      salaryMin: 'job-salary-min',
+      salaryMax: 'job-salary-max',
+      address: 'job-address',
+      email: 'job-email',
+      phoneNumber: 'job-phone',
+      requiredQualification: 'job-required-qualification',
+      experienceLevel: 'job-experience-level',
+      benefits: 'job-benefit',
+      gender: 'job-gender',
+      grade: 'job-grade',
+      companyId: 'company-name',
+    }
+
+    // Hiển thị toast notification
+    useNotify({
+      type: 'error',
+      message: 'Vui lòng nhập đúng các thông tin.',
+    })
+
+    scrollToFirstError(jobErrors.value, jobFieldIdMap)
+  }
+
+  return isValid
 }
 </script>
 
 <style scoped>
+:deep(.vs__dropdown-menu) {
+  max-height: 200px;
+  overflow-y: auto;
+  border: 1px solid #e5e7eb;
+  border-radius: 4px;
+  background: white;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  padding: 4px 0;
+  margin-top: 4px;
+}
+
+:deep(.vs__dropdown-option) {
+  padding: 8px 12px;
+  font-size: 0.75rem;
+  color: #1f2937;
+  cursor: pointer;
+}
+
+:deep(.vs__dropdown-option:hover) {
+  background-color: #f3f4f6;
+}
+
+:deep(.vs__dropdown-option--selected) {
+  background-color: #e0f2fe;
+  color: #1f2937;
+}
+
+:deep(.vs__dropdown-option--highlight) {
+  background-color: #f3f4f6;
+}
+
+:deep(.vs__search::placeholder),
+:deep(.vs__placeholder) {
+  font-size: 0.875rem;
+  color: var(--ui-text-dimmed);
+}
 /* Nút inactive */
 ::v-deep(.stepper-cus button[data-state='inactive']) {
   background-color: #d4d4d4 !important;

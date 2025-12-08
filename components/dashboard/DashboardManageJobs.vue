@@ -11,12 +11,24 @@
 
     <!-- Header -->
     <div class="mb-6">
-      <div>
-        <p class="text-sm text-gray-600">
-          {{ $t('dashboard.manageJobs.totalJobs') }}:
-          <span class="font-semibold text-gray-900">{{ jobs.length }}</span>
-          {{ $t('dashboard.manageJobs.jobs') }}
-        </p>
+      <div class="flex items-center justify-between gap-4 mb-4">
+        <div>
+          <p class="text-sm text-gray-600">
+            {{ $t('dashboard.manageJobs.totalJobs') }}:
+            <span class="font-semibold text-gray-900">{{ filteredJobs.length }}</span>
+            {{ $t('dashboard.manageJobs.jobs') }}
+          </p>
+        </div>
+        <!-- Search bar -->
+        <div class="flex-1 max-w-md">
+          <UInput
+            v-model="searchQuery"
+            placeholder="Tìm kiếm theo tiêu đề việc làm..."
+            icon="i-lucide-search"
+            class="w-full"
+            clearable
+          />
+        </div>
       </div>
     </div>
 
@@ -324,11 +336,22 @@ const deletingJobId = ref<number | null>(null)
 const approvingJobId = ref<number | null>(null)
 const showApproveModal = ref(false)
 const selectedJobForApprove = ref<JobModel | null>(null)
+const searchQuery = ref('')
 
 // Computed
 const filteredJobs = computed(() => {
+  let result = [...jobs.value]
+
+  // Filter by search query (title)
+  if (searchQuery.value.trim()) {
+    const query = searchQuery.value.trim().toLowerCase()
+    result = result.filter((job) =>
+      job.title?.toLowerCase().includes(query)
+    )
+  }
+
   // Sort by createdAt DESC (newest first)
-  return [...jobs.value].sort((a, b) => {
+  return result.sort((a, b) => {
     const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0
     const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0
 

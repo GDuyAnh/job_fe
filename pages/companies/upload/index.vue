@@ -42,8 +42,54 @@
                 <UInput
                   v-model.trim="companyAdd.name"
                   class="w-full"
+                  :class="{ 'border-red-500': companyErrors.name }"
                   :placeholder="$t('company.form.placeholderName')"
+                  @input="companyErrors.name = ''"
                 />
+                <p v-if="companyErrors.name" class="text-red-500 text-sm mt-1">
+                  {{ companyErrors.name }}
+                </p>
+              </div>
+
+              <!-- Description & Overview -->
+              <div>
+                <div class="flex flex-col gap-1">
+                  <label class="font-medium text-sm text-gray-700">
+                    {{ $t('company.form.insightLabel') }}
+                  </label>
+                  <UTextarea
+                    v-model.trim="companyAdd.overview"
+                    :rows="3"
+                    autoresize
+                    class="w-full"
+                    :placeholder="$t('company.form.placeholderInsight')"
+                  />
+                </div>
+
+                <div class="flex flex-col gap-1">
+                  <label class="font-medium text-sm text-gray-700">
+                    {{ $t('company.form.overviewLabel') }}
+                  </label>
+                  <UTextarea
+                    v-model.trim="companyAdd.overview"
+                    :rows="6"
+                    autoresize
+                    class="w-full"
+                    :placeholder="$t('company.form.overviewPlaceholder')"
+                  />
+                </div>
+                <div class="flex flex-col gap-1">
+                  <label class="font-medium text-sm text-gray-700">
+                    {{ $t('company.form.descLabel') }}
+                  </label>
+                  <UTextarea
+                    v-model.trim="companyAdd.description"
+                    :rows="12"
+                    autoresize
+                    class="w-full"
+                    :placeholder="$t('company.form.descPlaceholder')"
+                  />
+                </div>
               </div>
 
               <!-- Address -->
@@ -57,8 +103,30 @@
                 <UInput
                   v-model.trim="companyAdd.address"
                   class="w-full"
+                  :class="{ 'border-red-500': companyErrors.address }"
                   :placeholder="$t('company.form.placeholderAddress')"
+                  @input="companyErrors.address = ''"
                 />
+                <p v-if="companyErrors.address" class="text-red-500 text-sm mt-1">
+                  {{ companyErrors.address }}
+                </p>
+              </div>
+
+              <!-- Địa chỉ thuế -->
+              <div>
+                <label class="font-medium text-sm text-gray-700">
+                  Địa chỉ thuế
+                </label>
+                <UInput
+                  v-model.trim="companyAdd.taxAddress"
+                  class="w-full"
+                  :class="{ 'border-red-500': companyErrors.taxAddress }"
+                  placeholder="Địa chỉ thuế"
+                  @input="companyErrors.taxAddress = ''"
+                />
+                <p v-if="companyErrors.taxAddress" class="text-red-500 text-sm mt-1">
+                  {{ companyErrors.taxAddress }}
+                </p>
               </div>
 
               <!-- Org type + Founded -->
@@ -74,10 +142,17 @@
                     :items="organizationTypeItems"
                     :model-value="companyAdd.organizationType?.toString()"
                     class="w-full"
+                    :class="{ 'border-red-500': companyErrors.organizationType }"
                     @update:model-value="
-                      (v) => (companyAdd.organizationType = Number(v ?? 0))
+                      (v) => {
+                        companyAdd.organizationType = Number(v ?? 0)
+                        companyErrors.organizationType = ''
+                      }
                     "
                   />
+                  <p v-if="companyErrors.organizationType" class="text-red-500 text-sm mt-1">
+                    {{ companyErrors.organizationType }}
+                  </p>
                 </div>
                 <div>
                   <label class="font-medium text-sm text-gray-700">
@@ -89,10 +164,15 @@
                     min="1800"
                     max="2100"
                     class="w-full"
+                    :class="{ 'border-red-500': companyErrors.foundedYear }"
                     :placeholder="
                       $t('company.form.placeholderFounded') as string
                     "
+                    @input="companyErrors.foundedYear = ''"
                   />
+                  <p v-if="companyErrors.foundedYear" class="text-red-500 text-sm mt-1">
+                    {{ companyErrors.foundedYear }}
+                  </p>
                 </div>
               </div>
 
@@ -107,8 +187,13 @@
                   min="0"
                   step="1"
                   class="w-full"
+                  :class="{ 'border-red-500': companyErrors.companySize }"
                   :placeholder="$t('company.form.placeholderCompanySize')"
+                  @input="companyErrors.companySize = ''"
                 />
+                <p v-if="companyErrors.companySize" class="text-red-500 text-sm mt-1">
+                  {{ companyErrors.companySize }}
+                </p>
               </div>
 
               <!-- Website -->
@@ -120,8 +205,13 @@
                   v-model.trim="companyAdd.website"
                   type="url"
                   class="w-full"
+                  :class="{ 'border-red-500': companyErrors.website }"
                   :placeholder="$t('company.form.placeholderWebsite')"
+                  @input="companyErrors.website = ''"
                 />
+                <p v-if="companyErrors.website" class="text-red-500 text-sm mt-1">
+                  {{ companyErrors.website }}
+                </p>
               </div>
 
               <!-- Social links -->
@@ -168,9 +258,25 @@
                 </div>
               </div>
 
+              <!-- Video URL -->
+              <div>
+                <label class="font-medium text-sm text-gray-700">
+                  {{ $t('company.form.videoTitle') }}
+                </label>
+                <UInput
+                  v-model.trim="companyAdd.videoUrl"
+                  type="url"
+                  class="w-full"
+                  :placeholder="$t('company.form.placeholderVideo')"
+                />
+              </div>
+
               <div>
                 <label class="font-medium text-sm text-gray-700">
                   {{ $t('company.form.logoTitle') }}
+                  <span aria-hidden="true" class="text-black">{{
+                    $t('common.requiredMark')
+                  }}</span>
                 </label>
 
                 <div
@@ -247,44 +353,59 @@
                 </div>
               </div>
 
-              <!-- Description & Overview -->
+              <!-- Banner Image -->
               <div>
-                <div class="flex flex-col gap-1">
-                  <label class="font-medium text-sm text-gray-700">
-                    {{ $t('company.form.insightLabel') }}
-                  </label>
-                  <UTextarea
-                    v-model.trim="companyAdd.overview"
-                    :rows="3"
-                    autoresize
-                    class="w-full"
-                    :placeholder="$t('company.form.placeholderInsight')"
-                  />
-                </div>
+                <label class="font-medium text-sm text-gray-700">
+                  {{ $t('company.form.bannerTitle') }}
+                </label>
 
-                <div class="flex flex-col gap-1">
-                  <label class="font-medium text-sm text-gray-700">
-                    {{ $t('company.form.overviewLabel') }}
-                  </label>
-                  <UTextarea
-                    v-model.trim="companyAdd.overview"
-                    :rows="6"
-                    autoresize
-                    class="w-full"
-                    :placeholder="$t('company.form.overviewPlaceholder')"
+                <div
+                  class="border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition bg-gray-50"
+                  :class="
+                    isDraggingBanner
+                      ? 'ring-2 ring-blue-400 bg-blue-50'
+                      : 'border-gray-400'
+                  "
+                  @click="bannerFileEl?.click()"
+                  @dragenter.prevent="onDragEnterBanner"
+                  @dragover.prevent
+                  @dragleave.prevent="onDragLeaveBanner"
+                  @drop="onDropBanner"
+                >
+                  <input
+                    ref="bannerFileEl"
+                    type="file"
+                    accept="image/*"
+                    class="hidden"
+                    @change="onPickBanner"
                   />
-                </div>
-                <div class="flex flex-col gap-1">
-                  <label class="font-medium text-sm text-gray-700">
-                    {{ $t('company.form.descLabel') }}
-                  </label>
-                  <UTextarea
-                    v-model.trim="companyAdd.description"
-                    :rows="12"
-                    autoresize
-                    class="w-full"
-                    :placeholder="$t('company.form.descPlaceholder')"
-                  />
+
+                  <div v-if="bannerPreview" class="flex flex-col gap-4">
+                    <div class="flex justify-center">
+                      <div
+                        class="relative p-2 bg-white rounded-lg border shadow-sm inline-flex items-center justify-center"
+                      >
+                        <img
+                          :src="bannerPreview"
+                          class="max-h-60 max-w-full h-auto w-auto object-contain rounded-md"
+                          draggable="false"
+                        />
+                        <UButton
+                          icon="i-lucide-trash-2"
+                          color="error"
+                          size="xs"
+                          variant="solid"
+                          class="absolute top-2 right-2"
+                          :aria-label="$t('common.remove')"
+                          @click.stop="removeBanner"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div v-else class="text-gray-500">
+                    {{ $t('company.form.bannerDropHint') }}
+                  </div>
                 </div>
               </div>
 
@@ -403,6 +524,7 @@ const companyAdd = ref<CompanyAddUpdateEntity>({
   name: '',
   mst: null,
   address: '',
+  taxAddress: '',
   email: '',
   website: '',
   organizationType: 0,
@@ -416,10 +538,15 @@ const companyAdd = ref<CompanyAddUpdateEntity>({
   twitterLink: '',
   instagramLink: '',
   linkedInLink: '',
+  videoUrl: '',
   isShow: false,
   isWaiting: true,
   companyImages: [],
+  bannerImage: null,
 } as CompanyAddUpdateEntity)
+
+/** Validation errors */
+const companyErrors = ref<Record<string, string>>({})
 
 /** Select options */
 const { organizationTypeItems } = useJobFilters()
@@ -429,11 +556,60 @@ const imagesFileEl = ref<HTMLInputElement | null>(null)
 const imageFiles = ref<File[]>([])
 const imagePreviews = ref<string[]>([])
 
+/** Banner image state */
+const bannerFileEl = ref<HTMLInputElement | null>(null)
+const bannerFile = ref<File | null>(null)
+const bannerPreview = ref<string | null>(null)
+const isDraggingBanner = ref(false)
+
 function onDragEnter() {
   isDragging.value = true
 }
 function onDragLeave() {
   isDragging.value = false
+}
+function onDragEnterBanner() {
+  isDraggingBanner.value = true
+}
+function onDragLeaveBanner() {
+  isDraggingBanner.value = false
+}
+function onDropBanner(e: DragEvent) {
+  isDraggingBanner.value = false
+  const files = e.dataTransfer?.files
+
+  if (!files?.length) return
+  const file = files[0]
+
+  if (file.type.startsWith('image/')) {
+    if (bannerPreview.value?.startsWith('blob:')) {
+      URL.revokeObjectURL(bannerPreview.value)
+    }
+    bannerFile.value = file
+    bannerPreview.value = URL.createObjectURL(file)
+  }
+}
+function onPickBanner(e: Event) {
+  const files = (e.target as HTMLInputElement).files
+
+  if (!files?.length) return
+  const file = files[0]
+
+  if (file.type.startsWith('image/')) {
+    if (bannerPreview.value?.startsWith('blob:')) {
+      URL.revokeObjectURL(bannerPreview.value)
+    }
+    bannerFile.value = file
+    bannerPreview.value = URL.createObjectURL(file)
+  }
+  if (bannerFileEl.value) bannerFileEl.value.value = ''
+}
+function removeBanner() {
+  if (bannerPreview.value?.startsWith('blob:')) {
+    URL.revokeObjectURL(bannerPreview.value)
+  }
+  bannerFile.value = null
+  bannerPreview.value = null
 }
 
 function onDropImages(e: DragEvent) {
@@ -467,38 +643,118 @@ onBeforeUnmount(() => {
   imagePreviews.value.forEach((pv) => {
     if (pv?.startsWith('blob:')) URL.revokeObjectURL(pv)
   })
+  if (bannerPreview.value?.startsWith('blob:')) {
+    URL.revokeObjectURL(bannerPreview.value)
+  }
 })
 
+/** Helper function to scroll to first error field */
+function scrollToFirstError(errors: Record<string, string>, fieldIdMap: Record<string, string>) {
+  const firstErrorField = Object.keys(errors)[0]
+  
+  if (firstErrorField && fieldIdMap[firstErrorField]) {
+    const elementId = fieldIdMap[firstErrorField]
+    const element = document.getElementById(elementId) || 
+                    document.querySelector(`[id="${elementId}"]`) ||
+                    document.querySelector(`input[id*="${elementId}"], select[id*="${elementId}"], textarea[id*="${elementId}"]`)
+    
+    if (element) {
+      setTimeout(() => {
+        element.scrollIntoView({ behavior: 'smooth', block: 'center' })
+        // Focus the element if it's an input
+        if (element instanceof HTMLInputElement || element instanceof HTMLSelectElement || element instanceof HTMLTextAreaElement) {
+          element.focus()
+        }
+      }, 100)
+    }
+  }
+}
+
 /** Validation */
-function validateCompanyFields(): string {
-  if (!companyAdd.value.name?.trim()) return t('company.form.errName')
-  if (!companyAdd.value.address?.trim()) return t('company.form.errAddress')
-  if (!companyAdd.value.organizationType) return t('company.form.errOrgType')
-  if (companyAdd.value.email && !/^\S+@\S+\.\S+$/.test(companyAdd.value.email))
-    return t('company.form.errEmail')
+function validateCompanyFields(): boolean {
+  companyErrors.value = {}
+
+  let isValid = true
+
+  if (!companyAdd.value.name?.trim()) {
+    companyErrors.value.name = t('company.form.errName')
+    isValid = false
+  }
+
+  if (!companyAdd.value.address?.trim()) {
+    companyErrors.value.address = t('company.form.errAddress')
+    isValid = false
+  }
+
+  if (!companyAdd.value.organizationType) {
+    companyErrors.value.organizationType = t('company.form.errOrgType')
+    isValid = false
+  }
+
   if (
     companyAdd.value.website &&
     !/^https?:\/\/.+/i.test(companyAdd.value.website)
-  )
-    return t('company.form.errWebsite')
+  ) {
+    companyErrors.value.website = t('company.form.errWebsite')
+    isValid = false
+  }
+
   if (
     companyAdd.value.companySize != null &&
     (!Number.isFinite(companyAdd.value.companySize) ||
       companyAdd.value.companySize < 0 ||
       !Number.isInteger(companyAdd.value.companySize))
   ) {
-    return t('company.form.errCompanySize')
+    companyErrors.value.companySize = t('company.form.errCompanySize')
+    isValid = false
   }
 
-  return ''
+  if (
+    companyAdd.value.foundedYear != null &&
+    (!Number.isFinite(companyAdd.value.foundedYear) ||
+      !Number.isInteger(companyAdd.value.foundedYear) ||
+      companyAdd.value.foundedYear < 1800 ||
+      companyAdd.value.foundedYear > 2100)
+  ) {
+    companyErrors.value.foundedYear = 'Năm thành lập phải là số nguyên từ 1800 đến 2100.'
+    isValid = false
+  }
+
+  if (
+    companyAdd.value.website &&
+    !/^https?:\/\/.+/i.test(companyAdd.value.website)
+  ) {
+    companyErrors.value.website = t('company.form.errWebsite')
+    isValid = false
+  }
+
+  if (!isValid) {
+    const companyFieldIdMap: Record<string, string> = {
+      name: 'company-name',
+      address: 'company-address',
+      organizationType: 'company-organization-type',
+      foundedYear: 'company-founded-year',
+      companySize: 'company-size',
+      website: 'company-website',
+      logo: 'company-logo-upload',
+    }
+
+    // Hiển thị toast notification
+    useNotify({
+      type: 'error',
+      message: 'Vui lòng nhập đúng các thông tin.',
+    })
+
+    scrollToFirstError(companyErrors.value, companyFieldIdMap)
+  }
+
+  return isValid
 }
 
 function confirmCompanyStep() {
-  const err = validateCompanyFields()
+  const isValid = validateCompanyFields()
 
-  if (err) {
-    useNotify({ message: err })
-
+  if (!isValid) {
     return
   }
   if (stepper.value?.hasNext) stepper.value.next()
@@ -527,11 +783,9 @@ const addCompany = async () => {
 
     return
   }
-  const err = validateCompanyFields()
+  const isValid = validateCompanyFields()
 
-  if (err) {
-    useNotify({ message: err })
-
+  if (!isValid) {
     return
   }
 
@@ -539,6 +793,7 @@ const addCompany = async () => {
   try {
     let logoUrl: string | null = null
     let detailUrls: string[] = []
+    let bannerUrl: string | null = null
 
     if (imageFiles.value.length > 0) {
       const allUrls = await getImageUrls(imageFiles.value)
@@ -547,8 +802,14 @@ const addCompany = async () => {
       detailUrls = allUrls.slice(1)
     }
 
+    if (bannerFile.value) {
+      const bannerUrls = await getImageUrls([bannerFile.value])
+      bannerUrl = bannerUrls[0] || null
+    }
+
     companyAdd.value.logo = logoUrl
     companyAdd.value.companyImages = detailUrls.map((u) => ({ url: u }))
+    companyAdd.value.bannerImage = bannerUrl
 
     const res = await $api.company.addCompany(companyAdd.value)
 

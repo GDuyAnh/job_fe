@@ -42,6 +42,48 @@
           />
         </div>
 
+        <!-- Mã số thuế (MST) -->
+        <div>
+          <label class="font-medium text-sm text-gray-700">
+            Mã số thuế
+          </label>
+          <UInput
+            :model-value="companyForm.mst || ''"
+            class="w-full"
+            placeholder="Mã số thuế"
+            disabled
+          />
+        </div>
+
+        <!-- Địa chỉ thuế -->
+        <div>
+          <label class="font-medium text-sm text-gray-700">
+            Địa chỉ thuế
+          </label>
+          <UInput
+            v-model.trim="companyForm.taxAddress"
+            class="w-full"
+            placeholder="Địa chỉ thuế"
+          />
+        </div>
+
+        <!-- Description -->
+        <div>
+          <div class="flex flex-col gap-1 rich-text-output">
+            <label class="font-medium text-sm text-gray-700">
+              {{ $t('company.form.descLabel') }}
+            </label>
+            <RichTextEditor
+              :model-value="companyForm.description || undefined"
+              class="w-full rich-text-content"
+              :placeholder="$t('company.form.descPlaceholder')"
+              @update:model-value="
+                (val) => (companyForm.description = val || null)
+              "
+            />
+          </div>
+        </div>
+
         <!-- Address -->
         <div>
           <label class="font-medium text-sm text-gray-700">
@@ -78,9 +120,6 @@
           <div>
             <label class="font-medium text-sm text-gray-700">
               {{ $t('company.founded') }}
-              <span aria-hidden="true" class="text-black">{{
-                $t('common.requiredMark')
-              }}</span>
             </label>
             <UInput
               v-model.number="companyForm.foundedYear"
@@ -99,9 +138,6 @@
         <div>
           <label class="font-medium text-sm text-gray-700">
             {{ $t('company.size') }}
-            <span aria-hidden="true" class="text-black">{{
-              $t('common.requiredMark')
-            }}</span>
           </label>
           <UInput
             v-model.number="companyForm.companySize"
@@ -168,6 +204,19 @@
               :placeholder="$t('company.form.placeholderLinkedIn')"
             />
           </div>
+        </div>
+
+        <!-- Video URL -->
+        <div>
+          <label class="font-medium text-sm text-gray-700">
+            {{ $t('company.form.videoTitle') }}
+          </label>
+          <UInput
+            v-model.trim="companyForm.videoUrl"
+            type="url"
+            class="w-full"
+            :placeholder="$t('company.form.placeholderVideo')"
+          />
         </div>
 
         <!-- Logo uploader (SINGLE, with crop) -->
@@ -243,6 +292,62 @@
           </div>
         </div>
 
+        <!-- Banner Image -->
+        <div>
+          <label class="font-medium text-sm text-gray-700">
+            {{ $t('company.form.bannerTitle') }}
+          </label>
+
+          <div
+            class="border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition bg-gray-50"
+            :class="
+              isDraggingBanner
+                ? 'ring-2 ring-blue-400 bg-blue-50'
+                : 'border-gray-400'
+            "
+            @click="bannerFileEl?.click()"
+            @dragenter.prevent="onDragEnterBanner"
+            @dragover.prevent
+            @dragleave.prevent="onDragLeaveBanner"
+            @drop="onDropBanner"
+          >
+            <input
+              ref="bannerFileEl"
+              type="file"
+              accept="image/*"
+              class="hidden"
+              @change="onPickBanner"
+            />
+
+            <div v-if="bannerPreview" class="flex flex-col gap-4">
+              <div class="flex justify-center">
+                <div
+                  class="relative p-2 bg-white rounded-lg border shadow-sm inline-flex items-center justify-center"
+                >
+                  <img
+                    :src="bannerPreview"
+                    class="max-h-60 max-w-full h-auto w-auto object-contain rounded-md"
+                    draggable="false"
+                  />
+                  <UButton
+                    icon="i-lucide-trash-2"
+                    color="error"
+                    size="xs"
+                    variant="solid"
+                    class="absolute top-2 right-2"
+                    :aria-label="$t('common.remove')"
+                    @click.stop="removeBanner"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div v-else class="text-gray-500">
+              {{ $t('company.form.bannerDropHint') }}
+            </div>
+          </div>
+        </div>
+
         <!-- Company images uploader (MULTIPLE) -->
         <div>
           <label class="font-medium text-sm text-gray-700">
@@ -311,26 +416,6 @@
             <div v-else class="text-gray-500">
               {{ $t('company.form.dropHint') }}
             </div>
-          </div>
-        </div>
-
-        <!-- Description -->
-        <div>
-          <div class="flex flex-col gap-1 rich-text-output">
-            <label class="font-medium text-sm text-gray-700">
-              {{ $t('company.form.descLabel') }}
-              <span aria-hidden="true" class="text-black">{{
-                $t('common.requiredMark')
-              }}</span>
-            </label>
-            <RichTextEditor
-              :model-value="companyForm.description || undefined"
-              class="w-full rich-text-content"
-              :placeholder="$t('company.form.descPlaceholder')"
-              @update:model-value="
-                (val) => (companyForm.description = val || null)
-              "
-            />
           </div>
         </div>
 
@@ -518,6 +603,13 @@ const imagePreviews = ref<string[]>([])
 const originalImageUrls = ref<string[]>([]) // Track original image URLs
 const isDraggingImages = ref(false)
 
+/** Banner image state */
+const bannerFileEl = ref<HTMLInputElement | null>(null)
+const bannerFile = ref<File | null>(null)
+const bannerPreview = ref<string | null>(null)
+const originalBannerUrl = ref<string | null>(null) // Track original banner URL
+const isDraggingBanner = ref(false)
+
 const companyForm = ref<CompanyAddUpdateEntity>({
   name: '',
   mst: null, // MST can be null initially
@@ -534,9 +626,11 @@ const companyForm = ref<CompanyAddUpdateEntity>({
   twitterLink: '',
   instagramLink: '',
   linkedInLink: '',
+  videoUrl: '',
   isShow: false,
   isWaiting: false,
   companyImages: [],
+  bannerImage: null,
 })
 
 // Watch for companyData changes from parent
@@ -562,6 +656,7 @@ function populateFormFromCompanyData(res: CompanyEntity) {
     companyForm.value.name = res.name || ''
     companyForm.value.mst = res.mst ?? null // Keep MST as null if not provided, don't convert to empty string
     companyForm.value.address = res.address || ''
+    companyForm.value.taxAddress = res.taxAddress || ''
     companyForm.value.organizationType = res.organizationType ?? 0
     companyForm.value.website = res.website || ''
     companyForm.value.foundedYear = res.foundedYear ?? null
@@ -570,10 +665,12 @@ function populateFormFromCompanyData(res: CompanyEntity) {
     companyForm.value.twitterLink = res.twitterLink || ''
     companyForm.value.instagramLink = res.instagramLink || ''
     companyForm.value.linkedInLink = res.linkedInLink || ''
+    companyForm.value.videoUrl = res.videoUrl || ''
     companyForm.value.description = res.description || ''
     companyForm.value.insight = res.insight || ''
     companyForm.value.overview = res.overview || ''
     companyForm.value.logo = res.logo
+    companyForm.value.bannerImage = res.bannerImage ?? null
 
     // Load logo
     if (res.logo) {
@@ -584,6 +681,17 @@ function populateFormFromCompanyData(res: CompanyEntity) {
       logoPreview.value = null
       originalLogoUrl.value = null
       logoFile.value = null
+    }
+
+    // Load banner image
+    if (res.bannerImage) {
+      bannerPreview.value = res.bannerImage
+      originalBannerUrl.value = res.bannerImage // Track original URL
+      bannerFile.value = null
+    } else {
+      bannerPreview.value = null
+      originalBannerUrl.value = null
+      bannerFile.value = null
     }
 
     // Load company images (excluding logo)
@@ -1120,10 +1228,61 @@ function removeImage(idx: number) {
   }
 }
 
+// Banner image handlers
+function onDragEnterBanner() {
+  isDraggingBanner.value = true
+}
+function onDragLeaveBanner() {
+  isDraggingBanner.value = false
+}
+function onDropBanner(e: DragEvent) {
+  isDraggingBanner.value = false
+  const files = e.dataTransfer?.files
+
+  if (!files?.length) return
+  const file = files[0]
+
+  if (file.type.startsWith('image/')) {
+    if (bannerPreview.value?.startsWith('blob:')) {
+      URL.revokeObjectURL(bannerPreview.value)
+    }
+    bannerFile.value = file
+    bannerPreview.value = URL.createObjectURL(file)
+  }
+}
+function onPickBanner(e: Event) {
+  const files = (e.target as HTMLInputElement).files
+
+  if (!files?.length) return
+  const file = files[0]
+
+  if (file.type.startsWith('image/')) {
+    if (bannerPreview.value?.startsWith('blob:')) {
+      URL.revokeObjectURL(bannerPreview.value)
+    }
+    bannerFile.value = file
+    bannerPreview.value = URL.createObjectURL(file)
+  }
+  if (bannerFileEl.value) bannerFileEl.value.value = ''
+}
+function removeBanner() {
+  if (bannerPreview.value?.startsWith('blob:')) {
+    URL.revokeObjectURL(bannerPreview.value)
+  }
+  bannerFile.value = null
+  bannerPreview.value = null
+  originalBannerUrl.value = null
+  companyForm.value.bannerImage = null
+}
+
 onBeforeUnmount(() => {
   // Cleanup logo preview
   if (logoPreview.value?.startsWith('blob:')) {
     URL.revokeObjectURL(logoPreview.value)
+  }
+  // Cleanup banner preview
+  if (bannerPreview.value?.startsWith('blob:')) {
+    URL.revokeObjectURL(bannerPreview.value)
   }
   // Cleanup image previews
   imagePreviews.value.forEach((pv) => {
@@ -1132,56 +1291,82 @@ onBeforeUnmount(() => {
 })
 
 function validateCompanyFields(): string {
-  if (!companyForm.value.name?.trim()) return t('company.form.errName')
+  if (!companyForm.value.name?.trim()) {
+    useNotify({
+      type: 'error',
+      message: 'Vui lòng nhập đúng các thông tin.',
+    })
+    return t('company.form.errName')
+  }
 
   // Check if address is empty or only contains empty HTML tags
   const addressHtml = companyForm.value.address || ''
 
   const cleanAddress = addressHtml.replace(/<[^>]*>/g, '').trim()
 
-  if (cleanAddress.length === 0) return t('company.form.errAddress')
-
-  if (!companyForm.value.organizationType) return t('company.form.errOrgType')
-
-  if (!companyForm.value.foundedYear) {
-    return 'Năm thành lập không được để trống.'
+  if (cleanAddress.length === 0) {
+    useNotify({
+      type: 'error',
+      message: 'Vui lòng nhập đúng các thông tin.',
+    })
+    return t('company.form.errAddress')
   }
 
-  if (!Number.isFinite(companyForm.value.foundedYear) || companyForm.value.foundedYear < 1800 || companyForm.value.foundedYear > 2100) {
-    return 'Năm thành lập phải là số hợp lệ từ 1800 đến 2100.'
+  if (!companyForm.value.organizationType) {
+    useNotify({
+      type: 'error',
+      message: 'Vui lòng nhập đúng các thông tin.',
+    })
+    return t('company.form.errOrgType')
   }
 
-  if (!companyForm.value.companySize) {
-    return 'Quy mô công ty không được để trống.'
+  // Validate foundedYear format only if provided
+  if (companyForm.value.foundedYear != null && companyForm.value.foundedYear !== undefined) {
+    if (!Number.isFinite(companyForm.value.foundedYear) || companyForm.value.foundedYear < 1800 || companyForm.value.foundedYear > 2100) {
+      useNotify({
+        type: 'error',
+        message: 'Vui lòng nhập đúng các thông tin.',
+      })
+      return 'Năm thành lập phải là số hợp lệ từ 1800 đến 2100.'
+    }
   }
 
-  if (
-    !Number.isFinite(companyForm.value.companySize) ||
-    companyForm.value.companySize < 0 ||
-    !Number.isInteger(companyForm.value.companySize)
-  ) {
-    return t('company.form.errCompanySize')
+  // Validate companySize format only if provided
+  if (companyForm.value.companySize != null && companyForm.value.companySize !== undefined) {
+    if (
+      !Number.isFinite(companyForm.value.companySize) ||
+      companyForm.value.companySize < 0 ||
+      !Number.isInteger(companyForm.value.companySize)
+    ) {
+      useNotify({
+        type: 'error',
+        message: 'Vui lòng nhập đúng các thông tin.',
+      })
+      return t('company.form.errCompanySize')
+    }
   }
 
   // Validate logo
   if (!logoFile.value && !logoPreview.value) {
+    useNotify({
+      type: 'error',
+      message: 'Vui lòng nhập đúng các thông tin.',
+    })
     return 'Logo công ty không được để trống.'
   }
 
-  // Check if description is empty or only contains empty HTML tags
-  const descriptionHtml = companyForm.value.description || ''
-
-  const cleanDescription = descriptionHtml.replace(/<[^>]*>/g, '').trim()
-
-  if (cleanDescription.length === 0) {
-    return 'Giới thiệu công ty không được để trống.'
-  }
+  // Description is optional, no validation needed
 
   if (
     companyForm.value.website &&
     !/^https?:\/\/.+/i.test(companyForm.value.website)
-  )
+  ) {
+    useNotify({
+      type: 'error',
+      message: 'Vui lòng nhập đúng các thông tin.',
+    })
     return t('company.form.errWebsite')
+  }
 
   return ''
 }
@@ -1253,6 +1438,21 @@ async function saveCompany() {
 
     detailUrls.push(...existingUrls)
 
+    // Handle banner image
+    let bannerUrl: string | undefined = undefined
+
+    if (bannerFile.value) {
+      // New banner file uploaded - convert to DataURL
+      const bannerUrls = await getImageUrls([bannerFile.value])
+      bannerUrl = bannerUrls[0] || undefined
+    } else if (bannerPreview.value && !bannerPreview.value.startsWith('blob:')) {
+      // Use existing banner URL (not changed) - keep original URL
+      bannerUrl = bannerPreview.value
+    } else if (originalBannerUrl.value) {
+      // Keep original banner URL if exists
+      bannerUrl = originalBannerUrl.value
+    }
+
     // Prepare update data
     const updateData: CompanyAddUpdateEntity = {
       ...companyForm.value,
@@ -1266,6 +1466,20 @@ async function saveCompany() {
     // Only include logo if we have a value
     if (logoUrl) {
       updateData.logo = logoUrl
+    }
+
+    // Only include banner if we have a value
+    if (bannerUrl) {
+      updateData.bannerImage = bannerUrl
+    } else {
+      updateData.bannerImage = null
+    }
+
+    // Only include banner if we have a value
+    if (bannerUrl) {
+      updateData.bannerImage = bannerUrl
+    } else {
+      updateData.bannerImage = null
     }
 
     await $api.company.editCompany(authStore.user.companyId, updateData)

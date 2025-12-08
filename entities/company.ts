@@ -28,7 +28,9 @@ export interface CompanyEntity {
   twitterLink: string | null
   instagramLink: string | null
   website: string | null
+  videoUrl: string | null
   address: string | null
+  taxAddress: string | null
   companySize: number | null
   foundedYear: number | null
   email: string
@@ -39,6 +41,7 @@ export interface CompanyEntity {
 
   companyImages: CompanyImage[]
   jobs: CompanyJobSummary[]
+  bannerImage: string | null
 }
 
 export interface CompanyAddUpdateEntity {
@@ -54,7 +57,9 @@ export interface CompanyAddUpdateEntity {
   twitterLink: string | null
   instagramLink: string | null
   website: string | null
+  videoUrl: string | null
   address: string | null
+  taxAddress: string | null
   companySize: number | null
   foundedYear: number | null
   description: string | null
@@ -63,6 +68,7 @@ export interface CompanyAddUpdateEntity {
   openPositions?: number
 
   companyImages: CompanyAddUpdateImage[]
+  bannerImage: string | null
 }
 
 export interface VietQRBusinessResponse {
