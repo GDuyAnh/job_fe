@@ -386,9 +386,9 @@
       "nameJobPlaceHolder": "Ví dụ: Tuyển nhân viên trợ giảng, Tuyển giáo viên tiểu học,...",
       "detailJobLabel": "Chi tiết công việc",
       "emailJobLabel": "Địa chỉ email",
-      "emailJobPlaceholder": "Nhập địa chỉ email",
+      "emailJobPlaceholder": "Email nhận CV",
       "phoneJobLabel": "Số điện thoại",
-      "phoneJobPlaceholder": "Nhập số điện thoại",
+      "phoneJobPlaceholder": "Số điện thoại người đăng tin",
       "companyNameLabel": "Tên công ty",
       "deadlineLabel": "Hạn ứng tuyển",
       "categoryLabel": "Lĩnh vực công việc",
@@ -406,7 +406,7 @@
       "agreePolicy": "Điều khoản và Điều kiện ",
       "agreePrivacy": "Chính sách quyền riêng tư",
       "and": " và ",
-      "uploadJobContent": "Đăng việc làm",
+      "uploadJobContent": "Đăng tin",
       "updateJobContent": "Cập nhật công việc",
       "uploadJobComplete": "Đăng tải công việc thành công.",
       "uploadJobFailed": "Đăng tải công việc thất bại. Vui lòng thử lại.",
@@ -431,7 +431,7 @@
     },
     "editJob": {
       "title": "Chỉnh sửa việc làm",
-      "editJobContent": "Xác nhận chỉnh sửa",
+      "editJobContent": "Lưu thông tin",
       "editJobComplete": "Chỉnh sửa công việc thành công."
     },
     "preview": {
@@ -518,7 +518,7 @@
       "deleteFailed": "Xóa công ty thất bại.",
       "approveFailed": "Duyệt công ty thất bại."
     },
-    "name": "Tên công ty / Trường học",
+    "name": "Tên công ty",
     "mst": "Mã số thuế",
     "email": "Email",
     "industry": "Loại hình tổ chức",
@@ -543,7 +543,9 @@
       "stepConfirm": "Xác nhận hoàn tất",
       "createTitle": "Thêm công ty / trường học",
       "logoTitle": "Logo công ty",
-      "imagesTitleAdditional": "Ảnh phụ công ty",
+      "bannerTitle": "Ảnh bìa công ty",
+      "bannerDropHint": "Kéo thả ảnh bìa vào đây hoặc nhấn để chọn",
+      "imagesTitleAdditional": "Ảnh giới thiệu công ty",
       "dropHintLogo": "Kéo thả logo vào đây hoặc nhấn để chọn",
       "dropHint": "Kéo thả ảnh vào đây hoặc nhấn để chọn (nhiều ảnh)",
       "addMore": "Thêm ảnh",
@@ -559,7 +561,7 @@
       "backToList": "Trở về trang danh sách",
       "createBtn": "Tạo công ty",
       "placeholderInsight": "Sứ mệnh của côngty",
-      "placeholderName": "Nhập tên công ty / trường học",
+      "placeholderName": "Nhập tên công ty",
       "placeholderAddress": "Nhập địa chỉ",
       "placeholderFounded": "2020",
       "placeholderCompanySize": "120",
@@ -569,7 +571,9 @@
       "placeholderTwitter": "https://twitter.com/...",
       "placeholderInstagram": "https://instagram.com/...",
       "placeholderLinkedIn": "https://linkedin.com/company/...",
-      "errName": "Tên công ty / trường học không được để trống.",
+      "videoTitle": "Video giới thiệu công ty",
+      "placeholderVideo": "https://youtube.com/watch?v=...",
+      "errName": "Tên công ty không được để trống.",
       "errAddress": "Địa chỉ không được để trống.",
       "errOrgType": "Vui lòng chọn loại hình tổ chức.",
       "errEmail": "Email không hợp lệ.",
@@ -578,7 +582,7 @@
     },
     "editCompany": {
       "title": "Chỉnh sửa công ty",
-      "editCompanyContent": "Xác nhận chỉnh sửa",
+      "editCompanyContent": "Lưu thông tin",
       "editCompanyComplete": "Chỉnh sửa thông tin công ty thành công"
     }
   },

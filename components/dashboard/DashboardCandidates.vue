@@ -12,9 +12,21 @@
     <!-- Applications Table -->
     <div class="bg-white rounded-xl shadow-sm border border-gray-200">
       <div class="p-6 border-b border-gray-200">
-        <h3 class="text-lg font-semibold text-gray-900">
-          {{ $t('dashboard.main.recentApplications') }}
-        </h3>
+        <div class="flex items-center justify-between gap-4">
+          <h3 class="text-lg font-semibold text-gray-900">
+            {{ $t('dashboard.main.recentApplications') }}
+          </h3>
+          <!-- Search bar -->
+          <div class="flex-1 max-w-md">
+            <UInput
+              v-model="searchQuery"
+              placeholder="Tìm kiếm theo email, vị trí, tên ứng viên..."
+              icon="i-lucide-search"
+              class="w-full"
+              clearable
+            />
+          </div>
+        </div>
       </div>
 
       <!-- Loading state -->
@@ -49,7 +61,7 @@
           </thead>
           <tbody class="bg-white divide-y divide-gray-200">
             <tr
-              v-for="application in applications"
+              v-for="application in filteredApplications"
               :key="application.id"
               class="hover:bg-gray-50 transition-colors"
             >
@@ -129,7 +141,7 @@
             </tr>
 
             <!-- Empty State -->
-            <tr v-if="applications.length === 0">
+            <tr v-if="filteredApplications.length === 0">
               <td colspan="6" class="px-6 py-12 text-center">
                 <UIcon
                   name="i-lucide-inbox"
@@ -172,6 +184,27 @@ const authStore = useAuthStore()
 const loading = ref(false)
 const applications = ref<JobApplication[]>([])
 const deletingApplicationId = ref<number | null>(null)
+const searchQuery = ref('')
+
+// Computed - Filter applications by search query
+const filteredApplications = computed(() => {
+  if (!searchQuery.value.trim()) {
+    return applications.value
+  }
+
+  const query = searchQuery.value.trim().toLowerCase()
+
+  return applications.value.filter((app) => {
+    // Search by email
+    const matchesEmail = app.email?.toLowerCase().includes(query)
+    // Search by job title (vị trí)
+    const matchesJobTitle = app.jobTitle?.toLowerCase().includes(query)
+    // Search by applicant name (tên ứng viên)
+    const matchesApplicantName = app.applicantName?.toLowerCase().includes(query)
+
+    return matchesEmail || matchesJobTitle || matchesApplicantName
+  })
+})
 
 // Format date helper
 const formatDate = (date: Date | string): string => {

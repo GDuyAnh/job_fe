@@ -991,30 +991,81 @@ const handleClickOutside = (event: Event) => {
 }
 
 // User dropdown menu items
-const userMenuItems = computed(() => [
-  {
-    label: 'Dashboard',
-    icon: 'i-lucide-layout-dashboard',
-    click: () => {
-      const authStore = useAuthStore()
-      const userRole = authStore.user?.role
+const userMenuItems = computed(() => {
+  const authStore = useAuthStore()
+  const userRole = authStore.user?.role
+  const isCompany = userRole === RoleStatus.COMPANY
 
-      if (userRole === RoleStatus.COMPANY) {
-        router.push(ROUTE_PAGE.DASHBOARD.COMPANY)
-      } else if (userRole === RoleStatus.USER) {
-        router.push(ROUTE_PAGE.DASHBOARD.USER)
-      } else {
-        // Default fallback for ADMIN or unknown roles
-        router.push(ROUTE_PAGE.DASHBOARD.USER)
-      }
+  const items = [
+    {
+      label: 'Dashboard',
+      icon: 'i-lucide-layout-dashboard',
+      click: () => {
+        if (isCompany) {
+          router.push(ROUTE_PAGE.DASHBOARD.COMPANY)
+        } else if (userRole === RoleStatus.USER) {
+          router.push(ROUTE_PAGE.DASHBOARD.USER)
+        } else {
+          router.push(ROUTE_PAGE.DASHBOARD.USER)
+        }
+      },
     },
-  },
-  {
+  ]
+
+  // Chỉ hiển thị các menu này cho company
+  if (isCompany) {
+    items.push(
+      {
+        label: 'Hồ sơ công ty',
+        icon: 'i-lucide-building',
+        click: () => {
+          router.push({
+            path: ROUTE_PAGE.DASHBOARD.COMPANY,
+            query: { view: 'editProfile' },
+          })
+        },
+      },
+      {
+        label: 'Đăng tin mới',
+        icon: 'i-lucide-plus-circle',
+        click: () => {
+          router.push({
+            path: ROUTE_PAGE.DASHBOARD.COMPANY,
+            query: { view: 'newJob' },
+          })
+        },
+      },
+      {
+        label: 'Quản lý tin đăng',
+        icon: 'i-lucide-briefcase',
+        click: () => {
+          router.push({
+            path: ROUTE_PAGE.DASHBOARD.COMPANY,
+            query: { view: 'manageJobs' },
+          })
+        },
+      },
+      {
+        label: 'Quản lý ứng viên',
+        icon: 'i-lucide-users',
+        click: () => {
+          router.push({
+            path: ROUTE_PAGE.DASHBOARD.COMPANY,
+            query: { view: 'candidates' },
+          })
+        },
+      },
+    )
+  }
+
+  items.push({
     label: 'Đăng xuất',
     icon: 'i-lucide-log-out',
     click: logout,
-  },
-])
+  })
+
+  return items
+})
 </script>
 
 <style scoped>

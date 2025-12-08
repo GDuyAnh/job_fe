@@ -5,11 +5,11 @@
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between items-center h-16">
           <!-- Logo -->
-          <div class="flex items-center">
-            <h1 class="text-2xl font-bold text-blue-900">
+          <NuxtLink to="/" class="flex items-center cursor-pointer">
+            <h1 class="text-2xl font-bold text-blue-900 hover:text-blue-700 transition-colors">
               {{ $t('dashboard.header.logo') }}
             </h1>
-          </div>
+          </NuxtLink>
 
           <!-- Right side actions -->
           <div class="flex items-center space-x-4">
@@ -63,6 +63,7 @@
               >
                 <div class="py-1">
                   <button
+
                     v-for="item in userMenuItems"
                     :key="item.label"
                     class="flex items-center gap-3 w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
@@ -165,29 +166,6 @@
               </button>
             </div>
           </div>
-
-          <!-- Insights -->
-          <!-- <div class="px-4">
-            <h3
-              class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3"
-            >
-              {{ $t('dashboard.sidebar.insights') }}
-            </h3>
-            <div class="space-y-1">
-              <button
-                :class="[
-                  'w-full flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors',
-                  activeView === 'notifications'
-                    ? 'text-white bg-blue-600'
-                    : 'text-gray-700 hover:bg-blue-100'
-                ]"
-                @click="setActiveView('notifications')"
-              >
-                <UIcon name="i-lucide-bell" class="w-5 h-5 mr-3" />
-                {{ $t('dashboard.sidebar.notifications') }}
-              </button>
-            </div>
-          </div> -->
         </nav>
       </aside>
 
@@ -210,21 +188,21 @@
         </div>
 
         <!-- Summary Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8 items-stretch">
           <!-- Công việc đăng tải -->
-          <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
-            <div class="flex items-center">
-              <div class="p-3 bg-blue-100 rounded-lg">
+          <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-200 flex flex-col">
+            <div class="flex items-start flex-1">
+              <div class="p-3 bg-blue-100 rounded-lg flex-shrink-0">
                 <UIcon
                   name="i-lucide-file-text"
                   class="w-6 h-6 text-blue-600"
                 />
               </div>
-              <div class="ml-4">
-                <p class="text-sm font-medium text-gray-600">
+              <div class="ml-4 flex-1 min-w-0 flex flex-col justify-start">
+                <p class="text-sm font-medium text-gray-600 mb-2 leading-tight min-h-[2.5rem]">
                   {{ $t('dashboard.main.metrics.postedJobs') }}
                 </p>
-                <p class="text-2xl font-bold text-gray-900">
+                <p class="text-2xl font-bold text-gray-900 mt-auto">
                   {{ jobStats.postedJobs }}
                 </p>
               </div>
@@ -232,16 +210,16 @@
           </div>
 
           <!-- Tin đăng chờ duyệt -->
-          <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
-            <div class="flex items-center">
-              <div class="p-3 bg-yellow-100 rounded-lg">
+          <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-200 flex flex-col">
+            <div class="flex items-start flex-1">
+              <div class="p-3 bg-yellow-100 rounded-lg flex-shrink-0">
                 <UIcon name="i-lucide-clock" class="w-6 h-6 text-yellow-600" />
               </div>
-              <div class="ml-4">
-                <p class="text-sm font-medium text-gray-600">
+              <div class="ml-4 flex-1 min-w-0 flex flex-col justify-start">
+                <p class="text-sm font-medium text-gray-600 mb-2 leading-tight min-h-[2.5rem]">
                   {{ $t('dashboard.main.metrics.pendingJobs') }}
                 </p>
-                <p class="text-2xl font-bold text-gray-900">
+                <p class="text-2xl font-bold text-gray-900 mt-auto">
                   {{ jobStats.pendingJobs }}
                 </p>
               </div>
@@ -249,16 +227,16 @@
           </div>
 
           <!-- Tin hết hạn -->
-          <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
-            <div class="flex items-center">
-              <div class="p-3 bg-red-100 rounded-lg">
+          <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-200 flex flex-col">
+            <div class="flex items-start flex-1">
+              <div class="p-3 bg-red-100 rounded-lg flex-shrink-0">
                 <UIcon name="i-lucide-x-circle" class="w-6 h-6 text-red-600" />
               </div>
-              <div class="ml-4">
-                <p class="text-sm font-medium text-gray-600">
+              <div class="ml-4 flex-1 min-w-0 flex flex-col justify-start">
+                <p class="text-sm font-medium text-gray-600 mb-2 leading-tight min-h-[2.5rem]">
                   {{ $t('dashboard.main.metrics.expiredJobs') }}
                 </p>
-                <p class="text-2xl font-bold text-gray-900">
+                <p class="text-2xl font-bold text-gray-900 mt-auto">
                   {{ jobStats.expiredJobs }}
                 </p>
               </div>
@@ -266,20 +244,40 @@
           </div>
 
           <!-- Tin sắp hết hạn -->
-          <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
-            <div class="flex items-center">
-              <div class="p-3 bg-orange-100 rounded-lg">
+          <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-200 flex flex-col">
+            <div class="flex items-start flex-1">
+              <div class="p-3 bg-orange-100 rounded-lg flex-shrink-0">
                 <UIcon
                   name="i-lucide-alert-triangle"
                   class="w-6 h-6 text-orange-600"
                 />
               </div>
-              <div class="ml-4">
-                <p class="text-sm font-medium text-gray-600">
+              <div class="ml-4 flex-1 min-w-0 flex flex-col justify-start">
+                <p class="text-sm font-medium text-gray-600 mb-2 leading-tight min-h-[2.5rem]">
                   {{ $t('dashboard.main.metrics.expiringSoonJobs') }}
                 </p>
-                <p class="text-2xl font-bold text-gray-900">
+                <p class="text-2xl font-bold text-gray-900 mt-auto">
                   {{ jobStats.expiringSoonJobs }}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tổng số lượng đơn ứng tuyển -->
+          <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-200 flex flex-col">
+            <div class="flex items-start flex-1">
+              <div class="p-3 bg-green-100 rounded-lg flex-shrink-0">
+                <UIcon
+                  name="i-lucide-user-check"
+                  class="w-6 h-6 text-green-600"
+                />
+              </div>
+              <div class="ml-4 flex-1 min-w-0 flex flex-col justify-start">
+                <p class="text-sm font-medium text-gray-600 mb-2 leading-tight min-h-[2.5rem]">
+                  Tổng số lượng đơn ứng tuyển
+                </p>
+                <p class="text-2xl font-bold text-gray-900 mt-auto">
+                  {{ jobStats.totalApplications }}
                 </p>
               </div>
             </div>
@@ -458,11 +456,6 @@
             @edit-profile="setActiveView('editProfile')"
           />
         </div>
-
-        <!-- Notifications View -->
-        <!-- <div v-else-if="activeView === 'notifications'">
-          <DashboardNotifications @back="setActiveView('dashboard')" />
-        </div> -->
       </main>
     </div>
   </div>
@@ -472,9 +465,9 @@
 import { useRouter } from 'vue-router'
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import type { CompanyEntity } from '~/entities/company'
-
 // Composables
 const router = useRouter()
+const route = useRoute()
 const authStore = useAuthStore()
 
 // Dashboard view types
@@ -500,6 +493,7 @@ const jobStats = ref({
   pendingJobs: 0,
   expiredJobs: 0,
   expiringSoonJobs: 0,
+  totalApplications: 0,
 })
 
 // Application interface
@@ -564,6 +558,41 @@ const handleCompanyUpdated = async () => {
 
 // User dropdown menu items
 const userMenuItems = [
+  {
+    label: 'Dashboard',
+    icon: 'i-lucide-layout-dashboard',
+    click: () => {
+      setActiveView('dashboard')
+    },
+  },
+  {
+    label: 'Hồ sơ công ty',
+    icon: 'i-lucide-building',
+    click: () => {
+      setActiveView('editProfile')
+    },
+  },
+  {
+    label: 'Đăng tin mới',
+    icon: 'i-lucide-plus-circle',
+    click: () => {
+      setActiveView('newJob')
+    },
+  },
+  {
+    label: 'Quản lý tin đăng',
+    icon: 'i-lucide-briefcase',
+    click: () => {
+      setActiveView('manageJobs')
+    },
+  },
+  {
+    label: 'Quản lý ứng viên',
+    icon: 'i-lucide-users',
+    click: () => {
+      setActiveView('candidates')
+    },
+  },
   {
     label: 'Đăng xuất',
     icon: 'i-lucide-log-out',
@@ -738,6 +767,9 @@ const fetchRecentApplications = async () => {
         cvUrl: app.cvUrl,
         applicationDate: app.applicationDate,
       }))
+      
+      // Update total applications count
+      jobStats.value.totalApplications = response.length
     }
   } catch (error: any) {
     console.error('Failed to fetch applications:', error)
@@ -790,6 +822,13 @@ const deleteApplication = async (applicationId: number) => {
 
 // Lifecycle
 onMounted(async () => {
+  // Check for view query parameter to set active view
+  const viewParam = route.query.view as string
+
+  if (viewParam && ['editProfile', 'newJob', 'manageJobs', 'candidates', 'settings', 'dashboard'].includes(viewParam)) {
+    activeView.value = viewParam as DashboardView
+  }
+
   // Load company data first (shared across all menu items)
   await loadCompanyData()
   await fetchJobStatistics()
