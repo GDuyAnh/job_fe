@@ -701,8 +701,8 @@ function validateCompanyFields(): boolean {
 
   if (
     companyAdd.value.companySize != null &&
-    (!Number.isFinite(companyAdd.value.companySize) ||
-      companyAdd.value.companySize < 0 ||
+    Number.isFinite(companyAdd.value.companySize) &&
+    (companyAdd.value.companySize < 0 ||
       !Number.isInteger(companyAdd.value.companySize))
   ) {
     companyErrors.value.companySize = t('company.form.errCompanySize')
