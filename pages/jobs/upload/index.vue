@@ -599,7 +599,7 @@
                 :class="{ 'border-red-500': jobErrors.companyId }"
                 readonly
               />
-              <p v-if="jobErrors.companyId" class="!text-red-500 text-sm mt-1 px-5">
+              <p v-if="jobErrors.companyId" class="!text-red-500 text-sm mt-1">
                 {{ jobErrors.companyId }}
               </p>
             </div>
@@ -2041,8 +2041,8 @@ type ConfirmStepState = 'incomplete' | 'success' | 'error'
 const confirmStepState = ref<ConfirmStepState>('incomplete')
 const job = ref<JobModelAddUpdate>({} as JobModelAddUpdate)
 
-const company = ref<CompanyEntity | null>(null)
 const companyAdd = ref<CompanyAddUpdateEntity>({
+  id: undefined,
   name: '',
   mst: '',
   address: '',
@@ -2487,7 +2487,7 @@ const addJob = async () => {
       const response = await $api.company.addCompany(companyAdd.value)
 
       if (response) {
-        company.value = response
+        companyAdd.value.id = response.id
         isAddCompanySuccess = true
       }
     } catch (error: any) {
@@ -2501,7 +2501,7 @@ const addJob = async () => {
   if (isAddCompanySuccess) {
     try {
       // Set id Company for Job
-      job.value.companyId = company.value ? company.value.id : NaN
+      job.value.companyId = companyAdd.value ? companyAdd.value.id : NaN
 
       // Set id User for Job
       job.value.userId = authStore.user ? authStore.user.id : NaN
@@ -2668,8 +2668,8 @@ function validateCompanyFields(): boolean {
   // Validate companySize only if provided (optional)
   if (
     companyAdd.value.companySize != null &&
-    (!Number.isFinite(companyAdd.value.companySize) ||
-      companyAdd.value.companySize < 0 ||
+    Number.isFinite(companyAdd.value.companySize) &&
+    (companyAdd.value.companySize < 0 ||
       !Number.isInteger(companyAdd.value.companySize))
   ) {
     companyErrors.value.companySize = t('company.form.errCompanySize')
