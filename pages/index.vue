@@ -555,12 +555,12 @@
           >
             {{ $t('homePage.lastBanner.button1') }}
           </a>
-          <a
-            href="/jobs/upload"
+          <button
             class="bg-green-600 text-white font-semibold py-3 px-6 rounded-md hover:bg-green-700 transition inline-flex items-center justify-center min-h-[48px] max-h-[60px]"
+            @click="handlePostJob"
           >
             {{ $t('homePage.lastBanner.button2') }}
-          </a>
+          </button>
         </div>
       </div>
 
@@ -954,6 +954,20 @@ const logout = () => {
   authStore.logout()
 }
 
+const handlePostJob = () => {
+  // Check if user is logged in and has COMPANY role
+  if (authStore.user?.role === RoleStatus.COMPANY) {
+    // Redirect to company dashboard with newJob view
+    router.push({
+      path: ROUTE_PAGE.DASHBOARD.COMPANY,
+      query: { view: 'newJob' },
+    })
+  } else {
+    // Redirect to job upload page (or login if not logged in)
+    router.push('/jobs/upload')
+  }
+}
+
 const uiOptions = computed(() => {
   const len = categoryJobsRes.value.length
 
@@ -965,7 +979,13 @@ const uiOptions = computed(() => {
 
 const gotoTab = (tab: any) => {
   activeTab.value = tab.name
-  router.push(tab.path)
+  
+  // If clicking on "pages" tab (Đăng tin miễn phí), check role and redirect accordingly
+  if (tab.name === 'pages') {
+    handlePostJob()
+  } else {
+    router.push(tab.path)
+  }
 }
 
 // User dropdown methods

@@ -505,8 +505,8 @@
                   class="w-full text-sm"
                   :class="{ 'border-red-500': jobErrors.benefits }"
                   :placeholder="$t('job.uploadJob.chooseBenefitLevel')"
-                  @update:model-value="jobErrors.benefits = ''"
                   label="label"
+                  @update:model-value="jobErrors.benefits = ''"
                 />
               </div>
             </div>
@@ -1179,20 +1179,14 @@ function validateJobFields(): boolean {
 
   // Grade validation - required
   if (!job.value.grade || job.value.grade === 0) {
-    useNotify({
-      type: 'error',
-      message: 'Vui lòng nhập đúng các thông tin.',
-    })
-    return 'Vui lòng chọn cấp bậc.'
+    jobErrors.value.grade = 'Vui lòng chọn cấp bậc.'
+    isValid = false
   }
 
   // Kiểm tra độ dài
   if (job.value.title && job.value.title.length > 255) {
-    useNotify({
-      type: 'error',
-      message: 'Vui lòng nhập đúng các thông tin.',
-    })
-    return 'Tên công việc không được vượt quá 255 ký tự.'
+    jobErrors.value.title = 'Tên công việc không được vượt quá 255 ký tự.'
+    isValid = false
   }
 
   // Kiểm tra lương (nếu có và không phải "Thỏa thuận")
@@ -1202,14 +1196,11 @@ function validateJobFields(): boolean {
     job.value.salaryMax &&
     Number(unformatCurrency(job.value.salaryMin)) > Number(unformatCurrency(job.value.salaryMax))
   ) {
-    useNotify({
-      type: 'error',
-      message: 'Vui lòng nhập đúng các thông tin.',
-    })
-    return 'Lương tối thiểu không được lớn hơn lương tối đa.'
+    jobErrors.value.salaryMin = 'Lương tối thiểu không được lớn hơn lương tối đa.'
+    isValid = false
   }
 
-  return ''
+  return isValid
 }
 </script>
 
