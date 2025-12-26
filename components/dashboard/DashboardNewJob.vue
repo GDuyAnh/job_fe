@@ -103,6 +103,7 @@
               <!-- Input deadline date -->
               <UPopover>
                 <UButton
+                  id="job-deadline"
                   class="w-full justify-start bg-white text-sm"
                   :class="{ 'border-red-500': jobErrors.deadline }"
                   color="neutral"
@@ -1073,6 +1074,118 @@ const addJob = async () => {
   }
 }
 
+// Function to scroll to first error field
+const scrollToFirstError = () => {
+  nextTick(() => {
+    // Find first error field by checking jobErrors in order
+    const errorOrder = [
+      'title',
+      'description',
+      'deadline',
+      'category',
+      'typeOfEmployment',
+      'salaryType',
+      'salaryMin',
+      'salaryMax',
+      'address',
+      'location',
+      'email',
+      'phoneNumber',
+      'requiredQualification',
+      'experienceLevel',
+      'benefits',
+      'gender',
+      'grade',
+    ]
+
+    // Find first error field
+    let firstErrorField = null
+
+    for (const field of errorOrder) {
+      if (jobErrors.value[field]) {
+        firstErrorField = field
+
+        break
+      }
+    }
+
+    if (!firstErrorField) return
+
+    // Map field names to element IDs
+    const fieldIds: Record<string, string> = {
+      title: 'job-title',
+      description: 'job-description',
+      deadline: 'job-deadline',
+      email: 'job-email',
+      phoneNumber: 'job-phone',
+      address: 'job-address',
+      salaryType: 'job-salary-type',
+      salaryMin: 'job-salary-min',
+      salaryMax: 'job-salary-max',
+    }
+
+    let element: HTMLElement | null = null
+
+    // Try to find element by ID first
+    const elementId = fieldIds[firstErrorField]
+
+    if (elementId) {
+      element = document.getElementById(elementId)
+
+      // For deadline, find the parent container div
+      if (firstErrorField === 'deadline' && element) {
+        const container = element.closest('div[style*="padding"]') as HTMLElement
+
+        if (container) {
+          element = container
+        }
+      }
+    }
+
+    // If not found by ID, find by error message and get its parent container
+    if (!element) {
+      const errorMessages = document.querySelectorAll('p.text-red-500')
+
+      for (const errorMsg of errorMessages) {
+        const errorText = errorMsg.textContent || ''
+
+        // Check if this error message matches our first error field
+        const errorValue = jobErrors.value[firstErrorField]
+
+        if (errorText.includes(errorValue) || errorText.trim() === errorValue) {
+          // Find the parent container div with padding style
+          const container = errorMsg.closest('div[style*="padding"]') as HTMLElement
+
+          if (container) {
+            element = container
+
+            break
+          }
+        }
+      }
+    }
+
+    // Fallback: scroll to first error message if still not found
+    if (!element) {
+      const firstErrorMsg = document.querySelector('p.text-red-500')
+
+      if (firstErrorMsg) {
+        const container = firstErrorMsg.closest('div[style*="padding"]') as HTMLElement
+
+        element = container || (firstErrorMsg as HTMLElement)
+      }
+    }
+
+    // Scroll to element
+    if (element) {
+      element.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center',
+      })
+    }
+  })
+}
+
 function validateJobFields(): boolean {
   jobErrors.value = {}
 
@@ -1198,6 +1311,11 @@ function validateJobFields(): boolean {
   ) {
     jobErrors.value.salaryMin = 'Lương tối thiểu không được lớn hơn lương tối đa.'
     isValid = false
+  }
+
+  // Scroll to first error if validation failed
+  if (!isValid) {
+    scrollToFirstError()
   }
 
   return isValid

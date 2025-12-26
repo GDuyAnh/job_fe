@@ -48,7 +48,13 @@
               class="w-full h-100 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl overflow-hidden relative"
             >
               <img
-                v-if="company.companyImages && company.companyImages.length > 0"
+                v-if="company.bannerImage"
+                :src="company.bannerImage"
+                :alt="company.name"
+                class="w-full h-full object-cover"
+              />
+              <img
+                v-else-if="company.companyImages && company.companyImages.length > 0"
                 :src="company.companyImages[0].url"
                 :alt="company.name"
                 class="w-full h-full object-cover"
@@ -94,10 +100,14 @@
                     {{ company.name }}
                   </h1>
                   <div class="flex items-center gap-2 text-white/90">
-                    <UIcon name="i-heroicons-map-pin" class="w-5 h-5" />
-                    <span class="text-lg">{{
-                      company.address || 'Location not specified'
-                    }}</span>
+                    <UIcon name="i-heroicons-map-pin" class="w-5 h-5 flex-shrink-0" />
+                    <div
+                      v-if="company.address"
+                      class="text-lg rich-text-output"
+                      style="color: rgba(255, 255, 255, 0.9) !important;"
+                      v-html="company.address"
+                    ></div>
+                    <span v-else class="text-lg">Location not specified</span>
                   </div>
                 </div>
               </div>
@@ -220,24 +230,24 @@
 
                             <!-- Tăng khoảng cách ở đây -->
                             <div class="mt-2 flex items-center justify-between">
-                              <div
-                                class="flex items-center gap-4 text-sm text-gray-600"
+                              <UTooltip
+                                v-if="getFullLocationText(job)"
+                                :text="getFullLocationText(job)"
+                                :popper="{ placement: 'top' }"
                               >
-                                <div class="flex items-center gap-1">
+                                <div class="flex items-center gap-1 cursor-help text-sm text-gray-600">
                                   <UIcon
                                     name="i-heroicons-map-pin"
                                     class="w-4 h-4"
                                   />
-                                  <span>{{
-                                    getLocationLabel(job.location)
-                                  }}</span>
+                                  <span>{{ truncateText(getFullLocationText(job), 20) }}</span>
                                 </div>
-                                <span class="text-gray-700 rounded text-sm">
-                                  {{
-                                    getEmploymentTypeLabel(job.typeOfEmployment)
-                                  }}
-                                </span>
-                              </div>
+                              </UTooltip>
+                              <span class="text-gray-700 rounded text-sm">
+                                {{
+                                  getEmploymentTypeLabel(job.typeOfEmployment)
+                                }}
+                              </span>
                             </div>
                           </div>
                         </div>
@@ -284,9 +294,10 @@
                     <div class="text-sm text-gray-500 mb-2">
                       {{ $t('company.detail.location') }}
                     </div>
-                    <div class="text-sm font-bold text-gray-700 break-words">
-                      {{ company.address }}
-                    </div>
+                    <div
+                      class="text-sm font-bold text-gray-700 break-words rich-text-output"
+                      v-html="company.address"
+                    ></div>
                   </div>
 
                   <div v-if="company.website">
@@ -423,8 +434,33 @@ const hasSocialLinks = computed(() => {
 })
 
 // Helper methods
-const getLocationLabel = (location: number) => {
-  return locationEnumLabel[location] ?? location
+const getLocationLabel = (locationValue: string): string => {
+  if (locationValue === '0') return 'Toàn Quốc'
+
+  return (locationEnumLabel as any)?.[locationValue] ?? (locationEnumLabel as any)?.[Number(locationValue)] ?? locationValue
+}
+
+// Function to get all location labels for a job
+const getAllLocationLabels = (job: any): string[] => {
+  if (!job.location) return []
+  const locationStr = String(job.location)
+  const locations = locationStr.split(',').map(l => l.trim()).filter(l => l)
+
+  return locations.map(loc => getLocationLabel(loc))
+}
+
+// Function to get full location text for a job
+const getFullLocationText = (job: any): string => {
+  const labels = getAllLocationLabels(job)
+
+  return labels.join(', ')
+}
+
+// Function to truncate text
+const truncateText = (text: string, maxLength: number = 20): string => {
+  if (text.length <= maxLength) return text
+
+  return text.substring(0, maxLength).trim() + '...'
 }
 
 const getEmploymentTypeLabel = (type: number) => {

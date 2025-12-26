@@ -23,7 +23,6 @@
         <div class="flex-1 max-w-md">
           <UInput
             v-model="searchQuery"
-            placeholder="Tìm kiếm theo tiêu đề việc làm..."
             icon="i-lucide-search"
             class="w-full"
             clearable
@@ -46,7 +45,7 @@
     <!-- Jobs list -->
     <div v-else-if="filteredJobs.length > 0" class="space-y-4">
       <div
-        v-for="job in filteredJobs"
+        v-for="job in paginatedJobs"
         :key="job.id"
         :class="[
           'bg-white rounded-xl shadow-sm border-l-4 transition-all duration-300 hover:shadow-lg',
@@ -206,6 +205,19 @@
           </div>
         </div>
       </div>
+
+      <!-- Pagination -->
+      <div v-if="totalPages > 1" class="flex justify-center mt-6">
+        <UPagination
+          :page="currentPage"
+          :total="filteredJobs.length"
+          :page-size="itemsPerPage"
+          :max="7"
+          show-first
+          show-last
+          @update:page="currentPage = $event"
+        />
+      </div>
     </div>
 
     <!-- Empty state -->
@@ -337,6 +349,8 @@ const approvingJobId = ref<number | null>(null)
 const showApproveModal = ref(false)
 const selectedJobForApprove = ref<JobModel | null>(null)
 const searchQuery = ref('')
+const currentPage = ref(1)
+const itemsPerPage = 10
 
 // Computed
 const filteredJobs = computed(() => {
@@ -345,6 +359,7 @@ const filteredJobs = computed(() => {
   // Filter by search query (title)
   if (searchQuery.value.trim()) {
     const query = searchQuery.value.trim().toLowerCase()
+
     result = result.filter((job) =>
       job.title?.toLowerCase().includes(query)
     )
@@ -357,6 +372,23 @@ const filteredJobs = computed(() => {
 
     return dateB - dateA // DESC order (newest first)
   })
+})
+
+// Pagination computed
+const totalPages = computed(() => {
+  return Math.ceil(filteredJobs.value.length / itemsPerPage)
+})
+
+const paginatedJobs = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage
+  const end = start + itemsPerPage
+
+  return filteredJobs.value.slice(start, end)
+})
+
+// Watch search query to reset to page 1
+watch(searchQuery, () => {
+  currentPage.value = 1
 })
 
 // Methods
