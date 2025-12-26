@@ -13,6 +13,7 @@ export interface JobModel {
   userId: number
   companyName: string
   companyLogo: string
+  companyBannerImage?: string | null
   organizationType?: string | null
   foundedYear?: number | null
   website?: string | null
@@ -33,6 +34,7 @@ export interface JobModel {
   email?: string | null
   phoneNumber?: string | null
   address: string
+  jobAddress?: string | null
 }
 
 export interface JobModelAddUpdate {

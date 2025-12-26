@@ -18,6 +18,7 @@ export class JobMapper {
       userId: value.userId,
       companyName: value.companyName,
       companyLogo: value.companyLogo,
+      companyBannerImage: (value as any).companyBannerImage || null,
       organizationType: value.organizationType,
       foundedYear: value.foundedYear,
       website: value.website,
@@ -38,6 +39,7 @@ export class JobMapper {
       email: value.email,
       phoneNumber: value.phoneNumber,
       address: value.address || '',
+      jobAddress: (value as any).jobAddress || null,
     }
   }
 

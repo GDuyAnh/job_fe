@@ -47,8 +47,8 @@
               class="w-full h-72 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl overflow-hidden"
             >
               <img
-                v-if="job.bannerLogo"
-                :src="job.bannerLogo"
+                v-if="job.companyBannerImage"
+                :src="job.companyBannerImage"
                 :alt="job.companyName"
                 class="w-full h-full object-cover"
               />
@@ -106,15 +106,13 @@
                       >{{ job.companyName }}</span
                     >
                     &nbsp;
-                    <span>{{
-                      (() => {
-                        // Get first location from comma-separated string
-                        if (!job.location) return ''
-                        const locationStr = String(job.location)
-                        const firstLocation = locationStr.split(',')[0].trim()
-                        return locationEnumLabel?.[firstLocation as unknown as number] ?? (firstLocation || locationStr)
-                      })()
-                    }}</span>
+                    <UTooltip
+                      v-if="fullLocationText"
+                      :text="fullLocationText"
+                      :popper="{ placement: 'top' }"
+                    >
+                      <span class="cursor-help">{{ truncateText(fullLocationText, 30) }}</span>
+                    </UTooltip>
                   </div>
                   <!-- Category, Created Date and Deadline -->
                   <div class="flex items-center gap-3 text-xs text-gray-500">
@@ -248,13 +246,14 @@
                     <span class="text-gray-600">{{
                       $t('job.detail.location')
                     }}</span>
-                    <span class="font-medium text-gray-900">
-                      {{
-                        locationEnumLabel?.[
-                          job.location as unknown as number
-                        ] ?? job.location
-                      }}
-                    </span>
+                    <UTooltip
+                      v-if="fullLocationText"
+                      :text="fullLocationText"
+                      :popper="{ placement: 'top' }"
+                    >
+                      <span class="font-medium text-gray-900 cursor-help">{{ truncateText(fullLocationText, 40) }}</span>
+                    </UTooltip>
+                    <span v-else class="font-medium text-gray-900">{{ $t('common.nanValue') }}</span>
                   </div>
                   <div v-if="job.deadline" class="flex justify-between text-sm">
                     <span class="text-gray-600">{{
@@ -267,6 +266,15 @@
                           : $t('common.nanValue')
                       }}
                     </span>
+                  </div>
+                  <div v-if="job.jobAddress" class="flex justify-between text-sm">
+                    <span class="text-gray-600">{{
+                      $t('job.uploadJob.addressJobLabel')
+                    }}</span>
+                    <div
+                      class="font-medium text-gray-900 text-right rich-text-output max-w-[60%]"
+                      v-html="job.jobAddress"
+                    ></div>
                   </div>
                 </div>
 
@@ -329,13 +337,14 @@
                     <h4 class="font-semibold text-gray-900">
                       {{ job.companyName }}
                     </h4>
-                    <p class="text-sm text-gray-600">
-                      {{
-                        locationEnumLabel?.[
-                          job.location as unknown as number
-                        ] ?? job.location
-                      }}
-                    </p>
+                    <UTooltip
+                      v-if="fullLocationText"
+                      :text="fullLocationText"
+                      :popper="{ placement: 'top' }"
+                    >
+                      <p class="text-sm text-gray-600 cursor-help">{{ truncateText(fullLocationText, 30) }}</p>
+                    </UTooltip>
+                    <p v-else class="text-sm text-gray-600">{{ $t('common.nanValue') }}</p>
                   </div>
                 </div>
                 <UButton
@@ -367,9 +376,10 @@
                     <span class="text-gray-600">{{
                       $t('company.address')
                     }}</span>
-                    <span class="font-medium text-right">{{
-                      job.address
-                    }}</span>
+                    <div
+                      class="font-medium text-right rich-text-output"
+                      v-html="job.address"
+                    ></div>
                   </div>
                   <div v-if="job.website" class="flex justify-between">
                     <span class="text-gray-600">{{
@@ -539,6 +549,7 @@ const processBenefits = (benefits: string | null): string[] => {
   if (!benefits) return []
   // Split comma-separated string into array
   const benefitsArray = benefits.split(',').map(b => b.trim()).filter(b => b)
+
   return processEnumArray(jobBenefits, benefitsArray)
 }
 
@@ -625,6 +636,34 @@ const processedBenefits = computed(() => {
 
   return processBenefits(job.value.benefits)
 })
+
+// Function to get location label
+const getLocationLabel = (locationValue: string): string => {
+  if (locationValue === '0') return 'Toàn Quốc'
+
+  return (locationEnumLabel as any)?.[locationValue] ?? (locationEnumLabel as any)?.[Number(locationValue)] ?? locationValue
+}
+
+// Computed property for all location labels
+const allLocationLabels = computed(() => {
+  if (!job.value?.location) return []
+  const locationStr = String(job.value.location)
+  const locations = locationStr.split(',').map(l => l.trim()).filter(l => l)
+
+  return locations.map(loc => getLocationLabel(loc))
+})
+
+// Computed property for full location text
+const fullLocationText = computed(() => {
+  return allLocationLabels.value.join(', ')
+})
+
+// Function to truncate text
+const truncateText = (text: string, maxLength: number = 50): string => {
+  if (text.length <= maxLength) return text
+
+  return text.substring(0, maxLength).trim() + '...'
+}
 
 onMounted(loadJobDetail)
 watch(() => route.params.id, loadJobDetail)

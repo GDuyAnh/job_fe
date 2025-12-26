@@ -191,30 +191,30 @@
                             .toUpperCase()
                         }}
                       </div>
-                      <div>
+                      <div class="flex-1">
                         <h2 class="font-bold text-lg">{{ job.title }}</h2>
-                        <span class="text-sm font-bold">
-                          <UIcon
-                            name="i-raphael:globealt"
-                            style="font-size: 12px !important"
-                          />
-                          {{
-                            (() => {
-                              // Get first location from comma-separated string
-                              if (!job.location) return ''
-                              const locationStr = String(job.location)
-                              const firstLocation = locationStr.split(',')[0].trim()
-                              return locationEnumLabel?.[firstLocation as unknown as number] ?? (firstLocation || locationStr)
-                            })()
-                          }}
-                        </span>
-                        <span class="text-sm text-gray-600 pl-6">
-                          {{
-                            employmentTypesEnumLabel?.[
-                              job.typeOfEmployment as unknown as number
-                            ] ?? job.typeOfEmployment
-                          }}
-                        </span>
+                        <div class="flex items-center justify-between">
+                          <UTooltip
+                            v-if="getFullLocationText(job)"
+                            :text="getFullLocationText(job)"
+                            :popper="{ placement: 'top' }"
+                          >
+                            <span class="text-sm font-bold cursor-help">
+                              <UIcon
+                                name="i-raphael:globealt"
+                                style="font-size: 12px !important"
+                              />
+                              {{ truncateText(getFullLocationText(job), 20) }}
+                            </span>
+                          </UTooltip>
+                          <span class="text-sm text-gray-600 ml-auto">
+                            {{
+                              employmentTypesEnumLabel?.[
+                                job.typeOfEmployment as unknown as number
+                              ] ?? job.typeOfEmployment
+                            }}
+                          </span>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -439,6 +439,36 @@ const clearSearch = () => {
     location: '',
   }
   jobs.value = []
+}
+
+// Function to get location label
+const getLocationLabel = (locationValue: string): string => {
+  if (locationValue === '0') return 'Toàn Quốc'
+
+  return (locationEnumLabel as any)?.[locationValue] ?? (locationEnumLabel as any)?.[Number(locationValue)] ?? locationValue
+}
+
+// Function to get all location labels for a job
+const getAllLocationLabels = (job: JobModel): string[] => {
+  if (!job.location) return []
+  const locationStr = String(job.location)
+  const locations = locationStr.split(',').map(l => l.trim()).filter(l => l)
+
+  return locations.map(loc => getLocationLabel(loc))
+}
+
+// Function to get full location text for a job
+const getFullLocationText = (job: JobModel): string => {
+  const labels = getAllLocationLabels(job)
+
+  return labels.join(', ')
+}
+
+// Function to truncate text
+const truncateText = (text: string, maxLength: number = 20): string => {
+  if (text.length <= maxLength) return text
+
+  return text.substring(0, maxLength).trim() + '...'
 }
 
 // Function to get display category with priority for searched category
