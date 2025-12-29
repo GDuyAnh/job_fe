@@ -614,6 +614,7 @@ const companyForm = ref<CompanyAddUpdateEntity>({
   name: '',
   mst: null, // MST can be null initially
   address: '',
+  taxAddress: '',
   website: '',
   organizationType: 0,
   companySize: null,
@@ -1296,6 +1297,7 @@ function validateCompanyFields(): string {
       type: 'error',
       message: 'Vui lòng nhập đúng các thông tin.',
     })
+
     return t('company.form.errName')
   }
 
@@ -1309,6 +1311,7 @@ function validateCompanyFields(): string {
       type: 'error',
       message: 'Vui lòng nhập đúng các thông tin.',
     })
+
     return t('company.form.errAddress')
   }
 
@@ -1317,6 +1320,7 @@ function validateCompanyFields(): string {
       type: 'error',
       message: 'Vui lòng nhập đúng các thông tin.',
     })
+
     return t('company.form.errOrgType')
   }
 
@@ -1327,6 +1331,7 @@ function validateCompanyFields(): string {
         type: 'error',
         message: 'Vui lòng nhập đúng các thông tin.',
       })
+
       return 'Năm thành lập phải là số hợp lệ từ 1800 đến 2100.'
     }
   }
@@ -1342,6 +1347,7 @@ function validateCompanyFields(): string {
         type: 'error',
         message: 'Vui lòng nhập đúng các thông tin.',
       })
+
       return t('company.form.errCompanySize')
     }
   }
@@ -1352,6 +1358,7 @@ function validateCompanyFields(): string {
       type: 'error',
       message: 'Vui lòng nhập đúng các thông tin.',
     })
+
     return 'Logo công ty không được để trống.'
   }
 
@@ -1365,27 +1372,11 @@ function validateCompanyFields(): string {
       type: 'error',
       message: 'Vui lòng nhập đúng các thông tin.',
     })
+
     return t('company.form.errWebsite')
   }
 
   return ''
-}
-
-/** TEMP: Convert files -> DataURL (hãy thay bằng upload thực để lấy URL CDN) */
-async function getImageUrls(files: File[]): Promise<string[]> {
-  const toDataUrl = (file: File) =>
-    new Promise<string>((resolve, reject) => {
-      const r = new FileReader()
-
-      r.onload = () => resolve(r.result as string)
-      r.onerror = reject
-      r.readAsDataURL(file)
-    })
-  const urls: string[] = []
-
-  for (const f of files) urls.push(await toDataUrl(f))
-
-  return urls
 }
 
 async function saveCompany() {
@@ -1405,14 +1396,33 @@ async function saveCompany() {
 
   saving.value = true
   try {
-    // Handle logo - only convert to DataURL if it's a new file
+    // Handle logo - upload to bbimg if it's a new file
     let logoUrl: string | undefined = undefined
 
     if (logoFile.value) {
-      // New logo file uploaded - convert to DataURL
-      const logoUrls = await getImageUrls([logoFile.value])
+      // New logo file uploaded - upload to bbimg
+      try {
+        const uploadedUrl = await $api.upload.uploadImageAndGetUrl(logoFile.value)
 
-      logoUrl = logoUrls[0] || undefined
+        if (uploadedUrl) {
+          logoUrl = uploadedUrl
+        } else {
+          useNotify({
+            message: 'Tải lên logo thất bại. Vui lòng thử lại.',
+            type: 'error',
+          })
+
+          return
+        }
+      } catch (error) {
+        console.error('Error uploading logo:', error)
+        useNotify({
+          message: 'Tải lên logo thất bại. Vui lòng thử lại.',
+          type: 'error',
+        })
+
+        return
+      }
     } else if (logoPreview.value && !logoPreview.value.startsWith('blob:')) {
       // Use existing logo URL (not changed) - keep original URL
       logoUrl = logoPreview.value
@@ -1421,14 +1431,38 @@ async function saveCompany() {
       logoUrl = originalLogoUrl.value
     }
 
-    // Handle company images - only convert new files to DataURL
+    // Handle company images - upload new files to bbimg
     const detailUrls: string[] = []
 
-    // First, add new files (convert to DataURL)
+    // First, upload new files to bbimg
     if (imageFiles.value.length > 0) {
-      const newImageUrls = await getImageUrls(imageFiles.value)
+      for (let i = 0; i < imageFiles.value.length; i++) {
+        const file = imageFiles.value[i]
 
-      detailUrls.push(...newImageUrls)
+        try {
+          const imageUrl = await $api.upload.uploadImageAndGetUrl(file)
+
+          if (imageUrl && imageUrl.trim() !== '') {
+            detailUrls.push(imageUrl)
+          } else {
+            console.error(`Upload failed for image ${i + 1}/${imageFiles.value.length}`)
+            useNotify({
+              message: `Tải lên ảnh thứ ${i + 1} thất bại. Vui lòng thử lại.`,
+              type: 'error',
+            })
+
+            return
+          }
+        } catch (error) {
+          console.error(`Error uploading image ${i + 1}/${imageFiles.value.length}:`, error)
+          useNotify({
+            message: `Tải lên ảnh thứ ${i + 1} thất bại. Vui lòng thử lại.`,
+            type: 'error',
+          })
+
+          return
+        }
+      }
     }
 
     // Then, add existing URLs (keep original URLs - not changed)
@@ -1438,13 +1472,58 @@ async function saveCompany() {
 
     detailUrls.push(...existingUrls)
 
-    // Handle banner image
+    // Debug: Log số lượng ảnh để kiểm tra
+    const newImageUrlsCount = detailUrls.length - existingUrls.length
+    console.log('Total images to save:', {
+      existingUrls: existingUrls.length,
+      newImageUrls: newImageUrlsCount,
+      total: detailUrls.length,
+      imageFilesCount: imageFiles.value.length,
+      imagePreviewsCount: imagePreviews.value.length,
+      blobUrlsCount: imagePreviews.value.filter((url) => url.startsWith('blob:')).length,
+    })
+
+    // Đảm bảo số lượng ảnh upload thành công khớp với số file
+    if (imageFiles.value.length > 0 && newImageUrlsCount !== imageFiles.value.length) {
+      console.error('Mismatch: số ảnh upload thành công không khớp với số file', {
+        filesCount: imageFiles.value.length,
+        uploadedCount: newImageUrlsCount,
+      })
+      useNotify({
+        message: `Chỉ tải lên được ${newImageUrlsCount}/${imageFiles.value.length} ảnh. Vui lòng thử lại.`,
+        type: 'error',
+      })
+
+      return
+    }
+
+    // Handle banner image - upload to bbimg if it's a new file
     let bannerUrl: string | undefined = undefined
 
     if (bannerFile.value) {
-      // New banner file uploaded - convert to DataURL
-      const bannerUrls = await getImageUrls([bannerFile.value])
-      bannerUrl = bannerUrls[0] || undefined
+      // New banner file uploaded - upload to bbimg
+      try {
+        const uploadedUrl = await $api.upload.uploadImageAndGetUrl(bannerFile.value)
+
+        if (uploadedUrl) {
+          bannerUrl = uploadedUrl
+        } else {
+          useNotify({
+            message: 'Tải lên banner thất bại. Vui lòng thử lại.',
+            type: 'error',
+          })
+
+          return
+        }
+      } catch (error) {
+        console.error('Error uploading banner:', error)
+        useNotify({
+          message: 'Tải lên banner thất bại. Vui lòng thử lại.',
+          type: 'error',
+        })
+
+        return
+      }
     } else if (bannerPreview.value && !bannerPreview.value.startsWith('blob:')) {
       // Use existing banner URL (not changed) - keep original URL
       bannerUrl = bannerPreview.value
@@ -1466,13 +1545,6 @@ async function saveCompany() {
     // Only include logo if we have a value
     if (logoUrl) {
       updateData.logo = logoUrl
-    }
-
-    // Only include banner if we have a value
-    if (bannerUrl) {
-      updateData.bannerImage = bannerUrl
-    } else {
-      updateData.bannerImage = null
     }
 
     // Only include banner if we have a value
