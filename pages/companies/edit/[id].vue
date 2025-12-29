@@ -400,6 +400,7 @@ const form = reactive({
   // images
   logo: '' as string | null,
   companyImages: [] as { url: string }[],
+  bannerImage: null as string | null,
 })
 
 /** Validation errors */
@@ -462,6 +463,7 @@ async function loadData() {
     form.insight = res.insight ?? ''
     form.overview = res.overview ?? ''
     form.logo = res.logo
+    form.bannerImage = res.bannerImage ?? null
 
     // preview images theo thứ tự: logo trước, rồi ảnh khác
     const urls: string[] = []
@@ -583,22 +585,68 @@ async function save() {
   try {
     const isBlob = (u: string) => u.startsWith('blob:')
 
-    async function fileToDataUrl(file: File) {
-      return await new Promise<string>((resolve, reject) => {
-        const r = new FileReader()
+    // Upload các file mới lên bbimg để lấy URL
+    const newImageUrls: string[] = []
 
-        r.onload = () => resolve(r.result as string)
-        r.onerror = reject
-        r.readAsDataURL(file)
-      })
+    if (imageFiles.value.length > 0) {
+      for (let i = 0; i < imageFiles.value.length; i++) {
+        const file = imageFiles.value[i]
+
+        try {
+          const imageUrl = await $api.upload.uploadImageAndGetUrl(file)
+
+          if (imageUrl && imageUrl.trim() !== '') {
+            newImageUrls.push(imageUrl)
+          } else {
+            console.error(`Upload failed for image ${i + 1}/${imageFiles.value.length}`)
+            useNotify({
+              message: `Tải lên ảnh thứ ${i + 1} thất bại. Vui lòng thử lại.`,
+              type: 'error',
+            })
+
+            return
+          }
+        } catch (error) {
+          console.error(`Error uploading image ${i + 1}/${imageFiles.value.length}:`, error)
+          useNotify({
+            message: `Tải lên ảnh thứ ${i + 1} thất bại. Vui lòng thử lại.`,
+            type: 'error',
+          })
+
+          return
+        }
+      }
     }
 
-    // Convert các file mới sang dataURL; giữ nguyên URL cũ
+    // Giữ nguyên URL cũ (không phải blob)
     const existingUrls = imagePreviews.value.filter((u) => !isBlob(u))
-    const newDataUrls = await Promise.all(
-      imageFiles.value.map((f) => fileToDataUrl(f)),
-    )
-    const finalUrls: string[] = [...existingUrls, ...newDataUrls]
+
+    // Kết hợp URL cũ và URL mới: URL cũ trước, URL mới sau
+    const finalUrls: string[] = [...existingUrls, ...newImageUrls]
+
+    // Debug: Log số lượng ảnh để kiểm tra
+    console.log('Total images to save:', {
+      existingUrls: existingUrls.length,
+      newImageUrls: newImageUrls.length,
+      total: finalUrls.length,
+      imageFilesCount: imageFiles.value.length,
+      imagePreviewsCount: imagePreviews.value.length,
+      blobUrlsCount: imagePreviews.value.filter((u) => isBlob(u)).length,
+    })
+
+    // Đảm bảo số lượng ảnh upload thành công khớp với số file
+    if (imageFiles.value.length > 0 && newImageUrls.length !== imageFiles.value.length) {
+      console.error('Mismatch: số ảnh upload thành công không khớp với số file', {
+        filesCount: imageFiles.value.length,
+        uploadedCount: newImageUrls.length,
+      })
+      useNotify({
+        message: `Chỉ tải lên được ${newImageUrls.length}/${imageFiles.value.length} ảnh. Vui lòng thử lại.`,
+        type: 'error',
+      })
+
+      return
+    }
 
     const logo = finalUrls[0] || null
     const companyImages = finalUrls.slice(1).map((u) => ({ url: u }))
@@ -625,6 +673,7 @@ async function save() {
       overview: form.overview || null,
       logo,
       companyImages,
+      bannerImage: form.bannerImage ?? null,
       isShow: false,
       isWaiting: false,
     }
