@@ -164,13 +164,19 @@
               </div>
 
               <!-- Jobs count -->
-              <div
-                v-if="company.openPositions && company.openPositions > 0"
-                class="text-left"
-              >
-                <div class="text-sm font-medium text-gray-900">
+              <div class="text-left">
+                <div
+                  v-if="company.openPositions && company.openPositions > 0"
+                  class="text-sm font-medium text-gray-900"
+                >
                   {{ company.openPositions }}
                   {{ $t('companies.jobs') }}
+                </div>
+                <div
+                  v-else
+                  class="text-sm font-medium text-gray-500"
+                >
+                  {{ $t('companies.noJobs') }}
                 </div>
               </div>
             </div>
