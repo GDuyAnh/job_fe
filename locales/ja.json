@@ -192,6 +192,7 @@
       "placeholder": "Nhập tên công ty để tìm kiếm "
     },
     "jobs": "Việc Làm",
+    "noJobs": "Không có việc làm mới",
     "noResults": {
       "title": "Không tìm thấy công ty",
       "clearSearch": "Xóa tìm kiếm",
