@@ -17,6 +17,15 @@ const UsersModule = (apiService: FetchFactory) => {
     fullName: string
     username: string
     phoneNumber?: string | null
+    location?: string | null
+    expertise?: string | null
+    cvUrl?: string | null
+    cvFileName?: string | null
+    coverLetterUrl?: string | null
+    coverLetterFileName?: string | null
+    coverLetterText?: string | null
+    avatarUrl?: string | null
+    avatarFileName?: string | null
   }) => apiService.put<UserEntity>('/users/profile', { body })
 
   const changePassword = async (body: {
@@ -25,7 +34,19 @@ const UsersModule = (apiService: FetchFactory) => {
     confirmPassword: string
   }) => apiService.put('/users/change-password', { body })
 
-  const deleteAccount = async () => apiService.delete('/users/account')
+  const deleteAccount = async (body: { password: string }) =>
+    apiService.delete('/users/account', { body })
+
+  const getAllUsers = async () => 
+    apiService.get<UserEntity[]>('/users/admin/all')
+
+  const upgradeToCompanyUser = async (userId: number, companyId: number) =>
+    apiService.patch(`/users/admin/${userId}/upgrade-to-company`, { 
+      body: { companyId } 
+    })
+
+  const deleteUser = async (userId: number) =>
+    apiService.delete(`/users/admin/${userId}`)
 
   return {
     register,
@@ -34,6 +55,9 @@ const UsersModule = (apiService: FetchFactory) => {
     updateProfile,
     changePassword,
     deleteAccount,
+    getAllUsers,
+    upgradeToCompanyUser,
+    deleteUser,
   }
 }
 

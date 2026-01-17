@@ -64,6 +64,40 @@ const CompanyModule = (apiService: FetchFactory) => {
     )
   }
 
+  const featureCompany = async (id: number) => {
+    return apiService.patch<CompanyEntity>(
+      `${ROUTE_API.COMPANY.GET_COMPANY}/${id}/feature`,
+    )
+  }
+
+  const unfeatureCompany = async (id: number) => {
+    return apiService.patch<CompanyEntity>(
+      `${ROUTE_API.COMPANY.GET_COMPANY}/${id}/unfeature`,
+    )
+  }
+
+  const getAllCompanies = async () => {
+    return apiService.get<CompanyEntity[]>(ROUTE_API.COMPANY.ADMIN_LIST)
+  }
+
+  const deleteCompany = async (id: number) => {
+    return apiService.delete<void>(
+      `${ROUTE_API.COMPANY.GET_COMPANY}/${id}`,
+    )
+  }
+
+  const showCompany = async (id: number) => {
+    return apiService.patch<CompanyEntity>(
+      `${ROUTE_API.COMPANY.GET_COMPANY}/${id}/show`,
+    )
+  }
+
+  const hideCompany = async (id: number) => {
+    return apiService.patch<CompanyEntity>(
+      `${ROUTE_API.COMPANY.GET_COMPANY}/${id}/hide`,
+    )
+  }
+
   const getApplications = async (userId: number) => {
     return apiService.get<CompanyEntity[]>(ROUTE_API.COMPANY.GET_APPLICATIONS, {
       params: { userId },
@@ -80,6 +114,12 @@ const CompanyModule = (apiService: FetchFactory) => {
     editCompany,
     delCompany,
     approveCompany,
+    featureCompany,
+    unfeatureCompany,
+    getAllCompanies,
+    deleteCompany,
+    showCompany,
+    hideCompany,
     getApplications,
   }
 }

@@ -142,6 +142,7 @@
                 <div class="flex items-center gap-2">
                   <!-- Apply Button -->
                   <UModal
+                    v-if="!hasApplied"
                     :title="$t('job.application.title')"
                     :ui="{ content: 'w-full sm:max-w-4xl' }"
                   >
@@ -163,6 +164,18 @@
                       />
                     </template>
                   </UModal>
+
+                  <!-- Applied Successfully Button -->
+                  <UButton
+                    v-else
+                    color="success"
+                    variant="solid"
+                    size="sm"
+                    class="min-w-[80px] ml-1 cursor-default"
+                    disabled
+                  >
+                    {{ $t('job.applicationSuccess') }}
+                  </UButton>
                 </div>
               </div>
             </div>
@@ -514,6 +527,10 @@ const userInfo = computed(() => {
     const result = {
       fullName: authStore.user.fullName || '',
       email: authStore.user.email || '',
+      phone: authStore.user.phoneNumber || '',
+      cvUrl: authStore.user.cvUrl || null,
+      coverLetterUrl: authStore.user.coverLetterUrl || null,
+      coverLetterText: authStore.user.coverLetterText || null,
     }
 
     console.log('userInfo computed result:', result)
@@ -573,42 +590,140 @@ const loadJobDetail = async () => {
 
 const showApplicationModal = ref(false)
 
+const hasApplied = ref(false)
+
 const handleApplicationSubmit = async (data: any) => {
   console.log('Application submitted:', data)
 
   try {
-    // Here you would typically:
-    // 1. Upload files to server
-    // 2. Save application data to database
-    // 3. Send notification to employer
+    // Upload CV to Cloudflare R2 if new file uploaded, otherwise use existing CV URL from profile
+    let cvUrl: string | undefined
 
-    // Example API call:
-    // const response = await $api.job.submitApplication({
-    //   jobId: job.value?.id,
-    //   ...data
-    // })
+    if (data.cvFile) {
+      // User uploaded a new CV file - upload to R2
+      // If user had old CV, it will be deleted automatically
+      const { uploadCv } = useCvUpload()
+      const oldCvUrl = data.cvUrl || undefined
+      const result = await uploadCv(data.cvFile, oldCvUrl)
+      
+      if (!result) {
+        throw new Error('Không thể tải lên CV')
+      }
+      
+      cvUrl = result.url
+      
+      // If user is logged in, save the filename to their profile
+      if (authStore.isLoggedIn && authStore.user) {
+        await $api.users.updateProfile({
+          username: authStore.user.username,
+          fullName: authStore.user.fullName,
+          cvUrl: result.url,
+          cvFileName: result.originalName,
+        })
+      }
+    } else if (data.cvUrl) {
+      // Use existing CV URL from profile
+      cvUrl = data.cvUrl
+    }
 
-    console.log('Application data:', {
-      jobId: job.value?.id,
-      personalInfo: {
-        fullName: data.fullName,
-        phone: data.phone,
-        email: data.email,
-      },
-      cvFile: data.cvFile,
-      coverLetter: data.coverLetter,
-      coverLetterFile: data.coverLetterFile,
-      agreeTerms: data.agreeTerms,
-    })
+    // Upload Cover Letter to Cloudflare R2 if new file uploaded, otherwise use existing URL from profile
+    let coverLetterUrl: string | undefined
 
-    useNotify({
-      message: 'Đơn ứng tuyển đã được gửi thành công!',
-      type: 'success',
-    })
-  } catch (error) {
+    if (data.coverLetterFile) {
+      // User uploaded a new cover letter file - upload to R2
+      // If user had old cover letter, it will be deleted automatically
+      const { uploadCoverLetter } = useCvUpload()
+      const oldCoverLetterUrl = data.coverLetterUrl || undefined
+      const result = await uploadCoverLetter(
+        data.coverLetterFile,
+        oldCoverLetterUrl,
+      )
+      
+      if (!result) {
+        throw new Error('Không thể tải lên thư ứng tuyển')
+      }
+      
+      coverLetterUrl = result.url
+      
+      // If user is logged in, save the filename to their profile
+      if (authStore.isLoggedIn && authStore.user) {
+        await $api.users.updateProfile({
+          username: authStore.user.username,
+          fullName: authStore.user.fullName,
+          coverLetterUrl: result.url,
+          coverLetterFileName: result.originalName,
+        })
+      }
+    } else if (data.coverLetterUrl) {
+      // Use existing cover letter URL from profile
+      coverLetterUrl = data.coverLetterUrl
+    }
+
+    // Prepare application data
+    const applicationData: any = {
+      jobId: job.value?.id as number,
+      fullName: data.fullName,
+      phone: data.phone,
+      email: data.email,
+      cvUrl,
+      coverLetter: data.coverLetter || undefined,
+      coverLetterUrl,
+    }
+
+    // TH 3: User đã đăng nhập - add userId
+    if (authStore.isLoggedIn && authStore.user) {
+      applicationData.userId = authStore.user.id
+    }
+
+    console.log('Submitting application with data:', applicationData)
+
+    // Submit application to backend
+    const response = await $api.job.submitApplication(applicationData)
+
+    console.log('Application response:', response)
+
+    // TH 1: User chưa đăng ký email - isNewUser = true
+    if (response.data.isNewUser) {
+      // Auto login using auth store (same as normal login flow)
+      await authStore.autoLogin(data.email)
+
+      useNotify({
+        message: 'Đơn ứng tuyển đã được gửi thành công! Đang chuyển hướng...',
+        type: 'success',
+      })
+
+      // Wait a bit for cookie to be set, then redirect
+      await new Promise(resolve => setTimeout(resolve, 500))
+      
+      // Redirect to dashboard applications
+      await navigateTo('/users/dashboard')
+    }
+    // TH 2: User đã đăng ký nhưng chưa đăng nhập - isNewUser = false, not logged in
+    else if (!authStore.isLoggedIn) {
+      showApplicationModal.value = false
+      
+      useNotify({
+        message: 'Vui lòng đăng nhập để xem thông tin chi tiết việc làm ứng tuyển',
+        type: 'success',
+      })
+    }
+    // TH 3: User đã đăng nhập - Update button state
+    else {
+      hasApplied.value = true
+      showApplicationModal.value = false
+      
+      // Refresh user data to get updated CV and Cover Letter
+      await authStore.getMe()
+      
+      useNotify({
+        message: 'Đơn ứng tuyển đã được gửi thành công!',
+        type: 'success',
+      })
+    }
+  } catch (error: any) {
     console.error('Error submitting application:', error)
     useNotify({
-      message: 'Có lỗi xảy ra khi gửi đơn ứng tuyển. Vui lòng thử lại.',
+      message: error.message || 'Có lỗi xảy ra khi gửi đơn ứng tuyển. Vui lòng thử lại.',
       type: 'error',
     })
   }

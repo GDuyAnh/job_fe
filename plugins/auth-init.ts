@@ -5,7 +5,12 @@ export default defineNuxtPlugin(async () => {
 
   const token = useToken(CONSTANTS.COOKIE_TOKEN_OPTION as CookieOptions)
 
-  if (token.hasToken()) {
-    await authStore.getMe()
+  // Only fetch user data if token exists but user is not in store yet
+  if (token.hasToken() && !authStore.user) {
+    try {
+      await authStore.getMe()
+    } catch (error) {
+      console.error('Failed to get user info:', error)
+    }
   }
 })

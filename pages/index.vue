@@ -36,7 +36,19 @@
                 <div class="flex items-center justify-between gap-2 w-full">
                   <!-- User Avatar -->
                   <div class="flex items-center gap-2">
+                    <!-- Avatar with image or fallback to initials -->
                     <div
+                      v-if="authStore.user.avatarUrl"
+                      class="w-8 h-8 rounded-full overflow-hidden bg-gray-200"
+                    >
+                      <img
+                        :src="authStore.user.avatarUrl"
+                        :alt="authStore.user.fullName || 'User'"
+                        class="w-full h-full object-cover"
+                      />
+                    </div>
+                    <div
+                      v-else
                       class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center"
                     >
                       <span class="text-white font-semibold text-sm">
@@ -683,7 +695,7 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
 import type { JobModel } from '~/models/job'
-import { RoleStatus } from '~/enums/role'
+import { USER_ROLES } from '~/constants/roles'
 import { JobMapper } from '~/mapper/job'
 import type { CategoryJobModel } from '~/models/category'
 import { CategoryJobMapper } from '~/mapper/category'
@@ -995,15 +1007,12 @@ const logout = () => {
 
 const handlePostJob = () => {
   // Check if user is logged in and has COMPANY role
-  if (authStore.user?.role === RoleStatus.COMPANY) {
-    // Redirect to company dashboard with newJob view
-    router.push({
-      path: ROUTE_PAGE.DASHBOARD.COMPANY,
-      query: { view: 'newJob' },
-    })
+  if (authStore.user?.role === USER_ROLES.COMPANY) {
+    // Open company dashboard with newJob view in new tab
+    openDashboardInNewTab(ROUTE_PAGE.DASHBOARD.COMPANY, { view: 'newJob' })
   } else {
-    // Redirect to job upload page (or login if not logged in)
-    router.push('/jobs/upload')
+    // Open job upload page in new tab (or login if not logged in)
+    openDashboardInNewTab('/jobs/upload')
   }
 }
 
@@ -1039,6 +1048,15 @@ const handleMenuItemClick = (item: any) => {
   }
 }
 
+// Helper function to open dashboard in new tab
+const openDashboardInNewTab = (path: string, query?: Record<string, string>) => {
+  const queryString = query 
+    ? '?' + new URLSearchParams(query).toString() 
+    : ''
+  const url = path + queryString
+  window.open(url, '_blank')
+}
+
 // Close dropdown when clicking outside
 const handleClickOutside = (event: Event) => {
   const target = event.target as HTMLElement
@@ -1053,70 +1071,124 @@ const handleClickOutside = (event: Event) => {
 const userMenuItems = computed(() => {
   const authStore = useAuthStore()
   const userRole = authStore.user?.role
-  const isCompany = userRole === RoleStatus.COMPANY
+  const isAdmin = userRole === USER_ROLES.ADMIN
+  const isCompany = userRole === USER_ROLES.COMPANY
 
-  const items = [
-    {
-      label: 'Dashboard',
-      icon: 'i-lucide-layout-dashboard',
-      click: () => {
-        if (isCompany) {
-          router.push(ROUTE_PAGE.DASHBOARD.COMPANY)
-        } else if (userRole === RoleStatus.USER) {
-          router.push(ROUTE_PAGE.DASHBOARD.USER)
-        } else {
-          router.push(ROUTE_PAGE.DASHBOARD.USER)
-        }
-      },
-    },
-  ]
+  const items = []
 
-  // Chỉ hiển thị các menu này cho company
-  if (isCompany) {
+  // Menu cho admin
+  if (isAdmin) {
     items.push(
+      {
+        label: 'Quản lý Công ty',
+        icon: 'i-lucide-building',
+        click: () => {
+          openDashboardInNewTab(ROUTE_PAGE.DASHBOARD.COMPANY, { view: 'adminCompanies' })
+        },
+      },
+      {
+        label: 'Quản lý Users',
+        icon: 'i-lucide-users-round',
+        click: () => {
+          openDashboardInNewTab(ROUTE_PAGE.DASHBOARD.COMPANY, { view: 'adminUsers' })
+        },
+      },
+      {
+        label: 'Quản lý Blog',
+        icon: 'i-lucide-file-text',
+        click: () => {
+          openDashboardInNewTab(ROUTE_PAGE.DASHBOARD.COMPANY, { view: 'adminBlogs' })
+        },
+      },
+    )
+  } else if (isCompany) {
+    // Menu cho company
+    items.push(
+      {
+        label: 'Dashboard',
+        icon: 'i-lucide-layout-dashboard',
+        click: () => {
+          openDashboardInNewTab(ROUTE_PAGE.DASHBOARD.COMPANY)
+        },
+      },
       {
         label: 'Hồ sơ công ty',
         icon: 'i-lucide-building',
         click: () => {
-          router.push({
-            path: ROUTE_PAGE.DASHBOARD.COMPANY,
-            query: { view: 'editProfile' },
-          })
+          openDashboardInNewTab(ROUTE_PAGE.DASHBOARD.COMPANY, { view: 'editProfile' })
         },
       },
       {
         label: 'Đăng tin mới',
         icon: 'i-lucide-plus-circle',
         click: () => {
-          router.push({
-            path: ROUTE_PAGE.DASHBOARD.COMPANY,
-            query: { view: 'newJob' },
-          })
+          openDashboardInNewTab(ROUTE_PAGE.DASHBOARD.COMPANY, { view: 'newJob' })
         },
       },
       {
         label: 'Quản lý tin đăng',
         icon: 'i-lucide-briefcase',
         click: () => {
-          router.push({
-            path: ROUTE_PAGE.DASHBOARD.COMPANY,
-            query: { view: 'manageJobs' },
-          })
+          openDashboardInNewTab(ROUTE_PAGE.DASHBOARD.COMPANY, { view: 'manageJobs' })
         },
       },
       {
         label: 'Quản lý ứng viên',
         icon: 'i-lucide-users',
         click: () => {
-          router.push({
-            path: ROUTE_PAGE.DASHBOARD.COMPANY,
-            query: { view: 'candidates' },
-          })
+          openDashboardInNewTab(ROUTE_PAGE.DASHBOARD.COMPANY, { view: 'candidates' })
+        },
+      },
+    )
+  } else {
+    // Menu cho user thường - đồng bộ với dashboard sidebar
+    items.push(
+      {
+        label: 'Tổng quan',
+        icon: 'i-lucide-layout-dashboard',
+        click: () => {
+          openDashboardInNewTab(ROUTE_PAGE.DASHBOARD.USER, { view: 'dashboard' })
+        },
+      },
+      {
+        label: 'Thông tin tài khoản',
+        icon: 'i-lucide-user',
+        click: () => {
+          openDashboardInNewTab(ROUTE_PAGE.DASHBOARD.USER, { view: 'editProfile' })
+        },
+      },
+      {
+        label: 'Hồ sơ ứng tuyển',
+        icon: 'i-lucide-file-text',
+        click: () => {
+          openDashboardInNewTab(ROUTE_PAGE.DASHBOARD.USER, { view: 'resume' })
+        },
+      },
+      {
+        label: 'Công việc đã ứng tuyển',
+        icon: 'i-lucide-briefcase',
+        click: () => {
+          openDashboardInNewTab(ROUTE_PAGE.DASHBOARD.USER, { view: 'applications' })
+        },
+      },
+      {
+        label: 'Đăng tin mới',
+        icon: 'i-lucide-plus-circle',
+        click: () => {
+          openDashboardInNewTab('/jobs/upload')
+        },
+      },
+      {
+        label: 'Thay đổi mật khẩu',
+        icon: 'i-lucide-lock',
+        click: () => {
+          openDashboardInNewTab(ROUTE_PAGE.DASHBOARD.USER, { view: 'changePassword' })
         },
       },
     )
   }
 
+  // Đăng xuất (chung cho cả user và company)
   items.push({
     label: 'Đăng xuất',
     icon: 'i-lucide-log-out',

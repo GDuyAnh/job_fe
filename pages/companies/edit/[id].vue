@@ -403,6 +403,9 @@ const form = reactive({
   bannerImage: null as string | null,
 })
 
+// Store original image URLs for deletion when editing
+const originalImageUrls = ref<string[]>([])
+
 /** Validation errors */
 const formErrors = ref<Record<string, string>>({})
 
@@ -476,6 +479,9 @@ async function loadData() {
     }
     imagePreviews.value = urls
     imageFiles.value = []
+    
+    // Store original URLs for deletion when editing
+    originalImageUrls.value = [...urls]
   } catch (e: any) {
     useNotify({
       message: Array.isArray(e?.message) ? e.message[0] : e?.message || 'Error',
@@ -583,22 +589,35 @@ async function save() {
 
   saving.value = true
   try {
-    const isBlob = (u: string) => u.startsWith('blob:')
+    // Delete old images asynchronously (fire-and-forget)
+    if (originalImageUrls.value.length > 0) {
+      console.log('Deleting old images:', originalImageUrls.value.length)
+      $api.upload.deleteBatchR2(originalImageUrls.value)
+        .catch((error) => {
+          console.error('Failed to delete old images:', error)
+          // Don't block the save process
+        })
+    }
 
-    // Upload các file mới lên bbimg để lấy URL
+    // Upload ALL images to R2 (replace everything)
     const newImageUrls: string[] = []
+    
+    // Get all files (blob URLs represent new files to upload)
+    const filesToUpload = imageFiles.value
 
-    if (imageFiles.value.length > 0) {
-      for (let i = 0; i < imageFiles.value.length; i++) {
-        const file = imageFiles.value[i]
+    if (filesToUpload.length > 0) {
+      for (let i = 0; i < filesToUpload.length; i++) {
+        const file = filesToUpload[i]
+        const isLogo = i === 0 // First image is logo
+        const folder = isLogo ? 'logo' : 'company-images'
 
         try {
-          const imageUrl = await $api.upload.uploadImageAndGetUrl(file)
+          const imageUrl = await $api.upload.uploadImageR2(file, folder)
 
           if (imageUrl && imageUrl.trim() !== '') {
             newImageUrls.push(imageUrl)
           } else {
-            console.error(`Upload failed for image ${i + 1}/${imageFiles.value.length}`)
+            console.error(`Upload failed for image ${i + 1}/${filesToUpload.length}`)
             useNotify({
               message: `Tải lên ảnh thứ ${i + 1} thất bại. Vui lòng thử lại.`,
               type: 'error',
@@ -607,7 +626,7 @@ async function save() {
             return
           }
         } catch (error) {
-          console.error(`Error uploading image ${i + 1}/${imageFiles.value.length}:`, error)
+          console.error(`Error uploading image ${i + 1}/${filesToUpload.length}:`, error)
           useNotify({
             message: `Tải lên ảnh thứ ${i + 1} thất bại. Vui lòng thử lại.`,
             type: 'error',
@@ -618,38 +637,29 @@ async function save() {
       }
     }
 
-    // Giữ nguyên URL cũ (không phải blob)
-    const existingUrls = imagePreviews.value.filter((u) => !isBlob(u))
-
-    // Kết hợp URL cũ và URL mới: URL cũ trước, URL mới sau
-    const finalUrls: string[] = [...existingUrls, ...newImageUrls]
-
-    // Debug: Log số lượng ảnh để kiểm tra
-    console.log('Total images to save:', {
-      existingUrls: existingUrls.length,
-      newImageUrls: newImageUrls.length,
-      total: finalUrls.length,
-      imageFilesCount: imageFiles.value.length,
-      imagePreviewsCount: imagePreviews.value.length,
-      blobUrlsCount: imagePreviews.value.filter((u) => isBlob(u)).length,
+    // Debug: Log số lượng ảnh
+    console.log('Images uploaded to R2:', {
+      uploadedCount: newImageUrls.length,
+      filesCount: filesToUpload.length,
+      oldImagesDeleted: originalImageUrls.value.length,
     })
 
-    // Đảm bảo số lượng ảnh upload thành công khớp với số file
-    if (imageFiles.value.length > 0 && newImageUrls.length !== imageFiles.value.length) {
+    // Validate upload success
+    if (filesToUpload.length > 0 && newImageUrls.length !== filesToUpload.length) {
       console.error('Mismatch: số ảnh upload thành công không khớp với số file', {
-        filesCount: imageFiles.value.length,
+        filesCount: filesToUpload.length,
         uploadedCount: newImageUrls.length,
       })
       useNotify({
-        message: `Chỉ tải lên được ${newImageUrls.length}/${imageFiles.value.length} ảnh. Vui lòng thử lại.`,
+        message: `Chỉ tải lên được ${newImageUrls.length}/${filesToUpload.length} ảnh. Vui lòng thử lại.`,
         type: 'error',
       })
 
       return
     }
 
-    const logo = finalUrls[0] || null
-    const companyImages = finalUrls.slice(1).map((u) => ({ url: u }))
+    const logo = newImageUrls[0] || null
+    const companyImages = newImageUrls.slice(1).map((u) => ({ url: u }))
 
     // KHÔNG gửi name/address/organizationType
     const payload: CompanyAddUpdateEntity = {

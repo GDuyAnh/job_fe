@@ -1,7 +1,13 @@
 import type { ImgBBResponse } from '~/types/imgbb'
+import type FetchFactory from '~/services/factory'
 
 export default class UploadService {
-  private baseURL = 'https://api.imgbb.com/1'
+  private imgbbBaseURL = 'https://api.imgbb.com/1'
+  private apiService: FetchFactory | null = null
+
+  constructor(apiService?: FetchFactory) {
+    this.apiService = apiService || null
+  }
 
   /**
    * Make HTTP request without authorization headers (for ImgBB API)
@@ -26,7 +32,115 @@ export default class UploadService {
   }
 
   /**
-   * Upload image to ImgBB
+   * Upload CV file to Cloudflare R2 via backend API
+   * @param file - CV file (PDF, DOC, DOCX)
+   * @param oldUrl - URL of old CV to delete (optional)
+   * @returns URL of uploaded file
+   */
+  async uploadCv(
+    file: File,
+    oldUrl?: string,
+  ): Promise<{ url: string; originalName: string }> {
+    if (!this.apiService) {
+      throw new Error('API service not initialized')
+    }
+
+    try {
+      const formData = new FormData()
+      formData.append('file', file)
+      if (oldUrl) {
+        formData.append('oldUrl', oldUrl)
+      }
+
+      const response = await this.apiService.postFormData<{
+        url: string
+        originalName: string
+      }>('/upload/cv', formData)
+
+      return {
+        url: response.url,
+        originalName: response.originalName,
+      }
+    } catch (error: any) {
+      console.error('Upload CV failed:', error)
+      throw new Error(error.message || 'Failed to upload CV')
+    }
+  }
+
+  /**
+   * Upload cover letter file to Cloudflare R2 via backend API
+   * @param file - Cover letter file (PDF, DOC, DOCX)
+   * @param oldUrl - URL of old cover letter to delete (optional)
+   * @returns URL of uploaded file
+   */
+  async uploadCoverLetter(
+    file: File,
+    oldUrl?: string,
+  ): Promise<{ url: string; originalName: string }> {
+    if (!this.apiService) {
+      throw new Error('API service not initialized')
+    }
+
+    try {
+      const formData = new FormData()
+      formData.append('file', file)
+      if (oldUrl) {
+        formData.append('oldUrl', oldUrl)
+      }
+
+      const response = await this.apiService.postFormData<{
+        url: string
+        originalName: string
+      }>('/upload/cover-letter', formData)
+
+      return {
+        url: response.url,
+        originalName: response.originalName,
+      }
+    } catch (error: any) {
+      console.error('Upload cover letter failed:', error)
+      throw new Error(error.message || 'Failed to upload cover letter')
+    }
+  }
+
+  /**
+   * Upload avatar image to Cloudflare R2 via backend API
+   * @param file - Avatar image (JPEG, PNG)
+   * @param oldUrl - URL of old avatar to delete (optional)
+   * @returns URL of uploaded file
+   */
+  async uploadAvatar(
+    file: File,
+    oldUrl?: string,
+  ): Promise<{ url: string; originalName: string }> {
+    if (!this.apiService) {
+      throw new Error('API service not initialized')
+    }
+
+    try {
+      const formData = new FormData()
+      formData.append('file', file)
+      if (oldUrl) {
+        formData.append('oldUrl', oldUrl)
+      }
+
+      const response = await this.apiService.postFormData<{
+        url: string
+        originalName: string
+      }>('/upload/avatar', formData)
+
+      return {
+        url: response.url,
+        originalName: response.originalName,
+      }
+    } catch (error: any) {
+      console.error('Upload avatar failed:', error)
+      throw new Error(error.message || 'Failed to upload avatar')
+    }
+  }
+
+  /**
+   * Upload image to ImgBB (kept for backward compatibility)
    * @param image - File, base64 string, or image URL
    * @param name - Optional filename
    * @param expiration - Optional expiration time in seconds (60-15552000)
@@ -79,7 +193,7 @@ export default class UploadService {
       const apiUrl = `/upload?${params.toString()}`
 
       // Make the API call using direct fetch (no authorization headers)
-      const response = await this.makeRequest(`${this.baseURL}${apiUrl}`, {
+      const response = await this.makeRequest(`${this.imgbbBaseURL}${apiUrl}`, {
         method: 'POST',
         body: formData,
       })
@@ -182,5 +296,60 @@ export default class UploadService {
    */
   async uploadFileAndGetUrl(file: File, expiration?: number): Promise<string> {
     return this.uploadImageAndGetUrl(file, file.name, expiration)
+  }
+
+  /**
+   * Upload image to Cloudflare R2 via backend API
+   * @param file - Image file (JPEG, PNG)
+   * @param folder - Folder to upload to (logo, banner, company-images)
+   * @param oldUrl - URL of old image to delete (optional)
+   * @returns URL of uploaded file
+   */
+  async uploadImageR2(
+    file: File,
+    folder: 'logo' | 'banner' | 'company-images' = 'company-images',
+    oldUrl?: string,
+  ): Promise<string> {
+    if (!this.apiService) {
+      throw new Error('API service not initialized')
+    }
+
+    try {
+      const formData = new FormData()
+      formData.append('file', file)
+      formData.append('folder', folder)
+      if (oldUrl) {
+        formData.append('oldUrl', oldUrl)
+      }
+
+      const response = await this.apiService.postFormData<{
+        url: string
+        originalName: string
+      }>('/upload/image', formData)
+
+      return response.url
+    } catch (error: any) {
+      console.error('Upload image to R2 failed:', error)
+      throw new Error(error.message || 'Failed to upload image')
+    }
+  }
+
+  /**
+   * Delete multiple images from R2 (batch async operation)
+   * @param urls - Array of image URLs to delete
+   */
+  async deleteBatchR2(urls: string[]): Promise<void> {
+    if (!this.apiService) {
+      throw new Error('API service not initialized')
+    }
+
+    try {
+      await this.apiService.post('/upload/delete-batch', {
+        body: { urls },
+      })
+    } catch (error: any) {
+      console.error('Batch delete failed:', error)
+      // Don't throw - batch delete is fire-and-forget
+    }
   }
 }

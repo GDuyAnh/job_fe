@@ -45,12 +45,12 @@
         <!-- Mã số thuế (MST) -->
         <div>
           <label class="font-medium text-sm text-gray-700">
-            Mã số thuế
+            {{ $t('company.mst') }}
           </label>
           <UInput
             :model-value="companyForm.mst || ''"
             class="w-full"
-            placeholder="Mã số thuế"
+            :placeholder="$t('company.mst')"
             disabled
           />
         </div>
@@ -58,12 +58,12 @@
         <!-- Địa chỉ thuế -->
         <div>
           <label class="font-medium text-sm text-gray-700">
-            Địa chỉ thuế
+            {{ $t('company.taxAddress') }}
           </label>
           <UInput
             v-model.trim="companyForm.taxAddress"
             class="w-full"
-            placeholder="Địa chỉ thuế"
+            :placeholder="$t('company.taxAddress')"
           />
         </div>
 
@@ -1474,6 +1474,7 @@ async function saveCompany() {
 
     // Debug: Log số lượng ảnh để kiểm tra
     const newImageUrlsCount = detailUrls.length - existingUrls.length
+
     console.log('Total images to save:', {
       existingUrls: existingUrls.length,
       newImageUrls: newImageUrlsCount,

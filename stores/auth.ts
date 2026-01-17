@@ -28,9 +28,26 @@ export const useAuthStore = defineStore('auth', {
         password,
       })
 
+      // Chỉ set token khi đăng nhập thành công và có access_token
+      if (response && (response.access_token || response.accessToken)) {
+        const token = useToken(CONSTANTS.COOKIE_TOKEN_OPTION as CookieOptions)
+        token.set(response.access_token || response.accessToken)
+      }
+
+      return response
+    },
+
+    async autoLogin(email: string) {
+      const { $api } = useNuxtApp()
+
+      const response = await $api.auth.autoLogin({ email })
+
       const token = useToken(CONSTANTS.COOKIE_TOKEN_OPTION as CookieOptions)
 
       token.set(response.access_token || response.accessToken)
+
+      // Set user to store
+      this.user = UserMapper.toModel(response.user)
 
       return response
     },
@@ -75,10 +92,24 @@ export const useAuthStore = defineStore('auth', {
 
       this.user = UserMapper.toModel(response)
 
+      console.log('===== GET ME INFO =====')
+      console.log('User:', this.user)
+      console.log('Role:', this.user?.role)
+      console.log('Role Type:', typeof this.user?.role)
+      console.log('=======================')
+
       return this.user
     },
 
     setUser(user: UserModel) {
+      console.log('===== USER LOGIN INFO =====')
+      console.log('User:', user)
+      console.log('Role:', user.role)
+      console.log('Role Type:', typeof user.role)
+      console.log('Email:', user.email)
+      console.log('Full Name:', user.fullName)
+      console.log('Company ID:', user.companyId)
+      console.log('===========================')
       this.user = user
     },
 

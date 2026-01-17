@@ -5,11 +5,11 @@
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between items-center h-16">
           <!-- Logo -->
-          <div class="flex items-center">
-            <h1 class="text-2xl font-bold text-blue-900">
+          <NuxtLink to="/" class="flex items-center cursor-pointer">
+            <h1 class="text-2xl font-bold text-blue-900 hover:text-blue-700 transition-colors">
               {{ $t('dashboard.header.logo') }}
             </h1>
-          </div>
+          </NuxtLink>
 
           <!-- Right side actions -->
           <div class="flex items-center space-x-4">
@@ -38,7 +38,19 @@
                 class="flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-100"
                 @click="toggleUserDropdown"
               >
+                <!-- Avatar with image or fallback to initials -->
                 <div
+                  v-if="authStore.user?.avatarUrl"
+                  class="w-8 h-8 rounded-full overflow-hidden bg-gray-200"
+                >
+                  <img
+                    :src="authStore.user.avatarUrl"
+                    :alt="authStore.user.fullName || 'User'"
+                    class="w-full h-full object-cover"
+                  />
+                </div>
+                <div
+                  v-else
                   class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center"
                 >
                   <span class="text-white font-semibold text-sm">
@@ -81,57 +93,81 @@
 
     <div class="flex">
       <!-- Sidebar -->
-      <aside class="w-64 bg-blue-50 min-h-screen">
+      <aside class="w-64 bg-[#fff9ed] min-h-screen">
         <nav class="mt-8">
-          <!-- Admin Tools -->
           <div class="px-4 mb-6">
-            <h3
-              class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3"
-            >
-              {{ $t('dashboard.sidebar.adminTools') }}
-            </h3>
             <div class="space-y-1">
               <button
-                class="w-full flex items-center px-3 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg"
+                :class="[
+                  'w-full flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors',
+                  activeView === 'dashboard'
+                    ? 'text-white bg-[#002748]'
+                    : 'text-gray-800 hover:bg-gray-100'
+                ]"
+                @click="setActiveView('dashboard')"
               >
-                <UIcon name="i-lucide-layout-dashboard" class="w-5 h-5 mr-3" />
-                {{ $t('dashboard.sidebar.overview') }}
+                <UIcon name="i-lucide-home" class="w-5 h-5 mr-3" />
+                Tổng quan
               </button>
               <button
-                class="w-full flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:bg-blue-100 rounded-lg transition-colors"
-                @click="navigateToEditProfile"
+                :class="[
+                  'w-full flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors',
+                  activeView === 'editProfile'
+                    ? 'text-white bg-[#002748]'
+                    : 'text-gray-800 hover:bg-gray-100'
+                ]"
+                @click="setActiveView('editProfile')"
               >
                 <UIcon name="i-lucide-user" class="w-5 h-5 mr-3" />
-                {{ $t('dashboard.sidebar.accountInfo') }}
+                Thông tin tài khoản
               </button>
               <button
-                class="w-full flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:bg-blue-100 rounded-lg transition-colors"
+                :class="[
+                  'w-full flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors',
+                  activeView === 'resume'
+                    ? 'text-white bg-[#002748]'
+                    : 'text-gray-800 hover:bg-gray-100'
+                ]"
+                @click="setActiveView('resume')"
               >
                 <UIcon name="i-lucide-file-text" class="w-5 h-5 mr-3" />
-                {{ $t('dashboard.sidebar.appliedJobs') }}
+                Hồ sơ ứng tuyển
               </button>
               <button
-                class="w-full flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:bg-blue-100 rounded-lg transition-colors"
+                :class="[
+                  'w-full flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors',
+                  activeView === 'applications'
+                    ? 'text-white bg-[#002748]'
+                    : 'text-gray-800 hover:bg-gray-100'
+                ]"
+                @click="setActiveView('applications')"
+              >
+                <UIcon name="i-lucide-file-text" class="w-5 h-5 mr-3" />
+                Công việc đã ứng tuyển
+              </button>
+              <button
+                :class="[
+                  'w-full flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors',
+                  activeView === 'changePassword'
+                    ? 'text-white bg-[#002748]'
+                    : 'text-gray-800 hover:bg-gray-100'
+                ]"
+                @click="setActiveView('changePassword')"
               >
                 <UIcon name="i-lucide-lock" class="w-5 h-5 mr-3" />
-                {{ $t('dashboard.sidebar.changePassword') }}
+                Thay đổi mật khẩu
               </button>
-            </div>
-          </div>
-
-          <!-- Insights -->
-          <div class="px-4">
-            <h3
-              class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3"
-            >
-              {{ $t('dashboard.sidebar.options') }}
-            </h3>
-            <div class="space-y-1">
               <button
-                class="w-full flex items-center px-3 py-2 text-sm font-medium text-white bg-[#f44141] hover:bg-[#f44141]/50 rounded-lg transition-colors"
+                :class="[
+                  'w-full flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors',
+                  activeView === 'deleteAccount'
+                    ? 'text-white bg-[#002748]'
+                    : 'text-gray-800 hover:bg-gray-100'
+                ]"
+                @click="setActiveView('deleteAccount')"
               >
-                <UIcon name="i-lucide-trash" class="w-5 h-5 mr-3" />
-                {{ $t('dashboard.sidebar.deleteAccount') }}
+                <UIcon name="i-lucide-trash-2" class="w-5 h-5 mr-3" />
+                Xoá tài khoản
               </button>
             </div>
           </div>
@@ -140,237 +176,73 @@
 
       <!-- Main Content -->
       <main class="flex-1 p-8">
-        <!-- Page Title -->
-        <div class="mb-8">
-          <h1 class="text-3xl font-bold text-gray-900">
-            {{ $t('dashboard.main.title') }}
-          </h1>
-          <p class="text-gray-600 mt-2">
-            {{
-              $t('dashboard.main.welcome', {
-                name: authStore.user?.fullName || 'User',
-              })
-            }}
-          </p>
-        </div>
+        <!-- Dashboard View -->
+        <DashboardUserOverview
+          v-if="activeView === 'dashboard'"
+          ref="overviewRef"
+          @view-all-applications="setActiveView('applications')"
+          @view-job="handleViewJob"
+        />
 
-        <!-- Summary Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <!-- Công việc đăng tải -->
-          <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
-            <div class="flex items-center">
-              <div class="p-3 bg-blue-100 rounded-lg">
-                <UIcon
-                  name="i-lucide-file-text"
-                  class="w-6 h-6 text-blue-600"
-                />
-              </div>
-              <div class="ml-4">
-                <p class="text-sm font-medium text-gray-600">
-                  {{ $t('dashboard.main.metrics.postedJobs') }}
-                </p>
-                <p class="text-2xl font-bold text-gray-900">
-                  {{ jobStats.postedJobs }}
-                </p>
-              </div>
-            </div>
-          </div>
+        <!-- Edit Profile View -->
+        <DashboardUserEditProfile
+          v-else-if="activeView === 'editProfile'"
+          @back="setActiveView('dashboard')"
+        />
 
-          <!-- Tin đăng chờ duyệt -->
-          <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
-            <div class="flex items-center">
-              <div class="p-3 bg-yellow-100 rounded-lg">
-                <UIcon name="i-lucide-clock" class="w-6 h-6 text-yellow-600" />
-              </div>
-              <div class="ml-4">
-                <p class="text-sm font-medium text-gray-600">
-                  {{ $t('dashboard.main.metrics.pendingJobs') }}
-                </p>
-                <p class="text-2xl font-bold text-gray-900">
-                  {{ jobStats.pendingJobs }}
-                </p>
-              </div>
-            </div>
-          </div>
+        <!-- Resume View -->
+        <DashboardUserResume
+          v-else-if="activeView === 'resume'"
+          @back="setActiveView('dashboard')"
+        />
 
-          <!-- Tin hết hạn -->
-          <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
-            <div class="flex items-center">
-              <div class="p-3 bg-red-100 rounded-lg">
-                <UIcon name="i-lucide-x-circle" class="w-6 h-6 text-red-600" />
-              </div>
-              <div class="ml-4">
-                <p class="text-sm font-medium text-gray-600">
-                  {{ $t('dashboard.main.metrics.expiredJobs') }}
-                </p>
-                <p class="text-2xl font-bold text-gray-900">
-                  {{ jobStats.expiredJobs }}
-                </p>
-              </div>
-            </div>
-          </div>
+        <!-- Applications View -->
+        <DashboardApplications
+          v-else-if="activeView === 'applications'"
+          @back="setActiveView('dashboard')"
+        />
 
-          <!-- Tin sắp hết hạn -->
-          <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
-            <div class="flex items-center">
-              <div class="p-3 bg-orange-100 rounded-lg">
-                <UIcon
-                  name="i-lucide-alert-triangle"
-                  class="w-6 h-6 text-orange-600"
-                />
-              </div>
-              <div class="ml-4">
-                <p class="text-sm font-medium text-gray-600">
-                  {{ $t('dashboard.main.metrics.expiringSoonJobs') }}
-                </p>
-                <p class="text-2xl font-bold text-gray-900">
-                  {{ jobStats.expiringSoonJobs }}
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
 
-        <!-- Charts Section -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <!-- Job Posting Chart -->
-          <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
-            <div class="flex items-center justify-between mb-6">
-              <h3 class="text-lg font-semibold text-gray-900">
-                {{ $t('dashboard.charts.jobPostings') }}
-              </h3>
-              <div class="flex items-center space-x-2">
-                <span class="text-sm text-gray-600"
-                  >{{ jobPostingStats.total }} {{ $t('dashboard.charts.growth')
-                  }}{{ jobPostingStats.percentage
-                  }}{{ $t('dashboard.charts.growthText') }}</span
-                >
-                <USelect
-                  v-model="selectedTimeRange"
-                  :options="timeRangeOptions"
-                  class="w-32"
-                />
-              </div>
-            </div>
-            <div class="h-64 flex items-center justify-center">
-              <div class="w-full h-full">
-                <canvas ref="jobPostingChart" class="w-full h-full"></canvas>
-              </div>
-            </div>
-          </div>
+        <!-- Change Password View -->
+        <DashboardChangePassword
+          v-else-if="activeView === 'changePassword'"
+          @back="setActiveView('dashboard')"
+        />
 
-          <!-- Candidate Applications Chart -->
-          <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
-            <div class="flex items-center justify-between mb-6">
-              <h3 class="text-lg font-semibold text-gray-900">
-                {{ $t('dashboard.charts.candidates') }}
-              </h3>
-              <div class="flex items-center space-x-2">
-                <span class="text-sm text-gray-600"
-                  >{{ candidateStats.total }} {{ $t('dashboard.charts.growth')
-                  }}{{ candidateStats.percentage
-                  }}{{ $t('dashboard.charts.growthText') }}</span
-                >
-                <USelect
-                  v-model="selectedTimeRange"
-                  :options="timeRangeOptions"
-                  class="w-32"
-                />
-              </div>
-            </div>
-            <div class="h-64 flex items-center justify-center">
-              <div class="w-full h-full">
-                <canvas ref="candidateChart" class="w-full h-full"></canvas>
-              </div>
-            </div>
-          </div>
-        </div>
+        <!-- Delete Account View -->
+        <DashboardDeleteAccount
+          v-else-if="activeView === 'deleteAccount'"
+          @back="setActiveView('dashboard')"
+        />
       </main>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { Chart, registerables } from 'chart.js'
-import { useRouter } from 'vue-router'
-import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
-
-// Register Chart.js components
-Chart.register(...registerables)
+import { useRouter, useRoute } from 'vue-router'
+import { ref, onMounted, onUnmounted, watch } from 'vue'
+import DashboardUserOverview from '~/components/dashboard/DashboardUserOverview.vue'
+import DashboardUserEditProfile from '~/components/dashboard/DashboardUserEditProfile.vue'
+import DashboardUserResume from '~/components/dashboard/DashboardUserResume.vue'
+import DashboardApplications from '~/components/dashboard/DashboardApplications.vue'
+import DashboardChangePassword from '~/components/dashboard/DashboardChangePassword.vue'
+import DashboardDeleteAccount from '~/components/dashboard/DashboardDeleteAccount.vue'
 
 // Composables
 const router = useRouter()
+const route = useRoute()
 const authStore = useAuthStore()
+
+// Dashboard view types
+type DashboardView = 'dashboard' | 'editProfile' | 'resume' | 'applications' | 'changePassword' | 'deleteAccount'
+
+// Active view state
+const activeView = ref<DashboardView>('dashboard')
 
 // Reactive data
 const showUserDropdown = ref(false)
-const selectedTimeRange = ref('7days')
-
-// Job statistics
-const jobStats = ref({
-  postedJobs: 0,
-  pendingJobs: 0,
-  expiredJobs: 0,
-  expiringSoonJobs: 0,
-})
-
-// Chart statistics
-const jobPostingStats = ref({
-  total: 0,
-  percentage: 0,
-})
-
-const candidateStats = ref({
-  total: 0,
-  percentage: 0,
-})
-
-// Time range options
-const timeRangeOptions = [
-  { label: '7 ngày qua', value: '7days' },
-  { label: '30 ngày qua', value: '30days' },
-  { label: '3 tháng qua', value: '3months' },
-  { label: '1 năm qua', value: '1year' },
-]
-
-// Chart references
-const jobPostingChart = ref<HTMLCanvasElement>()
-const candidateChart = ref<HTMLCanvasElement>()
-
-// Methods
-const logout = () => {
-  authStore.logout()
-  router.push('/')
-}
-
-// User dropdown menu items
-const userMenuItems = [
-  {
-    label: 'Dashboard',
-    icon: 'i-lucide-layout-dashboard',
-    click: () => router.push(ROUTE_PAGE.DASHBOARD.USER),
-  },
-  {
-    label: 'Chỉnh sửa hồ sơ',
-    icon: 'i-lucide-user',
-    click: () => router.push('/profile/edit'),
-  },
-  {
-    label: 'Tạo mới công ty',
-    icon: 'i-lucide-building-2',
-    click: () => router.push('/companies/list'),
-  },
-  {
-    label: 'Đăng tải công việc',
-    icon: 'i-lucide-briefcase',
-    click: () => router.push('/jobs/list'),
-  },
-  {
-    label: 'Đăng xuất',
-    icon: 'i-lucide-log-out',
-    click: logout,
-  },
-]
+const overviewRef = ref<InstanceType<typeof DashboardUserOverview> | null>(null)
 
 // Computed properties
 const unreadNotifications = computed(() => {
@@ -379,6 +251,20 @@ const unreadNotifications = computed(() => {
 })
 
 // Methods
+const setActiveView = (view: DashboardView) => {
+  activeView.value = view
+  showUserDropdown.value = false
+  
+  // Update URL query parameter
+  router.push({
+    path: '/users/dashboard',
+    query: { view }
+  })
+  
+  // Scroll to top when changing view
+  window.scrollTo({ top: 0, behavior: 'smooth' })
+}
+
 const toggleUserDropdown = () => {
   showUserDropdown.value = !showUserDropdown.value
 }
@@ -395,186 +281,81 @@ const navigateToPostJob = () => {
   router.push('/jobs/upload')
 }
 
-const navigateToEditProfile = () => {
-  // Redirect to company edit page - assuming user has a company
-  // You might need to get the company ID from user data or API
-  if (authStore.user?.companyId) {
-    router.push(`/companies/edit/${authStore.user.companyId}`)
-  } else {
-    // If no company ID, redirect to company list or create new company
-    router.push('/companies/list')
+const handleViewJob = (jobId: number) => {
+  router.push(`/jobs/${jobId}`)
+}
+
+const logout = () => {
+  authStore.logout()
+  router.push('/')
+}
+
+// Watch for route query changes (immediate để chạy ngay khi load)
+watch(() => route.query.view, (newView) => {
+  if (newView && ['dashboard', 'editProfile', 'resume', 'applications', 'changePassword', 'deleteAccount'].includes(newView as string)) {
+    activeView.value = newView as DashboardView
+    window.scrollTo({ top: 0, behavior: 'smooth' })
   }
-}
+}, { immediate: true })
 
-const _navigateToNewJob = () => {
-  router.push('/jobs/upload')
-}
-
-const _navigateToManageJobs = () => {
-  router.push('/jobs/list')
-}
-
-const _navigateToCandidates = () => {
-  router.push('/candidates')
-}
-
-const _navigateToChangePassword = () => {
-  router.push('/change-password')
-}
-
-const _navigateToNotifications = () => {
-  router.push('/notifications')
-}
-
-// API calls
-const { $api } = useNuxtApp()
-
-const fetchJobStatistics = async () => {
-  try {
-    // Fetch all jobs for the current user
-    const response = await $api.job.searchJob({ userId: authStore.user?.id })
-
-    if (response && Array.isArray(response)) {
-      const now = new Date()
-      const sevenDaysFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000)
-
-      jobStats.value = {
-        postedJobs: response.length,
-        pendingJobs: response.filter((job) => job.isWaiting).length,
-        expiredJobs: response.filter(
-          (job) => job.deadline && new Date(job.deadline) < now,
-        ).length,
-        expiringSoonJobs: response.filter(
-          (job) =>
-            job.deadline &&
-            new Date(job.deadline) > now &&
-            new Date(job.deadline) <= sevenDaysFromNow,
-        ).length,
-      }
-
-      // Calculate job posting stats
-      jobPostingStats.value = {
-        total: response.length,
-        percentage: Math.floor(Math.random() * 20) + 5, // Random percentage for demo
-      }
-    }
-  } catch (error: any) {
-    console.error('Failed to fetch job statistics:', error)
-    useNotify({
-      message: error.message || 'Không thể tải thống kê công việc',
-    })
-  }
-}
-
-const generateFakeCandidateData = () => {
-  // Generate fake candidate application data
-  candidateStats.value = {
-    total: Math.floor(Math.random() * 100) + 50,
-    percentage: Math.floor(Math.random() * 30) + 10,
-  }
-}
-
-// Chart initialization
-const initializeCharts = () => {
-  if (!jobPostingChart.value || !candidateChart.value) return
-
-  // Job Posting Chart
-  const jobCtx = jobPostingChart.value.getContext('2d')
-
-  if (jobCtx) {
-    new Chart(jobCtx, {
-      type: 'line',
-      data: {
-        labels: ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'],
-        datasets: [
-          {
-            label: 'Tin đăng',
-            data: [12, 19, 3, 5, 2, 3, 8],
-            borderColor: 'rgb(59, 130, 246)',
-            backgroundColor: 'rgba(59, 130, 246, 0.1)',
-            tension: 0.4,
-            fill: true,
-          },
-        ],
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: {
-            display: false,
-          },
-        },
-        scales: {
-          y: {
-            beginAtZero: true,
-            grid: {
-              color: 'rgba(0, 0, 0, 0.1)',
-            },
-          },
-          x: {
-            grid: {
-              display: false,
-            },
-          },
-        },
-      },
-    })
-  }
-
-  // Candidate Applications Chart
-  const candidateCtx = candidateChart.value.getContext('2d')
-
-  if (candidateCtx) {
-    new Chart(candidateCtx, {
-      type: 'bar',
-      data: {
-        labels: ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'],
-        datasets: [
-          {
-            label: 'Ứng viên',
-            data: [5, 8, 12, 6, 9, 15, 7],
-            backgroundColor: 'rgba(34, 197, 94, 0.8)',
-            borderColor: 'rgb(34, 197, 94)',
-            borderWidth: 1,
-          },
-        ],
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: {
-            display: false,
-          },
-        },
-        scales: {
-          y: {
-            beginAtZero: true,
-            grid: {
-              color: 'rgba(0, 0, 0, 0.1)',
-            },
-          },
-          x: {
-            grid: {
-              display: false,
-            },
-          },
-        },
-      },
-    })
-  }
-}
+// User dropdown menu items
+const userMenuItems = [
+  {
+    label: 'Tổng quan',
+    icon: 'i-lucide-layout-dashboard',
+    click: () => {
+      setActiveView('dashboard')
+    },
+  },
+  {
+    label: 'Thông tin tài khoản',
+    icon: 'i-lucide-user',
+    click: () => {
+      setActiveView('editProfile')
+    },
+  },
+  {
+    label: 'Hồ sơ ứng tuyển',
+    icon: 'i-lucide-file-text',
+    click: () => {
+      setActiveView('resume')
+    },
+  },
+  {
+    label: 'Công việc đã ứng tuyển',
+    icon: 'i-lucide-briefcase',
+    click: () => {
+      setActiveView('applications')
+    },
+  },
+  {
+    label: 'Đăng tin mới',
+    icon: 'i-lucide-plus-circle',
+    click: () => {
+      navigateToPostJob()
+    },
+  },
+  {
+    label: 'Thay đổi mật khẩu',
+    icon: 'i-lucide-lock',
+    click: () => {
+      setActiveView('changePassword')
+    },
+  },
+  {
+    label: 'Đăng xuất',
+    icon: 'i-lucide-log-out',
+    click: logout,
+  },
+]
 
 // Lifecycle
-onMounted(async () => {
-  await fetchJobStatistics()
-  generateFakeCandidateData()
+onMounted(() => {
+  if (!authStore.user) {
+    router.push(ROUTE_PAGE.AUTH.LOGIN)
 
-  // Initialize charts after data is loaded
-  nextTick(() => {
-    initializeCharts()
-  })
+    return
+  }
 
   // Add click outside listener for dropdown
   document.addEventListener('click', handleClickOutside)
@@ -592,4 +373,5 @@ const handleClickOutside = (event: Event) => {
     showUserDropdown.value = false
   }
 }
+
 </script>

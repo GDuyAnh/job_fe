@@ -806,6 +806,14 @@ const locationForSelect = computed({
   }
 })
 
+// Helper function to auto-fill email from logged-in user
+const autoFillEmail = () => {
+  // Chỉ tự động điền email khi không phải edit mode và user đã đăng nhập
+  if (!isEditMode.value && authStore.user && authStore.user.email) {
+    job.value.email = authStore.user.email
+  }
+}
+
 // Load job data when jobToEdit prop changes
 watch(() => props.jobToEdit, (newJob) => {
   if (newJob) {
@@ -815,6 +823,8 @@ watch(() => props.jobToEdit, (newJob) => {
     job.value = {} as JobModelAddUpdate
     job.value.postedDate = new Date()
     agreeChecked.value = false
+    // Tự động điền email sau khi reset form
+    autoFillEmail()
   }
 }, { immediate: true })
 
@@ -921,6 +931,9 @@ onMounted(() => {
   }
 
   job.value.postedDate = new Date()
+  
+  // Tự động điền email của user đã đăng nhập vào trường email (chỉ khi add job, không phải edit)
+  autoFillEmail()
 })
 
 const addJob = async () => {

@@ -20,7 +20,7 @@
           <div class="flex-1 max-w-md">
             <UInput
               v-model="searchQuery"
-              placeholder="Tìm kiếm theo email, vị trí, tên ứng viên..."
+              :placeholder="$t('dashboard.candidates.searchPlaceholder')"
               icon="i-lucide-search"
               class="w-full"
               clearable
@@ -160,7 +160,7 @@
 </template>
 
 <script setup lang="ts">
-const emit = defineEmits<{
+defineEmits<{
   back: []
 }>()
 
@@ -179,6 +179,7 @@ interface JobApplication {
 // Composables
 const { $api } = useNuxtApp()
 const authStore = useAuthStore()
+const { t } = useI18n()
 
 // Reactive data
 const loading = ref(false)
@@ -245,7 +246,7 @@ const fetchApplications = async () => {
   } catch (error: any) {
     console.error('Failed to fetch applications:', error)
     useNotify({
-      message: error.message || 'Không thể tải danh sách ứng tuyển',
+      message: error.message || t('dashboard.candidates.fetchFailed'),
     })
   } finally {
     loading.value = false
@@ -257,14 +258,14 @@ const viewApplication = (application: JobApplication) => {
   // TODO: Implement view application modal or navigate to detail page
   console.log('View application:', application)
   useNotify({
-    message: 'Tính năng xem chi tiết đang được phát triển',
+    message: t('dashboard.candidates.viewDetailFeature'),
   })
 }
 
 // Delete application
 const deleteApplication = async (applicationId: number) => {
   if (
-    !confirm('Bạn có chắc chắn muốn xóa đơn ứng tuyển này không?')
+    !confirm(t('dashboard.candidates.deleteConfirm'))
   ) {
     return
   }
@@ -281,13 +282,13 @@ const deleteApplication = async (applicationId: number) => {
     )
 
     useNotify({
-      message: 'Đã xóa đơn ứng tuyển thành công',
+      message: t('dashboard.candidates.deleteSuccess'),
       type: 'success',
     })
   } catch (error: any) {
     console.error('Failed to delete application:', error)
     useNotify({
-      message: error.message || 'Không thể xóa đơn ứng tuyển',
+      message: error.message || t('dashboard.candidates.deleteFailed'),
     })
   } finally {
     deletingApplicationId.value = null
