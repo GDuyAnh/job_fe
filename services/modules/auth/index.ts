@@ -14,10 +14,14 @@ const AuthModule = (apiService: FetchFactory) => {
 
   const getMe = async () => apiService.get<UserEntity>(ROUTE_API.ME)
 
+  const autoLogin = async (body: { email: string }) =>
+    apiService.post(ROUTE_API.AUTO_LOGIN, { body })
+
   return {
     login,
     register,
     getMe,
+    autoLogin,
   }
 }
 

@@ -19,6 +19,7 @@
           <UInput
             v-model="formData.fullName"
             :placeholder="$t('job.application.fullNamePlaceholder')"
+            :disabled="isFullNameDisabled"
             class="w-full"
           />
         </div>
@@ -36,6 +37,7 @@
             <UInput
               v-model="formData.phone"
               :placeholder="$t('job.application.phonePlaceholder')"
+              :disabled="isPhoneDisabled"
               class="w-full"
             />
           </div>
@@ -52,6 +54,7 @@
               v-model="formData.email"
               type="email"
               :placeholder="$t('job.application.emailPlaceholder')"
+              :disabled="isEmailDisabled"
               class="w-full"
             />
           </div>
@@ -66,8 +69,36 @@
           <span class="text-red-500">{{ $t('job.application.required') }}</span>
         </h4>
 
+        <!-- CV from Profile (if exists) -->
+        <div v-if="formData.cvUrl && !formData.cvFile" class="p-4 bg-green-50 border border-green-200 rounded-lg">
+          <div class="flex items-center gap-3">
+            <UIcon name="i-lucide-check-circle" class="w-5 h-5 text-green-600 flex-shrink-0" />
+            <div class="flex-1">
+              <p class="text-sm font-medium text-green-900">
+                Sử dụng CV từ hồ sơ của bạn
+              </p>
+              <a
+                :href="formData.cvUrl"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="text-xs text-green-700 hover:text-green-800 underline"
+              >
+                Xem CV
+              </a>
+            </div>
+            <UButton
+              variant="ghost"
+              size="sm"
+              @click="formData.cvUrl = null"
+            >
+              Tải CV khác
+            </UButton>
+          </div>
+        </div>
+
         <!-- Drag and Drop Area -->
         <div
+          v-if="!formData.cvUrl"
           class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition-colors bg-white"
           :class="{
             'border-blue-500 bg-blue-50': isDragOver,
@@ -152,6 +183,16 @@
         <h4 class="text-lg font-semibold text-gray-900">
           {{ $t('job.application.coverLetter') }}
         </h4>
+
+        <!-- Cover Letter from Profile (if exists) -->
+        <div v-if="formData.coverLetter && props.userInfo?.coverLetterText" class="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+          <div class="flex items-center gap-2 mb-2">
+            <UIcon name="i-lucide-info" class="w-4 h-4 text-blue-600" />
+            <p class="text-xs font-medium text-blue-900">
+              Đang sử dụng thư ứng tuyển từ hồ sơ của bạn
+            </p>
+          </div>
+        </div>
 
         <!-- Text Cover Letter -->
         <div class="w-full">
@@ -263,14 +304,13 @@
     </div>
 
     <!-- Footer -->
-    <div class="flex justify-end space-x-3">
-      <UButton variant="outline" color="neutral" @click="closeModal">
-        {{ $t('job.application.cancel') }}
-      </UButton>
+    <div class="flex justify-center mt-6">
       <UButton
         color="primary"
+        size="lg"
         :loading="isSubmitting"
         :disabled="!isFormValid"
+        class="min-w-[300px]"
         @click="submitApplication"
       >
         {{ $t('job.application.submit') }}
@@ -285,8 +325,10 @@ interface ApplicationFormData {
   phone: string
   email: string
   cvFile: File | null
+  cvUrl?: string | null
   coverLetter: string
   coverLetterFile: File | null
+  coverLetterUrl?: string | null
   agreeTerms: boolean
 }
 
@@ -296,6 +338,10 @@ interface Props {
   userInfo?: {
     fullName: string
     email: string
+    phone?: string
+    cvUrl?: string | null
+    coverLetterUrl?: string | null
+    coverLetterText?: string | null
   } | null
 }
 
@@ -317,8 +363,10 @@ const formData = ref<ApplicationFormData>({
   phone: '',
   email: '',
   cvFile: null,
+  cvUrl: null,
   coverLetter: '',
   coverLetterFile: null,
+  coverLetterUrl: null,
   agreeTerms: false,
 })
 
@@ -331,13 +379,31 @@ const coverLetterFileError = ref('')
 const fileInput = ref<HTMLInputElement>()
 const coverLetterFileInput = ref<HTMLInputElement>()
 
+// Check if fields are pre-filled
+const isFullNameDisabled = computed(() => {
+  return !!(props.userInfo?.fullName)
+})
+
+const isPhoneDisabled = computed(() => {
+  return !!(props.userInfo?.phone)
+})
+
+const isEmailDisabled = computed(() => {
+  return !!(props.userInfo?.email)
+})
+
+// Check if user has CV (either file or URL from profile)
+const hasCv = computed(() => {
+  return formData.value.cvFile !== null || !!formData.value.cvUrl
+})
+
 // Form validation
 const isFormValid = computed(() => {
   return (
     formData.value.fullName.trim() !== '' &&
     formData.value.phone.trim() !== '' &&
     formData.value.email.trim() !== '' &&
-    formData.value.cvFile !== null &&
+    hasCv.value &&
     formData.value.agreeTerms
   )
 })
@@ -483,13 +549,26 @@ const autoFillUserInfo = () => {
   if (props.userInfo) {
     console.log('Setting formData:', {
       fullName: props.userInfo?.fullName,
+      phone: props.userInfo?.phone,
       email: props.userInfo?.email,
+      cvUrl: props.userInfo?.cvUrl,
+      coverLetterUrl: props.userInfo?.coverLetterUrl,
+      coverLetterText: props.userInfo?.coverLetterText,
     })
 
     // Use nextTick to ensure DOM is updated
     nextTick(() => {
       formData.value.fullName = props.userInfo?.fullName || ''
+      formData.value.phone = props.userInfo?.phone || ''
       formData.value.email = props.userInfo?.email || ''
+      
+      // Auto-fill CV URL from profile if exists
+      formData.value.cvUrl = props.userInfo?.cvUrl || null
+      
+      // Auto-fill Cover Letter from profile if exists
+      formData.value.coverLetter = props.userInfo?.coverLetterText || ''
+      formData.value.coverLetterUrl = props.userInfo?.coverLetterUrl || null
+      
       console.log('formData after setting:', formData.value)
     })
   } else {
@@ -503,8 +582,10 @@ const resetForm = () => {
     phone: '',
     email: '',
     cvFile: null,
+    cvUrl: null,
     coverLetter: '',
     coverLetterFile: null,
+    coverLetterUrl: null,
     agreeTerms: false,
   }
   cvFileError.value = ''

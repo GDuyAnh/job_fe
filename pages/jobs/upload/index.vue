@@ -2079,6 +2079,12 @@ onMounted(() => {
   }
 
   job.value.postedDate = new Date()
+  
+  // Tự động điền email của user đã đăng nhập vào trường email
+  if (authStore.user && authStore.user.email) {
+    job.value.email = authStore.user.email
+  }
+  
   // No need to fetch all companies anymore
 })
 
@@ -2428,7 +2434,7 @@ const addJob = async () => {
       }
 
       try {
-        const logoUrl = await $api.upload.uploadImageAndGetUrl(logoFile.value)
+        const logoUrl = await $api.upload.uploadImageR2(logoFile.value, 'logo')
 
         if (!logoUrl) {
           useNotify({
@@ -2452,7 +2458,7 @@ const addJob = async () => {
       // Upload banner image (OPTIONAL)
       if (bannerFile.value) {
         try {
-          const bannerUrl = await $api.upload.uploadImageAndGetUrl(bannerFile.value)
+          const bannerUrl = await $api.upload.uploadImageR2(bannerFile.value, 'banner')
 
           if (bannerUrl) {
             companyAdd.value.bannerImage = bannerUrl
@@ -2471,7 +2477,7 @@ const addJob = async () => {
           const image = imageFiles.value[index]
 
           try {
-            const imageUrl = await $api.upload.uploadImageAndGetUrl(image)
+            const imageUrl = await $api.upload.uploadImageR2(image, 'company-images')
 
             if (imageUrl) {
               companyAdd.value.companyImages.push({ url: imageUrl })

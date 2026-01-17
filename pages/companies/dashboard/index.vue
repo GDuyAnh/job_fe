@@ -38,7 +38,19 @@
                 class="flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-100"
                 @click="toggleUserDropdown"
               >
+                <!-- Avatar with image or fallback to initials -->
                 <div
+                  v-if="authStore.user?.avatarUrl"
+                  class="w-8 h-8 rounded-full overflow-hidden bg-gray-200"
+                >
+                  <img
+                    :src="authStore.user.avatarUrl"
+                    :alt="authStore.user.fullName || 'User'"
+                    class="w-full h-full object-cover"
+                  />
+                </div>
+                <div
+                  v-else
                   class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center"
                 >
                   <span class="text-white font-semibold text-sm">
@@ -84,8 +96,55 @@
       <!-- Sidebar -->
       <aside class="w-64 bg-blue-50 min-h-screen">
         <nav class="mt-8">
-          <!-- Admin Tools -->
-          <div class="px-4 mb-6">
+          <!-- Admin Section (only visible for admin role) -->
+          <div v-if="isAdmin" class="px-4 mb-6">
+            <h3
+              class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3"
+            >
+              Quản trị viên
+            </h3>
+            <div class="space-y-1">
+              <button
+                :class="[
+                  'w-full flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors',
+                  activeView === 'adminCompanies'
+                    ? 'text-white bg-blue-600'
+                    : 'text-gray-700 hover:bg-blue-100'
+                ]"
+                @click="setActiveView('adminCompanies')"
+              >
+                <UIcon name="i-lucide-building" class="w-5 h-5 mr-3" />
+                {{ $t('dashboard.sidebar.adminCompanies') }}
+              </button>
+              <button
+                :class="[
+                  'w-full flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors',
+                  activeView === 'adminUsers'
+                    ? 'text-white bg-blue-600'
+                    : 'text-gray-700 hover:bg-blue-100'
+                ]"
+                @click="setActiveView('adminUsers')"
+              >
+                <UIcon name="i-lucide-users-round" class="w-5 h-5 mr-3" />
+                {{ $t('dashboard.sidebar.adminUsers') }}
+              </button>
+              <button
+                :class="[
+                  'w-full flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors',
+                  activeView === 'adminBlogs'
+                    ? 'text-white bg-blue-600'
+                    : 'text-gray-700 hover:bg-blue-100'
+                ]"
+                @click="setActiveView('adminBlogs')"
+              >
+                <UIcon name="i-lucide-file-text" class="w-5 h-5 mr-3" />
+                {{ $t('dashboard.sidebar.adminBlogs') }}
+              </button>
+            </div>
+          </div>
+
+          <!-- Company Tools -->
+          <div v-if="!isAdmin" class="px-4 mb-6">
             <h3
               class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3"
             >
@@ -171,8 +230,23 @@
 
       <!-- Main Content -->
       <main class="flex-1 p-8">
+        <!-- Admin Companies View -->
+        <div v-if="activeView === 'adminCompanies'">
+          <DashboardAdminCompanies />
+        </div>
+
+        <!-- Admin Users View -->
+        <div v-else-if="activeView === 'adminUsers'">
+          <DashboardAdminUsers />
+        </div>
+
+        <!-- Admin Blogs View -->
+        <div v-else-if="activeView === 'adminBlogs'">
+          <DashboardAdminBlogs />
+        </div>
+
         <!-- Dashboard View -->
-        <div v-if="activeView === 'dashboard'">
+        <div v-else-if="activeView === 'dashboard'">
         <!-- Page Title -->
         <div class="mb-8">
           <h1 class="text-3xl font-bold text-gray-900">
@@ -465,6 +539,8 @@
 import { useRouter } from 'vue-router'
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import type { CompanyEntity } from '~/entities/company'
+import { USER_ROLES } from '~/constants/roles'
+
 // Composables
 const router = useRouter()
 const route = useRoute()
@@ -479,6 +555,9 @@ type DashboardView =
   | 'candidates' 
   | 'settings' 
   | 'notifications'
+  | 'adminCompanies'
+  | 'adminUsers'
+  | 'adminBlogs'
 
 // Active view state
 const activeView = ref<DashboardView>('dashboard')
@@ -601,6 +680,10 @@ const userMenuItems = [
 ]
 
 // Computed properties
+const isAdmin = computed(() => {
+  return authStore.user?.role === USER_ROLES.ADMIN
+})
+
 const unreadNotifications = computed(() => {
   // This would come from your notification system
   return 0
@@ -822,17 +905,32 @@ const deleteApplication = async (applicationId: number) => {
 
 // Lifecycle
 onMounted(async () => {
+  // Log user info on dashboard mount
+  console.log('===== DASHBOARD MOUNTED =====')
+  console.log('Current User:', authStore.user)
+  console.log('User Role:', authStore.user?.role)
+  console.log('Is Admin:', isAdmin.value)
+  console.log('USER_ROLES.ADMIN:', USER_ROLES.ADMIN)
+  console.log('============================')
+
   // Check for view query parameter to set active view
   const viewParam = route.query.view as string
 
-  if (viewParam && ['editProfile', 'newJob', 'manageJobs', 'candidates', 'settings', 'dashboard'].includes(viewParam)) {
+  if (viewParam && ['editProfile', 'newJob', 'manageJobs', 'candidates', 'settings', 'dashboard', 'adminCompanies', 'adminUsers', 'adminBlogs'].includes(viewParam)) {
     activeView.value = viewParam as DashboardView
+  } else if (isAdmin.value) {
+    // If user is admin and no view param, default to admin companies
+    activeView.value = 'adminCompanies'
   }
 
   // Load company data first (shared across all menu items)
   await loadCompanyData()
-  await fetchJobStatistics()
-  await fetchRecentApplications()
+  
+  // Only fetch company stats if not admin
+  if (!isAdmin.value) {
+    await fetchJobStatistics()
+    await fetchRecentApplications()
+  }
 
   // Add click outside listener for dropdown
   document.addEventListener('click', handleClickOutside)

@@ -9,7 +9,7 @@ import UploadService from '~/services/modules/upload'
 
 export default defineNuxtPlugin(({ $config }) => {
   const API_SERVICE = new FetchFactory($config.public.apiUrl)
-  const UPLOAD_SERVICE = new UploadService()
+  const UPLOAD_SERVICE = new UploadService(API_SERVICE)
 
   const modules = {
     auth: AuthModule(API_SERVICE),

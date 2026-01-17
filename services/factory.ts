@@ -30,9 +30,15 @@ export default class FetchFactory {
 
       onResponseError(error) {
         if (error?.response?._data?.statusCode === StatusCode.Unauthorized) {
-          const authStore = useAuthStore()
-
-          authStore.logout()
+          // Không logout nếu đang gọi API login
+          const requestUrl = error?.request || error?.options?.url || ''
+          const isLoginRequest = requestUrl.toString().includes('/auth/login') || requestUrl.toString().includes('login')
+          
+          // Chỉ logout khi KHÔNG phải là request login
+          if (!isLoginRequest) {
+            const authStore = useAuthStore()
+            authStore.logout()
+          }
         }
       },
 
@@ -88,6 +94,15 @@ export default class FetchFactory {
     return this.instance(url, {
       method: 'PATCH',
       ...options,
+    }).catch((error: any) => {
+      throw error.response._data || error
+    })
+  }
+
+  postFormData<T = any>(url: string, formData: FormData): Promise<T> {
+    return this.instance(url, {
+      method: 'POST',
+      body: formData,
     }).catch((error: any) => {
       throw error.response._data || error
     })

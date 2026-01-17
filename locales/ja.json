@@ -27,6 +27,7 @@
     "rotate": "Xoay",
     "cancel": "Hủy",
     "confirm": "Xác nhận",
+    "processing": "Đang xử lý...",
     "dragToMove": "Kéo để di chuyển",
     "actions": {
       "ok": "OK"
@@ -369,7 +370,8 @@
       "notFound": "Không tìm thấy công việc",
       "notFoundDescription": "Công việc bạn đang tìm kiếm không tồn tại hoặc đã bị xóa.",
       "goBack": "Quay lại",
-      "applicationSubmitted": "Đã gửi đơn ứng tuyển thành công!"
+      "applicationSubmitted": "Đã gửi đơn ứng tuyển thành công!",
+      "applicationSuccess": "Ứng tuyển thành công"
     },
     "listJobUser": {
       "title": "Thông tin việc làm",
@@ -520,6 +522,7 @@
     },
     "name": "Tên công ty",
     "mst": "Mã số thuế",
+    "taxAddress": "Địa chỉ thuế",
     "email": "Email",
     "industry": "Loại hình tổ chức",
     "founded": "Năm thành lập",
@@ -606,7 +609,149 @@
       "accountInfo": "Thông tin tài khoản",
       "appliedJobs": "Công việc đã ứng tuyển",
       "options": "Tùy chọn",
-      "deleteAccount": "Xoá tài khoản"
+      "deleteAccount": "Xoá tài khoản",
+      "adminCompanies": "Quản lý công ty",
+      "adminUsers": "Quản lý User",
+      "adminBlogs": "Quản lý Blog"
+    },
+    "admin": {
+      "companies": {
+        "title": "Quản lý công ty",
+        "description": "Quản lý tất cả các công ty trong hệ thống",
+        "searchPlaceholder": "Tìm kiếm công ty...",
+        "total": "Tổng số công ty",
+        "pendingLabel": "Chờ duyệt",
+        "table": {
+          "name": "Tên công ty",
+          "description": "Mô tả",
+          "email": "Email",
+          "address": "Địa chỉ",
+          "status": "Trạng thái",
+          "featured": "Nổi bật"
+        },
+        "status": {
+          "active": "Hoạt động",
+          "pending": "Chờ duyệt",
+          "approved": "Đã duyệt",
+          "inactive": "Không hoạt động"
+        },
+        "actions": {
+          "approve": "Xác nhận duyệt",
+          "feature": "Làm nổi bật",
+          "unfeature": "Bỏ nổi bật",
+          "show": "Hiển thị",
+          "hide": "Không hiển thị",
+          "delete": "Xóa"
+        },
+        "approveSuccess": "Đã duyệt công ty thành công! Công ty này đã được kích hoạt.",
+        "approveConfirm": "Xác nhận duyệt công ty này?",
+        "featureSuccess": "Đã làm nổi bật công ty",
+        "unfeatureSuccess": "Đã bỏ nổi bật công ty",
+        "showSuccess": "Đã hiển thị công ty",
+        "hideSuccess": "Đã ẩn công ty",
+        "deleteSuccess": "Xóa công ty thành công",
+        "deleteConfirm": "Bạn có chắc chắn muốn xóa công ty này?",
+        "loading": "Đang tải...",
+        "noCompanies": "Không tìm thấy công ty nào"
+      },
+      "users": {
+        "title": "Quản lý User",
+        "description": "Quản lý tất cả người dùng trong hệ thống",
+        "searchPlaceholder": "Tìm kiếm user...",
+        "total": "Tổng số users",
+        "table": {
+          "name": "Tên",
+          "email": "Email",
+          "role": "Vai trò",
+          "company": "Công ty",
+          "status": "Trạng thái"
+        },
+        "roles": {
+          "user": "User thường",
+          "company": "User công ty",
+          "admin": "Quản trị viên"
+        },
+        "status": {
+          "active": "Hoạt động",
+          "inactive": "Không hoạt động"
+        },
+        "actions": {
+          "approve": "Duyệt",
+          "delete": "Xóa",
+          "upgradeToCompany": "Chuyển thành User công ty",
+          "linkCompany": "Liên kết công ty"
+        },
+        "upgradeSuccess": "Nâng cấp user thành công",
+        "linkCompanySuccess": "Liên kết công ty thành công",
+        "deleteSuccess": "Xóa user thành công",
+        "deleteConfirm": "Bạn có chắc chắn muốn xóa user này?",
+        "selectCompany": "Chọn công ty",
+        "selectCompanyPlaceholder": "Chọn công ty...",
+        "noCompaniesWarning": "⚠️ Chưa có công ty nào được duyệt. Vui lòng duyệt công ty trước.",
+        "selectedCompany": "✓ Đã chọn",
+        "loading": "Đang tải...",
+        "noUsers": "Không tìm thấy user nào"
+      },
+      "blogs": {
+        "title": "Quản lý Blog",
+        "description": "Quản lý tất cả bài viết blog",
+        "searchPlaceholder": "Tìm kiếm blog...",
+        "total": "Tổng số bài viết",
+        "addNew": "Thêm blog mới",
+        "edit": "Chỉnh sửa",
+        "delete": "Xóa",
+        "createTitle": "Tạo blog mới",
+        "editTitle": "Chỉnh sửa blog",
+        "form": {
+          "title": "Tiêu đề",
+          "titlePlaceholder": "Nhập tiêu đề blog...",
+          "content": "Nội dung",
+          "contentPlaceholder": "Nhập nội dung blog...",
+          "thumbnail": "Ảnh đại diện",
+          "category": "Danh mục",
+          "tags": "Thẻ tag",
+          "status": "Trạng thái",
+          "published": "Xuất bản",
+          "draft": "Nháp"
+        },
+        "createSuccess": "Tạo blog thành công",
+        "updateSuccess": "Cập nhật blog thành công",
+        "deleteSuccess": "Xóa blog thành công",
+        "deleteConfirm": "Bạn có chắc chắn muốn xóa blog này?",
+        "loading": "Đang tải...",
+        "noBlogs": "Chưa có blog nào",
+        "save": "Lưu",
+        "cancel": "Hủy"
+      }
+    },
+    "appliedJobs": {
+      "title": "Công việc đã ứng tuyển",
+      "searchPlaceholder": "Tìm kiếm vị trí hoặc công ty đã ứng tuyển",
+      "totalApplications": "công việc đã ứng tuyển",
+      "loading": "Đang tải...",
+      "noApplications": "Chưa có công việc nào đã ứng tuyển",
+      "table": {
+        "position": "Vị trí ứng tuyển",
+        "location": "Tỉnh thành",
+        "category": "Lĩnh vực",
+        "type": "Type",
+        "appliedDate": "Ngày ứng tuyển"
+      },
+      "actions": {
+        "view": "Xem chi tiết",
+        "delete": "Xóa"
+      },
+      "pagination": {
+        "showing": "Hiển thị",
+        "of": "của",
+        "results": "kết quả",
+        "previous": "Trước",
+        "next": "Sau"
+      },
+      "deleteConfirm": "Bạn có chắc chắn muốn xóa đơn ứng tuyển này?",
+      "deleteSuccess": "Xóa đơn ứng tuyển thành công",
+      "deleteFailed": "Không thể xóa đơn ứng tuyển",
+      "fetchFailed": "Không thể tải danh sách ứng tuyển"
     },
     "main": {
       "title": "Tổng quan",
@@ -647,17 +792,51 @@
       "logout": "Đăng xuất"
     },
     "manageJobs": {
-      "description": "Quản lý các công việc đã đăng tải của bạn",
+      "title": "Quản lý tin đăng",
+      "description": "Quản lý các công việc bạn đã đăng tải",
       "totalJobs": "Tổng cộng",
       "jobs": "tin đăng",
       "deadline": "Hạn nộp",
       "approve": "Duyệt",
       "viewDetail": "Xem chi tiết",
-      "edit": "Chỉnh sửa",
+      "view": "Xem",
+      "edit": "Sửa",
       "delete": "Xóa",
       "noJobs": "Chưa có tin đăng nào",
       "noJobsDescription": "Bắt đầu đăng tin tuyển dụng đầu tiên của bạn",
       "createNewJob": "Đăng tin mới",
+      "searchPlaceholder": "Tìm kiếm theo tiêu đề...",
+      "filterByStatus": "Lọc theo trạng thái",
+      "clearFilter": "Xóa bộ lọc",
+      "loading": "Đang tải...",
+      "noJobsFound": "Không tìm thấy công việc nào",
+      "table": {
+        "title": "Tiêu đề",
+        "company": "Công ty",
+        "deadline": "Hạn nộp",
+        "status": "Trạng thái",
+        "actions": "Thao tác"
+      },
+      "status": {
+        "all": "Tất cả",
+        "active": "Đang hoạt động",
+        "pending": "Chờ duyệt",
+        "expired": "Hết hạn",
+        "expiringSoon": "Sắp hết hạn"
+      },
+      "pagination": {
+        "showing": "Hiển thị",
+        "in": "trong",
+        "of": "của",
+        "total": "tổng số",
+        "jobs": "công việc",
+        "previous": "Trước",
+        "next": "Sau"
+      },
+      "deleteConfirm": "Bạn có chắc chắn muốn xóa công việc này?",
+      "deleteSuccess": "Xóa công việc thành công!",
+      "deleteFailed": "Xóa công việc thất bại",
+      "fetchFailed": "Không thể tải danh sách công việc",
       "approveModal": {
         "title": "Xác nhận duyệt tin đăng",
         "subtitle": "Bạn có chắc chắn muốn duyệt tin đăng này?",
@@ -670,8 +849,43 @@
     "newJob": {
       "description": "Tạo công việc mới cho công ty của bạn"
     },
+    "favouriteJobs": {
+      "title": "Favourite Jobs",
+      "description": "Danh sách công việc yêu thích của bạn",
+      "comingSoon": "Nội dung sẽ được cập nhật sau..."
+    },
+    "resume": {
+      "title": "Quản lý hồ sơ ứng tuyển",
+      "description": "Tải CV của bạn lên bên dưới để sử dụng trong suốt quá trình ứng tuyển",
+      "coverLetterTitle": "Thư ứng tuyển",
+      "coverLetterDescription": "Viết ngắn gọn giới thiệu bản thân và nêu rõ mục đích của việc ứng tuyển. Nói về kinh nghiệm, kỹ năng và thành tích của bạn trong lĩnh vực tương ứng. Bạn cần trình bày lý do tại sao bạn muốn làm việc tại công ty đó và những đóng góp mà bạn có thể đưa ra. Điều này sẽ giúp nhà tuyển dụng hiểu rõ hơn về ứng viên và đánh giá năng lực của bạn.",
+      "coverLetterPlaceholder": "Nhập nội dung thư ứng tuyển của bạn...",
+      "saveCoverLetter": "Lưu thư ứng tuyển",
+      "cvTitle": "CV của bạn",
+      "lastModified": "Lần cuối chỉnh sửa:",
+      "noCvUploaded": "Chưa có CV được tải lên",
+      "uploadCv": "Tải lên CV",
+      "uploadGuidelines": "Vui lòng tải lên tệp .doc, .docx hoặc .pdf, tối đa 3MB và không có mật khẩu bảo vệ",
+      "coverLetterFileTitle": "Cover Letter",
+      "noCoverLetterUploaded": "Chưa có Cover Letter được tải lên",
+      "uploadCoverLetter": "Tải lên Cover Letter",
+      "fileTypeError": "Chỉ chấp nhận file .doc, .docx hoặc .pdf",
+      "fileSizeError": "Kích thước file không được vượt quá 3MB",
+      "uploadCvSuccess": "Tải lên CV thành công",
+      "uploadCvFailed": "Không thể tải lên CV",
+      "saveCoverLetterSuccess": "Lưu thư ứng tuyển thành công",
+      "saveCoverLetterFailed": "Không thể lưu thư ứng tuyển",
+      "uploadCoverLetterSuccess": "Tải lên Cover Letter thành công",
+      "uploadCoverLetterFailed": "Không thể tải lên Cover Letter"
+    },
     "candidates": {
-      "description": "Xem danh sách ứng viên đã ứng tuyển"
+      "description": "Xem danh sách ứng viên đã ứng tuyển",
+      "searchPlaceholder": "Tìm kiếm theo email, vị trí, tên ứng viên...",
+      "fetchFailed": "Không thể tải danh sách ứng tuyển",
+      "viewDetailFeature": "Tính năng xem chi tiết đang được phát triển",
+      "deleteConfirm": "Bạn có chắc chắn muốn xóa đơn ứng tuyển này không?",
+      "deleteSuccess": "Đã xóa đơn ứng tuyển thành công",
+      "deleteFailed": "Không thể xóa đơn ứng tuyển"
     },
     "settings": {
       "description": "Quản lý cài đặt tài khoản của bạn",
@@ -688,20 +902,55 @@
         "save": "Lưu thông tin"
       },
       "changePassword": {
-        "title": "Đổi mật khẩu",
-        "currentPassword": "Mật khẩu",
-        "currentPasswordPlaceholder": "Mật khẩu",
-        "newPassword": "Mật khẩu mới",
+        "title": "Thay đổi mật khẩu của bạn",
+        "currentPassword": "Mật khẩu cũ *",
+        "currentPasswordPlaceholder": "Mật khẩu cũ",
+        "newPassword": "Mật khẩu mới *",
         "newPasswordPlaceholder": "Mật khẩu mới",
-        "confirmPassword": "Xác nhận mật khẩu",
-        "confirmPasswordPlaceholder": "Xác nhận mật khẩu",
-        "submit": "Đổi mật khẩu"
+        "confirmPassword": "Xác nhận mật khẩu mới *",
+        "confirmPasswordPlaceholder": "Xác nhận mật khẩu mới",
+        "submit": "Đổi mật khẩu",
+        "forgotPassword": "Quên mật khẩu?",
+        "forgotPasswordMessage": "Vui lòng liên hệ quản trị viên để đặt lại mật khẩu",
+        "validation": {
+          "currentPasswordRequired": "Vui lòng nhập mật khẩu cũ",
+          "newPasswordRequired": "Vui lòng nhập mật khẩu mới",
+          "newPasswordMinLength": "Mật khẩu mới phải có ít nhất 6 ký tự",
+          "confirmPasswordRequired": "Vui lòng xác nhận mật khẩu mới",
+          "passwordMismatch": "Mật khẩu xác nhận không khớp",
+          "currentPasswordIncorrect": "Mật khẩu cũ không đúng"
+        },
+        "changeSuccess": "Đổi mật khẩu thành công",
+        "changeFailed": "Không thể đổi mật khẩu"
       },
       "deleteAccount": {
         "title": "Xóa tài khoản",
-        "warning1": "Xóa tài khoản là hành động vĩnh viễn và không thể hoàn tác.",
-        "warning2": "Nếu bạn xóa tài khoản do nhận quá nhiều thông báo qua email, bạn có thể hủy đăng ký nhận email",
-        "button": "Xóa tài khoản của bạn"
+        "pageTitle": "Xoá tài khoản",
+        "pageDescription": "Hành động này sẽ xóa vĩnh viễn tài khoản của bạn",
+        "warningTitle": "Cảnh báo: Hành động này không thể hoàn tác",
+        "warningMessage": "Khi bạn xóa tài khoản, tất cả dữ liệu của bạn sẽ bị xóa vĩnh viễn, bao gồm:",
+        "dataList": {
+          "personalInfo": "Thông tin cá nhân",
+          "cvCoverLetter": "Hồ sơ ứng tuyển (CV, Cover Letter)",
+          "applicationHistory": "Lịch sử ứng tuyển",
+          "savedJobs": "Việc làm đã lưu"
+        },
+        "button": "Xoá tài khoản",
+        "modalTitle": "Bạn chắc chắn muốn xóa hồ sơ?",
+        "modalSubtitle": "Hành động này không thể khôi phục",
+        "passwordLabel": "Vui lòng nhập mật khẩu để xác nhận :",
+        "passwordPlaceholder": "Nhập mật khẩu ...",
+        "passwordError": "Vui lòng nhập mật khẩu để xác nhận",
+        "passwordIncorrect": "Mật khẩu không đúng",
+        "agreeTerms": "Bằng cách ấn vào đây, tôi đồng ý với",
+        "termsAndConditions": "Điều khoản và Điều kiện",
+        "and": "và",
+        "privacyPolicy": "Chính sách quyền riêng tư",
+        "termsError": "Vui lòng đồng ý với điều khoản để tiếp tục",
+        "deleteButton": "Xóa hồ sơ",
+        "deleting": "Đang xóa...",
+        "deleteSuccess": "Tài khoản đã được xóa thành công",
+        "deleteFailed": "Không thể xóa tài khoản"
       }
     },
     "charts": {

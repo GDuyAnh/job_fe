@@ -23,6 +23,8 @@ export interface CompanyEntity {
   logo: string | null
   organizationType: number | null
   isShow: boolean
+  isWaiting: boolean
+  isFeatured: boolean
   facebookLink: string | null
   linkedInLink: string | null
   twitterLink: string | null
@@ -52,6 +54,7 @@ export interface CompanyAddUpdateEntity {
   organizationType: number | null
   isShow: boolean
   isWaiting: boolean
+  isFeatured?: boolean
   facebookLink: string | null
   linkedInLink: string | null
   twitterLink: string | null

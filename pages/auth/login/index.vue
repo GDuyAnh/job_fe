@@ -1,9 +1,24 @@
 <template>
   <div
-    class="auth-login fixed inset-0 flex items-center justify-center bg-[#eaf3fc] bg-opacity-50 backdrop-blur-sm z-50"
+    class="auth-login fixed inset-0 flex flex-col bg-[#eaf3fc] bg-opacity-50 backdrop-blur-sm z-50"
   >
-    <div class="w-full max-w-md mx-4">
-      <div class="relative bg-white rounded-2xl shadow-2xl p-6">
+    <!-- Header with Logo -->
+    <header class="bg-white shadow-sm border-b border-gray-200">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center h-16">
+          <NuxtLink to="/" class="flex items-center cursor-pointer">
+            <h1 class="text-2xl font-bold text-blue-900 hover:text-blue-700 transition-colors">
+              Jobster
+            </h1>
+          </NuxtLink>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="flex-1 flex items-center justify-center">
+      <div class="w-full max-w-md mx-4">
+        <div class="relative bg-white rounded-2xl shadow-2xl p-6">
         <!-- Close button (top right) -->
         <button
           class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors"
@@ -136,6 +151,7 @@
         </div>
       </div>
     </div>
+    </div>
   </div>
 </template>
 
@@ -168,27 +184,37 @@ async function onSubmit(event: FormSubmitEvent<LoginType>) {
 
   try {
     const response = await authStore.login({
-      email: event.data.email,
-      password: event.data.password,
+      email: event.data.email as string,
+      password: event.data.password as string,
     })
 
+    // Chỉ redirect khi đăng nhập thành công VÀ có user
     if (response?.user) {
       authStore.setUser(response.user)
+      // Redirect về home chỉ khi đăng nhập thành công
+      await router.push('/')
 
-      router.push('/')
-    } else {
-      useNotify({
-        type: 'error',
-        message: t('auth.loginFailed'),
-      })
+      return
     }
-  } catch (error: any) {
+
+    // Nếu không có user, hiển thị lỗi và ở lại trang login
+    loading.value = false
     useNotify({
       type: 'error',
-      message: error?.message,
+      message: t('auth.loginFailed'),
     })
-  } finally {
+
+    return
+  }
+  catch (error: any) {
+    // Khi có lỗi, hiển thị message và ở lại trang login
     loading.value = false
+    useNotify({
+      type: 'error',
+      message: error?.message || t('auth.loginFailed'),
+    })
+
+    return
   }
 }
 
