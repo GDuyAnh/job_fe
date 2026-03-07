@@ -183,7 +183,7 @@ definePageMeta({
 })
 
 const { t } = useI18n()
-const usersStore = useUsersStore()
+const authStore = useAuthStore()
 const router = useRouter()
 
 const schema = registerSchema()
@@ -199,7 +199,7 @@ async function onSubmit(event: FormSubmitEvent<RegisterType>) {
   loading.value = true
 
   try {
-    const response = await usersStore.register({
+    const response = await authStore.register({
       fullName: (event.data as any).fullName as string,
       email: (event.data as any).email as string,
       password: (event.data as any).password as string,
@@ -209,6 +209,16 @@ async function onSubmit(event: FormSubmitEvent<RegisterType>) {
 
     // Check if registration was successful
     if (response) {
+      // After successful registration, login the user
+      const loginResponse = await authStore.login({
+        email: (event.data as any).email as string,
+        password: (event.data as any).password as string,
+      })
+
+      if (loginResponse?.user) {
+        authStore.setUser(loginResponse.user)
+      }
+
       useNotify({
         type: 'success',
         message: t('auth.registerSuccess'),

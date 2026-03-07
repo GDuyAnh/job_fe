@@ -49,7 +49,7 @@
         :key="job.id"
         :class="[
           'bg-white rounded-xl shadow-sm border-l-4 transition-all duration-300 hover:shadow-lg',
-          job.isWaiting
+          !isJobVisible(job)
             ? 'border-l-amber-500 border-t border-r border-b border-gray-200'
             : 'border-l-blue-500 border-t border-r border-b border-gray-200',
         ]"
@@ -59,7 +59,7 @@
           <div class="flex items-start justify-between mb-4">
             <div class="flex items-center gap-3">
               <!-- Waiting badge - prominent display -->
-              <div v-if="job.isWaiting">
+              <div v-if="!isJobVisible(job)">
                 <div class="inline-flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-lg shadow-md">
                   <UIcon name="i-lucide-clock" class="w-3.5 h-3.5" />
                   <span class="font-bold text-xs uppercase tracking-wide">
@@ -164,7 +164,7 @@
           <div class="flex items-center justify-end gap-2 pt-4 border-t border-gray-100">
             <!-- Approve button - only show for pending jobs -->
             <UButton
-              v-if="job.isWaiting"
+              v-if="!isJobVisible(job)"
               variant="ghost"
               size="sm"
               icon="i-lucide-check-circle"
@@ -320,6 +320,7 @@
 
 <script setup lang="ts">
 import type { JobModel } from '~/models/job'
+import { isJobVisible } from '~/models/job'
 import { JobMapper } from '~/mapper/job'
 
 const emit = defineEmits<{

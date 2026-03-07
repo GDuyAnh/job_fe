@@ -2514,7 +2514,6 @@ const addJob = async () => {
 
       // Set default add value
       job.value.isFeatured = false
-      job.value.isWaiting = false
 
       // Convert benefits array to comma-separated string before sending
       let benefitsString = ''

@@ -35,11 +35,16 @@ export interface CompanyEntity {
   taxAddress: string | null
   companySize: number | null
   foundedYear: number | null
-  email: string
+  email: string | null
   description: string | null
   insight: string | null
   overview: string | null
   openPositions?: number
+  createdAt?: Date | string
+  phone?: string | null
+  provinceName?: string | null
+  creatorEmail?: string | null
+  creatorPhone?: string | null
 
   companyImages: CompanyImage[]
   jobs: CompanyJobSummary[]

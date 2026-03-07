@@ -26,7 +26,7 @@ export interface JobEntity {
   salaryType: number
   benefits?: string | null
   isFeatured: boolean
-  isWaiting: boolean
+  status?: string
   createdAt?: Date
   deadline?: Date
   detailDescription?: string | null

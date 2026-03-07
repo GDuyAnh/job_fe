@@ -5,6 +5,7 @@ export const ROUTE_PAGE = {
   DASHBOARD: {
     USER: '/users/dashboard',
     COMPANY: '/companies/dashboard',
+    ADMIN: '/admin/dashboard',
   },
   AUTH: {
     LOGIN: '/auth/login',

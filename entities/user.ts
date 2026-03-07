@@ -15,4 +15,5 @@ export interface UserEntity {
   avatarFileName?: string | null
   role: number
   companyId: number
+  isHostCompany?: boolean
 }

@@ -126,7 +126,7 @@
                         <span>{{ formatDate(job.createdAt) }}</span>
                       </div>
                     </div>
-                    <div v-if="job.isWaiting" class="mt-2">
+                    <div v-if="(job.status || '').toUpperCase() !== 'APPROVED'" class="mt-2">
                       <UBadge
                         color="warning"
                         variant="soft"

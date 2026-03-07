@@ -51,6 +51,12 @@ const JobModule = (apiService: FetchFactory) => {
     return apiService.patch<JobEntity>(`${ROUTE_API.JOB.GET_JOB}/${id}/approve`)
   }
 
+  const adminListJob = async (params: Record<string, any>) => {
+    return apiService.get<JobEntity[]>(ROUTE_API.JOB.ADMIN_LIST, {
+      params,
+    })
+  }
+
   const getJobsByEmail = async (email: string) => {
     return apiService.get<JobEntity[]>(
       `${ROUTE_API.JOB.FIND_BY_EMAIL}/${encodeURIComponent(email)}`,
@@ -95,6 +101,7 @@ const JobModule = (apiService: FetchFactory) => {
     delJob,
     findJobByUserId,
     approveJob,
+    adminListJob,
     getJobsByEmail,
     getUserApplications,
     deleteApplication,

@@ -1,6 +1,7 @@
 <template>
   <div>
-    <div class="mb-6">
+    <!-- Trang standalone: title + description (drawer add/edit không hiển thị header) -->
+    <div v-if="!companyData" class="mb-6">
       <h1 class="text-3xl font-bold text-gray-900">
         {{ $t('dashboard.sidebar.newJob') }}
       </h1>
@@ -8,639 +9,702 @@
         {{ $t('dashboard.newJob.description') }}
       </p>
     </div>
+      <!-- Form Content -->
+      <div class="py-2">
+        <!-- Job title -->
+        <div
+          class="flex flex-col gap-1 w-full"
+          style="padding: 30px 0 !important"
+        >
+          <!-- Label -->
+          <label for="job-title" class="font-medium text-sm text-gray-700">
+            {{ $t('job.uploadJob.nameJobLabel') }}
+            <span class="text-black">{{
+              $t('job.uploadJob.mandatoryChar')
+            }}</span>
+          </label>
 
-    <div class="bg-white rounded-xl shadow-sm border border-gray-200">
-      <div class="border border-gray-200 rounded-lg px-8 shadow-lg">
-        <!-- Form Content -->
-        <div class="py-6">
-          <!-- Job title -->
-          <div
-            class="flex flex-col gap-1 w-full"
-            style="padding: 30px 20px 30px 20px !important"
-          >
-            <!-- Label -->
-            <label for="job-title" class="font-medium text-sm text-gray-700">
-              {{ $t('job.uploadJob.nameJobLabel') }}
-              <span class="text-black">{{
-                $t('job.uploadJob.mandatoryChar')
-              }}</span>
-            </label>
+          <!-- Input -->
+          <UInput
+            id="job-title"
+            v-model="job.title"
+            class="w-full text-base"
+            :class="{ 'border-red-500': jobErrors.title }"
+            :placeholder="$t('job.uploadJob.nameJobPlaceHolder')"
+            @input="jobErrors.title = ''"
+          />
+          <p v-if="jobErrors.title" class="!text-red-500 text-sm mt-1">
+            {{ jobErrors.title }}
+          </p>
+        </div>
 
-            <!-- Input -->
-            <UInput
-              id="job-title"
-              v-model="job.title"
-              class="w-full text-base"
-              :class="{ 'border-red-500': jobErrors.title }"
-              :placeholder="$t('job.uploadJob.nameJobPlaceHolder')"
-              @input="jobErrors.title = ''"
-            />
-            <p v-if="jobErrors.title" class="!text-red-500 text-sm mt-1">
-              {{ jobErrors.title }}
-            </p>
-          </div>
+        <!-- Job description -->
+        <div
+          class="flex flex-col gap-1 w-full rich-text-output"
+          style="padding: 0 0 30px 0 !important"
+        >
+          <label class="font-medium text-sm text-gray-700">
+            {{ $t('job.uploadJob.detailJobLabel') }}
+            <span class="text-black">{{
+              $t('job.uploadJob.mandatoryChar')
+            }}</span>
+          </label>
+          <!-- Text Editor -->
+          <RichTextEditor
+            id="job-description"
+            v-model="job.description"
+            class="w-full rich-text-content"
+            :class="{ 'border-red-500': jobErrors.description }"
+            @update:model-value="jobErrors.description = ''"
+          />
+          <p v-if="jobErrors.description" class="!text-red-500 text-sm mt-1">
+            {{ jobErrors.description }}
+          </p>
+        </div>
 
-          <!-- Job description -->
-          <div
-            class="flex flex-col gap-1 w-full rich-text-output"
-            style="padding: 0px 20px 30px 20px !important"
-          >
-            <label class="font-medium text-sm text-gray-700">
-              {{ $t('job.uploadJob.detailJobLabel') }}
-              <span class="text-black">{{
-                $t('job.uploadJob.mandatoryChar')
-              }}</span>
-            </label>
-            <!-- Text Editor -->
-            <RichTextEditor
-              id="job-description"
-              v-model="job.description"
-              class="w-full rich-text-content"
-              :class="{ 'border-red-500': jobErrors.description }"
-              @update:model-value="jobErrors.description = ''"
-            />
-            <p v-if="jobErrors.description" class="!text-red-500 text-sm mt-1">
-              {{ jobErrors.description }}
-            </p>
-          </div>
+        <!-- Company name: chỉ hiển thị khi không phải drawer (không có companyData) -->
+        <div
+          v-if="!companyData"
+          class="flex flex-col gap-1 w-full"
+          style="padding: 0 0 30px 0 !important"
+        >
+          <label for="job-title" class="font-medium text-sm text-gray-700">
+            {{ $t('job.uploadJob.companyNameLabel') }}
+          </label>
+          <UInput
+            id="company-name"
+            :model-value="props.companyData?.name || ''"
+            class="w-full text-sm"
+            readonly
+          />
+        </div>
 
-          <!-- Job name -->
-          <div
-            class="flex flex-col gap-1 w-full"
-            style="padding: 0px 20px 30px 20px !important"
-          >
-            <!-- Label -->
-            <label for="job-title" class="font-medium text-sm text-gray-700">
-              {{ $t('job.uploadJob.companyNameLabel') }}
-            </label>
-
-            <!-- Input -->
-            <UInput
-              id="company-name"
-              :model-value="props.companyData?.name || ''"
-              class="w-full text-sm"
-              readonly
-            />
-          </div>
-
-          <!-- Job category -->
-          <div
-            class="grid grid-cols-3 gap-4"
-            style="padding: 0px 20px 30px 20px !important"
-          >
-            <div>
-              <!-- Label -->
-              <label
-                for="job-title"
-                class="font-medium text-sm text-gray-700"
-              >
-                {{ $t('job.uploadJob.deadlineLabel') }}
-                <span class="text-black">{{
-                  $t('job.uploadJob.mandatoryChar')
-                }}</span>
-              </label>
-
-              <!-- Input deadline date -->
-              <UPopover>
-                <UButton
-                  id="job-deadline"
-                  class="w-full justify-start bg-white text-sm"
-                  :class="{ 'border-red-500': jobErrors.deadline }"
-                  color="neutral"
-                  variant="outline"
-                  icon="i-lucide-calendar"
-                >
-                  <template v-if="job.deadline">
-                    {{ formatDateDeadline(job.deadline) }}
-                  </template>
-                  <template v-else>
-                    {{ $t('job.uploadJob.chooseDate') }}
-                  </template>
-                </UButton>
-                <template #content>
-                  <UCalendar
-                    v-model="deadlineCalendarDate"
-                    class="p-2"
-                    :min-value="minDeadlineDate"
-                    :max-value="maxDeadlineDate"
-                    :is-hidden="isDeadlineDateHidden"
-                    @update:model-value="jobErrors.deadline = ''"
-                  />
-                </template>
-              </UPopover>
-              <p v-if="jobErrors.deadline" class="!text-red-500 text-sm mt-1">
-                {{ jobErrors.deadline }}
-              </p>
-            </div>
-            <div>
-              <!-- Label -->
-              <label
-                for="job-title"
-                class="font-medium text-sm text-gray-700"
-              >
-                {{ $t('job.uploadJob.categoryLabel') }}
-                <span class="text-black">{{
-                  $t('job.uploadJob.mandatoryChar')
-                }}</span>
-              </label>
-
-              <v-select
-                v-model="categoryForSelect"
-                :options="categoryItemsWithoutAll"
-                multiple
-                searchable
-                class="w-full text-sm"
-                :class="{ 'border-red-500': jobErrors.category }"
-                :placeholder="$t('job.uploadJob.chooseCategory')"
-                label="label"
-                @update:model-value="jobErrors.category = ''"
-              />
-              <p v-if="jobErrors.category" class="!text-red-500 text-sm mt-1">
-                {{ jobErrors.category }}
-              </p>
-            </div>
-            <div>
-              <!-- Label -->
-              <label
-                for="job-title"
-                class="font-medium text-sm text-gray-700"
-              >
-                {{ $t('job.uploadJob.typeJobLabel') }}
-                <span class="text-black">{{
-                  $t('job.uploadJob.mandatoryChar')
-                }}</span>
-              </label>
-
-              <!-- Input job type -->
-              <USelect
-                :items="employmentTypeItems"
-                :model-value="job.typeOfEmployment?.toString()"
-                :placeholder="$t('job.uploadJob.chooseTypeOfEmployment')"
-                class="w-full text-sm"
-                :class="{ 'border-red-500': jobErrors.typeOfEmployment }"
-                :content="{ side: 'bottom' }"
-                @update:model-value="
-                  (val) => {
-                    job.typeOfEmployment = Number(val ?? 0)
-                    jobErrors.typeOfEmployment = ''
-                  }
-                "
-              />
-              <p v-if="jobErrors.typeOfEmployment" class="!text-red-500 text-sm mt-1">
-                {{ jobErrors.typeOfEmployment }}
-              </p>
-            </div>
-          </div>
-
-          <!-- Job salary -->
-          <div
-            class="grid grid-cols-3 gap-4"
-            style="padding: 0px 20px 30px 20px !important"
-          >
-            <!-- Salary Type -->
-            <div>
-              <label
-                for="job-salary-type"
-                class="font-medium text-sm text-gray-700"
-              >
-                {{ $t('job.uploadJob.currentSalaryLabel') }}
-                <span class="text-black">{{
-                  $t('job.uploadJob.mandatoryChar')
-                }}</span>
-              </label>
-              <USelect
-                id="job-salary-type"
-                :items="salaryTypeItems"
-                :model-value="job.salaryType?.toString()"
-                class="w-full text-sm mt-1"
-                :class="{ 'border-red-500': jobErrors.salaryType }"
-                :content="{ side: 'bottom' }"
-                :placeholder="$t('job.uploadJob.chooseSalaryType')"
-                @update:model-value="
-                  (val) => {
-                    job.salaryType = Number(val ?? 0)
-                    jobErrors.salaryType = ''
-                  }
-                "
-              />
-              <p v-if="jobErrors.salaryType" class="!text-red-500 text-sm mt-1">
-                {{ jobErrors.salaryType }}
-              </p>
-            </div>
-
-            <!-- Min Salary -->
-            <div v-if="job.salaryType != 5">
-              <label
-                for="job-salary-min"
-                class="font-medium text-sm text-gray-700"
-              >
-                {{ $t('job.uploadJob.minSalaryLabel') }}
-                <span class="text-black">{{
-                  $t('job.uploadJob.mandatoryChar')
-                }}</span>
-              </label>
-              <UInput
-                id="job-salary-min"
-                :model-value="formatCurrency(job.salaryMin)"
-                class="w-full text-sm mt-1"
-                :class="{ 'border-red-500': jobErrors.salaryMin }"
-                type="text"
-                :placeholder="$t('job.uploadJob.minSalary')"
-                @update:model-value="(val) => {
-                  job.salaryMin = unformatCurrency(val)
-                  jobErrors.salaryMin = ''
-                }"
-              />
-              <p v-if="jobErrors.salaryMin" class="!text-red-500 text-sm mt-1">
-                {{ jobErrors.salaryMin }}
-              </p>
-            </div>
-
-            <!-- Max Salary -->
-            <div v-if="job.salaryType != 5">
-              <label
-                for="job-salary-max"
-                class="font-medium text-sm text-gray-700"
-              >
-                {{ $t('job.uploadJob.maxSalaryLabel') }}
-                <span class="text-black">{{
-                  $t('job.uploadJob.mandatoryChar')
-                }}</span>
-              </label>
-              <UInput
-                id="job-salary-max"
-                :model-value="formatCurrency(job.salaryMax)"
-                class="w-full text-sm mt-1"
-                :class="{ 'border-red-500': jobErrors.salaryMax }"
-                type="text"
-                :placeholder="$t('job.uploadJob.maxSalary')"
-                @update:model-value="(val) => {
-                  job.salaryMax = unformatCurrency(val)
-                  jobErrors.salaryMax = ''
-                }"
-              />
-              <p v-if="jobErrors.salaryMax" class="!text-red-500 text-sm mt-1">
-                {{ jobErrors.salaryMax }}
-              </p>
-            </div>
-          </div>
-
-          <!-- Job address -->
-          <div
-            class="flex flex-col gap-1 w-full"
-            style="padding: 0px 20px 30px 20px !important"
-          >
-            <!-- Label -->
-            <label for="job-title" class="font-medium text-sm text-gray-700">
-                {{ $t('job.uploadJob.addressJobLabel') }}
-                <span class="text-black">{{
-                  $t('job.uploadJob.mandatoryChar')
-                }}</span
-                >&nbsp;&nbsp;&nbsp;&nbsp;{{
-                  $t('job.uploadJob.subAddressJobLabel')
-                }}
-            </label>
-
-            <!-- Text Editor -->
-            <RichTextEditor
-              id="job-address"
-              v-model="job.address"
-              class="w-full rich-text-content"
-              :class="{ 'border-red-500': jobErrors.address }"
-              :placeholder="$t('job.uploadJob.addressJobPlaceholder')"
-              @update:model-value="jobErrors.address = ''"
-            />
-            <p v-if="jobErrors.address" class="!text-red-500 text-sm mt-1">
-              {{ jobErrors.address }}
-            </p>
-          </div>
-
-          <!-- Job location address -->
-          <div
-            class="flex flex-col gap-1 w-full"
-            style="padding: 0px 20px 38px 20px !important"
-          >
-            <!-- Label -->
-            <label for="job-title" class="font-medium text-sm text-gray-700">
-              {{ $t('job.uploadJob.locationJobLabel') }}
-              <span class="text-black">{{
-                $t('job.uploadJob.mandatoryChar')
-              }}</span>
-            </label>
-
-            <!-- Input locations -->
-            <v-select
-              v-model="locationForSelect"
-              :options="locationItemsWithoutAll"
-              multiple
-              class="w-full text-sm"
-              :class="{ 'border-red-500': jobErrors.location }"
-              :placeholder="$t('job.uploadJob.chooseLocation')"
-              label="label"
-              @update:model-value="jobErrors.location = ''"
-            />
-            <p v-if="jobErrors.location" class="!text-red-500 text-sm mt-1">
-              {{ jobErrors.location }}
-            </p>
-          </div>
-
-          <!-- More information -->
+        <!-- Job category -->
+        <div
+          class="grid grid-cols-3 gap-4"
+          style="padding: 0 0 30px 0 !important"
+        >
           <div>
-            <div
-              class="flex items-center py-4 border-gray-300 border-b mb-10"
+            <!-- Label -->
+            <label
+              for="job-title"
+              class="font-medium text-sm text-gray-700"
             >
-              <span class="text-[#378ecc] text-3xl ml-5">{{
-                $t('job.uploadJob.moreInformation')
+              {{ $t('job.uploadJob.deadlineLabel') }}
+              <span class="text-black">{{
+                $t('job.uploadJob.mandatoryChar')
               }}</span>
-            </div>
-            <!-- Job email/phone/required qualification -->
-            <div
-              class="grid grid-cols-1 md:grid-cols-3 gap-4"
-              style="padding: 0px 20px 30px 20px !important"
-            >
-              <!-- Job email -->
-              <div>
-                <!-- Label -->
-                <label
-                  for="job-title"
-                  class="font-medium text-sm text-gray-700"
-                >
-                  {{ $t('job.uploadJob.emailJobLabel') }}
-                  <span class="text-black">{{
-                    $t('job.uploadJob.mandatoryChar')
-                  }}</span>
-                </label>
+            </label>
 
-                <!-- Input email -->
-                <UInput
-                  id="job-email"
-                  v-model.trim="job.email"
-                  class="w-full text-sm"
-                  :class="{ 'border-red-500': jobErrors.email }"
-                  type="email"
-                  :placeholder="$t('job.uploadJob.emailJobPlaceholder')"
-                  @input="jobErrors.email = ''"
-                />
-                <p v-if="jobErrors.email" class="!text-red-500 text-sm mt-1">
-                  {{ jobErrors.email }}
-                </p>
-              </div>
-
-              <!-- Job phone number -->
-              <div>
-                <!-- Label -->
-                <label
-                  for="job-phone"
-                  class="font-medium text-sm text-gray-700"
-                >
-                  {{ $t('job.uploadJob.phoneJobLabel') }}
-                  <span class="text-black">{{
-                    $t('job.uploadJob.mandatoryChar')
-                  }}</span>
-                </label>
-
-                <!-- Input phone -->
-                <UInput
-                  id="job-phone"
-                  v-model.trim="job.phoneNumber"
-                  class="w-full text-sm"
-                  :class="{ 'border-red-500': jobErrors.phoneNumber }"
-                  type="tel"
-                  :placeholder="$t('job.uploadJob.phoneJobPlaceholder')"
-                  @input="jobErrors.phoneNumber = ''"
-                />
-                <p v-if="jobErrors.phoneNumber" class="!text-red-500 text-sm mt-1">
-                  {{ jobErrors.phoneNumber }}
-                </p>
-              </div>
-
-              <!-- Job required qualification Level -->
-              <div>
-                <label
-                  for="job-title"
-                  class="font-medium text-sm text-gray-700"
-                >
-                  {{ $t('job.uploadJob.requiredQualificationLabel') }}
-                  <span class="text-black">{{
-                    $t('job.uploadJob.mandatoryChar')
-                  }}</span>
-                </label>
-                <USelect
-                  :items="requiredQualificationItems"
-                  :model-value="job.requiredQualification?.toString() || ''"
-                  class="w-full text-sm"
-                  :class="{ 'border-red-500': jobErrors.requiredQualification }"
-                  searchable
-                  :placeholder="
-                    $t('job.uploadJob.requiredQualificationLabel')
-                  "
-                  :content="{ side: 'bottom' }"
-                  @update:model-value="
-                    (val) => {
-                      job.requiredQualification = Number(val ?? 0)
-                      jobErrors.requiredQualification = ''
-                    }
-                  "
-                />
-                <p v-if="jobErrors.requiredQualification" class="!text-red-500 text-sm mt-1">
-                  {{ jobErrors.requiredQualification }}
-                </p>
-              </div>
-            </div>
-
-            <!-- Job experience/benefit Level -->
-            <div
-              class="grid grid-cols-1 md:grid-cols-2 gap-4"
-              style="padding: 0px 20px 30px 20px !important"
-            >
-              <!-- Job experience Level -->
-              <div>
-                <!-- Label -->
-                <label
-                  for="job-title"
-                  class="font-medium text-sm text-gray-700"
-                >
-                  {{ $t('job.uploadJob.experienceLabel') }}
-                  <span class="text-black">{{
-                    $t('job.uploadJob.mandatoryChar')
-                  }}</span>
-                </label>
-                <!-- Input Experience Level -->
-                <USelect
-                  :items="experienceLevelItems"
-                  :model-value="job.experienceLevel?.toString()"
-                  class="w-full text-sm"
-                  :class="{ 'border-red-500': jobErrors.experienceLevel }"
-                  :content="{ side: 'bottom' }"
-                  :placeholder="$t('job.uploadJob.chooseExperienceLevel')"
-                  @update:model-value="
-                    (val) => {
-                      job.experienceLevel = Number(val ?? 0)
-                      jobErrors.experienceLevel = ''
-                    }
-                  "
-                />
-                <p v-if="jobErrors.experienceLevel" class="!text-red-500 text-sm mt-1">
-                  {{ jobErrors.experienceLevel }}
-                </p>
-              </div>
-
-              <!-- Job benefit Level -->
-              <div>
-                <!-- Label -->
-                <label
-                  for="job-title"
-                  class="font-medium text-sm text-gray-700"
-                >
-                  {{ $t('job.uploadJob.benefitLabel') }}
-                  <span class="text-black">{{
-                    $t('job.uploadJob.mandatoryChar')
-                  }}</span>
-                </label>
-
-                <!-- Input Benefit -->
-                <v-select
-                  v-model="benefitsForSelect"
-                  :options="jobBenefitsItems"
-                  multiple
-                  class="w-full text-sm"
-                  :class="{ 'border-red-500': jobErrors.benefits }"
-                  :placeholder="$t('job.uploadJob.chooseBenefitLevel')"
-                  label="label"
-                  @update:model-value="jobErrors.benefits = ''"
-                />
-              </div>
-            </div>
-
-            <!-- Job gender/grade Level -->
-            <div
-              class="grid grid-cols-1 md:grid-cols-2 gap-4"
-              style="padding: 0px 20px 0px 20px !important"
-            >
-              <!-- Job gender Level -->
-              <div>
-                <!-- Label -->
-                <label
-                  for="job-title"
-                  class="font-medium text-sm text-gray-700"
-                >
-                  {{ $t('job.uploadJob.genderLabel') }}
-                  <span class="text-black">{{
-                    $t('job.uploadJob.mandatoryChar')
-                  }}</span>
-                </label>
-                <v-select
-                  v-model="genderForSelect"
-                  :options="genderItems"
-                  multiple
-                  class="w-full text-sm"
-                  :class="{ 'border-red-500': jobErrors.gender }"
-                  :placeholder="$t('job.uploadJob.chooseGender')"
-                  label="label"
-                  @update:model-value="jobErrors.gender = ''"
-                />
-                <p v-if="jobErrors.gender" class="!text-red-500 text-sm mt-1">
-                  {{ jobErrors.gender }}
-                </p>
-              </div>
-
-              <!-- Job grade Level -->
-              <div>
-                <!-- Label -->
-                <label
-                  for="job-title"
-                  class="font-medium text-sm text-gray-700"
-                >
-                  {{ $t('job.uploadJob.gradeLabel') }}
-                  <span class="text-black">{{
-                    $t('job.uploadJob.mandatoryChar')
-                  }}</span>
-                </label>
-                <USelect
-                  :items="gradeItems"
-                  :model-value="job.grade?.toString() || ''"
-                  class="w-full text-sm"
-                  :class="{ 'border-red-500': jobErrors.grade }"
-                  :content="{ side: 'bottom' }"
-                  :placeholder="$t('job.uploadJob.chooseGradeLevel')"
-                  @update:model-value="
-                    (val) => {
-                      job.grade = Number(val ?? 0)
-                      jobErrors.grade = ''
-                    }
-                  "
-                />
-                <p v-if="jobErrors.grade" class="!text-red-500 text-sm mt-1">
-                  {{ jobErrors.grade }}
-                </p>
-              </div>
-            </div>
-
-            <div
-              class="flex items-center py-4 border-gray-300 border-b mb-10"
-            ></div>
-          </div>
-
-          <!-- Checkbox agree terms -->
-          <div
-            class="flex items-center"
-            style="
-              padding: 0px 20px 20px 20px !important;
-              height: 30px !important;
-            "
-          >
-            <UCheckbox
-              v-model="agreeChecked"
-              class="text-primary mr-3"
-            ></UCheckbox>
-            <span>
-              {{ $t('job.uploadJob.agreeUploadJobLabel') }}
-              <a
-                href="#"
-                style="
-                  color: #0284c7 !important;
-                  text-decoration: none !important;
-                "
+            <!-- Input deadline date -->
+            <UPopover>
+              <UButton
+                id="job-deadline"
+                class="w-full justify-start bg-white text-sm"
+                :class="{ 'border-red-500': jobErrors.deadline }"
+                color="neutral"
+                variant="outline"
+                icon="i-lucide-calendar"
               >
-                {{ $t('job.uploadJob.agreePolicy') }}
-              </a>
-              {{ $t('job.uploadJob.and') }}
-              <a
-                href="#"
-                style="
-                  color: #0284c7 !important;
-                  text-decoration: none !important;
-                "
-              >
-                {{ $t('job.uploadJob.agreePrivacy') }}
-              </a>
-            </span>
+                <template v-if="job.deadline">
+                  {{ formatDateDeadline(job.deadline) }}
+                </template>
+                <template v-else>
+                  {{ $t('job.uploadJob.chooseDate') }}
+                </template>
+              </UButton>
+              <template #content>
+                <UCalendar
+                  v-model="deadlineCalendarDate"
+                  class="p-2"
+                  :min-value="minDeadlineDate"
+                  :max-value="maxDeadlineDate"
+                  :is-hidden="isDeadlineDateHidden"
+                  @update:model-value="jobErrors.deadline = ''"
+                />
+              </template>
+            </UPopover>
+            <p v-if="jobErrors.deadline" class="!text-red-500 text-sm mt-1">
+              {{ jobErrors.deadline }}
+            </p>
           </div>
+          <div>
+            <!-- Label -->
+            <label
+              for="job-title"
+              class="font-medium text-sm text-gray-700"
+            >
+              {{ $t('job.uploadJob.categoryLabel') }}
+              <span class="text-black">{{
+                $t('job.uploadJob.mandatoryChar')
+              }}</span>
+            </label>
 
-          <!-- Action btn -->
-          <div
-            class="flex flex-row gap-1 w-full justify-end"
-            style="padding: 0px 20px 38px 20px !important"
-          >
-            <!-- Buton Submit -->
-            <UButton
-              class="bg-[#4f8ef7] text-white hover:bg-[#4568a1ad]"
-              style="
-                margin-top: 15px;
-                padding: 8px 16px;
-                border: none;
-                border-radius: 6px;
-                cursor: pointer;
+            <v-select
+              v-model="categoryForSelect"
+              :options="categoryItemsWithoutAll"
+              multiple
+              searchable
+              class="w-full text-sm"
+              :class="{ 'border-red-500': jobErrors.category }"
+              :placeholder="$t('job.uploadJob.chooseCategory')"
+              label="label"
+              @update:model-value="jobErrors.category = ''"
+            />
+            <p v-if="jobErrors.category" class="!text-red-500 text-sm mt-1">
+              {{ jobErrors.category }}
+            </p>
+          </div>
+          <div>
+            <!-- Label -->
+            <label
+              for="job-title"
+              class="font-medium text-sm text-gray-700"
+            >
+              {{ $t('job.uploadJob.typeJobLabel') }}
+              <span class="text-black">{{
+                $t('job.uploadJob.mandatoryChar')
+              }}</span>
+            </label>
+
+            <!-- Input job type -->
+            <USelect
+              :items="employmentTypeItems"
+              :model-value="job.typeOfEmployment?.toString()"
+              :placeholder="$t('job.uploadJob.chooseTypeOfEmployment')"
+              class="w-full text-sm"
+              :class="{ 'border-red-500': jobErrors.typeOfEmployment }"
+              :content="{ side: 'bottom' }"
+              @update:model-value="
+                (val) => {
+                  job.typeOfEmployment = Number(val ?? 0)
+                  jobErrors.typeOfEmployment = ''
+                }
               "
-              :loading="loading"
-              @click="addJob()"
-            >
-              {{ isEditMode ? $t('job.uploadJob.updateJobContent') : $t('job.uploadJob.uploadJobContent') }}
-            </UButton>
+            />
+            <p v-if="jobErrors.typeOfEmployment" class="!text-red-500 text-sm mt-1">
+              {{ jobErrors.typeOfEmployment }}
+            </p>
           </div>
         </div>
+
+        <!-- Job salary -->
+        <div
+          class="grid grid-cols-3 gap-4"
+          style="padding: 0 0 30px 0 !important"
+        >
+          <!-- Salary Type -->
+          <div>
+            <label
+              for="job-salary-type"
+              class="font-medium text-sm text-gray-700"
+            >
+              {{ $t('job.uploadJob.currentSalaryLabel') }}
+              <span class="text-black">{{
+                $t('job.uploadJob.mandatoryChar')
+              }}</span>
+            </label>
+            <USelect
+              id="job-salary-type"
+              :items="salaryTypeItems"
+              :model-value="job.salaryType?.toString()"
+              class="w-full text-sm mt-1"
+              :class="{ 'border-red-500': jobErrors.salaryType }"
+              :content="{ side: 'bottom' }"
+              :placeholder="$t('job.uploadJob.chooseSalaryType')"
+              @update:model-value="
+                (val) => {
+                  job.salaryType = Number(val ?? 0)
+                  jobErrors.salaryType = ''
+                }
+              "
+            />
+            <p v-if="jobErrors.salaryType" class="!text-red-500 text-sm mt-1">
+              {{ jobErrors.salaryType }}
+            </p>
+          </div>
+
+          <!-- Min Salary -->
+          <div v-if="job.salaryType != 5">
+            <label
+              for="job-salary-min"
+              class="font-medium text-sm text-gray-700"
+            >
+              {{ $t('job.uploadJob.minSalaryLabel') }}
+              <span class="text-black">{{
+                $t('job.uploadJob.mandatoryChar')
+              }}</span>
+            </label>
+            <UInput
+              id="job-salary-min"
+              :model-value="formatCurrency(job.salaryMin)"
+              class="w-full text-sm mt-1"
+              :class="{ 'border-red-500': jobErrors.salaryMin }"
+              type="text"
+              :placeholder="$t('job.uploadJob.minSalary')"
+              @update:model-value="(val) => {
+                job.salaryMin = unformatCurrency(val)
+                jobErrors.salaryMin = ''
+              }"
+            />
+            <p v-if="jobErrors.salaryMin" class="!text-red-500 text-sm mt-1">
+              {{ jobErrors.salaryMin }}
+            </p>
+          </div>
+
+          <!-- Max Salary -->
+          <div v-if="job.salaryType != 5">
+            <label
+              for="job-salary-max"
+              class="font-medium text-sm text-gray-700"
+            >
+              {{ $t('job.uploadJob.maxSalaryLabel') }}
+              <span class="text-black">{{
+                $t('job.uploadJob.mandatoryChar')
+              }}</span>
+            </label>
+            <UInput
+              id="job-salary-max"
+              :model-value="formatCurrency(job.salaryMax)"
+              class="w-full text-sm mt-1"
+              :class="{ 'border-red-500': jobErrors.salaryMax }"
+              type="text"
+              :placeholder="$t('job.uploadJob.maxSalary')"
+              @update:model-value="(val) => {
+                job.salaryMax = unformatCurrency(val)
+                jobErrors.salaryMax = ''
+              }"
+            />
+            <p v-if="jobErrors.salaryMax" class="!text-red-500 text-sm mt-1">
+              {{ jobErrors.salaryMax }}
+            </p>
+          </div>
+        </div>
+
+        <!-- Job address -->
+        <div
+          class="flex flex-col gap-1 w-full"
+          style="padding: 0 0 30px 0 !important"
+        >
+          <!-- Label -->
+          <label for="job-title" class="font-medium text-sm text-gray-700">
+              {{ $t('job.uploadJob.addressJobLabel') }}
+              <span class="text-black">{{
+                $t('job.uploadJob.mandatoryChar')
+              }}</span
+              >&nbsp;&nbsp;&nbsp;&nbsp;{{
+                $t('job.uploadJob.subAddressJobLabel')
+              }}
+          </label>
+
+          <!-- Text Editor -->
+          <RichTextEditor
+            id="job-address"
+            v-model="job.address"
+            class="w-full rich-text-content"
+            :class="{ 'border-red-500': jobErrors.address }"
+            :placeholder="$t('job.uploadJob.addressJobPlaceholder')"
+            @update:model-value="jobErrors.address = ''"
+          />
+          <p v-if="jobErrors.address" class="!text-red-500 text-sm mt-1">
+            {{ jobErrors.address }}
+          </p>
+        </div>
+
+        <!-- Job location address -->
+        <div
+          class="flex flex-col gap-1 w-full"
+          style="padding: 0 0 38px 0 !important"
+        >
+          <!-- Label -->
+          <label for="job-title" class="font-medium text-sm text-gray-700">
+            {{ $t('job.uploadJob.locationJobLabel') }}
+            <span class="text-black">{{
+              $t('job.uploadJob.mandatoryChar')
+            }}</span>
+          </label>
+
+          <!-- Input locations -->
+          <v-select
+            v-model="locationForSelect"
+            :options="locationItemsWithoutAll"
+            multiple
+            class="w-full text-sm"
+            :class="{ 'border-red-500': jobErrors.location }"
+            :placeholder="$t('job.uploadJob.chooseLocation')"
+            label="label"
+            @update:model-value="jobErrors.location = ''"
+          />
+          <p v-if="jobErrors.location" class="!text-red-500 text-sm mt-1">
+            {{ jobErrors.location }}
+          </p>
+        </div>
+
+        <!-- More information -->
+        <div>
+          <div
+            class="flex items-center py-4 border-gray-300 border-b mb-10"
+          >
+            <span class="text-[#378ecc] text-3xl ml-5">{{
+              $t('job.uploadJob.moreInformation')
+            }}</span>
+          </div>
+          <!-- Job email/phone/required qualification -->
+          <div
+            class="grid grid-cols-1 md:grid-cols-3 gap-4"
+            style="padding: 0 0 30px 0 !important"
+          >
+            <!-- Job email -->
+            <div>
+              <!-- Label -->
+              <label
+                for="job-title"
+                class="font-medium text-sm text-gray-700"
+              >
+                {{ $t('job.uploadJob.emailJobLabel') }}
+                <span v-if="!isAdminJobContext" class="text-black">{{
+                  $t('job.uploadJob.mandatoryChar')
+                }}</span>
+              </label>
+
+              <!-- Input email -->
+              <UInput
+                id="job-email"
+                v-model.trim="job.email"
+                class="w-full text-sm"
+                :class="{ 'border-red-500': jobErrors.email }"
+                type="email"
+                :placeholder="$t('job.uploadJob.emailJobPlaceholder')"
+                @input="jobErrors.email = ''"
+              />
+              <p v-if="jobErrors.email" class="!text-red-500 text-sm mt-1">
+                {{ jobErrors.email }}
+              </p>
+            </div>
+
+            <!-- Job phone number -->
+            <div>
+              <!-- Label -->
+              <label
+                for="job-phone"
+                class="font-medium text-sm text-gray-700"
+              >
+                {{ $t('job.uploadJob.phoneJobLabel') }}
+                <span v-if="!isAdminJobContext" class="text-black">{{
+                  $t('job.uploadJob.mandatoryChar')
+                }}</span>
+              </label>
+
+              <!-- Input phone -->
+              <UInput
+                id="job-phone"
+                v-model.trim="job.phoneNumber"
+                class="w-full text-sm"
+                :class="{ 'border-red-500': jobErrors.phoneNumber }"
+                type="tel"
+                :placeholder="$t('job.uploadJob.phoneJobPlaceholder')"
+                @input="jobErrors.phoneNumber = ''"
+              />
+              <p v-if="jobErrors.phoneNumber" class="!text-red-500 text-sm mt-1">
+                {{ jobErrors.phoneNumber }}
+              </p>
+            </div>
+
+            <!-- Job required qualification Level -->
+            <div>
+              <label
+                for="job-title"
+                class="font-medium text-sm text-gray-700"
+              >
+                {{ $t('job.uploadJob.requiredQualificationLabel') }}
+                <span class="text-black">{{
+                  $t('job.uploadJob.mandatoryChar')
+                }}</span>
+              </label>
+              <USelect
+                :items="requiredQualificationItems"
+                :model-value="job.requiredQualification?.toString() || ''"
+                class="w-full text-sm"
+                :class="{ 'border-red-500': jobErrors.requiredQualification }"
+                searchable
+                :placeholder="
+                  $t('job.uploadJob.requiredQualificationLabel')
+                "
+                :content="{ side: 'bottom' }"
+                @update:model-value="
+                  (val) => {
+                    job.requiredQualification = Number(val ?? 0)
+                    jobErrors.requiredQualification = ''
+                  }
+                "
+              />
+              <p v-if="jobErrors.requiredQualification" class="!text-red-500 text-sm mt-1">
+                {{ jobErrors.requiredQualification }}
+              </p>
+            </div>
+          </div>
+
+          <!-- Job experience/benefit Level -->
+          <div
+            class="grid grid-cols-1 md:grid-cols-2 gap-4"
+            style="padding: 0 0 30px 0 !important"
+          >
+            <!-- Job experience Level -->
+            <div>
+              <!-- Label -->
+              <label
+                for="job-title"
+                class="font-medium text-sm text-gray-700"
+              >
+                {{ $t('job.uploadJob.experienceLabel') }}
+                <span class="text-black">{{
+                  $t('job.uploadJob.mandatoryChar')
+                }}</span>
+              </label>
+              <!-- Input Experience Level -->
+              <USelect
+                :items="experienceLevelItems"
+                :model-value="job.experienceLevel?.toString()"
+                class="w-full text-sm"
+                :class="{ 'border-red-500': jobErrors.experienceLevel }"
+                :content="{ side: 'bottom' }"
+                :placeholder="$t('job.uploadJob.chooseExperienceLevel')"
+                @update:model-value="
+                  (val) => {
+                    job.experienceLevel = Number(val ?? 0)
+                    jobErrors.experienceLevel = ''
+                  }
+                "
+              />
+              <p v-if="jobErrors.experienceLevel" class="!text-red-500 text-sm mt-1">
+                {{ jobErrors.experienceLevel }}
+              </p>
+            </div>
+
+            <!-- Job benefit Level -->
+            <div>
+              <!-- Label -->
+              <label
+                for="job-title"
+                class="font-medium text-sm text-gray-700"
+              >
+                {{ $t('job.uploadJob.benefitLabel') }}
+                <span class="text-black">{{
+                  $t('job.uploadJob.mandatoryChar')
+                }}</span>
+              </label>
+
+              <!-- Input Benefit -->
+              <v-select
+                v-model="benefitsForSelect"
+                :options="jobBenefitsItems"
+                multiple
+                class="w-full text-sm"
+                :class="{ 'border-red-500': jobErrors.benefits }"
+                :placeholder="$t('job.uploadJob.chooseBenefitLevel')"
+                label="label"
+                @update:model-value="jobErrors.benefits = ''"
+              />
+            </div>
+          </div>
+
+          <!-- Job gender/grade Level -->
+          <div
+            class="grid grid-cols-1 md:grid-cols-2 gap-4"
+            style="padding: 0 !important"
+          >
+            <!-- Job gender Level -->
+            <div>
+              <!-- Label -->
+              <label
+                for="job-title"
+                class="font-medium text-sm text-gray-700"
+              >
+                {{ $t('job.uploadJob.genderLabel') }}
+                <span class="text-black">{{
+                  $t('job.uploadJob.mandatoryChar')
+                }}</span>
+              </label>
+              <v-select
+                v-model="genderForSelect"
+                :options="genderItems"
+                multiple
+                class="w-full text-sm"
+                :class="{ 'border-red-500': jobErrors.gender }"
+                :placeholder="$t('job.uploadJob.chooseGender')"
+                label="label"
+                @update:model-value="jobErrors.gender = ''"
+              />
+              <p v-if="jobErrors.gender" class="!text-red-500 text-sm mt-1">
+                {{ jobErrors.gender }}
+              </p>
+            </div>
+
+            <!-- Job grade Level -->
+            <div>
+              <!-- Label -->
+              <label
+                for="job-title"
+                class="font-medium text-sm text-gray-700"
+              >
+                {{ $t('job.uploadJob.gradeLabel') }}
+                <span class="text-black">{{
+                  $t('job.uploadJob.mandatoryChar')
+                }}</span>
+              </label>
+              <USelect
+                :items="gradeItems"
+                :model-value="job.grade?.toString() || ''"
+                class="w-full text-sm"
+                :class="{ 'border-red-500': jobErrors.grade }"
+                :content="{ side: 'bottom' }"
+                :placeholder="$t('job.uploadJob.chooseGradeLevel')"
+                @update:model-value="
+                  (val) => {
+                    job.grade = Number(val ?? 0)
+                    jobErrors.grade = ''
+                  }
+                "
+              />
+              <p v-if="jobErrors.grade" class="!text-red-500 text-sm mt-1">
+                {{ jobErrors.grade }}
+              </p>
+            </div>
+          </div>
+
+          <div
+            class="flex items-center py-4 border-gray-300 border-b mb-10"
+          ></div>
+        </div>
+
+        <!-- Action by admin (chỉ khi drawer / company-management hoặc Quản lý công việc) -->
+        <template v-if="isAdminJobContext">
+          <h2 class="text-xl font-bold text-gray-900 mb-4 pt-2">Action by admin</h2>
+
+          <!-- Status: chỉ hiện khi edit job -->
+          <div
+            v-if="isEditMode"
+            class="flex flex-col gap-2 w-full mb-6"
+            style="padding: 0 0 24px 0 !important"
+          >
+            <label class="font-medium text-sm text-gray-900">
+              Status <span class="text-black">*</span>
+            </label>
+            <div class="flex flex-wrap gap-4 items-center">
+              <label
+                v-for="opt in jobStatusOptions"
+                :key="opt.value"
+                class="inline-flex items-center gap-2 cursor-pointer"
+              >
+                <input
+                  v-model="jobStatusOption"
+                  type="radio"
+                  :value="opt.value"
+                  class="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                >
+                <span
+                  class="px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                  :class="[
+                    opt.pillClass,
+                    jobStatusOption === opt.value ? 'ring-2 ring-offset-1 ring-gray-400' : '',
+                  ]"
+                >
+                  {{ opt.label }}
+                </span>
+              </label>
+            </div>
+          </div>
+
+          <div
+            class="flex flex-col gap-1 w-full"
+            style="padding: 0 0 30px 0 !important"
+          >
+            <label class="font-medium text-sm text-gray-700">
+              Post Type <span class="text-black">*</span>
+            </label>
+            <div class="flex flex-wrap gap-3 items-center">
+              <label
+                v-for="opt in postTypeOptions"
+                :key="opt.value"
+                class="inline-flex items-center gap-2 cursor-pointer"
+              >
+                <input
+                  type="radio"
+                  :value="opt.value"
+                  :checked="(job.postType || 'Basic') === opt.value"
+                  class="w-4 h-4 text-primary border-gray-300 focus:ring-primary"
+                  @change="job.postType = opt.value"
+                >
+                <span
+                  class="px-4 py-2 rounded-full text-sm font-medium border-2 transition-colors"
+                  :class="[opt.chipClass, (job.postType || 'Basic') === opt.value ? 'ring-2 ring-offset-1 ring-gray-400' : '']"
+                >
+                  {{ opt.label }}
+                </span>
+              </label>
+            </div>
+          </div>
+        </template>
+
+        <!-- Checkbox agree terms (ẩn khi admin add/edit) -->
+        <div
+          v-if="!isAdminJobContext"
+          class="flex items-center"
+          style="
+            padding: 0 0 20px 0 !important;
+            height: 30px !important;
+          "
+        >
+          <UCheckbox
+            v-model="agreeChecked"
+            class="text-primary mr-3"
+          ></UCheckbox>
+          <span>
+            {{ $t('job.uploadJob.agreeUploadJobLabel') }}
+            <a
+              href="#"
+              style="
+                color: #0284c7 !important;
+                text-decoration: none !important;
+              "
+            >
+              {{ $t('job.uploadJob.agreePolicy') }}
+            </a>
+            {{ $t('job.uploadJob.and') }}
+            <a
+              href="#"
+              style="
+                color: #0284c7 !important;
+                text-decoration: none !important;
+              "
+            >
+              {{ $t('job.uploadJob.agreePrivacy') }}
+            </a>
+          </span>
+        </div>
+
+        <!-- Action btn -->
+        <div
+          class="flex flex-row gap-1 w-full justify-end"
+          style="padding: 0 0 38px 0 !important"
+        >
+          <!-- Buton Submit -->
+          <UButton
+            class="bg-[#4f8ef7] text-white hover:bg-[#4568a1ad]"
+            style="
+              margin-top: 15px;
+              padding: 8px 16px;
+              border: none;
+              border-radius: 6px;
+              cursor: pointer;
+            "
+            :loading="loading"
+            @click="addJob()"
+          >
+            {{ isEditMode ? $t('job.uploadJob.updateJobContent') : $t('job.uploadJob.uploadJobContent') }}
+          </UButton>
+        </div>
       </div>
-    </div>
   </div>
 </template>
 
@@ -654,6 +718,8 @@ import RichTextEditor from '~/components/RichTextEditor.vue'
 const props = defineProps<{
   companyData: CompanyEntity | null
   jobToEdit?: import('~/models/job').JobModel | null
+  /** Khi true (drawer admin add): bắt buộc chọn công ty trước khi gửi */
+  requireCompanySelection?: boolean
 }>()
 
 // Emits
@@ -684,6 +750,23 @@ const {
 
 const job = ref<JobModelAddUpdate>({} as JobModelAddUpdate)
 const isEditMode = computed(() => !!props.jobToEdit)
+/** Add/edit từ admin (company-management Tab Jobs hoặc Quản lý công việc): bỏ auto-fill, optional email/phone, note = admin */
+const isAdminJobContext = computed(() => !!props.companyData || !!props.requireCompanySelection)
+
+const postTypeOptions = [
+  { value: 'Basic', label: 'Cơ bản', chipClass: 'bg-blue-100 border-blue-300 text-blue-800' },
+  { value: 'Hot', label: 'Mới nhất', chipClass: 'bg-amber-100 border-amber-300 text-amber-800' },
+  { value: 'Urgent', label: 'Tuyển gấp', chipClass: 'bg-red-100 border-red-300 text-red-800' },
+]
+
+type JobStatusOption = 'ADMIN_REVIEW' | 'PENDING' | 'APPROVED' | 'REJECTED'
+const jobStatusOptions: { value: JobStatusOption; label: string; pillClass: string }[] = [
+  { value: 'ADMIN_REVIEW', label: 'ADMIN_REVIEW', pillClass: 'bg-amber-100 text-amber-800' },
+  { value: 'PENDING', label: 'PENDING', pillClass: 'bg-orange-100 text-orange-800' },
+  { value: 'APPROVED', label: 'APPROVED', pillClass: 'bg-blue-600 text-white' },
+  { value: 'REJECTED', label: 'REJECTED', pillClass: 'bg-red-100 text-red-700' },
+]
+const jobStatusOption = ref<JobStatusOption>('ADMIN_REVIEW')
 
 // Computed property for v-select benefits (convert between string[] and object[])
 const benefitsForSelect = computed({
@@ -763,7 +846,9 @@ const convertJobModelToAddUpdate = (jobModel: import('~/models/job').JobModel): 
     phoneNumber: jobModel.phoneNumber || undefined,
     address: jobModel.address || '',
     isFeatured: jobModel.isFeatured,
-    isWaiting: jobModel.isWaiting,
+    status: jobModel.status,
+    postType: (jobModel.postType === 'Free' ? 'Basic' : jobModel.postType) ?? 'Basic',
+    note: jobModel.note ?? 'user',
   }
 }
 
@@ -806,9 +891,9 @@ const locationForSelect = computed({
   }
 })
 
-// Helper function to auto-fill email from logged-in user
+// Helper function to auto-fill email from logged-in user (không chạy khi admin add/edit)
 const autoFillEmail = () => {
-  // Chỉ tự động điền email khi không phải edit mode và user đã đăng nhập
+  if (isAdminJobContext.value) return
   if (!isEditMode.value && authStore.user && authStore.user.email) {
     job.value.email = authStore.user.email
   }
@@ -818,12 +903,16 @@ const autoFillEmail = () => {
 watch(() => props.jobToEdit, (newJob) => {
   if (newJob) {
     job.value = convertJobModelToAddUpdate(newJob)
+    const s = (newJob.status || '').toUpperCase()
+
+    jobStatusOption.value = (s === 'APPROVED' || s === 'REJECTED' || s === 'PENDING' || s === 'ADMIN_REVIEW') ? s as JobStatusOption : 'ADMIN_REVIEW'
   } else {
-    // Reset form when not in edit mode
     job.value = {} as JobModelAddUpdate
     job.value.postedDate = new Date()
+    job.value.postType = 'Basic'
+    job.value.note = 'user'
+    jobStatusOption.value = 'ADMIN_REVIEW'
     agreeChecked.value = false
-    // Tự động điền email sau khi reset form
     autoFillEmail()
   }
 }, { immediate: true })
@@ -944,14 +1033,23 @@ const addJob = async () => {
     return
   }
 
-  // If not check display msg
-  if (!agreeChecked.value) {
+  // Bắt buộc chọn công ty (drawer admin add)
+  if (props.requireCompanySelection && !props.companyData?.id) {
+    useNotify({ message: 'Vui lòng chọn công ty.' })
+
+    return
+  }
+
+  // Checkbox điều khoản chỉ bắt buộc khi không phải admin
+  if (!isAdminJobContext.value && !agreeChecked.value) {
     useNotify({ message: 'Hãy xác nhận điều khoản và chính sách' })
 
     return
   }
 
-  if (!authStore.user?.companyId) {
+  const companyIdToUse = props.companyData?.id ?? authStore.user?.companyId
+
+  if (!companyIdToUse) {
     useNotify({
       message: 'Bạn chưa có công ty. Vui lòng tạo công ty trước.',
     })
@@ -962,11 +1060,11 @@ const addJob = async () => {
   loading.value = true
 
   try {
-    // Set id Company for Job
-    job.value.companyId = authStore.user.companyId
+    // Set id Company for Job (từ companyData khi dùng trong slide admin, hoặc user.companyId)
+    job.value.companyId = companyIdToUse
 
     // Set id User for Job
-    job.value.userId = authStore.user.id
+    job.value.userId = authStore.user?.id ?? 0
 
     // Convert benefits array to comma-separated string before sending
     // Ensure benefits is converted to string, not object
@@ -1029,15 +1127,16 @@ const addJob = async () => {
       location: locationString || undefined,
       salaryMin: job.value.salaryMin ? unformatCurrency(job.value.salaryMin) : undefined,
       salaryMax: job.value.salaryMax ? unformatCurrency(job.value.salaryMax) : undefined,
+      postType: job.value.postType || 'Basic',
+      // note chỉ set khi tạo mới (admin add vs user add); khi update giữ nguyên giá trị cũ
+      note: isEditMode.value ? (job.value.note || props.jobToEdit?.note || 'user') : (isAdminJobContext.value ? 'admin' : 'user'),
     }
 
     let response
 
     if (isEditMode.value && props.jobToEdit) {
-      // Update existing job
-      // Preserve isFeatured and isWaiting from original job
       jobDataToSend.isFeatured = props.jobToEdit.isFeatured
-      jobDataToSend.isWaiting = props.jobToEdit.isWaiting
+      jobDataToSend.status = jobStatusOption.value
 
       response = await $api.job.editJob(props.jobToEdit.id, jobDataToSend)
 
@@ -1048,10 +1147,11 @@ const addJob = async () => {
         })
       }
     } else {
-      // Create new job
-      // Set default add value
-      job.value.isFeatured = false
-      job.value.isWaiting = false
+      if (!isAdminJobContext.value) {
+        job.value.isFeatured = false
+      }
+      jobDataToSend.status = isAdminJobContext.value ? (job.value.status ?? 'ADMIN_REVIEW') : 'ADMIN_REVIEW'
+      jobDataToSend.isFeatured = job.value.isFeatured ?? false
 
       response = await $api.job.addJob(jobDataToSend)
 
@@ -1264,17 +1364,24 @@ function validateJobFields(): boolean {
     isValid = false
   }
 
-  // Email validation - required
-  if (!job.value.email || job.value.email.trim().length === 0) {
-    jobErrors.value.email = 'Email không được để trống.'
-    isValid = false
-  } else if (!/^\S+@\S+\.\S+$/.test(job.value.email.trim())) {
-    jobErrors.value.email = 'Email không đúng định dạng.'
-    isValid = false
+  // Email: admin context = optional, user = required
+  if (isAdminJobContext.value) {
+    if (job.value.email && job.value.email.trim() && !/^\S+@\S+\.\S+$/.test(job.value.email.trim())) {
+      jobErrors.value.email = 'Email không đúng định dạng.'
+      isValid = false
+    }
+  } else {
+    if (!job.value.email || job.value.email.trim().length === 0) {
+      jobErrors.value.email = 'Email không được để trống.'
+      isValid = false
+    } else if (!/^\S+@\S+\.\S+$/.test(job.value.email.trim())) {
+      jobErrors.value.email = 'Email không đúng định dạng.'
+      isValid = false
+    }
   }
 
-  // Phone number validation - required
-  if (!job.value.phoneNumber || job.value.phoneNumber.trim().length === 0) {
+  // Số điện thoại: admin context = optional, user = required
+  if (!isAdminJobContext.value && (!job.value.phoneNumber || job.value.phoneNumber.trim().length === 0)) {
     jobErrors.value.phoneNumber = 'Số điện thoại không được để trống.'
     isValid = false
   }
@@ -1371,5 +1478,11 @@ function validateJobFields(): boolean {
 :deep(.vs__placeholder) {
   font-size: 0.875rem;
   color: var(--ui-text-dimmed);
+}
+</style>
+
+<style scoped>
+::deep(.vs__dropdown-menu) {
+  z-index: 60;
 }
 </style>

@@ -123,7 +123,7 @@
                     {{ $t('dashboard.manageJobs.view') }}
                   </UButton>
                   <UButton
-                    v-if="!job.isWaiting"
+                    v-if="isJobVisible(job)"
                     variant="ghost"
                     color="neutral"
                     size="xs"
@@ -183,6 +183,7 @@
 
 <script setup lang="ts">
 import type { JobEntity } from '~/entities/job'
+import { isJobVisible } from '~/models/job'
 
 defineEmits<{
   'create-new-job': []
@@ -239,7 +240,7 @@ const isExpiringSoon = (deadline: string | Date | null | undefined): boolean => 
 }
 
 const getStatusText = (job: JobEntity): string => {
-  if (job.isWaiting) return t('dashboard.manageJobs.status.pending')
+  if (!isJobVisible(job)) return t('dashboard.manageJobs.status.pending')
   if (isExpired(job.deadline)) return t('dashboard.manageJobs.status.expired')
   if (isExpiringSoon(job.deadline)) return t('dashboard.manageJobs.status.expiringSoon')
 
@@ -247,7 +248,7 @@ const getStatusText = (job: JobEntity): string => {
 }
 
 const getStatusClass = (job: JobEntity): string => {
-  if (job.isWaiting) return 'bg-yellow-100 text-yellow-800'
+  if (!isJobVisible(job)) return 'bg-yellow-100 text-yellow-800'
   if (isExpired(job.deadline)) return 'bg-red-100 text-red-800'
   if (isExpiringSoon(job.deadline)) return 'bg-orange-100 text-orange-800'
 
@@ -273,13 +274,13 @@ const filteredJobs = computed(() => {
     switch (statusFilter.value) {
       case 'active':
         result = result.filter(
-          (job) => !job.isWaiting && !isExpired(job.deadline),
+          (job) => isJobVisible(job) && !isExpired(job.deadline),
         )
 
         break
 
       case 'pending':
-        result = result.filter((job) => job.isWaiting)
+        result = result.filter((job) => (job.status || '').toUpperCase() !== 'APPROVED')
 
         break
 
@@ -319,13 +320,13 @@ const totalPages = computed(() => {
     switch (statusFilter.value) {
       case 'active':
         result = result.filter(
-          (job) => !job.isWaiting && !isExpired(job.deadline),
+          (job) => isJobVisible(job) && !isExpired(job.deadline),
         )
 
         break
 
       case 'pending':
-        result = result.filter((job) => job.isWaiting)
+        result = result.filter((job) => (job.status || '').toUpperCase() !== 'APPROVED')
 
         break
 

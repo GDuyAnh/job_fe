@@ -503,43 +503,48 @@
         </div>
 
         <!-- Blogs Cards -->
-        <UCarousel :items="blogRes" :ui="{ item: 'basis-1/4' }" class="mb-8">
-          <template #default="{ item }">
-            <UCard
-              variant="solid"
-              class="bg-white border border-gray-200"
-              :ui="{
-                header: 'p-0 sm:px-0',
-                body: 'px-4 py-3 min-h-[170px] max-h-[220px]',
-              }"
-            >
-              <template #header>
-                <img
-                  :src="item.image"
-                  alt="Blog Image"
-                  class="w-full h-[180px] object-cover"
-                />
-              </template>
-              <div clas>
-                <h3 class="text-base font-bold text-gray-900 mb-2 leading-snug">
-                  {{ item.title }}
-                </h3>
-                <p class="text-sm text-gray-600 leading-snug line-clamp-3">
-                  {{ item.description }}
-                </p>
-              </div>
+        <div v-if="blogRes.length > 0">
+          <UCarousel :items="blogRes" :ui="{ item: 'basis-1/4' }" class="mb-8">
+            <template #default="{ item }">
+              <UCard
+                variant="solid"
+                class="bg-white border border-gray-200"
+                :ui="{
+                  header: 'p-0 sm:px-0',
+                  body: 'px-4 py-3 min-h-[170px] max-h-[220px]',
+                }"
+              >
+                <template #header>
+                  <img
+                    :src="item.image"
+                    alt="Blog Image"
+                    class="w-full h-[180px] object-cover"
+                  />
+                </template>
+                <div clas>
+                  <h3 class="text-base font-bold text-gray-900 mb-2 leading-snug">
+                    {{ item.title }}
+                  </h3>
+                  <p class="text-sm text-gray-600 leading-snug line-clamp-3">
+                    {{ item.description }}
+                  </p>
+                </div>
 
-              <template #footer>
-                <a
-                  :href="item.url"
-                  class="text-blue-600 font-medium text-sm hover:underline inline-flex items-center"
-                >
-                  {{ $t('homePage.blog.readMore') }}
-                </a>
-              </template>
-            </UCard>
-          </template>
-        </UCarousel>
+                <template #footer>
+                  <NuxtLink
+                    :to="`/blog/${item.id}`"
+                    class="text-blue-600 font-medium text-sm hover:underline inline-flex items-center"
+                  >
+                    {{ $t('homePage.blog.readMore') }}
+                  </NuxtLink>
+                </template>
+              </UCard>
+            </template>
+          </UCarousel>
+        </div>
+        <div v-else class="mb-8 text-center text-gray-500">
+          Hiện tại không có blog nào.
+        </div>
 
         <div class="mt-6">
           <app-button
@@ -944,7 +949,12 @@ const getBlogs = async () => {
     const response = await $api.blog.getBlog()
 
     if (response && Array.isArray(response)) {
-      blogRes.value = response.map((comp) => BlogMapper.toModel(comp))
+      // Chỉ hiển thị blog có status = 'published' và displayOnHomepage = true
+      const visibleBlogs = response.filter((b: any) =>
+        String(b.status || '').toLowerCase() === 'published' &&
+        !!b.displayOnHomepage,
+      )
+      blogRes.value = visibleBlogs.map((comp) => BlogMapper.toModel(comp))
     } else {
       blogRes.value = []
     }
@@ -1080,24 +1090,52 @@ const userMenuItems = computed(() => {
   if (isAdmin) {
     items.push(
       {
-        label: 'Quản lý Công ty',
+        label: 'Dashboard',
+        icon: 'i-lucide-layout-dashboard',
+        click: () => {
+          openDashboardInNewTab(ROUTE_PAGE.DASHBOARD.ADMIN, { view: 'adminDashboard' })
+        },
+      },
+      {
+        label: 'Công ty',
         icon: 'i-lucide-building',
         click: () => {
-          openDashboardInNewTab(ROUTE_PAGE.DASHBOARD.COMPANY, { view: 'adminCompanies' })
+          openDashboardInNewTab(ROUTE_PAGE.DASHBOARD.ADMIN, { view: 'adminCompanies' })
         },
       },
       {
-        label: 'Quản lý Users',
+        label: 'Quản lý công việc',
+        icon: 'i-lucide-briefcase',
+        click: () => {
+          openDashboardInNewTab(ROUTE_PAGE.DASHBOARD.ADMIN, { view: 'adminManageJobs' })
+        },
+      },
+      {
+        label: 'Ứng viên',
+        icon: 'i-lucide-users',
+        click: () => {
+          openDashboardInNewTab(ROUTE_PAGE.DASHBOARD.ADMIN, { view: 'adminCandidates' })
+        },
+      },
+      {
+        label: 'Users',
         icon: 'i-lucide-users-round',
         click: () => {
-          openDashboardInNewTab(ROUTE_PAGE.DASHBOARD.COMPANY, { view: 'adminUsers' })
+          openDashboardInNewTab(ROUTE_PAGE.DASHBOARD.ADMIN, { view: 'adminUsers' })
         },
       },
       {
-        label: 'Quản lý Blog',
+        label: 'Blogs',
         icon: 'i-lucide-file-text',
         click: () => {
-          openDashboardInNewTab(ROUTE_PAGE.DASHBOARD.COMPANY, { view: 'adminBlogs' })
+          openDashboardInNewTab(ROUTE_PAGE.DASHBOARD.ADMIN, { view: 'adminBlogs' })
+        },
+      },
+      {
+        label: 'Cài đặt',
+        icon: 'i-lucide-settings',
+        click: () => {
+          openDashboardInNewTab(ROUTE_PAGE.DASHBOARD.ADMIN, { view: 'adminSettings' })
         },
       },
     )
