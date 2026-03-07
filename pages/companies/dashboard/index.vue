@@ -107,6 +107,18 @@
               <button
                 :class="[
                   'w-full flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors',
+                  activeView === 'adminDashboard'
+                    ? 'text-white bg-blue-600'
+                    : 'text-gray-700 hover:bg-blue-100'
+                ]"
+                @click="setActiveView('adminDashboard')"
+              >
+                <UIcon name="i-lucide-layout-dashboard" class="w-5 h-5 mr-3" />
+                {{ $t('dashboard.sidebar.adminDashboard') }}
+              </button>
+              <button
+                :class="[
+                  'w-full flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors',
                   activeView === 'adminCompanies'
                     ? 'text-white bg-blue-600'
                     : 'text-gray-700 hover:bg-blue-100'
@@ -115,6 +127,30 @@
               >
                 <UIcon name="i-lucide-building" class="w-5 h-5 mr-3" />
                 {{ $t('dashboard.sidebar.adminCompanies') }}
+              </button>
+              <button
+                :class="[
+                  'w-full flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors',
+                  activeView === 'adminManageJobs'
+                    ? 'text-white bg-blue-600'
+                    : 'text-gray-700 hover:bg-blue-100'
+                ]"
+                @click="setActiveView('adminManageJobs')"
+              >
+                <UIcon name="i-lucide-briefcase" class="w-5 h-5 mr-3" />
+                {{ $t('dashboard.sidebar.adminManageJobs') }}
+              </button>
+              <button
+                :class="[
+                  'w-full flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors',
+                  activeView === 'adminCandidates'
+                    ? 'text-white bg-blue-600'
+                    : 'text-gray-700 hover:bg-blue-100'
+                ]"
+                @click="setActiveView('adminCandidates')"
+              >
+                <UIcon name="i-lucide-users" class="w-5 h-5 mr-3" />
+                {{ $t('dashboard.sidebar.adminCandidates') }}
               </button>
               <button
                 :class="[
@@ -139,6 +175,18 @@
               >
                 <UIcon name="i-lucide-file-text" class="w-5 h-5 mr-3" />
                 {{ $t('dashboard.sidebar.adminBlogs') }}
+              </button>
+              <button
+                :class="[
+                  'w-full flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors',
+                  activeView === 'adminSettings'
+                    ? 'text-white bg-blue-600'
+                    : 'text-gray-700 hover:bg-blue-100'
+                ]"
+                @click="setActiveView('adminSettings')"
+              >
+                <UIcon name="i-lucide-settings" class="w-5 h-5 mr-3" />
+                {{ $t('dashboard.sidebar.adminSettings') }}
               </button>
             </div>
           </div>
@@ -230,9 +278,50 @@
 
       <!-- Main Content -->
       <main class="flex-1 p-8">
+        <!-- Admin Dashboard View -->
+        <div v-if="activeView === 'adminDashboard'">
+          <div class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-900">
+              {{ $t('dashboard.sidebar.adminDashboard') }}
+            </h1>
+            <p class="text-gray-600 mt-2">
+              {{ $t('dashboard.main.welcome', { name: authStore.user?.fullName || 'Admin' }) }}
+            </p>
+          </div>
+          <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-8 text-center">
+            <UIcon name="i-lucide-layout-dashboard" class="w-16 h-16 text-blue-500 mx-auto mb-4" />
+            <p class="text-gray-600">
+              Chào mừng đến trang quản trị. Sử dụng menu bên trái để quản lý Công ty, Tin tuyển dụng, Ứng viên, Users và Blogs.
+            </p>
+          </div>
+        </div>
+
         <!-- Admin Companies View -->
-        <div v-if="activeView === 'adminCompanies'">
+        <div v-else-if="activeView === 'adminCompanies'">
           <DashboardAdminCompanies />
+        </div>
+
+        <!-- Admin Manage Jobs View -->
+        <div v-else-if="activeView === 'adminManageJobs'">
+          <DashboardAdminJobs />
+        </div>
+
+        <!-- Admin Candidates View -->
+        <div v-else-if="activeView === 'adminCandidates'">
+          <div class="mb-6">
+            <h1 class="text-3xl font-bold text-gray-900">
+              {{ $t('dashboard.admin.candidates.title') }}
+            </h1>
+            <p class="text-gray-600 mt-2">
+              {{ $t('dashboard.admin.candidates.description') }}
+            </p>
+          </div>
+          <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-8 text-center">
+            <UIcon name="i-lucide-users" class="w-16 h-16 text-gray-400 mx-auto mb-4" />
+            <p class="text-gray-600">
+              {{ $t('dashboard.admin.candidates.description') }}
+            </p>
+          </div>
         </div>
 
         <!-- Admin Users View -->
@@ -243,6 +332,24 @@
         <!-- Admin Blogs View -->
         <div v-else-if="activeView === 'adminBlogs'">
           <DashboardAdminBlogs />
+        </div>
+
+        <!-- Admin Settings View -->
+        <div v-else-if="activeView === 'adminSettings'">
+          <div class="mb-6">
+            <h1 class="text-3xl font-bold text-gray-900">
+              {{ $t('dashboard.admin.settings.title') }}
+            </h1>
+            <p class="text-gray-600 mt-2">
+              {{ $t('dashboard.admin.settings.description') }}
+            </p>
+          </div>
+          <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-8 text-center">
+            <UIcon name="i-lucide-settings" class="w-16 h-16 text-gray-400 mx-auto mb-4" />
+            <p class="text-gray-600">
+              {{ $t('dashboard.admin.settings.description') }}
+            </p>
+          </div>
         </div>
 
         <!-- Dashboard View -->
@@ -547,17 +654,21 @@ const route = useRoute()
 const authStore = useAuthStore()
 
 // Dashboard view types
-type DashboardView = 
-  | 'dashboard' 
-  | 'editProfile' 
-  | 'newJob' 
-  | 'manageJobs' 
-  | 'candidates' 
-  | 'settings' 
+type DashboardView =
+  | 'dashboard'
+  | 'editProfile'
+  | 'newJob'
+  | 'manageJobs'
+  | 'candidates'
+  | 'settings'
   | 'notifications'
+  | 'adminDashboard'
   | 'adminCompanies'
+  | 'adminManageJobs'
+  | 'adminCandidates'
   | 'adminUsers'
   | 'adminBlogs'
+  | 'adminSettings'
 
 // Active view state
 const activeView = ref<DashboardView>('dashboard')
@@ -776,7 +887,7 @@ const fetchJobStatistics = async () => {
         postedJobs: response.length,
 
         // Pending jobs (waiting for approval)
-        pendingJobs: response.filter((job) => job.isWaiting === true).length,
+        pendingJobs: response.filter((job) => (job.status || '').toUpperCase() !== 'APPROVED').length,
 
         // Expired jobs: deadline < today (compare dates only, not time)
         expiredJobs: response.filter((job) => {
@@ -795,7 +906,8 @@ const fetchJobStatistics = async () => {
         // Expiring soon: deadline within 5 days (from today to 5 days later)
         // Only count jobs that are NOT expired and NOT pending
         expiringSoonJobs: response.filter((job) => {
-          if (!job.deadline || job.isWaiting) return false
+          const approved = (job.status || '').toUpperCase() === 'APPROVED'
+          if (!job.deadline || !approved) return false
 
           const deadlineDate = new Date(job.deadline)
           const deadlineStart = new Date(
@@ -905,22 +1017,23 @@ const deleteApplication = async (applicationId: number) => {
 
 // Lifecycle
 onMounted(async () => {
-  // Log user info on dashboard mount
-  console.log('===== DASHBOARD MOUNTED =====')
-  console.log('Current User:', authStore.user)
-  console.log('User Role:', authStore.user?.role)
-  console.log('Is Admin:', isAdmin.value)
-  console.log('USER_ROLES.ADMIN:', USER_ROLES.ADMIN)
-  console.log('============================')
+  // Admin: redirect to /admin/dashboard (correct URL)
+  if (isAdmin.value) {
+    const viewParam = route.query.view as string
+    const adminViews = ['adminDashboard', 'adminCompanies', 'adminManageJobs', 'adminCandidates', 'adminUsers', 'adminBlogs', 'adminSettings']
+    const view = viewParam && adminViews.includes(viewParam) ? viewParam : 'adminDashboard'
+    await router.replace({
+      path: ROUTE_PAGE.DASHBOARD.ADMIN,
+      query: { view },
+    })
+    return
+  }
 
-  // Check for view query parameter to set active view
+  // Check for view query parameter to set active view (company dashboard only)
   const viewParam = route.query.view as string
 
-  if (viewParam && ['editProfile', 'newJob', 'manageJobs', 'candidates', 'settings', 'dashboard', 'adminCompanies', 'adminUsers', 'adminBlogs'].includes(viewParam)) {
+  if (viewParam && ['editProfile', 'newJob', 'manageJobs', 'candidates', 'settings', 'dashboard'].includes(viewParam)) {
     activeView.value = viewParam as DashboardView
-  } else if (isAdmin.value) {
-    // If user is admin and no view param, default to admin companies
-    activeView.value = 'adminCompanies'
   }
 
   // Load company data first (shared across all menu items)

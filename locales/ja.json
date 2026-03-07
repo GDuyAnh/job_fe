@@ -611,15 +611,29 @@
       "appliedJobs": "Công việc đã ứng tuyển",
       "options": "Tùy chọn",
       "deleteAccount": "Xoá tài khoản",
-      "adminCompanies": "Quản lý công ty",
-      "adminUsers": "Quản lý User",
-      "adminBlogs": "Quản lý Blog"
+      "adminDashboard": "Dashboard",
+      "adminCompanies": "Công ty",
+      "adminManageJobs": "Quản lý công việc",
+      "adminCandidates": "Ứng viên",
+      "adminUsers": "Users",
+      "adminBlogs": "Blogs",
+      "adminSettings": "Cài đặt"
     },
     "admin": {
+      "stats": {
+        "companies": "Companies",
+        "jobs": "Jobs",
+        "applications": "Applications",
+        "users": "Users"
+      },
       "companies": {
-        "title": "Quản lý công ty",
+        "title": "Company",
         "description": "Quản lý tất cả các công ty trong hệ thống",
-        "searchPlaceholder": "Tìm kiếm công ty...",
+        "welcome": "Welcome, System Admin",
+        "searchPlaceholder": "Tìm theo tên công ty, MST hoặc Email",
+        "filterFeature": "Feature",
+        "filterBanner": "Banner",
+        "newCompany": "New Company",
         "total": "Tổng số công ty",
         "pendingLabel": "Chờ duyệt",
         "table": {
@@ -628,7 +642,13 @@
           "email": "Email",
           "address": "Địa chỉ",
           "status": "Trạng thái",
-          "featured": "Nổi bật"
+          "featured": "Nổi bật",
+          "totalJobs": "Tổng số job",
+          "mst": "MST",
+          "phone": "Số điện thoại",
+          "province": "Tỉnh thành",
+          "registrationDate": "Ngày đăng ký",
+          "companyType": "Trạng thái duyệt"
         },
         "status": {
           "active": "Hoạt động",
@@ -642,7 +662,9 @@
           "unfeature": "Bỏ nổi bật",
           "show": "Hiển thị",
           "hide": "Không hiển thị",
-          "delete": "Xóa"
+          "delete": "Xóa",
+          "view": "Xem",
+          "edit": "Sửa"
         },
         "approveSuccess": "Đã duyệt công ty thành công! Công ty này đã được kích hoạt.",
         "approveConfirm": "Xác nhận duyệt công ty này?",
@@ -655,17 +677,78 @@
         "loading": "Đang tải...",
         "noCompanies": "Không tìm thấy công ty nào"
       },
+      "jobs": {
+        "title": "Quản lý công việc",
+        "description": "Duyệt và quản lý tất cả tin tuyển dụng",
+        "searchPlaceholder": "Tìm kiếm theo tiêu đề...",
+        "total": "Tổng số tin",
+        "pendingLabel": "Chờ duyệt",
+        "table": {
+          "title": "Tiêu đề",
+          "company": "Công ty",
+          "status": "Trạng thái",
+          "postedDate": "Ngày đăng"
+        },
+        "status": {
+          "pending": "Chờ duyệt",
+          "approved": "Đã duyệt"
+        },
+        "actions": {
+          "approve": "Duyệt tin"
+        },
+        "approveSuccess": "Đã duyệt tin thành công",
+        "approveConfirm": "Xác nhận duyệt tin này?",
+        "loading": "Đang tải...",
+        "noJobs": "Không tìm thấy tin nào"
+      },
+      "candidates": {
+        "title": "Ứng viên",
+        "description": "Xem danh sách ứng viên theo từng công ty tại mục Công ty."
+      },
+      "applications": {
+        "title": "Applications",
+        "welcome": "Welcome, System Admin",
+        "searchPlaceholder": "Tìm theo tên, vị trí, công ty, email, SĐT...",
+        "filterExpertise": "CANDIDATE EXPERTISE",
+        "filterLocation": "LOCATION",
+        "filterAll": "Tất cả",
+        "table": {
+          "jobPosition": "JOB POSITION",
+          "candidate": "CANDIDATE",
+          "email": "EMAIL",
+          "cv": "CV",
+          "candidateExpertise": "CANDIDATE EXPERTISE",
+          "location": "LOCATION",
+          "createdAt": "CREATED AT",
+          "actions": "ACTION"
+        },
+        "deleteConfirm": "Bạn có chắc chắn muốn xóa đơn ứng tuyển này?",
+        "deleteSuccess": "Đã xóa đơn ứng tuyển thành công."
+      },
+      "settings": {
+        "title": "Cài đặt",
+        "description": "Cài đặt hệ thống (đang phát triển)."
+      },
       "users": {
-        "title": "Quản lý User",
+        "title": "Users",
+        "welcome": "Welcome, System Admin",
         "description": "Quản lý tất cả người dùng trong hệ thống",
-        "searchPlaceholder": "Tìm kiếm user...",
+        "searchPlaceholder": "Search...",
+        "newUser": "New User",
         "total": "Tổng số users",
         "table": {
-          "name": "Tên",
-          "email": "Email",
-          "role": "Vai trò",
-          "company": "Công ty",
-          "status": "Trạng thái"
+          "avatar": "AVATAR",
+          "name": "NAME",
+          "email": "EMAIL",
+          "phoneNumber": "PHONE NUMBER",
+          "userType": "USER TYPE",
+          "createdDate": "CREATED DATE",
+          "action": "ACTION"
+        },
+        "userTypes": {
+          "candidate": "CANDIDATE",
+          "employer": "EMPLOYER",
+          "hostCompany": "HOST_COMPANY"
         },
         "roles": {
           "user": "User thường",

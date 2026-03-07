@@ -27,7 +27,8 @@ export interface JobModel {
   salaryType: number
   benefits?: string | null
   isFeatured: boolean
-  isWaiting: boolean
+  /** ADMIN_REVIEW | PENDING | APPROVED | REJECTED. Chỉ hiển thị khi APPROVED */
+  status?: string
   createdAt?: Date
   deadline?: Date
   detailDescription?: string | null
@@ -35,6 +36,8 @@ export interface JobModel {
   phoneNumber?: string | null
   address: string
   jobAddress?: string | null
+  postType?: string
+  note?: string
 }
 
 export interface JobModelAddUpdate {
@@ -62,5 +65,12 @@ export interface JobModelAddUpdate {
   phoneNumber?: string
   address: string
   isFeatured: boolean
-  isWaiting: boolean
+  status?: string
+  postType?: string
+  note?: string
+}
+
+/** Job chỉ hiển thị khi status === 'APPROVED' */
+export function isJobVisible(job: { status?: string }): boolean {
+  return (job.status || '').toUpperCase() === 'APPROVED'
 }

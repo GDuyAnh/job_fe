@@ -9,22 +9,41 @@ const BlogModule = (apiService: FetchFactory) => {
   const getAllBlogs = async () =>
     apiService.get<BlogEntity[]>('/blogs')
 
+  const getAllBlogsForAdmin = async () =>
+    apiService.get<BlogEntity[]>('/blogs/admin/all')
+
   const getBlogById = async (id: number) =>
     apiService.get<BlogEntity>(`/blogs/${id}`)
 
   const createBlog = async (data: {
     title: string
     content: string
-    thumbnail?: string
+    description?: string
+    image: string
+    url: string
+    author?: string
     status?: string
+    titleSeo: string
+    metaDescription: string
+    schema?: string
+    category: string
+    displayOnHomepage?: boolean
   }) =>
     apiService.post<BlogEntity>('/blogs', { body: data })
 
   const updateBlog = async (id: number, data: {
     title?: string
     content?: string
-    thumbnail?: string
+    description?: string
+    image?: string
+    url?: string
+    author?: string
     status?: string
+    titleSeo?: string
+    metaDescription?: string
+    schema?: string
+    category?: string
+    displayOnHomepage?: boolean
   }) =>
     apiService.put<BlogEntity>(`/blogs/${id}`, { body: data })
 
@@ -34,6 +53,7 @@ const BlogModule = (apiService: FetchFactory) => {
   return {
     getBlog,
     getAllBlogs,
+    getAllBlogsForAdmin,
     getBlogById,
     createBlog,
     updateBlog,

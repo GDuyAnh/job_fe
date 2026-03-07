@@ -1,52 +1,108 @@
 <template>
   <div>
-    <!-- Header -->
-    <div class="mb-6">
-      <h1 class="text-3xl font-bold text-gray-900">
-        {{ $t('dashboard.admin.companies.title') }}
-      </h1>
-      <p class="text-gray-600 mt-2">
-        {{ $t('dashboard.admin.companies.description') }}
-      </p>
-    </div>
-
-    <!-- Search and Stats -->
-    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 mb-6">
-      <div class="flex flex-col gap-4">
-        <div class="flex items-center justify-between gap-4">
-          <div class="flex-1 max-w-md">
-            <UInput
-              v-model="searchQuery"
-              :placeholder="$t('dashboard.admin.companies.searchPlaceholder')"
-              icon="i-lucide-search"
+    <!-- Header: Title + Welcome (left), Search + New Company (right) -->
+    <div class="mb-6 bg-white rounded-xl shadow-sm border border-gray-200 p-6 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+      <div>
+        <h1 class="text-3xl font-bold text-gray-400">
+          {{ $t('dashboard.admin.companies.title') }}
+        </h1>
+        <p class="text-gray-500 mt-1 text-sm">
+          {{ $t('dashboard.admin.companies.welcome') }}
+        </p>
+        <!-- Filter Checkboxes: Feature, Banner -->
+        <div class="flex items-center gap-6 mt-4">
+          <label class="flex items-center gap-2 cursor-pointer">
+            <UCheckbox
+              v-model="filterFeature"
+              class="rounded"
             />
-          </div>
-          <div class="flex items-center gap-4">
-            <div class="text-sm text-gray-600">
-              {{ $t('dashboard.admin.companies.total') }}: <span class="font-semibold">{{ totalCompanies }}</span>
-            </div>
-            <div class="text-sm text-amber-600 font-semibold">
-              {{ $t('dashboard.admin.companies.pendingLabel') }}: <span class="font-bold">{{ pendingCount }}</span>
-            </div>
-          </div>
+            <span class="text-sm font-medium text-gray-700">{{ $t('dashboard.admin.companies.filterFeature') }}</span>
+          </label>
+          <label class="flex items-center gap-2 cursor-pointer">
+            <UCheckbox
+              v-model="filterBanner"
+              class="rounded"
+            />
+            <span class="text-sm font-medium text-gray-700">{{ $t('dashboard.admin.companies.filterBanner') }}</span>
+          </label>
         </div>
-        
-        <!-- Filter Tabs -->
-        <div class="flex gap-2">
-          <button
-            v-for="filter in filterOptions"
-            :key="filter.value"
-            :class="[
-              'px-4 py-2 rounded-lg text-sm font-medium transition-colors',
-              statusFilter === filter.value
-                ? 'bg-blue-600 text-white'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-            ]"
-            @click="statusFilter = filter.value"
+      </div>
+      <div class="flex items-center gap-3 flex-shrink-0">
+        <UInput
+          v-model="searchQuery"
+          :placeholder="$t('dashboard.admin.companies.searchPlaceholder')"
+          icon="i-lucide-search"
+          class="min-w-[220px] rounded-lg"
+          @keyup.enter="fetchCompanies"
+        />
+        <UDrawer
+          v-model:open="addCompanySlideoverOpen"
+          :title="$t('dashboard.admin.companies.newCompany')"
+          direction="right"
+          :modal="false"
+          handle-only
+          :ui="{ content: 'w-full min-w-[400px] max-w-4xl' }"
+        >
+          <template #header>
+            <div class="flex items-center w-full gap-2">
+              <span class="flex-1">{{ $t('dashboard.admin.companies.newCompany') }}</span>
+              <UButton
+                color="neutral"
+                variant="ghost"
+                icon="i-lucide-x"
+                @click="addCompanySlideoverOpen = false"
+              />
+            </div>
+          </template>
+          <UButton
+            class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700 transition-colors"
           >
-            {{ filter.label }}
-          </button>
-        </div>
+            <UIcon name="i-lucide-plus" class="w-5 h-5" />
+            {{ $t('dashboard.admin.companies.newCompany') }}
+          </UButton>
+          <template #body>
+            <div class="p-6 overflow-y-auto max-h-[85vh]">
+              <DashboardAdminCompanyForm
+                @success="onCompanyAdded"
+                @cancel="addCompanySlideoverOpen = false"
+                @crop-open="cropModalOpen = true"
+                @crop-closed="cropModalOpen = false"
+              />
+            </div>
+          </template>
+        </UDrawer>
+        <UDrawer
+          v-model:open="editCompanySlideoverOpen"
+          :title="editCompanyDrawerTitle"
+          direction="right"
+          :modal="false"
+          handle-only
+          :ui="{ content: 'w-full min-w-[400px] max-w-4xl' }"
+        >
+          <template #header>
+            <div class="flex items-center w-full gap-2">
+              <span class="flex-1">{{ editCompanyDrawerTitle }}</span>
+              <UButton
+                color="neutral"
+                variant="ghost"
+                icon="i-lucide-x"
+                @click="editCompanySlideoverOpen = false"
+              />
+            </div>
+          </template>
+          <template #body>
+            <div class="p-6 overflow-y-auto max-h-[85vh]">
+              <DashboardAdminCompanyForm
+                v-if="editingCompany != null"
+                :initial-company="editingCompany"
+                @success="onCompanyUpdated"
+                @cancel="editCompanySlideoverOpen = false"
+                @crop-open="cropModalOpen = true"
+                @crop-closed="cropModalOpen = false"
+              />
+            </div>
+          </template>
+        </UDrawer>
       </div>
     </div>
 
@@ -58,31 +114,84 @@
         <p class="mt-2 text-gray-600">{{ $t('dashboard.admin.companies.loading') }}</p>
       </div>
 
-      <!-- Empty State -->
-      <div v-else-if="filteredCompanies.length === 0" class="text-center py-12">
-        <UIcon name="i-lucide-building" class="w-12 h-12 text-gray-400 mx-auto mb-2" />
-        <p class="text-gray-600">{{ $t('dashboard.admin.companies.noCompanies') }}</p>
-      </div>
-
       <!-- Table -->
       <div v-else class="overflow-x-auto">
         <table class="w-full">
-          <thead class="bg-gray-50 border-b border-gray-200">
+          <thead class="bg-white border-b-2 border-gray-200">
             <tr>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 {{ $t('dashboard.admin.companies.table.name') }}
               </th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                {{ $t('dashboard.admin.companies.table.totalJobs') }}
+              </th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                {{ $t('dashboard.admin.companies.table.mst') }}
+              </th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 {{ $t('dashboard.admin.companies.table.email') }}
               </th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                {{ $t('dashboard.admin.companies.table.address') }}
+                {{ $t('dashboard.admin.companies.table.phone') }}
               </th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                {{ $t('dashboard.admin.companies.table.status') }}
+                {{ $t('dashboard.admin.companies.table.province') }}
               </th>
-              <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                {{ $t('dashboard.admin.companies.table.featured') }}
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                {{ $t('dashboard.admin.companies.table.registrationDate') }}
+              </th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider relative approval-filter-th">
+                <button
+                  type="button"
+                  class="inline-flex items-center gap-1 hover:text-gray-700"
+                  @click="toggleSort('companyType')"
+                >
+                  Company type
+                  <UIcon
+                    v-if="sortBy === 'companyType'"
+                    :name="sortOrder === 'asc' ? 'i-lucide-arrow-up' : 'i-lucide-arrow-down'"
+                    class="w-3 h-3"
+                  />
+                  <UIcon v-else name="i-lucide-chevrons-up-down" class="w-3 h-3 opacity-50" />
+                </button>
+                <button
+                  type="button"
+                  class="ml-1 inline-flex items-center justify-center w-4 h-4 rounded hover:bg-gray-200"
+                  :class="filterApproved ? 'text-blue-600' : 'text-gray-400'"
+                  @click="showApprovalFilter = !showApprovalFilter"
+                >
+                  <UIcon name="i-lucide-filter" class="w-3 h-3" />
+                </button>
+                <!-- Filter dropdown -->
+                <div v-if="showApprovalFilter" class="fixed z-[100] mt-1 bg-white rounded-lg shadow-lg border border-gray-200 p-2">
+                  <label class="flex items-center gap-2 cursor-pointer px-2 py-1 hover:bg-gray-50 rounded">
+                    <input
+                      v-model="filterApproved"
+                      type="radio"
+                      :value="null"
+                      class="w-4 h-4 text-blue-600"
+                    />
+                    <span class="text-sm">Tất cả</span>
+                  </label>
+                  <label class="flex items-center gap-2 cursor-pointer px-2 py-1 hover:bg-gray-50 rounded">
+                    <input
+                      v-model="filterApproved"
+                      type="radio"
+                      value="approved"
+                      class="w-4 h-4 text-blue-600"
+                    />
+                    <span class="text-sm">Đã duyệt</span>
+                  </label>
+                  <label class="flex items-center gap-2 cursor-pointer px-2 py-1 hover:bg-gray-50 rounded">
+                    <input
+                      v-model="filterApproved"
+                      type="radio"
+                      value="pending"
+                      class="w-4 h-4 text-blue-600"
+                    />
+                    <span class="text-sm">Chưa duyệt</span>
+                  </label>
+                </div>
               </th>
               <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                 {{ $t('dashboard.manageJobs.table.actions') }}
@@ -90,6 +199,13 @@
             </tr>
           </thead>
           <tbody class="bg-white divide-y divide-gray-200">
+            <!-- Empty state row -->
+            <tr v-if="paginatedCompanies.length === 0">
+              <td colspan="9" class="px-6 py-12 text-center text-gray-500">
+                {{ $t('dashboard.admin.companies.noCompanies') }}
+              </td>
+            </tr>
+            <!-- Data rows -->
             <tr
               v-for="company in paginatedCompanies"
               :key="company.id"
@@ -98,121 +214,93 @@
                 company.isWaiting ? 'bg-amber-50' : ''
               ]"
             >
-              <!-- Name & Description -->
+              <!-- Tên công ty (click mở company-management) -->
               <td class="px-6 py-4">
-                <div class="max-w-xs">
-                  <div class="text-sm font-medium text-gray-900 truncate">
-                    {{ company.name }}
-                  </div>
-                  <div class="text-sm text-gray-500 line-clamp-2">
-                    {{ company.description || '-' }}
-                  </div>
-                </div>
+                <NuxtLink
+                  :to="{
+                    path: '/admin/dashboard',
+                    query: {
+                      view: 'adminCompanyManagement',
+                      companyId: company.id,
+                      companyName: company.name || '',
+                    },
+                  }"
+                  class="text-sm font-medium text-blue-600 hover:text-blue-800 hover:underline max-w-[200px] truncate block"
+                  :title="company.name"
+                >
+                  {{ company.name }}
+                </NuxtLink>
+              </td>
+
+              <!-- Tổng số job -->
+              <td class="px-6 py-4 whitespace-nowrap">
+                <span class="text-sm text-gray-900">{{ totalJobCount(company) }}</span>
+              </td>
+
+              <!-- MST -->
+              <td class="px-6 py-4 whitespace-nowrap">
+                <span class="text-sm text-gray-900">{{ company.mst || '–' }}</span>
               </td>
 
               <!-- Email -->
               <td class="px-6 py-4 whitespace-nowrap">
-                <div class="text-sm text-gray-900">
-                  {{ company.email || '-' }}
-                </div>
+                <span class="text-sm text-gray-900">{{ displayEmail(company) }}</span>
               </td>
 
-              <!-- Address -->
+              <!-- Số điện thoại -->
+              <td class="px-6 py-4 whitespace-nowrap">
+                <span class="text-sm text-gray-900">{{ displayPhone(company) }}</span>
+              </td>
+
+              <!-- Tỉnh thành -->
               <td class="px-6 py-4">
-                <div class="text-sm text-gray-900 max-w-xs truncate">
-                  {{ company.address || '-' }}
-                </div>
+                <span class="text-sm text-gray-900 max-w-[120px] truncate block">{{ displayProvince(company) }}</span>
               </td>
 
-              <!-- Status -->
+              <!-- Ngày đăng ký -->
+              <td class="px-6 py-4 whitespace-nowrap">
+                <span class="text-sm text-gray-900">{{ formatRegistrationDate(company) }}</span>
+              </td>
+
+              <!-- Company type (badge Đã duyệt / Chưa duyệt) -->
               <td class="px-6 py-4 whitespace-nowrap">
                 <span
                   :class="[
-                    'inline-flex px-2 py-1 text-xs font-semibold rounded-full',
-                    getStatusClass(company),
+                    'inline-flex px-2.5 py-1 text-xs font-semibold rounded-full',
+                    company.isWaiting ? 'bg-amber-100 text-amber-800' : 'bg-green-100 text-green-800'
                   ]"
                 >
-                  {{ getStatusText(company) }}
+                  {{ company.isWaiting ? $t('dashboard.admin.companies.status.pending') : $t('dashboard.admin.companies.status.approved') }}
                 </span>
               </td>
 
-              <!-- Featured -->
-              <td class="px-6 py-4 whitespace-nowrap text-center">
-                <div 
-                  class="flex items-center justify-center cursor-pointer hover:scale-110 transition-transform" 
-                  :title="company.isFeatured ? 'Bỏ nổi bật' : 'Làm nổi bật'"
-                  @click="toggleFeature(company.id, company.isFeatured)"
-                >
-                  <!-- Filled star when featured -->
-                  <svg
-                    v-if="company.isFeatured"
-                    xmlns="http://www.w3.org/2000/svg"
-                    class="w-6 h-6 text-yellow-500"
-                    viewBox="0 0 24 24"
-                    fill="currentColor"
-                  >
-                    <path
-                      d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"
-                    />
-                  </svg>
-                  <!-- Outline star when not featured -->
-                  <svg
-                    v-else
-                    xmlns="http://www.w3.org/2000/svg"
-                    class="w-6 h-6 text-yellow-500"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    stroke-width="2"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"
-                    />
-                  </svg>
-                </div>
-              </td>
-
-              <!-- Actions -->
+              <!-- Action: icon mắt, bút, thùng rác -->
               <td class="px-6 py-4 whitespace-nowrap text-right">
-                <div class="flex items-center justify-end gap-2">
-                  <!-- Approve Button - for pending companies -->
+                <div class="flex items-center justify-end gap-1">
                   <UButton
-                    v-if="company.isWaiting"
-                    color="primary"
-                    size="sm"
-                    class="font-semibold"
-                    @click="approveCompany(company.id)"
-                  >
-                    <UIcon name="i-lucide-check-circle" class="w-4 h-4 mr-1" />
-                    {{ $t('dashboard.admin.companies.actions.approve') }}
-                  </UButton>
-                  
-                  <!-- Toggle Show/Hide Button - for approved companies -->
-                  <UButton
-                    v-else
-                    :color="company.isShow ? 'warning' : 'success'"
-                    size="sm"
                     variant="ghost"
-                    @click="toggleShowHide(company.id, company.isShow)"
-                  >
-                    <UIcon 
-                      :name="company.isShow ? 'i-lucide-eye-off' : 'i-lucide-eye'" 
-                      class="w-4 h-4 mr-1" 
-                    />
-                    {{ company.isShow ? $t('dashboard.admin.companies.actions.hide') : $t('dashboard.admin.companies.actions.show') }}
-                  </UButton>
-                  
-                  <!-- Delete Button -->
+                    color="neutral"
+                    size="xs"
+                    icon="i-lucide-eye"
+                    :title="$t('dashboard.admin.companies.actions.view')"
+                    @click="viewCompany(company.id)"
+                  />
+                  <UButton
+                    variant="ghost"
+                    color="neutral"
+                    size="xs"
+                    icon="i-lucide-pencil"
+                    :title="$t('dashboard.admin.companies.actions.edit')"
+                    @click="editCompany(company)"
+                  />
                   <UButton
                     variant="ghost"
                     color="error"
                     size="xs"
-                    @click="deleteCompany(company.id)"
-                  >
-                    <UIcon name="i-lucide-trash-2" class="w-3 h-3" />
-                  </UButton>
+                    icon="i-lucide-trash-2"
+                    :title="$t('dashboard.admin.companies.actions.delete')"
+                    @click="deleteCompany(company)"
+                  />
                 </div>
               </td>
             </tr>
@@ -252,6 +340,46 @@
         </div>
       </div>
     </div>
+
+    <!-- Delete confirmation popup -->
+    <Teleport to="body">
+      <div
+        v-if="showDeleteModal"
+        class="fixed inset-0 z-[200] flex items-center justify-center bg-black/40"
+        @click.self="cancelDeleteCompany"
+      >
+        <div
+          class="bg-white rounded-xl shadow-2xl w-full max-w-md p-6 space-y-4"
+          @click.stop
+        >
+          <h3 class="text-lg font-semibold text-gray-900">
+            Xóa công ty?
+          </h3>
+          <p class="text-sm text-gray-600">
+            Bạn có chắc chắn muốn xóa công ty
+            <span class="font-semibold">
+              "{{ companyPendingDelete?.name || '' }}"
+            </span>
+            ? Hành động này không thể hoàn tác.
+          </p>
+          <div class="flex justify-end gap-3 pt-2">
+            <UButton
+              variant="ghost"
+              color="neutral"
+              @click="cancelDeleteCompany"
+            >
+              Hủy
+            </UButton>
+            <UButton
+              color="error"
+              @click="confirmDeleteCompany"
+            >
+              Xóa
+            </UButton>
+          </div>
+        </div>
+      </div>
+    </Teleport>
   </div>
 </template>
 
@@ -264,43 +392,78 @@ const companies = ref<any[]>([])
 const searchQuery = ref('')
 const currentPage = ref(1)
 const itemsPerPage = 10
-const statusFilter = ref<'all' | 'pending' | 'approved'>('all')
+const filterFeature = ref(false)
+const filterBanner = ref(false)
+const filterApproved = ref<'approved' | 'pending' | null>(null)
+const showApprovalFilter = ref(false)
 
-const filterOptions: Array<{ label: string; value: 'all' | 'pending' | 'approved' }> = [
-  { label: 'Tất cả', value: 'all' },
-  { label: 'Chờ duyệt', value: 'pending' },
-  { label: 'Đã duyệt', value: 'approved' },
-]
+const sortBy = ref<string | null>(null)
+const sortOrder = ref<'asc' | 'desc'>('asc')
 
-const totalCompanies = computed(() => companies.value.length)
+function toggleSort(field: string) {
+  if (sortBy.value === field) {
+    sortOrder.value = sortOrder.value === 'asc' ? 'desc' : 'asc'
+  } else {
+    sortBy.value = field
+    sortOrder.value = 'asc'
+  }
+}
 
-const pendingCount = computed(() => {
-  return companies.value.filter(c => c.isWaiting).length
-})
+const addCompanySlideoverOpen = ref(false)
+const editCompanySlideoverOpen = ref(false)
+const editingCompany = ref<any | null>(null)
+const cropModalOpen = ref(false)
+
+// Delete confirmation modal
+const showDeleteModal = ref(false)
+const companyPendingDelete = ref<any | null>(null)
+
+const editCompanyDrawerTitle = computed(() =>
+  editingCompany.value?.name ? `Chỉnh sửa công ty: ${editingCompany.value.name}` : 'Chỉnh sửa công ty',
+)
+
+// Khi drawer bị đóng (do click vào modal crop) trong lúc crop đang mở thì mở lại drawer ngay, không delay
+watch(addCompanySlideoverOpen, (open) => {
+  if (!open && cropModalOpen.value) {
+    addCompanySlideoverOpen.value = true
+  }
+}, { flush: 'sync' })
+watch(editCompanySlideoverOpen, (open) => {
+  if (!open && cropModalOpen.value) {
+    editCompanySlideoverOpen.value = true
+  }
+  if (!open) editingCompany.value = null
+}, { flush: 'sync' })
 
 const filteredCompanies = computed(() => {
   let result = companies.value
-
-  // Filter by status
-  if (statusFilter.value === 'pending') {
-    result = result.filter(c => c.isWaiting === true)
-  } else if (statusFilter.value === 'approved') {
-    result = result.filter(c => c.isWaiting === false)
+  
+  // Filter by approved status
+  if (filterApproved.value === 'approved') {
+    result = result.filter(c => !c.isWaiting)
+  } else if (filterApproved.value === 'pending') {
+    result = result.filter(c => c.isWaiting)
   }
-
-  // Filter by search query
-  if (searchQuery.value.trim()) {
-    const query = searchQuery.value.toLowerCase().trim()
-
-    result = result.filter((company) => {
-      return (
-        company.name?.toLowerCase().includes(query) ||
-        company.email?.toLowerCase().includes(query) ||
-        company.address?.toLowerCase().includes(query)
-      )
+  
+  // Filter by feature - using isFeatured field
+  if (filterFeature.value) {
+    result = result.filter(c => c.isFeatured === true)
+  }
+  
+  // Filter by banner - using bannerImage field (not empty)
+  if (filterBanner.value) {
+    result = result.filter(c => c.bannerImage && c.bannerImage.trim() !== '')
+  }
+  
+  // Sort by company type (isWaiting)
+  if (sortBy.value === 'companyType') {
+    result = [...result].sort((a, b) => {
+      const aWaiting = a.isWaiting ? 1 : 0
+      const bWaiting = b.isWaiting ? 1 : 0
+      return sortOrder.value === 'asc' ? aWaiting - bWaiting : bWaiting - aWaiting
     })
   }
-
+  
   return result
 })
 
@@ -315,26 +478,90 @@ const totalPages = computed(() => {
   return Math.ceil(filteredCompanies.value.length / itemsPerPage)
 })
 
-const getStatusClass = (company: any): string => {
-  if (company.isWaiting) return 'bg-yellow-100 text-yellow-800'
+const totalJobCount = (company: any): number => {
+  const n = company.openPositions
 
-  return 'bg-green-100 text-green-800'
+  if (n == null || n === '') return 0
+
+  const num = Number(n)
+
+  return Number.isNaN(num) ? 0 : num
 }
 
-const getStatusText = (company: any): string => {
-  if (company.isWaiting) return t('dashboard.admin.companies.status.pending')
+const displayEmail = (company: any): string => {
+  const v = company.creatorEmail ?? company.email
 
-  return t('dashboard.admin.companies.status.approved')
+  if (v == null || String(v).trim() === '') return 'Không có'
+
+  return String(v)
+}
+
+const displayPhone = (company: any): string => {
+  const v =
+    company.creatorPhone ??
+    company.creator_phone ??
+    company.phone
+
+  if (v == null || String(v).trim() === '') return 'Không có'
+
+  return String(v).trim()
+}
+
+const displayProvince = (company: any): string => {
+  const v = company.provinceName ?? company.address
+
+  if (v == null || String(v).trim() === '') return '–'
+
+  return String(v)
+}
+
+const formatRegistrationDate = (company: any): string => {
+  const d = company.createdAt ?? (company as any).createDate
+
+  if (!d) return '–'
+
+  const date = typeof d === 'string' ? new Date(d) : d
+
+  if (Number.isNaN(date.getTime())) return '–'
+
+  return date.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' })
+}
+
+const viewCompany = (id: number) => {
+  window.open(`/companies/${id}`, '_blank', 'noopener,noreferrer')
+}
+
+const editCompany = (company: any) => {
+  editingCompany.value = company
+  editCompanySlideoverOpen.value = true
+}
+
+function onCompanyUpdated() {
+  editCompanySlideoverOpen.value = false
+  editingCompany.value = null
+  fetchCompanies()
 }
 
 const fetchCompanies = async () => {
   loading.value = true
 
   try {
-    const response = await $api.company.getAllCompanies()
+    const params: Record<string, any> = {}
+
+    if (searchQuery.value?.trim()) params.keyword = searchQuery.value.trim()
+    if (filterFeature.value) params.isFeatured = true
+    if (filterBanner.value) params.hasBanner = true
+    if (filterApproved.value === 'approved') params.isWaiting = false
+    else if (filterApproved.value === 'pending') params.isWaiting = true
+
+    const response = await $api.company.adminListCompany(params)
+
+    console.log('[Admin Companies] List data from BE:', response)
 
     if (response && Array.isArray(response)) {
       companies.value = response
+    } else {
+      companies.value = []
     }
   } catch (error: any) {
     console.error('Failed to fetch companies:', error)
@@ -342,89 +569,27 @@ const fetchCompanies = async () => {
       message: error.message || 'Không thể tải danh sách công ty',
       type: 'error',
     })
+    companies.value = []
   } finally {
     loading.value = false
   }
 }
 
-const approveCompany = async (companyId: number) => {
-  if (!confirm(t('dashboard.admin.companies.approveConfirm'))) return
-
-  try {
-    await $api.company.approveCompany(companyId)
-    useNotify({
-      message: t('dashboard.admin.companies.approveSuccess'),
-      type: 'success',
-    })
-    await fetchCompanies()
-  } catch (error: any) {
-    console.error('Failed to approve company:', error)
-    useNotify({
-      message: error.message || 'Không thể duyệt công ty',
-      type: 'error',
-    })
-  }
+function onCompanyAdded() {
+  addCompanySlideoverOpen.value = false
+  fetchCompanies()
 }
 
-const toggleFeature = async (companyId: number, isFeatured: boolean) => {
-  try {
-    if (isFeatured) {
-      await $api.company.unfeatureCompany(companyId)
-      useNotify({
-        message: t('dashboard.admin.companies.unfeatureSuccess'),
-        type: 'success',
-      })
-    } else {
-      await $api.company.featureCompany(companyId)
-      useNotify({
-        message: t('dashboard.admin.companies.featureSuccess'),
-        type: 'success',
-      })
-    }
-
-    await fetchCompanies()
-  } catch (error: any) {
-    console.error('Failed to toggle feature:', error)
-    useNotify({
-      message: error.message || 'Không thể cập nhật',
-      type: 'error',
-    })
-  }
+const deleteCompany = async (company: any) => {
+  companyPendingDelete.value = company
+  showDeleteModal.value = true
 }
 
-const toggleShowHide = async (companyId: number, isShow: boolean) => {
-  try {
-    if (isShow) {
-      // Hide company
-      await $api.company.hideCompany(companyId)
-      useNotify({
-        message: t('dashboard.admin.companies.hideSuccess'),
-        type: 'success',
-      })
-    } else {
-      // Show company
-      await $api.company.showCompany(companyId)
-      useNotify({
-        message: t('dashboard.admin.companies.showSuccess'),
-        type: 'success',
-      })
-    }
-
-    await fetchCompanies()
-  } catch (error: any) {
-    console.error('Failed to toggle show/hide:', error)
-    useNotify({
-      message: error.message || 'Không thể cập nhật',
-      type: 'error',
-    })
-  }
-}
-
-const deleteCompany = async (companyId: number) => {
-  if (!confirm(t('dashboard.admin.companies.deleteConfirm'))) return
+const confirmDeleteCompany = async () => {
+  if (!companyPendingDelete.value) return
 
   try {
-    await $api.company.deleteCompany(companyId)
+    await $api.company.deleteCompany(companyPendingDelete.value.id)
     useNotify({
       message: t('dashboard.admin.companies.deleteSuccess'),
       type: 'success',
@@ -436,20 +601,40 @@ const deleteCompany = async (companyId: number) => {
       message: error.message || 'Không thể xóa công ty',
       type: 'error',
     })
+  } finally {
+    showDeleteModal.value = false
+    companyPendingDelete.value = null
   }
 }
 
-// Reset page when filter changes
-watch(statusFilter, () => {
+const cancelDeleteCompany = () => {
+  showDeleteModal.value = false
+  companyPendingDelete.value = null
+}
+
+watch([filterFeature, filterBanner, filterApproved], () => {
   currentPage.value = 1
+  // Filter on client side only - no API call
 })
 
-watch(searchQuery, () => {
-  currentPage.value = 1
+// Close filter dropdown when clicking outside
+onMounted(() => {
+  document.addEventListener('click', (e) => {
+    const target = e.target as HTMLElement
+    if (!target.closest('.approval-filter-th')) {
+      showApprovalFilter.value = false
+    }
+  })
 })
 
 onMounted(() => {
   fetchCompanies()
+  document.addEventListener('click', (e) => {
+    const target = e.target as HTMLElement
+    if (!target.closest('.approval-filter-th')) {
+      showApprovalFilter.value = false
+    }
+  })
 })
 </script>
 

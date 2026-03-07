@@ -209,9 +209,14 @@ async function onSubmit(event: FormSubmitEvent<RegisterType>) {
 
     // Check if registration was successful
     if (response) {
-      // If we have a user object, set it
-      if (response.user) {
-        authStore.setUser(response.user)
+      // After successful registration, login the user automatically
+      const loginResponse = await authStore.login({
+        email: (event.data as any).email as string,
+        password: (event.data as any).password as string,
+      })
+
+      if (loginResponse?.user) {
+        authStore.setUser(loginResponse.user)
       }
 
       useNotify({

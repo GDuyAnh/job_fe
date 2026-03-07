@@ -13,6 +13,7 @@ export const ROUTE_API = {
     FIND_BY_USER_ID: 'jobs/user',
     FIND_BY_EMAIL: 'jobs/email',
     GET_USER_APPLICATIONS: 'jobs/applications/user',
+    ADMIN_LIST: 'jobs/admin',
   },
 
   CATEGORY: {
@@ -30,5 +31,11 @@ export const ROUTE_API = {
 
   BLOG: {
     GET_BLOG: 'blogs',
+  },
+
+  ADMIN: {
+    STATS: 'admin/stats',
+    APPLICATIONS: 'admin/applications',
+    APPLICATION_DELETE: (id: number) => `admin/applications/${id}`,
   },
 }

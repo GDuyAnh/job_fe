@@ -19,6 +19,12 @@ const CompanyModule = (apiService: FetchFactory) => {
     })
   }
 
+  const adminGetCompanyDetail = async (id: number) => {
+    return apiService.get<CompanyEntity>(
+      `${ROUTE_API.COMPANY.ADMIN_LIST}/${id}`,
+    )
+  }
+
   const getCompanyDetail = async (id: number) => {
     return apiService.get<CompanyEntity>(
       `${ROUTE_API.COMPANY.GET_COMPANY}/${id}`,
@@ -107,6 +113,7 @@ const CompanyModule = (apiService: FetchFactory) => {
   return {
     searchCompany,
     adminListCompany,
+    adminGetCompanyDetail,
     getCompanyDetail,
     getCompanyByMst,
     checkExistMst,

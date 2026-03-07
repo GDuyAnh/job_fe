@@ -6,6 +6,7 @@ import CategoryModule from '~/services/modules/category'
 import CompanyModule from '~/services/modules/company'
 import BlogModule from '~/services/modules/blog'
 import UploadService from '~/services/modules/upload'
+import AdminModule from '~/services/modules/admin'
 
 export default defineNuxtPlugin(({ $config }) => {
   const API_SERVICE = new FetchFactory($config.public.apiUrl)
@@ -19,6 +20,7 @@ export default defineNuxtPlugin(({ $config }) => {
     company: CompanyModule(API_SERVICE),
     blog: BlogModule(API_SERVICE),
     upload: UPLOAD_SERVICE,
+    admin: AdminModule(API_SERVICE),
   }
 
   return {
