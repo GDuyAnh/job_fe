@@ -539,7 +539,6 @@ const companyAdd = ref<CompanyAddUpdateEntity>({
   instagramLink: '',
   linkedInLink: '',
   videoUrl: '',
-  isShow: false,
   isWaiting: true,
   companyImages: [],
   bannerImage: null,
@@ -760,19 +759,21 @@ function confirmCompanyStep() {
   if (stepper.value?.hasNext) stepper.value.next()
 }
 
-/** TEMP: Convert files -> DataURL (hãy thay bằng upload thực để lấy URL CDN) */
+/** Upload files to R2 and return URLs */
 async function getImageUrls(files: File[]): Promise<string[]> {
-  const toDataUrl = (file: File) =>
-    new Promise<string>((resolve, reject) => {
-      const r = new FileReader()
-
-      r.onload = () => resolve(r.result as string)
-      r.onerror = reject
-      r.readAsDataURL(file)
-    })
   const urls: string[] = []
 
-  for (const f of files) urls.push(await toDataUrl(f))
+  for (const file of files) {
+    try {
+      const url = await $api.upload.uploadImageR2(file, 'company-images')
+      if (url) {
+        urls.push(url)
+      }
+    } catch (error) {
+      console.error('Error uploading image:', error)
+      throw error
+    }
+  }
 
   return urls
 }
@@ -795,16 +796,39 @@ const addCompany = async () => {
     let detailUrls: string[] = []
     let bannerUrl: string | null = null
 
-    if (imageFiles.value.length > 0) {
-      const allUrls = await getImageUrls(imageFiles.value)
-
-      logoUrl = allUrls[0] || null
-      detailUrls = allUrls.slice(1)
+    // Upload logo to R2
+    if (logoFile.value) {
+      try {
+        logoUrl = await $api.upload.uploadImageR2(logoFile.value, 'logo')
+      } catch (error) {
+        console.error('Error uploading logo:', error)
+        useNotify({ message: 'Tải lên logo thất bại. Vui lòng thử lại.', type: 'error' })
+        loading.value = false
+        return
+      }
     }
 
+    // Upload company images to R2
+    if (imageFiles.value.length > 0) {
+      try {
+        detailUrls = await getImageUrls(imageFiles.value)
+      } catch (error) {
+        useNotify({ message: 'Tải lên ảnh công ty thất bại. Vui lòng thử lại.', type: 'error' })
+        loading.value = false
+        return
+      }
+    }
+
+    // Upload banner to R2
     if (bannerFile.value) {
-      const bannerUrls = await getImageUrls([bannerFile.value])
-      bannerUrl = bannerUrls[0] || null
+      try {
+        bannerUrl = await $api.upload.uploadImageR2(bannerFile.value, 'banner')
+      } catch (error) {
+        console.error('Error uploading banner:', error)
+        useNotify({ message: 'Tải lên banner thất bại. Vui lòng thử lại.', type: 'error' })
+        loading.value = false
+        return
+      }
     }
 
     companyAdd.value.logo = logoUrl

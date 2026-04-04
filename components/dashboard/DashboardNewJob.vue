@@ -31,6 +31,7 @@
             class="w-full text-base"
             :class="{ 'border-red-500': jobErrors.title }"
             :placeholder="$t('job.uploadJob.nameJobPlaceHolder')"
+            :disabled="isFormDisabled"
             @input="jobErrors.title = ''"
           />
           <p v-if="jobErrors.title" class="!text-red-500 text-sm mt-1">
@@ -55,28 +56,13 @@
             v-model="job.description"
             class="w-full rich-text-content"
             :class="{ 'border-red-500': jobErrors.description }"
+            :disabled="isFormDisabled"
+            :readonly="isFormDisabled"
             @update:model-value="jobErrors.description = ''"
           />
           <p v-if="jobErrors.description" class="!text-red-500 text-sm mt-1">
             {{ jobErrors.description }}
           </p>
-        </div>
-
-        <!-- Company name: chỉ hiển thị khi không phải drawer (không có companyData) -->
-        <div
-          v-if="!companyData"
-          class="flex flex-col gap-1 w-full"
-          style="padding: 0 0 30px 0 !important"
-        >
-          <label for="job-title" class="font-medium text-sm text-gray-700">
-            {{ $t('job.uploadJob.companyNameLabel') }}
-          </label>
-          <UInput
-            id="company-name"
-            :model-value="props.companyData?.name || ''"
-            class="w-full text-sm"
-            readonly
-          />
         </div>
 
         <!-- Job category -->
@@ -97,7 +83,7 @@
             </label>
 
             <!-- Input deadline date -->
-            <UPopover>
+            <UPopover :disabled="isFormDisabled">
               <UButton
                 id="job-deadline"
                 class="w-full justify-start bg-white text-sm"
@@ -105,6 +91,7 @@
                 color="neutral"
                 variant="outline"
                 icon="i-lucide-calendar"
+                :disabled="isFormDisabled"
               >
                 <template v-if="job.deadline">
                   {{ formatDateDeadline(job.deadline) }}
@@ -120,6 +107,7 @@
                   :min-value="minDeadlineDate"
                   :max-value="maxDeadlineDate"
                   :is-hidden="isDeadlineDateHidden"
+                  :disabled="isFormDisabled"
                   @update:model-value="jobErrors.deadline = ''"
                 />
               </template>
@@ -149,6 +137,7 @@
               :class="{ 'border-red-500': jobErrors.category }"
               :placeholder="$t('job.uploadJob.chooseCategory')"
               label="label"
+              :disabled="isFormDisabled"
               @update:model-value="jobErrors.category = ''"
             />
             <p v-if="jobErrors.category" class="!text-red-500 text-sm mt-1">
@@ -175,6 +164,7 @@
               class="w-full text-sm"
               :class="{ 'border-red-500': jobErrors.typeOfEmployment }"
               :content="{ side: 'bottom' }"
+              :disabled="isFormDisabled"
               @update:model-value="
                 (val) => {
                   job.typeOfEmployment = Number(val ?? 0)
@@ -212,6 +202,7 @@
               :class="{ 'border-red-500': jobErrors.salaryType }"
               :content="{ side: 'bottom' }"
               :placeholder="$t('job.uploadJob.chooseSalaryType')"
+              :disabled="isFormDisabled"
               @update:model-value="
                 (val) => {
                   job.salaryType = Number(val ?? 0)
@@ -242,6 +233,7 @@
               :class="{ 'border-red-500': jobErrors.salaryMin }"
               type="text"
               :placeholder="$t('job.uploadJob.minSalary')"
+              :disabled="isFormDisabled"
               @update:model-value="(val) => {
                 job.salaryMin = unformatCurrency(val)
                 jobErrors.salaryMin = ''
@@ -270,6 +262,7 @@
               :class="{ 'border-red-500': jobErrors.salaryMax }"
               type="text"
               :placeholder="$t('job.uploadJob.maxSalary')"
+              :disabled="isFormDisabled"
               @update:model-value="(val) => {
                 job.salaryMax = unformatCurrency(val)
                 jobErrors.salaryMax = ''
@@ -304,6 +297,8 @@
             class="w-full rich-text-content"
             :class="{ 'border-red-500': jobErrors.address }"
             :placeholder="$t('job.uploadJob.addressJobPlaceholder')"
+            :disabled="isFormDisabled"
+            :readonly="isFormDisabled"
             @update:model-value="jobErrors.address = ''"
           />
           <p v-if="jobErrors.address" class="!text-red-500 text-sm mt-1">
@@ -333,6 +328,7 @@
             :class="{ 'border-red-500': jobErrors.location }"
             :placeholder="$t('job.uploadJob.chooseLocation')"
             label="label"
+            :disabled="isFormDisabled"
             @update:model-value="jobErrors.location = ''"
           />
           <p v-if="jobErrors.location" class="!text-red-500 text-sm mt-1">
@@ -375,6 +371,7 @@
                 :class="{ 'border-red-500': jobErrors.email }"
                 type="email"
                 :placeholder="$t('job.uploadJob.emailJobPlaceholder')"
+                :disabled="isFormDisabled"
                 @input="jobErrors.email = ''"
               />
               <p v-if="jobErrors.email" class="!text-red-500 text-sm mt-1">
@@ -403,6 +400,7 @@
                 :class="{ 'border-red-500': jobErrors.phoneNumber }"
                 type="tel"
                 :placeholder="$t('job.uploadJob.phoneJobPlaceholder')"
+                :disabled="isFormDisabled"
                 @input="jobErrors.phoneNumber = ''"
               />
               <p v-if="jobErrors.phoneNumber" class="!text-red-500 text-sm mt-1">
@@ -431,6 +429,7 @@
                   $t('job.uploadJob.requiredQualificationLabel')
                 "
                 :content="{ side: 'bottom' }"
+                :disabled="isFormDisabled"
                 @update:model-value="
                   (val) => {
                     job.requiredQualification = Number(val ?? 0)
@@ -469,6 +468,7 @@
                 :class="{ 'border-red-500': jobErrors.experienceLevel }"
                 :content="{ side: 'bottom' }"
                 :placeholder="$t('job.uploadJob.chooseExperienceLevel')"
+                :disabled="isFormDisabled"
                 @update:model-value="
                   (val) => {
                     job.experienceLevel = Number(val ?? 0)
@@ -503,8 +503,12 @@
                 :class="{ 'border-red-500': jobErrors.benefits }"
                 :placeholder="$t('job.uploadJob.chooseBenefitLevel')"
                 label="label"
+                :disabled="isFormDisabled"
                 @update:model-value="jobErrors.benefits = ''"
               />
+              <p v-if="jobErrors.benefits" class="!text-red-500 text-sm mt-1">
+                {{ jobErrors.benefits }}
+              </p>
             </div>
           </div>
 
@@ -533,6 +537,7 @@
                 :class="{ 'border-red-500': jobErrors.gender }"
                 :placeholder="$t('job.uploadJob.chooseGender')"
                 label="label"
+                :disabled="isFormDisabled"
                 @update:model-value="jobErrors.gender = ''"
               />
               <p v-if="jobErrors.gender" class="!text-red-500 text-sm mt-1">
@@ -559,6 +564,7 @@
                 :class="{ 'border-red-500': jobErrors.grade }"
                 :content="{ side: 'bottom' }"
                 :placeholder="$t('job.uploadJob.chooseGradeLevel')"
+                :disabled="isFormDisabled"
                 @update:model-value="
                   (val) => {
                     job.grade = Number(val ?? 0)
@@ -627,12 +633,14 @@
                 v-for="opt in postTypeOptions"
                 :key="opt.value"
                 class="inline-flex items-center gap-2 cursor-pointer"
+                :class="{ 'opacity-50': isFormDisabled }"
               >
                 <input
                   type="radio"
                   :value="opt.value"
                   :checked="(job.postType || 'Basic') === opt.value"
                   class="w-4 h-4 text-primary border-gray-300 focus:ring-primary"
+                  :disabled="isFormDisabled"
                   @change="job.postType = opt.value"
                 >
                 <span
@@ -658,6 +666,7 @@
           <UCheckbox
             v-model="agreeChecked"
             class="text-primary mr-3"
+            :disabled="isFormDisabled"
           ></UCheckbox>
           <span>
             {{ $t('job.uploadJob.agreeUploadJobLabel') }}
@@ -699,6 +708,7 @@
               cursor: pointer;
             "
             :loading="loading"
+            :disabled="isFormDisabled"
             @click="addJob()"
           >
             {{ isEditMode ? $t('job.uploadJob.updateJobContent') : $t('job.uploadJob.uploadJobContent') }}
@@ -752,6 +762,19 @@ const job = ref<JobModelAddUpdate>({} as JobModelAddUpdate)
 const isEditMode = computed(() => !!props.jobToEdit)
 /** Add/edit từ admin (company-management Tab Jobs hoặc Quản lý công việc): bỏ auto-fill, optional email/phone, note = admin */
 const isAdminJobContext = computed(() => !!props.companyData || !!props.requireCompanySelection)
+/** Disable all form fields when requireCompanySelection is true and no company is selected */
+const isFormDisabled = computed(() => {
+  const disabled = props.requireCompanySelection && !props.companyData?.id
+
+  console.log('--- DashboardNewJob Debug ---')
+  console.log('requireCompanySelection:', props.requireCompanySelection)
+  console.log('companyData:', props.companyData)
+  console.log('companyData?.id:', props.companyData?.id)
+  console.log('isFormDisabled:', disabled)
+  console.log('---------------------------')
+
+  return disabled
+})
 
 const postTypeOptions = [
   { value: 'Basic', label: 'Cơ bản', chipClass: 'bg-blue-100 border-blue-300 text-blue-800' },
@@ -845,7 +868,6 @@ const convertJobModelToAddUpdate = (jobModel: import('~/models/job').JobModel): 
     email: jobModel.email || undefined,
     phoneNumber: jobModel.phoneNumber || undefined,
     address: jobModel.address || '',
-    isFeatured: jobModel.isFeatured,
     status: jobModel.status,
     postType: (jobModel.postType === 'Free' ? 'Basic' : jobModel.postType) ?? 'Basic',
     note: jobModel.note ?? 'user',
@@ -1135,7 +1157,6 @@ const addJob = async () => {
     let response
 
     if (isEditMode.value && props.jobToEdit) {
-      jobDataToSend.isFeatured = props.jobToEdit.isFeatured
       jobDataToSend.status = jobStatusOption.value
 
       response = await $api.job.editJob(props.jobToEdit.id, jobDataToSend)
@@ -1147,11 +1168,7 @@ const addJob = async () => {
         })
       }
     } else {
-      if (!isAdminJobContext.value) {
-        job.value.isFeatured = false
-      }
       jobDataToSend.status = isAdminJobContext.value ? (job.value.status ?? 'ADMIN_REVIEW') : 'ADMIN_REVIEW'
-      jobDataToSend.isFeatured = job.value.isFeatured ?? false
 
       response = await $api.job.addJob(jobDataToSend)
 

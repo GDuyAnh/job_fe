@@ -25,7 +25,6 @@ export interface JobEntity {
   salaryMax?: string | null
   salaryType: number
   benefits?: string | null
-  isFeatured: boolean
   status?: string
   createdAt?: Date
   deadline?: Date

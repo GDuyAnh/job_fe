@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-gray-50">
+  <div class="min-h-screen bg-white">
     <!-- Header -->
     <header class="bg-white shadow-sm border-b border-gray-200">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -724,7 +724,7 @@ const loadCompanyData = async () => {
 
   loadingCompany.value = true
   try {
-    const company = await $api.company.getCompanyDetail(
+    const company = await $api.company.getCompanyDetailProtected(
       authStore.user.companyId,
     )
 

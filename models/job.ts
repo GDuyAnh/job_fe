@@ -26,7 +26,6 @@ export interface JobModel {
   salaryMax?: string | null
   salaryType: number
   benefits?: string | null
-  isFeatured: boolean
   /** ADMIN_REVIEW | PENDING | APPROVED | REJECTED. Chỉ hiển thị khi APPROVED */
   status?: string
   createdAt?: Date
@@ -64,7 +63,6 @@ export interface JobModelAddUpdate {
   email?: string
   phoneNumber?: string
   address: string
-  isFeatured: boolean
   status?: string
   postType?: string
   note?: string

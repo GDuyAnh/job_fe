@@ -145,6 +145,27 @@
                 </div>
               </div>
 
+              <!-- PostType Filter -->
+              <div class="mb-6">
+                <h4 class="text-sm text-gray-700 mb-3 font-semibold">
+                  Loại tin
+                </h4>
+                <div class="space-y-2">
+                  <UCheckbox
+                    v-for="pt in postTypeOptions"
+                    :key="pt.value"
+                    :model-value="
+                      selectedFilters.postType.includes(pt.value)
+                    "
+                    :label="pt.label"
+                    class="text-sm"
+                    @update:model-value="
+                      toggleFilter('postType', pt.value)
+                    "
+                  />
+                </div>
+              </div>
+
               <!-- Clear filters -->
               <UButton
                 variant="outline"
@@ -192,7 +213,16 @@
                         }}
                       </div>
                       <div class="flex-1">
-                        <h2 class="font-bold text-lg">{{ job.title }}</h2>
+                        <div class="flex items-center gap-2">
+                          <h2 class="font-bold text-lg">{{ job.title }}</h2>
+                          <UBadge
+                            :color="getPostTypeColor(job.postType)"
+                            variant="soft"
+                            class="flex-shrink-0"
+                          >
+                            {{ getPostTypeLabel(job.postType) }}
+                          </UBadge>
+                        </div>
                         <div class="flex items-center justify-between">
                           <UTooltip
                             v-if="getFullLocationText(job)"
@@ -287,6 +317,7 @@ interface SearchParams {
 interface SelectedFilters {
   employmentType: string[]
   experienceLevel: string[]
+  postType: string[]
 }
 
 // Enum
@@ -299,6 +330,7 @@ const {
   categoryEnumLabel,
   employmentTypesEnumLabel,
   experienceLevelsEnumLabel,
+  postTypeOptions,
 } = useJobFilters()
 
 // Route
@@ -322,33 +354,57 @@ const searchParams = ref<SearchParams>({
 const selectedFilters = ref<SelectedFilters>({
   employmentType: [],
   experienceLevel: [],
+  postType: [],
 })
 
 // Computed
 const filteredJobs = computed(() => {
-  return jobs.value.filter((job) => {
-    // Employment type filter
-    if (
-      selectedFilters.value.employmentType.length > 0 &&
-      !selectedFilters.value.employmentType.includes(
-        String(job.typeOfEmployment),
-      )
-    ) {
-      return false
-    }
+  // Sort order priority: Urgent > Hot > Basic
+  const postTypePriority: Record<string, number> = {
+    Urgent: 1,
+    Hot: 2,
+    Basic: 3,
+  }
 
-    // Experience level filter
-    if (
-      selectedFilters.value.experienceLevel.length > 0 &&
-      !selectedFilters.value.experienceLevel.includes(
-        String(job.experienceLevel),
-      )
-    ) {
-      return false
-    }
+  return jobs.value
+    .filter((job) => {
+      // Employment type filter
+      if (
+        selectedFilters.value.employmentType.length > 0 &&
+        !selectedFilters.value.employmentType.includes(
+          String(job.typeOfEmployment),
+        )
+      ) {
+        return false
+      }
 
-    return true
-  })
+      // Experience level filter
+      if (
+        selectedFilters.value.experienceLevel.length > 0 &&
+        !selectedFilters.value.experienceLevel.includes(
+          String(job.experienceLevel),
+        )
+      ) {
+        return false
+      }
+
+      // PostType filter
+      if (
+        selectedFilters.value.postType.length > 0 &&
+        !selectedFilters.value.postType.includes(job.postType || 'Basic')
+      ) {
+        return false
+      }
+
+      return true
+    })
+    .sort((a, b) => {
+      const priorityA = postTypePriority[a.postType || 'Basic'] || 3
+      const priorityB = postTypePriority[b.postType || 'Basic'] || 3
+      if (priorityA !== priorityB) return priorityA - priorityB
+      // Secondary sort by createdAt DESC
+      return new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime()
+    })
 })
 
 // Methods
@@ -429,6 +485,7 @@ const clearFilters = () => {
   selectedFilters.value = {
     employmentType: [],
     experienceLevel: [],
+    postType: [],
   }
 }
 
@@ -522,6 +579,24 @@ const getExperienceColor = (level: string) => {
     default:
       return 'neutral'
   }
+}
+
+const getPostTypeColor = (postType: string | undefined) => {
+  switch (postType) {
+    case 'Urgent':
+      return 'error'
+    case 'Hot':
+      return 'warning'
+    case 'Basic':
+      return 'info'
+    default:
+      return 'neutral'
+  }
+}
+
+const getPostTypeLabel = (postType: string | undefined) => {
+  const option = postTypeOptions.find((p) => p.value === postType)
+  return option?.label || 'Cơ bản'
 }
 
 // Initialize search from route query

@@ -12,7 +12,6 @@ export class CompanyMapper {
       name: dto.name,
       logo: dto.logo ?? null,
       organizationType: dto.organizationType ?? null,
-      isShow: dto.isShow,
       facebookLink: dto.facebookLink ?? null,
       linkedInLink: dto.linkedInLink ?? null,
       twitterLink: dto.twitterLink ?? null,

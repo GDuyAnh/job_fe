@@ -10,6 +10,7 @@ export const ROUTE_API = {
     SEARCH: 'jobs/search',
     GET_CATEGORY_JOBS: 'jobs/categories',
     GET_LOCATION_JOBS: 'jobs/locations',
+    PUBLIC_FREE_POST: 'public/jobs/free-post',
     FIND_BY_USER_ID: 'jobs/user',
     FIND_BY_EMAIL: 'jobs/email',
     GET_USER_APPLICATIONS: 'jobs/applications/user',

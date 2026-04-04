@@ -17,7 +17,13 @@
     "alreadyHaveAccount": "Already have an account?",
     "signIn": "Sign in",
     "registerSuccess": "Account created successfully!",
-    "registerFailed": "Registration failed. Please try again."
+    "registerFailed": "Đăng ký thất bại. Vui lòng thử lại sau.",
+    "sessionExpired": "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.",
+    "pleaseLogin": "Vui lòng đăng nhập để tiếp tục.",
+    "candidate": "Ứng viên",
+    "recruiter": "Nhà tuyển dụng",
+    "taxCode": "Mã số thuế",
+    "mstNotFound": "Không tìm thấy thông tin công ty với mã số thuế đã nhập."
   },
   "common": {
     "crop": "Cắt",

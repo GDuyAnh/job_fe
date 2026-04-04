@@ -90,6 +90,21 @@ const JobModule = (apiService: FetchFactory) => {
     })
   }
 
+  const freePostPublic = async (data: {
+    email: string
+    mst: string
+    company: any
+    job: any
+  }) => {
+    return apiService.post<{
+      success: boolean
+      message: string
+      redirectUrl: string
+      access_token?: string
+      user?: any
+    }>(ROUTE_API.JOB.PUBLIC_FREE_POST, { body: data })
+  }
+
   return {
     getJob,
     searchJob,
@@ -106,6 +121,7 @@ const JobModule = (apiService: FetchFactory) => {
     getUserApplications,
     deleteApplication,
     submitApplication,
+    freePostPublic,
   }
 }
 

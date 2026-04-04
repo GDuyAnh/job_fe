@@ -165,12 +165,12 @@
                         }}</span>
                     </label>
                     <USelect
-                      v-if="!isExistCompany"
                       :items="organizationTypeItems"
                       :model-value="companyAdd.organizationType?.toString()"
                       :content="{ side: 'bottom' }"
                       class="w-full text-sm"
                       :class="{ 'border-red-500': companyErrors.organizationType }"
+                      :disabled="isExistCompany"
                       @update:model-value="
                         (v) => {
                           companyAdd.organizationType = Number(v ?? 0)
@@ -246,69 +246,9 @@
                   </div>
                 </div>
 
-                <!-- Social links -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div class="pt-5">
-                    <label class="font-medium text-sm text-gray-700">
-                      {{ $t('company.social.facebook') }}
-                    </label>
-                    <UInput
-                      v-model.trim="companyAdd.facebookLink"
-                      class="w-full text-sm"
-                      :readonly="isExistCompany"
-                      :placeholder="$t('company.form.placeholderFacebook')"
-                    />
-                  </div>
-                  <div class="pt-5">
-                    <label class="font-medium text-sm text-gray-700">
-                      {{ $t('company.social.twitter') }}
-                    </label>
-                    <UInput
-                      v-model.trim="companyAdd.twitterLink"
-                      class="w-full text-sm"
-                      :readonly="isExistCompany"
-                      :placeholder="$t('company.form.placeholderTwitter')"
-                    />
-                  </div>
-                  <div>
-                    <label class="font-medium text-sm text-gray-700">
-                      {{ $t('company.social.instagram') }}
-                    </label>
-                    <UInput
-                      v-model.trim="companyAdd.instagramLink"
-                      class="w-full text-sm"
-                      :readonly="isExistCompany"
-                      :placeholder="$t('company.form.placeholderInstagram')"
-                    />
-                  </div>
-                  <div>
-                    <label class="font-medium text-sm text-gray-700">
-                      {{ $t('company.social.linkedin') }}
-                    </label>
-                    <UInput
-                      v-model.trim="companyAdd.linkedInLink"
-                      class="w-full text-sm"
-                      :readonly="isExistCompany"
-                      :placeholder="$t('company.form.placeholderLinkedIn')"
-                    />
-                  </div>
-                </div>
-
-                <!-- Video URL -->
-                <div class="pt-5">
-                  <label class="font-medium text-sm text-gray-700">
-                    {{ $t('company.form.videoTitle') }}
-                  </label>
-                  <UInput
-                    v-model.trim="companyAdd.videoUrl"
-                    type="url"
-                    class="w-full text-sm"
-                    :readonly="isExistCompany"
-                    :placeholder="$t('company.form.placeholderVideo')"
-                  />
-                </div>
-                <!-- Logo uploader (REQUIRED) - Only show if not exist -->
-                <div v-if="!isExistCompany" class="pt-5">
+                <!-- Social links and Video (removed for free-post) -->
+                <!-- Logo uploader hidden in free-post -->
+                <div v-if="false" class="pt-5">
                   <label class="font-medium text-sm text-gray-700">
                     {{ $t('company.form.logoTitle') }}
                     <span aria-hidden="true" class="text-black">{{
@@ -384,8 +324,8 @@
                   </p>
                 </div>
 
-                <!-- Banner Image - Only show if not exist -->
-                <div v-if="!isExistCompany" class="pt-5">
+                <!-- Banner Image hidden in free-post -->
+                <div v-if="false" class="pt-5">
                   <label class="font-medium text-sm text-gray-700">
                     {{ $t('company.form.bannerTitle') }}
                   </label>
@@ -440,8 +380,8 @@
                   </div>
                 </div>
 
-                <!-- Company images uploader (OPTIONAL) - Only show if not exist -->
-                <div v-if="!isExistCompany" class="pt-5">
+                <!-- Company images uploader hidden in free-post -->
+                <div v-if="false" class="pt-5">
                   <label class="font-medium text-sm text-gray-700">
                     {{ $t('company.form.imagesTitleAdditional') }}
                   </label>
@@ -2060,7 +2000,6 @@ const companyAdd = ref<CompanyAddUpdateEntity>({
   instagramLink: '',
   linkedInLink: '',
   videoUrl: '',
-  isShow: false,
   isWaiting: false,
   companyImages: [],
   bannerImage: null,
@@ -2074,17 +2013,27 @@ const jobErrors = ref<Record<string, string>>({})
 
 // Initialize
 onMounted(() => {
-  if (!authStore.user) {
-    router.push(ROUTE_PAGE.AUTH.LOGIN)
+  // Nếu đã đăng nhập thì KHÔNG cho vào trang này: điều hướng về dashboard theo role
+  if (authStore.user) {
+    const userRole = authStore.user.role
+
+    if (userRole === USER_ROLES.ADMIN) {
+      router.push(ROUTE_PAGE.DASHBOARD.ADMIN)
+      return
+    }
+    if (userRole === USER_ROLES.USER) {
+      router.push(ROUTE_PAGE.DASHBOARD.USER)
+      return
+    }
+    if (userRole === USER_ROLES.COMPANY) {
+      router.push(ROUTE_PAGE.DASHBOARD.COMPANY + '?view=newJob')
+      return
+    }
   }
 
+  // Cho phép người CHƯA đăng nhập sử dụng trang upload (free-post)
   job.value.postedDate = new Date()
-  
-  // Tự động điền email của user đã đăng nhập vào trường email
-  if (authStore.user && authStore.user.email) {
-    job.value.email = authStore.user.email
-  }
-  
+
   // No need to fetch all companies anymore
 })
 
@@ -2307,8 +2256,7 @@ const findCompanyByMst = async () => {
           // Init default data for new company
           companyAdd.value.logo = ''
           companyAdd.value.organizationType = 0
-          companyAdd.value.isShow = false
-          companyAdd.value.isWaiting = false
+          companyAdd.value.isWaiting = true
           companyAdd.value.facebookLink = ''
           companyAdd.value.twitterLink = ''
           companyAdd.value.linkedInLink = ''
@@ -2414,6 +2362,7 @@ const addJob = async () => {
 
   // Check add Company
   if (isAddCompany.value && companyAdd.value) {
+    // Public flow: không đụng tới ảnh; chỉ validate các trường text/số cần thiết
     const isValidCompany = validateCompanyFields()
 
     if (!isValidCompany) {
@@ -2422,170 +2371,95 @@ const addJob = async () => {
       return
     }
 
-    try {
-      // Upload logo (REQUIRED)
-      if (!logoFile.value) {
-        useNotify({
-          message: 'Vui lòng tải lên logo công ty.',
-        })
-        loading.value = false
-
-        return
-      }
-
-      try {
-        const logoUrl = await $api.upload.uploadImageR2(logoFile.value, 'logo')
-
-        if (!logoUrl) {
-          useNotify({
-            message: 'Tải lên logo thất bại. Vui lòng thử lại.',
-          })
-          loading.value = false
-
-          return
-        }
-        companyAdd.value.logo = logoUrl
-      } catch (error) {
-        console.error('Error uploading logo:', error)
-        useNotify({
-          message: 'Tải lên logo thất bại. Vui lòng thử lại.',
-        })
-        loading.value = false
-
-        return
-      }
-
-      // Upload banner image (OPTIONAL)
-      if (bannerFile.value) {
-        try {
-          const bannerUrl = await $api.upload.uploadImageR2(bannerFile.value, 'banner')
-
-          if (bannerUrl) {
-            companyAdd.value.bannerImage = bannerUrl
-          }
-        } catch (error) {
-          console.error('Error uploading banner:', error)
-          // Continue even if banner upload fails (it's optional)
-        }
-      }
-
-      // Upload company images (OPTIONAL)
-      if (imageFiles.value.length > 0) {
-        companyAdd.value.companyImages = []
-
-        for (let index = 0; index < imageFiles.value.length; index++) {
-          const image = imageFiles.value[index]
-
-          try {
-            const imageUrl = await $api.upload.uploadImageR2(image, 'company-images')
-
-            if (imageUrl) {
-              companyAdd.value.companyImages.push({ url: imageUrl })
-            } else {
-              console.error(`Failed to upload image at index ${index}`)
-            }
-          } catch (error) {
-            console.error(`Error uploading image at index ${index}:`, error)
-          }
-        }
-      }
-
-      const response = await $api.company.addCompany(companyAdd.value)
-
-      if (response) {
-        companyAdd.value.id = response.id
-        isAddCompanySuccess = true
-      }
-    } catch (error: any) {
-      console.error('Add company failed:', error)
-    }
+    // Public flow: không upload ảnh, không tạo company tại FE
+    isAddCompanySuccess = true
   } else {
     isAddCompanySuccess = true
   }
 
-  // Add job
+  // Add job via public free-post
   if (isAddCompanySuccess) {
     try {
-      // Set id Company for Job
-      job.value.companyId = companyAdd.value ? companyAdd.value.id : NaN
-
-      // Set id User for Job
-      job.value.userId = authStore.user ? authStore.user.id : NaN
-
-      // Set default add value
-      job.value.isFeatured = false
-
-      // Convert benefits array to comma-separated string before sending
-      let benefitsString = ''
-
-      if (Array.isArray(job.value.benefits)) {
-        benefitsString = job.value.benefits
-          .filter(b => b != null && b !== '')
-          .map(b => String(b).trim())
-          .filter(b => b)
-          .join(',')
-      } else if (typeof job.value.benefits === 'string') {
-        benefitsString = job.value.benefits
+      const payload = {
+        email: job.value.email || '',
+        mst: mstCompany.value || '',
+        company: {
+          name: companyAdd.value?.name || '',
+          mst: companyAdd.value?.mst || mstCompany.value || '',
+          address: companyAdd.value?.address || '',
+          organizationType: companyAdd.value?.organizationType || 1,
+          website: companyAdd.value?.website || '',
+        },
+        job: {
+          title: job.value.title,
+          description: job.value.description,
+          category: Array.isArray(job.value.category)
+            ? job.value.category.filter(Boolean).map(String).join(',')
+            : String(job.value.category ?? ''),
+          location: Array.isArray(job.value.location)
+            ? job.value.location.filter(Boolean).map(String).join(',')
+            : String(job.value.location ?? ''),
+          typeOfEmployment: Number(job.value.typeOfEmployment ?? 0),
+          experienceLevel: job.value.experienceLevel ?? null,
+          requiredQualification: job.value.requiredQualification ?? null,
+          gender: Array.isArray(job.value.gender)
+            ? job.value.gender.filter(Boolean).map(String).join(',')
+            : (job.value.gender as any) ?? null,
+          grade: job.value.grade ?? null,
+          postedDate: job.value.postedDate
+            ? new Date(job.value.postedDate).toISOString()
+            : new Date().toISOString(),
+          deadline: new Date(job.value.deadline as any).toISOString(),
+          salaryMin:
+            job.value.salaryType === 5
+              ? 0
+              : Number(unformatCurrency(job.value.salaryMin as any) ?? 0),
+          salaryMax:
+            job.value.salaryType === 5
+              ? 0
+              : Number(unformatCurrency(job.value.salaryMax as any) ?? 0),
+          salaryType: Number(job.value.salaryType ?? 0),
+          detailDescription: job.value.detailDescription ?? '',
+          phoneNumber: job.value.phoneNumber ?? '',
+          email: job.value.email || '',
+          address: job.value.address || '',
+        },
       }
 
-      // Convert category array to comma-separated string before sending
-      let categoryString = ''
+      const response = await $api.job.freePostPublic(payload as any)
 
-      if (Array.isArray(job.value.category)) {
-        categoryString = job.value.category
-          .filter(c => c != null && c !== '')
-          .map(c => String(c).trim())
-          .filter(c => c)
-          .join(',')
-      } else if (typeof job.value.category === 'string') {
-        categoryString = job.value.category
-      }
+      console.log('=== FREE POST RESPONSE ===')
+      console.log('Response:', response)
+      console.log('Access token:', response?.accessToken)
+      console.log('User:', response?.user)
+      console.log('=========================')
 
-      // Convert gender array to comma-separated string before sending
-      let genderString = ''
-
-      if (Array.isArray(job.value.gender)) {
-        genderString = job.value.gender
-          .filter(g => g != null && g !== '')
-          .map(g => String(g).trim())
-          .filter(g => g)
-          .join(',')
-      } else if (typeof job.value.gender === 'string') {
-        genderString = job.value.gender
-      }
-
-      // Convert location array to comma-separated string before sending
-      let locationString = ''
-
-      if (Array.isArray(job.value.location)) {
-        locationString = job.value.location
-          .filter(l => l != null && l !== '')
-          .map(l => String(l).trim())
-          .filter(l => l)
-          .join(',')
-      } else if (typeof job.value.location === 'string') {
-        locationString = job.value.location
-      }
-
-      // Ensure salary values are unformatted (no commas) before sending
-      const jobDataToSend: any = {
-        ...job.value,
-        benefits: benefitsString,
-        category: categoryString,
-        gender: genderString || undefined,
-        location: locationString || undefined,
-        salaryMin: job.value.salaryMin ? unformatCurrency(job.value.salaryMin) : undefined,
-        salaryMax: job.value.salaryMax ? unformatCurrency(job.value.salaryMax) : undefined,
-      }
-
-      // Call API
-      const response = await $api.job.addJob(jobDataToSend)
-
-      if (response) {
+      if (response?.success) {
         isAddJobSuccess = true
+        useNotify({ message: response.message, type: 'success' })
+
+        // Nếu có token (user mới được tạo), tự động đăng nhập và redirect
+        if (response.accessToken && response.user) {
+          // Lưu token vào cookie
+          const token = useToken(CONSTANTS.COOKIE_TOKEN_OPTION as any)
+          token.set(response.accessToken)
+
+          // Lưu user vào auth store
+          authStore.setUser(response.user)
+
+          // Redirect sang dashboard và return để không chạy code tiếp theo
+          router.push('/companies/dashboard?view=manageJobs')
+          return
+        }
+      } else {
+        throw new Error(response?.message || 'Đăng tải công việc thất bại. Vui lòng thử lại.')
       }
     } catch (error: any) {
       console.error('Add job failed:', error)
+      useNotify({
+        message:
+          Array.isArray(error?.message) ? error.message[0] : (error?.message || 'Đăng tải công việc thất bại. Vui lòng thử lại.'),
+      })
     }
   }
 
@@ -2608,8 +2482,8 @@ const addJob = async () => {
 
   confirmStepState.value = 'success'
 
-  // Redirect to job list page after successful upload
-  goToListJobUser()
+  // Free-post: đã mở dashboard ở tab mới; quay về trang chủ
+  router.push(ROUTE_PAGE.HOME)
 }
 
 /** Helper function to scroll to first error field */
@@ -2639,6 +2513,7 @@ function validateCompanyFields(): boolean {
 
   let isValid = true
 
+  // Free post: chỉ validate các trường bắt buộc hiển thị trên UI
   if (!companyAdd.value.name?.trim()) {
     companyErrors.value.name = t('company.form.errName')
     isValid = false
@@ -2658,54 +2533,11 @@ function validateCompanyFields(): boolean {
     isValid = false
   }
 
-  // Validate foundedYear only if provided (optional)
-  if (
-    companyAdd.value.foundedYear != null &&
-    (!Number.isFinite(companyAdd.value.foundedYear) ||
-      !Number.isInteger(companyAdd.value.foundedYear) ||
-      companyAdd.value.foundedYear < 1800 ||
-      companyAdd.value.foundedYear > 2100)
-  ) {
-    companyErrors.value.foundedYear = 'Năm thành lập phải là số nguyên từ 1800 đến 2100.'
-    isValid = false
-  }
-
-  // Validate companySize only if provided (optional)
-  if (
-    companyAdd.value.companySize != null &&
-    Number.isFinite(companyAdd.value.companySize) &&
-    (companyAdd.value.companySize < 0 ||
-      !Number.isInteger(companyAdd.value.companySize))
-  ) {
-    companyErrors.value.companySize = t('company.form.errCompanySize')
-    isValid = false
-  }
-
-  // Validate logo is required
-  if (!logoFile.value && !companyAdd.value.logo) {
-    companyErrors.value.logo = 'Vui lòng tải lên logo công ty.'
-    isValid = false
-  }
-
-  // Description is optional, no validation needed
-
-  if (
-    companyAdd.value.website &&
-    !/^https?:\/\/.+/i.test(companyAdd.value.website)
-  ) {
-    companyErrors.value.website = t('company.form.errWebsite')
-    isValid = false
-  }
-
   if (!isValid) {
     const companyFieldIdMap: Record<string, string> = {
       name: 'company-name',
       address: 'company-address',
       organizationType: 'company-organization-type',
-      foundedYear: 'company-founded-year',
-      companySize: 'company-size',
-      website: 'company-website',
-      logo: 'company-logo-upload',
     }
 
     // Hiển thị toast notification

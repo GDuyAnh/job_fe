@@ -56,10 +56,16 @@ export const useAuthStore = defineStore('auth', {
       fullName,
       email,
       password,
+      role,
+      taxCode,
+      companyId,
     }: {
       fullName: string
       email: string
       password: string
+      role?: number
+      taxCode?: string
+      companyId?: number
     }) {
       const { $api } = useNuxtApp()
 
@@ -68,6 +74,9 @@ export const useAuthStore = defineStore('auth', {
         email,
         password,
         username: email,
+        role,
+        taxCode,
+        companyId,
       })
 
       return response

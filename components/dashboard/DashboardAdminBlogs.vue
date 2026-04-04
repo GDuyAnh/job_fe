@@ -979,7 +979,7 @@ const openDeleteConfirm = (blog: any) => {
 const viewBlog = (blog: any) => {
   const id = blog?.id
   if (id == null || id === '') return
-  const path = `/blog/${Number(id)}`
+  const path = blog.status === 'draft' ? `/blog/preview/${Number(id)}` : `/blog/${Number(id)}`
   window.open(path, '_blank')
 }
 

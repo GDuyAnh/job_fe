@@ -25,7 +25,7 @@
     </div>
 
     <!-- Form -->
-    <div v-else class="bg-white rounded-xl shadow-sm p-8 border border-gray-200">
+    <div class="bg-white rounded-xl shadow-sm p-8 border border-gray-200">
       <div class="flex flex-col gap-6">
         <!-- Name -->
         <div>
@@ -36,10 +36,15 @@
             }}</span>
           </label>
           <UInput
+            id="company-name"
             v-model.trim="companyForm.name"
             class="w-full"
+            :class="{ 'border-red-500': companyErrors.name }"
             :placeholder="$t('company.form.placeholderName')"
+            :disabled="formDisabled"
+            @input="companyErrors.name = ''"
           />
+          <p v-if="companyErrors.name" class="text-red-500 text-sm mt-1">{{ companyErrors.name }}</p>
         </div>
 
         <!-- Mã số thuế (MST) -->
@@ -64,6 +69,7 @@
             v-model.trim="companyForm.taxAddress"
             class="w-full"
             :placeholder="$t('company.taxAddress')"
+            :disabled="formDisabled"
           />
         </div>
 
@@ -77,6 +83,7 @@
               :model-value="companyForm.description || undefined"
               class="w-full rich-text-content"
               :placeholder="$t('company.form.descPlaceholder')"
+              :disabled="formDisabled"
               @update:model-value="
                 (val) => (companyForm.description = val || null)
               "
@@ -93,10 +100,15 @@
             }}</span>
           </label>
           <RichTextEditor
+            id="company-address"
             v-model="companyForm.address"
             class="w-full rich-text-content"
+            :class="{ 'border-red-500': companyErrors.address }"
             :placeholder="$t('company.form.placeholderAddress')"
+            :disabled="formDisabled"
+            @update:model-value="companyErrors.address = ''"
           />
+          <p v-if="companyErrors.address" class="text-red-500 text-sm mt-1">{{ companyErrors.address }}</p>
         </div>
 
         <!-- Org type + Founded -->
@@ -109,28 +121,37 @@
               }}</span>
             </label>
             <USelect
+              id="company-organization-type"
               :items="organizationTypeItems"
               :model-value="companyForm.organizationType?.toString()"
               class="w-full"
+              :class="{ 'border-red-500': companyErrors.organizationType }"
+              :disabled="formDisabled"
               @update:model-value="
-                (v) => (companyForm.organizationType = Number(v ?? 0))
+                (v) => { companyForm.organizationType = Number(v ?? 0); companyErrors.organizationType = '' }
               "
             />
+            <p v-if="companyErrors.organizationType" class="text-red-500 text-sm mt-1">{{ companyErrors.organizationType }}</p>
           </div>
           <div>
             <label class="font-medium text-sm text-gray-700">
               {{ $t('company.founded') }}
             </label>
             <UInput
+              id="company-founded-year"
               v-model.number="companyForm.foundedYear"
               type="number"
               min="1800"
               max="2100"
               class="w-full"
+              :class="{ 'border-red-500': companyErrors.foundedYear }"
+              :disabled="formDisabled"
               :placeholder="
                 $t('company.form.placeholderFounded') as string
               "
+              @input="companyErrors.foundedYear = ''"
             />
+            <p v-if="companyErrors.foundedYear" class="text-red-500 text-sm mt-1">{{ companyErrors.foundedYear }}</p>
           </div>
         </div>
 
@@ -140,13 +161,18 @@
             {{ $t('company.size') }}
           </label>
           <UInput
+            id="company-size"
             v-model.number="companyForm.companySize"
             type="number"
             min="0"
             step="1"
             class="w-full"
+            :class="{ 'border-red-500': companyErrors.companySize }"
+            :disabled="formDisabled"
             :placeholder="$t('company.form.placeholderCompanySize')"
+            @input="companyErrors.companySize = ''"
           />
+          <p v-if="companyErrors.companySize" class="text-red-500 text-sm mt-1">{{ companyErrors.companySize }}</p>
         </div>
 
         <!-- Website -->
@@ -155,11 +181,16 @@
             {{ $t('company.website') }}
           </label>
           <UInput
+            id="company-website"
             v-model.trim="companyForm.website"
             type="url"
             class="w-full"
+            :class="{ 'border-red-500': companyErrors.website }"
+            :disabled="formDisabled"
             :placeholder="$t('company.form.placeholderWebsite')"
+            @input="companyErrors.website = ''"
           />
+          <p v-if="companyErrors.website" class="text-red-500 text-sm mt-1">{{ companyErrors.website }}</p>
         </div>
 
         <!-- Social links -->
@@ -169,40 +200,60 @@
               {{ $t('company.social.facebook') }}
             </label>
             <UInput
+              id="company-facebook"
               v-model.trim="companyForm.facebookLink"
               class="w-full"
+              :class="{ 'border-red-500': companyErrors.facebookLink }"
+              :disabled="formDisabled"
               :placeholder="$t('company.form.placeholderFacebook')"
+              @input="companyErrors.facebookLink = ''"
             />
+            <p v-if="companyErrors.facebookLink" class="text-red-500 text-sm mt-1">{{ companyErrors.facebookLink }}</p>
           </div>
           <div>
             <label class="font-medium text-sm text-gray-700">
               {{ $t('company.social.twitter') }}
             </label>
             <UInput
+              id="company-twitter"
               v-model.trim="companyForm.twitterLink"
               class="w-full"
+              :class="{ 'border-red-500': companyErrors.twitterLink }"
+              :disabled="formDisabled"
               :placeholder="$t('company.form.placeholderTwitter')"
+              @input="companyErrors.twitterLink = ''"
             />
+            <p v-if="companyErrors.twitterLink" class="text-red-500 text-sm mt-1">{{ companyErrors.twitterLink }}</p>
           </div>
           <div>
             <label class="font-medium text-sm text-gray-700">
               {{ $t('company.social.instagram') }}
             </label>
             <UInput
+              id="company-instagram"
               v-model.trim="companyForm.instagramLink"
               class="w-full"
+              :class="{ 'border-red-500': companyErrors.instagramLink }"
+              :disabled="formDisabled"
               :placeholder="$t('company.form.placeholderInstagram')"
+              @input="companyErrors.instagramLink = ''"
             />
+            <p v-if="companyErrors.instagramLink" class="text-red-500 text-sm mt-1">{{ companyErrors.instagramLink }}</p>
           </div>
           <div>
             <label class="font-medium text-sm text-gray-700">
               {{ $t('company.social.linkedin') }}
             </label>
             <UInput
+              id="company-linkedin"
               v-model.trim="companyForm.linkedInLink"
               class="w-full"
+              :class="{ 'border-red-500': companyErrors.linkedInLink }"
+              :disabled="formDisabled"
               :placeholder="$t('company.form.placeholderLinkedIn')"
+              @input="companyErrors.linkedInLink = ''"
             />
+            <p v-if="companyErrors.linkedInLink" class="text-red-500 text-sm mt-1">{{ companyErrors.linkedInLink }}</p>
           </div>
         </div>
 
@@ -212,11 +263,16 @@
             {{ $t('company.form.videoTitle') }}
           </label>
           <UInput
+            id="company-video"
             v-model.trim="companyForm.videoUrl"
             type="url"
             class="w-full"
+            :class="{ 'border-red-500': companyErrors.videoUrl }"
+            :disabled="formDisabled"
             :placeholder="$t('company.form.placeholderVideo')"
+            @input="companyErrors.videoUrl = ''"
           />
+          <p v-if="companyErrors.videoUrl" class="text-red-500 text-sm mt-1">{{ companyErrors.videoUrl }}</p>
         </div>
 
         <!-- Logo uploader (SINGLE, with crop) -->
@@ -229,17 +285,18 @@
           </label>
 
           <div
-            class="border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition bg-gray-50"
-            :class="
-              isDraggingLogo
+            class="border-2 border-dashed rounded-xl p-6 text-center transition bg-gray-50"
+            :class="[
+              isDraggingLogo && !formDisabled
                 ? 'ring-2 ring-blue-400 bg-blue-50'
-                : 'border-gray-400'
-            "
-            @click="logoFileEl?.click()"
-            @dragenter.prevent="onDragEnterLogo"
+                : 'border-gray-400',
+              formDisabled ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'
+            ]"
+            @click="!formDisabled && logoFileEl?.click()"
+            @dragenter.prevent="!formDisabled && onDragEnterLogo()"
             @dragover.prevent
-            @dragleave.prevent="onDragLeaveLogo"
-            @drop="onDropLogo"
+            @dragleave.prevent="!formDisabled && onDragLeaveLogo()"
+            @drop="!formDisabled && onDropLogo($event)"
           >
             <input
               ref="logoFileEl"
@@ -270,6 +327,7 @@
                     size="xs"
                     variant="solid"
                     class="absolute top-8 left-2"
+                    :disabled="formDisabled"
                     :aria-label="$t('common.cropImage')"
                     @click.stop="openCropModal"
                   />
@@ -279,6 +337,7 @@
                     size="xs"
                     variant="solid"
                     class="absolute top-2 right-2"
+                    :disabled="formDisabled"
                     :aria-label="$t('common.remove')"
                     @click.stop="removeLogo"
                   />
@@ -290,6 +349,7 @@
               {{ $t('company.form.dropHintLogo') }}
             </div>
           </div>
+          <p v-if="companyErrors.logo" class="text-red-500 text-sm mt-1">{{ companyErrors.logo }}</p>
         </div>
 
         <!-- Banner Image -->
@@ -299,17 +359,18 @@
           </label>
 
           <div
-            class="border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition bg-gray-50"
-            :class="
-              isDraggingBanner
+            class="border-2 border-dashed rounded-xl p-6 text-center transition bg-gray-50"
+            :class="[
+              isDraggingBanner && !formDisabled
                 ? 'ring-2 ring-blue-400 bg-blue-50'
-                : 'border-gray-400'
-            "
-            @click="bannerFileEl?.click()"
-            @dragenter.prevent="onDragEnterBanner"
+                : 'border-gray-400',
+              formDisabled ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'
+            ]"
+            @click="!formDisabled && bannerFileEl?.click()"
+            @dragenter.prevent="!formDisabled && onDragEnterBanner()"
             @dragover.prevent
-            @dragleave.prevent="onDragLeaveBanner"
-            @drop="onDropBanner"
+            @dragleave.prevent="!formDisabled && onDragLeaveBanner()"
+            @drop="!formDisabled && onDropBanner($event)"
           >
             <input
               ref="bannerFileEl"
@@ -335,6 +396,7 @@
                     size="xs"
                     variant="solid"
                     class="absolute top-2 right-2"
+                    :disabled="formDisabled"
                     :aria-label="$t('common.remove')"
                     @click.stop="removeBanner"
                   />
@@ -355,17 +417,18 @@
           </label>
 
           <div
-            class="border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition bg-gray-50"
-            :class="
-              isDraggingImages
+            class="border-2 border-dashed rounded-xl p-6 text-center transition bg-gray-50"
+            :class="[
+              isDraggingImages && !formDisabled
                 ? 'ring-2 ring-blue-400 bg-blue-50'
-                : 'border-gray-400'
-            "
-            @click="imagesFileEl?.click()"
-            @dragenter.prevent="onDragEnterImages"
+                : 'border-gray-400',
+              formDisabled ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'
+            ]"
+            @click="!formDisabled && imagesFileEl?.click()"
+            @dragenter.prevent="!formDisabled && onDragEnterImages()"
             @dragover.prevent
-            @dragleave.prevent="onDragLeaveImages"
-            @drop="onDropImages"
+            @dragleave.prevent="!formDisabled && onDragLeaveImages()"
+            @drop="!formDisabled && onDropImages($event)"
           >
             <input
               ref="imagesFileEl"
@@ -397,6 +460,7 @@
                     size="xs"
                     variant="solid"
                     class="absolute top-2 right-2"
+                    :disabled="formDisabled"
                     :aria-label="$t('common.remove')"
                     @click.stop="removeImage(idx)"
                   />
@@ -406,6 +470,7 @@
                 <UButton
                   size="xs"
                   variant="soft"
+                  :disabled="formDisabled"
                   @click.stop="imagesFileEl?.click()"
                 >
                   {{ $t('company.form.addMore') }}
@@ -420,8 +485,14 @@
         </div>
 
         <!-- Actions -->
+        <div v-if="!isHostCompanyUser" class="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+          <p class="text-amber-700 text-sm">
+            <UIcon name="i-heroicons-lock-closed" class="w-4 h-4 inline-block mr-1" />
+            Bạn không có quyền chỉnh sửa thông tin công ty. Chỉ tài khoản Host công ty mới có thể thực hiện.
+          </p>
+        </div>
         <div class="flex justify-end gap-3 mt-4">
-          <UButton color="primary" :loading="saving" @click="saveCompany">
+          <UButton color="primary" :loading="saving" :disabled="!isHostCompanyUser" @click="saveCompany">
             {{ $t('company.editCompany.editCompanyContent') }}
           </UButton>
         </div>
@@ -556,15 +627,20 @@ const { $api } = useNuxtApp()
 const authStore = useAuthStore()
 const { organizationTypeItems } = useJobFilters()
 
+// Check if current user is the host company
+const isHostCompanyUser = computed(() => authStore.user?.isHostCompany === true)
+
+// Form disabled state
+const formDisabled = computed(() => !isHostCompanyUser.value)
+
 const loading = ref(false)
 const saving = ref(false)
 const error = ref<string | null>(null)
 
 /** Logo state (REQUIRED) */
 const logoFileEl = ref<HTMLInputElement | null>(null)
-const logoFile = ref<File | null>(null)
 const logoPreview = ref<string | null>(null)
-const originalLogoUrl = ref<string | null>(null) // Track original logo URL
+const logoCroppedFile = ref<File | null>(null) // Store cropped file for upload on submit
 const isDraggingLogo = ref(false)
 
 /** Crop modal state */
@@ -598,16 +674,13 @@ const cropAreaStart = ref({ left: 0, top: 0, width: 0, height: 0 })
 
 /** Company images state (OPTIONAL) */
 const imagesFileEl = ref<HTMLInputElement | null>(null)
-const imageFiles = ref<File[]>([])
 const imagePreviews = ref<string[]>([])
-const originalImageUrls = ref<string[]>([]) // Track original image URLs
+const deletedImageUrls = ref<string[]>([]) // Track deleted image URLs for R2 cleanup
 const isDraggingImages = ref(false)
 
 /** Banner image state */
 const bannerFileEl = ref<HTMLInputElement | null>(null)
-const bannerFile = ref<File | null>(null)
 const bannerPreview = ref<string | null>(null)
-const originalBannerUrl = ref<string | null>(null) // Track original banner URL
 const isDraggingBanner = ref(false)
 
 const companyForm = ref<CompanyAddUpdateEntity>({
@@ -628,11 +701,50 @@ const companyForm = ref<CompanyAddUpdateEntity>({
   instagramLink: '',
   linkedInLink: '',
   videoUrl: '',
-  isShow: false,
   isWaiting: false,
   companyImages: [],
   bannerImage: null,
 })
+
+// Company field errors
+const companyErrors = ref<Record<string, string>>({})
+
+// Field ID map for scroll to error
+const companyFieldIdMap: Record<string, string> = {
+  name: 'company-name',
+  address: 'company-address',
+  organizationType: 'company-organization-type',
+  foundedYear: 'company-founded-year',
+  companySize: 'company-size',
+  website: 'company-website',
+  logo: 'company-logo',
+  facebookLink: 'company-facebook',
+  twitterLink: 'company-twitter',
+  instagramLink: 'company-instagram',
+  linkedInLink: 'company-linkedin',
+  videoUrl: 'company-video',
+}
+
+// Scroll to first error helper
+function scrollToFirstError(errors: Record<string, string>, fieldIdMap: Record<string, string>) {
+  const firstErrorField = Object.keys(errors)[0]
+
+  if (firstErrorField && fieldIdMap[firstErrorField]) {
+    const elementId = fieldIdMap[firstErrorField]
+    const element = document.getElementById(elementId) ||
+                    document.querySelector(`[id="${elementId}"]`) ||
+                    document.querySelector(`input[id*="${elementId}"], select[id*="${elementId}"], textarea[id*="${elementId}"]`)
+
+    if (element) {
+      setTimeout(() => {
+        element.scrollIntoView({ behavior: 'smooth', block: 'center' })
+        if (element instanceof HTMLInputElement || element instanceof HTMLSelectElement || element instanceof HTMLTextAreaElement) {
+          element.focus()
+        }
+      }, 100)
+    }
+  }
+}
 
 // Watch for companyData changes from parent
 watch(
@@ -670,32 +782,16 @@ function populateFormFromCompanyData(res: CompanyEntity) {
     companyForm.value.description = res.description || ''
     companyForm.value.insight = res.insight || ''
     companyForm.value.overview = res.overview || ''
-    companyForm.value.logo = res.logo
-    companyForm.value.bannerImage = res.bannerImage ?? null
 
-    // Load logo
-    if (res.logo) {
-      logoPreview.value = res.logo
-      originalLogoUrl.value = res.logo // Track original URL
-      logoFile.value = null
-    } else {
-      logoPreview.value = null
-      originalLogoUrl.value = null
-      logoFile.value = null
-    }
+    // Load logo - set directly to form
+    companyForm.value.logo = res.logo || null
+    logoPreview.value = res.logo || null
 
-    // Load banner image
-    if (res.bannerImage) {
-      bannerPreview.value = res.bannerImage
-      originalBannerUrl.value = res.bannerImage // Track original URL
-      bannerFile.value = null
-    } else {
-      bannerPreview.value = null
-      originalBannerUrl.value = null
-      bannerFile.value = null
-    }
+    // Load banner image - set directly to form
+    companyForm.value.bannerImage = res.bannerImage || null
+    bannerPreview.value = res.bannerImage || null
 
-    // Load company images (excluding logo)
+    // Load company images - set directly to form (excluding logo)
     const urls: string[] = []
 
     if (res.companyImages?.length) {
@@ -703,9 +799,9 @@ function populateFormFromCompanyData(res: CompanyEntity) {
         if (!res.logo || it.url !== res.logo) urls.push(it.url)
       }
     }
+    companyForm.value.companyImages = urls.map((url) => ({ url }))
     imagePreviews.value = urls
-    originalImageUrls.value = [...urls] // Track original URLs
-    imageFiles.value = []
+    deletedImageUrls.value = [] // Reset deleted tracking
   } catch (e: any) {
     error.value = Array.isArray(e?.message)
       ? e.message[0]
@@ -760,33 +856,48 @@ function setLogoFile(file: File) {
   if (logoPreview.value?.startsWith('blob:')) {
     URL.revokeObjectURL(logoPreview.value)
   }
-  logoFile.value = file // Mark as new file
-  logoPreview.value = URL.createObjectURL(file)
+  // Store file for upload on submit, set preview URL to form
+  logoCroppedFile.value = file
+  companyForm.value.logo = URL.createObjectURL(file)
+  logoPreview.value = companyForm.value.logo
+  companyErrors.value.logo = '' // Clear error when logo is selected
 }
 
 function removeLogo() {
+  // If there's an existing logo URL (not blob), track it for deletion
+  if (logoPreview.value && !logoPreview.value.startsWith('blob:')) {
+    deletedImageUrls.value.push(logoPreview.value)
+  }
   if (logoPreview.value?.startsWith('blob:')) {
     URL.revokeObjectURL(logoPreview.value)
   }
-  logoFile.value = null
   logoPreview.value = null
-  originalLogoUrl.value = null
+  companyForm.value.logo = null // Clear from form
 }
 
 function openCropModal() {
-  if (!logoFile.value && !logoPreview.value) return
+  if (!logoPreview.value) return
 
-  // If we have a file, use it; otherwise use the preview URL
-  if (logoFile.value) {
-    const reader = new FileReader()
+  // Use the preview URL directly for cropping
+  if (logoPreview.value.startsWith('blob:')) {
+    // For blob URLs, read as file
+    fetch(logoPreview.value)
+      .then((res) => res.blob())
+      .then((blob) => {
+        const reader = new FileReader()
 
-    reader.onload = (e) => {
-      cropImageSrc.value = e.target?.result as string
-      showCropModal.value = true
-    }
-    reader.readAsDataURL(logoFile.value)
-  } else if (logoPreview.value) {
-    // For existing logo, we need to fetch it as blob first
+        reader.onload = (e) => {
+          cropImageSrc.value = e.target?.result as string
+          showCropModal.value = true
+        }
+        reader.readAsDataURL(blob)
+      })
+      .catch((err) => {
+        console.error('Error loading image for crop:', err)
+        useNotify({ message: 'Không thể tải ảnh để cắt' })
+      })
+  } else {
+    // For existing URL, fetch as blob first
     fetch(logoPreview.value)
       .then((res) => res.blob())
       .then((blob) => {
@@ -1114,19 +1225,20 @@ async function applyCrop() {
     // Create a new File from the cropped blob
     const croppedFile = new File(
       [croppedBlob],
-      logoFile.value?.name || 'logo.png',
+      'logo.png',
       {
-        type: logoFile.value?.type || 'image/png',
+        type: 'image/png',
       },
     )
 
-    // Update logo file and preview
+    // Update logo file and preview - store in temp variable for upload on submit
     if (logoPreview.value?.startsWith('blob:')) {
       URL.revokeObjectURL(logoPreview.value)
     }
 
-    logoFile.value = croppedFile
-    logoPreview.value = URL.createObjectURL(croppedBlob)
+    logoCroppedFile.value = croppedFile
+    companyForm.value.logo = URL.createObjectURL(croppedBlob)
+    logoPreview.value = companyForm.value.logo
 
     closeCropModal()
   } catch (error) {
@@ -1201,8 +1313,10 @@ function onPickImages(e: Event) {
 
 function addImageFiles(files: File[]) {
   for (const f of files) {
-    imageFiles.value.push(f) // Track as new file
-    imagePreviews.value.push(URL.createObjectURL(f))
+    // Add blob URL to form directly for preview
+    const blobUrl = URL.createObjectURL(f)
+    imagePreviews.value.push(blobUrl)
+    companyForm.value.companyImages.push({ url: blobUrl })
   }
 }
 
@@ -1210,22 +1324,18 @@ function removeImage(idx: number) {
   const pv = imagePreviews.value[idx]
 
   if (pv?.startsWith('blob:')) URL.revokeObjectURL(pv)
-  
+
+  // Track URL for deletion if it exists (not blob)
+  if (pv && !pv.startsWith('blob:')) {
+    deletedImageUrls.value.push(pv)
+  }
+
   // Remove from previews
   imagePreviews.value.splice(idx, 1)
 
-  // Check if it's a new file or original URL
-  const isNewFile = idx < imageFiles.value.length
-
-  if (isNewFile) {
-    imageFiles.value.splice(idx, 1)
-  } else {
-    // Remove from original URLs (adjust index)
-    const originalIdx = idx - imageFiles.value.length
-
-    if (originalIdx >= 0 && originalIdx < originalImageUrls.value.length) {
-      originalImageUrls.value.splice(originalIdx, 1)
-    }
+  // Remove from form - must match the same index
+  if (idx >= 0 && idx < companyForm.value.companyImages.length) {
+    companyForm.value.companyImages.splice(idx, 1)
   }
 }
 
@@ -1247,8 +1357,9 @@ function onDropBanner(e: DragEvent) {
     if (bannerPreview.value?.startsWith('blob:')) {
       URL.revokeObjectURL(bannerPreview.value)
     }
-    bannerFile.value = file
-    bannerPreview.value = URL.createObjectURL(file)
+    // Set directly to form
+    companyForm.value.bannerImage = URL.createObjectURL(file)
+    bannerPreview.value = companyForm.value.bannerImage
   }
 }
 function onPickBanner(e: Event) {
@@ -1261,18 +1372,21 @@ function onPickBanner(e: Event) {
     if (bannerPreview.value?.startsWith('blob:')) {
       URL.revokeObjectURL(bannerPreview.value)
     }
-    bannerFile.value = file
-    bannerPreview.value = URL.createObjectURL(file)
+    // Set directly to form
+    companyForm.value.bannerImage = URL.createObjectURL(file)
+    bannerPreview.value = companyForm.value.bannerImage
   }
   if (bannerFileEl.value) bannerFileEl.value.value = ''
 }
 function removeBanner() {
+  // Track URL for deletion if it exists (not blob)
+  if (bannerPreview.value && !bannerPreview.value.startsWith('blob:')) {
+    deletedImageUrls.value.push(bannerPreview.value)
+  }
   if (bannerPreview.value?.startsWith('blob:')) {
     URL.revokeObjectURL(bannerPreview.value)
   }
-  bannerFile.value = null
   bannerPreview.value = null
-  originalBannerUrl.value = null
   companyForm.value.bannerImage = null
 }
 
@@ -1291,48 +1405,34 @@ onBeforeUnmount(() => {
   })
 })
 
-function validateCompanyFields(): string {
-  if (!companyForm.value.name?.trim()) {
-    useNotify({
-      type: 'error',
-      message: 'Vui lòng nhập đúng các thông tin.',
-    })
+function validateCompanyFields(): boolean {
+  companyErrors.value = {}
+  let isValid = true
 
-    return t('company.form.errName')
+  if (!companyForm.value.name?.trim()) {
+    companyErrors.value.name = t('company.form.errName')
+    isValid = false
   }
 
   // Check if address is empty or only contains empty HTML tags
   const addressHtml = companyForm.value.address || ''
-
   const cleanAddress = addressHtml.replace(/<[^>]*>/g, '').trim()
 
   if (cleanAddress.length === 0) {
-    useNotify({
-      type: 'error',
-      message: 'Vui lòng nhập đúng các thông tin.',
-    })
-
-    return t('company.form.errAddress')
+    companyErrors.value.address = t('company.form.errAddress')
+    isValid = false
   }
 
   if (!companyForm.value.organizationType) {
-    useNotify({
-      type: 'error',
-      message: 'Vui lòng nhập đúng các thông tin.',
-    })
-
-    return t('company.form.errOrgType')
+    companyErrors.value.organizationType = t('company.form.errOrgType')
+    isValid = false
   }
 
   // Validate foundedYear format only if provided
   if (companyForm.value.foundedYear != null && companyForm.value.foundedYear !== undefined) {
     if (!Number.isFinite(companyForm.value.foundedYear) || companyForm.value.foundedYear < 1800 || companyForm.value.foundedYear > 2100) {
-      useNotify({
-        type: 'error',
-        message: 'Vui lòng nhập đúng các thông tin.',
-      })
-
-      return 'Năm thành lập phải là số hợp lệ từ 1800 đến 2100.'
+      companyErrors.value.foundedYear = 'Năm thành lập phải là số hợp lệ từ 1800 đến 2100.'
+      isValid = false
     }
   }
 
@@ -1343,23 +1443,15 @@ function validateCompanyFields(): string {
       companyForm.value.companySize < 0 ||
       !Number.isInteger(companyForm.value.companySize)
     ) {
-      useNotify({
-        type: 'error',
-        message: 'Vui lòng nhập đúng các thông tin.',
-      })
-
-      return t('company.form.errCompanySize')
+      companyErrors.value.companySize = t('company.form.errCompanySize')
+      isValid = false
     }
   }
 
   // Validate logo
-  if (!logoFile.value && !logoPreview.value) {
-    useNotify({
-      type: 'error',
-      message: 'Vui lòng nhập đúng các thông tin.',
-    })
-
-    return 'Logo công ty không được để trống.'
+  if (!companyForm.value.logo) {
+    companyErrors.value.logo = 'Logo công ty không được để trống.'
+    isValid = false
   }
 
   // Description is optional, no validation needed
@@ -1368,15 +1460,61 @@ function validateCompanyFields(): string {
     companyForm.value.website &&
     !/^https?:\/\/.+/i.test(companyForm.value.website)
   ) {
-    useNotify({
-      type: 'error',
-      message: 'Vui lòng nhập đúng các thông tin.',
-    })
-
-    return t('company.form.errWebsite')
+    companyErrors.value.website = t('company.form.errWebsite')
+    isValid = false
   }
 
-  return ''
+  // Validate Facebook
+  if (
+    companyForm.value.facebookLink &&
+    !/^https?:\/\/.+/i.test(companyForm.value.facebookLink)
+  ) {
+    companyErrors.value.facebookLink = 'Facebook phải bắt đầu bằng http:// hoặc https://'
+    isValid = false
+  }
+
+  // Validate Twitter
+  if (
+    companyForm.value.twitterLink &&
+    !/^https?:\/\/.+/i.test(companyForm.value.twitterLink)
+  ) {
+    companyErrors.value.twitterLink = 'Twitter phải bắt đầu bằng http:// hoặc https://'
+    isValid = false
+  }
+
+  // Validate Instagram
+  if (
+    companyForm.value.instagramLink &&
+    !/^https?:\/\/.+/i.test(companyForm.value.instagramLink)
+  ) {
+    companyErrors.value.instagramLink = 'Instagram phải bắt đầu bằng http:// hoặc https://'
+    isValid = false
+  }
+
+  // Validate LinkedIn
+  if (
+    companyForm.value.linkedInLink &&
+    !/^https?:\/\/.+/i.test(companyForm.value.linkedInLink)
+  ) {
+    companyErrors.value.linkedInLink = 'LinkedIn phải bắt đầu bằng http:// hoặc https://'
+    isValid = false
+  }
+
+  // Validate Video URL
+  if (
+    companyForm.value.videoUrl &&
+    !/^https?:\/\/.+/i.test(companyForm.value.videoUrl)
+  ) {
+    companyErrors.value.videoUrl = 'Video URL phải bắt đầu bằng http:// hoặc https://'
+    isValid = false
+  }
+
+  if (!isValid) {
+    useNotify({ type: 'error', message: 'Vui lòng nhập đúng các thông tin.' })
+    scrollToFirstError(companyErrors.value, companyFieldIdMap)
+  }
+
+  return isValid
 }
 
 async function saveCompany() {
@@ -1386,173 +1524,81 @@ async function saveCompany() {
     return
   }
 
-  const err = validateCompanyFields()
-
-  if (err) {
-    useNotify({ message: err })
-
+  if (!validateCompanyFields()) {
     return
   }
 
   saving.value = true
   try {
-    // Handle logo - upload to bbimg if it's a new file
-    let logoUrl: string | undefined = undefined
-
-    if (logoFile.value) {
-      // New logo file uploaded - upload to bbimg
-      try {
-        const uploadedUrl = await $api.upload.uploadImageAndGetUrl(logoFile.value)
-
-        if (uploadedUrl) {
-          logoUrl = uploadedUrl
-        } else {
-          useNotify({
-            message: 'Tải lên logo thất bại. Vui lòng thử lại.',
-            type: 'error',
-          })
-
-          return
-        }
-      } catch (error) {
-        console.error('Error uploading logo:', error)
-        useNotify({
-          message: 'Tải lên logo thất bại. Vui lòng thử lại.',
-          type: 'error',
-        })
-
-        return
-      }
-    } else if (logoPreview.value && !logoPreview.value.startsWith('blob:')) {
-      // Use existing logo URL (not changed) - keep original URL
-      logoUrl = logoPreview.value
-    } else if (originalLogoUrl.value) {
-      // Keep original logo URL if exists
-      logoUrl = originalLogoUrl.value
+    // Step 1: Delete images marked for deletion from R2
+    if (deletedImageUrls.value.length > 0) {
+      await $api.upload.deleteBatchR2(deletedImageUrls.value)
+      console.log('Deleted images from R2:', deletedImageUrls.value)
     }
 
-    // Handle company images - upload new files to bbimg
+    // Step 2: Upload new files to R2 and collect URLs
+    let logoUrl: string | undefined = undefined
+    let bannerUrl: string | undefined = undefined
     const detailUrls: string[] = []
 
-    // First, upload new files to bbimg
-    if (imageFiles.value.length > 0) {
-      for (let i = 0; i < imageFiles.value.length; i++) {
-        const file = imageFiles.value[i]
-
-        try {
-          const imageUrl = await $api.upload.uploadImageAndGetUrl(file)
-
-          if (imageUrl && imageUrl.trim() !== '') {
-            detailUrls.push(imageUrl)
-          } else {
-            console.error(`Upload failed for image ${i + 1}/${imageFiles.value.length}`)
-            useNotify({
-              message: `Tải lên ảnh thứ ${i + 1} thất bại. Vui lòng thử lại.`,
-              type: 'error',
-            })
-
-            return
-          }
-        } catch (error) {
-          console.error(`Error uploading image ${i + 1}/${imageFiles.value.length}:`, error)
-          useNotify({
-            message: `Tải lên ảnh thứ ${i + 1} thất bại. Vui lòng thử lại.`,
-            type: 'error',
-          })
-
-          return
-        }
-      }
-    }
-
-    // Then, add existing URLs (keep original URLs - not changed)
-    const existingUrls = imagePreviews.value.filter(
-      (url) => !url.startsWith('blob:') && url !== logoUrl,
-    )
-
-    detailUrls.push(...existingUrls)
-
-    // Debug: Log số lượng ảnh để kiểm tra
-    const newImageUrlsCount = detailUrls.length - existingUrls.length
-
-    console.log('Total images to save:', {
-      existingUrls: existingUrls.length,
-      newImageUrls: newImageUrlsCount,
-      total: detailUrls.length,
-      imageFilesCount: imageFiles.value.length,
-      imagePreviewsCount: imagePreviews.value.length,
-      blobUrlsCount: imagePreviews.value.filter((url) => url.startsWith('blob:')).length,
-    })
-
-    // Đảm bảo số lượng ảnh upload thành công khớp với số file
-    if (imageFiles.value.length > 0 && newImageUrlsCount !== imageFiles.value.length) {
-      console.error('Mismatch: số ảnh upload thành công không khớp với số file', {
-        filesCount: imageFiles.value.length,
-        uploadedCount: newImageUrlsCount,
-      })
-      useNotify({
-        message: `Chỉ tải lên được ${newImageUrlsCount}/${imageFiles.value.length} ảnh. Vui lòng thử lại.`,
-        type: 'error',
-      })
-
-      return
-    }
-
-    // Handle banner image - upload to bbimg if it's a new file
-    let bannerUrl: string | undefined = undefined
-
-    if (bannerFile.value) {
-      // New banner file uploaded - upload to bbimg
-      try {
-        const uploadedUrl = await $api.upload.uploadImageAndGetUrl(bannerFile.value)
-
-        if (uploadedUrl) {
-          bannerUrl = uploadedUrl
-        } else {
-          useNotify({
-            message: 'Tải lên banner thất bại. Vui lòng thử lại.',
-            type: 'error',
-          })
-
-          return
-        }
-      } catch (error) {
-        console.error('Error uploading banner:', error)
-        useNotify({
-          message: 'Tải lên banner thất bại. Vui lòng thử lại.',
-          type: 'error',
-        })
-
+    // Upload logo if there's a cropped file
+    if (logoCroppedFile.value) {
+      const uploadedUrl = await $api.upload.uploadImageR2(logoCroppedFile.value, 'logo')
+      if (uploadedUrl) {
+        logoUrl = uploadedUrl
+      } else {
+        useNotify({ message: 'Tải lên logo thất bại. Vui lòng thử lại.', type: 'error' })
         return
       }
-    } else if (bannerPreview.value && !bannerPreview.value.startsWith('blob:')) {
-      // Use existing banner URL (not changed) - keep original URL
-      bannerUrl = bannerPreview.value
-    } else if (originalBannerUrl.value) {
-      // Keep original banner URL if exists
-      bannerUrl = originalBannerUrl.value
+    } else if (companyForm.value.logo && !companyForm.value.logo.startsWith('blob:')) {
+      // Use existing logo URL
+      logoUrl = companyForm.value.logo
     }
 
-    // Prepare update data
+    // Upload banner if it's a blob URL (new file)
+    if (companyForm.value.bannerImage?.startsWith('blob:')) {
+      // Need to fetch the blob and create a File
+      const blob = await fetch(companyForm.value.bannerImage).then((res) => res.blob())
+      const file = new File([blob], 'banner.png', { type: 'image/png' })
+      const uploadedUrl = await $api.upload.uploadImageR2(file, 'banner')
+      if (uploadedUrl) {
+        bannerUrl = uploadedUrl
+      } else {
+        useNotify({ message: 'Tải lên banner thất bại. Vui lòng thử lại.', type: 'error' })
+        return
+      }
+    } else if (companyForm.value.bannerImage) {
+      // Use existing banner URL
+      bannerUrl = companyForm.value.bannerImage
+    }
+
+    // Upload company images that are blob URLs (new files)
+    const currentUrls = companyForm.value.companyImages.map((img: any) => img.url).filter(Boolean)
+    for (const url of currentUrls) {
+      if (url.startsWith('blob:')) {
+        const blob = await fetch(url).then((res) => res.blob())
+        const file = new File([blob], 'company-image.png', { type: 'image/png' })
+        const uploadedUrl = await $api.upload.uploadImageR2(file, 'company-images')
+        if (uploadedUrl) {
+          detailUrls.push(uploadedUrl)
+        }
+      } else {
+        // Keep existing URL
+        detailUrls.push(url)
+      }
+    }
+
+    console.log('Images to save:', { logo: logoUrl, banner: bannerUrl, images: detailUrls.length })
+
+    // Step 3: Prepare update data
     const updateData: CompanyAddUpdateEntity = {
       ...companyForm.value,
-      // Only include MST if it has a value (not null, not undefined, not empty)
-      mst: companyForm.value.mst && companyForm.value.mst.trim() !== '' 
-        ? companyForm.value.mst.trim() 
-        : undefined, // Don't send MST if empty, let BE preserve existing value
+      mst: companyForm.value.mst && companyForm.value.mst.trim() !== ''
+        ? companyForm.value.mst.trim()
+        : undefined,
+      logo: logoUrl || null,
+      bannerImage: bannerUrl || null,
       companyImages: detailUrls.map((u) => ({ url: u })),
-    }
-
-    // Only include logo if we have a value
-    if (logoUrl) {
-      updateData.logo = logoUrl
-    }
-
-    // Only include banner if we have a value
-    if (bannerUrl) {
-      updateData.bannerImage = bannerUrl
-    } else {
-      updateData.bannerImage = null
     }
 
     await $api.company.editCompany(authStore.user.companyId, updateData)

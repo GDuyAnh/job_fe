@@ -808,14 +808,11 @@ const fetchUsers = async () => {
 
 const fetchCompanies = async () => {
   try {
-    // Get all approved and visible companies for linking
-    const response = await $api.company.searchCompany({
-      isShow: true,
-    })
+    // Get all companies (including pending) for admin linking
+    const response = await $api.company.adminListCompany({})
 
     if (response && Array.isArray(response)) {
-      // Filter only approved companies
-      companies.value = response.filter((c: any) => !c.isWaiting && c.isShow)
+      companies.value = response
       console.log('Fetched companies for dropdown:', companies.value.length)
     }
   } catch (error: any) {

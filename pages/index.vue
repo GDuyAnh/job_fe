@@ -7,7 +7,7 @@
       <div class="flex-1 flex justify-center overflow-x-auto scrollbar-hide">
         <div class="flex gap-2 md:gap-10">
           <button
-            v-for="tab in tabs"
+            v-for="tab in visibleTabs"
             :key="tab.name"
             class="relative pb-2 px-3 md:px-2 text-base font-semibold text-[#222] border-b-2 border-transparent transition hover:text-[#000000fe] hover:bg-[#454e571a] rounded-t-lg duration-200"
             :class="
@@ -552,6 +552,7 @@
             variant="outline"
             shape="round"
             compact
+            @click="navigateTo('/blog')"
             >{{ $t('homePage.buttonContent.seeAll') }}</app-button
           >
         </div>
@@ -582,6 +583,7 @@
             {{ $t('homePage.lastBanner.button1') }}
           </a>
           <button
+            v-if="authStore.user?.role === USER_ROLES.COMPANY"
             class="bg-green-600 text-white font-semibold py-3 px-6 rounded-md hover:bg-green-700 transition inline-flex items-center justify-center min-h-[48px] max-h-[60px]"
             @click="handlePostJob"
           >
@@ -756,9 +758,29 @@ const tabs = [
     label: 'home.tabs.candidates',
     path: ROUTE_PAGE.HOME,
   },
-  { name: 'blog', label: 'home.tabs.blog', path: ROUTE_PAGE.HOME },
+  { name: 'blog', label: 'home.tabs.blog', path: '/blog' },
   { name: 'pages', label: 'home.tabs.pages', path: ROUTE_PAGE.PAGE },
 ]
+
+// Computed tabs based on user role
+const visibleTabs = computed(() => {
+  const userRole = authStore.user?.role
+
+  // Chưa đăng nhập: hiển thị toàn bộ menu
+  if (!userRole) {
+    return tabs
+  }
+
+  // USER (role = 1): ẨN "Đăng tin miễn phí"
+  // ADMIN (role = 2): ẨN "Đăng tin miễn phí"
+  // COMPANY (role = 3): Hiển thị "Đăng tin miễn phí" (click sẽ vào dashboard company)
+  if (userRole === USER_ROLES.USER || userRole === USER_ROLES.ADMIN) {
+    return tabs.filter((tab) => tab.name !== 'pages')
+  }
+
+  // COMPANY: hiển thị tất cả tabs
+  return tabs
+})
 
 const activeTab = ref(tabs[0].name)
 const router = useRouter()
@@ -848,16 +870,24 @@ const { $api } = useNuxtApp()
 const getFeatureJobs = async () => {
   try {
     // Build search parameters
-
     const apiParams: Record<string, any> = {}
-
-    apiParams.isFeatured = 'true'
 
     // Call API
     const response = await $api.job.searchJob(apiParams)
+    console.log('[getFeatureJobs] API response:', response)
 
     if (response && Array.isArray(response)) {
-      featureJobsRes.value = response.map((job) => JobMapper.toModel(job))
+      // Filter: postType is Hot or Urgent, then sort by createdAt DESC
+      const urgentHotJobs = response
+        .filter((job: any) => (job.postType === 'Hot' || job.postType === 'Urgent') && job.status === 'APPROVED')
+        .sort((a: any, b: any) => {
+          const dateA = new Date(a.createdAt || 0).getTime()
+          const dateB = new Date(b.createdAt || 0).getTime()
+          return dateB - dateA // Newest first
+        })
+
+      console.log('[getFeatureJobs] filtered Hot/Urgent jobs:', urgentHotJobs)
+      featureJobsRes.value = urgentHotJobs.map((job: any) => JobMapper.toModel(job))
     } else {
       featureJobsRes.value = []
     }
@@ -921,13 +951,14 @@ const getCompanyBanners = async () => {
 
     const apiParams: Record<string, any> = {}
 
-    apiParams.isShow = 'true'
-
     // Call API
     const response = await $api.company.searchCompany(apiParams)
 
     if (response && Array.isArray(response)) {
-      bannerRes.value = response.map((comp) =>
+      // Filter only featured companies
+      const featuredCompanies = response.filter((comp: any) => comp.isFeatured === true)
+
+      bannerRes.value = featuredCompanies.map((comp) =>
         CompanyMapper.toBannerModel(comp),
       )
     } else {
@@ -1016,13 +1047,21 @@ const logout = () => {
 }
 
 const handlePostJob = () => {
-  // Check if user is logged in and has COMPANY role
-  if (authStore.user?.role === USER_ROLES.COMPANY) {
-    // Open company dashboard with newJob view in new tab
+  const userRole = authStore.user?.role
+
+  // USER (role = 1): Không cho phép đăng tin
+  // ADMIN (role = 2): Không cho phép đăng tin
+  // Chưa đăng nhập: Chuyển đến trang /jobs/upload
+  if (!userRole || userRole === USER_ROLES.USER || userRole === USER_ROLES.ADMIN) {
+    // Open job upload page in current tab (hoặc chuyển hướng tùy theo yêu cầu)
+    // Vì tab "Đăng tin miễn phí" đã bị ẩn với USER và ADMIN nên case này hiếm khi xảy ra
+    router.push('/jobs/upload')
+    return
+  }
+
+  // COMPANY (role = 3): Mở dashboard company với view newJob
+  if (userRole === USER_ROLES.COMPANY) {
     openDashboardInNewTab(ROUTE_PAGE.DASHBOARD.COMPANY, { view: 'newJob' })
-  } else {
-    // Open job upload page in new tab (or login if not logged in)
-    openDashboardInNewTab('/jobs/upload')
   }
 }
 

@@ -1,8 +1,8 @@
 <template>
   <div class="rich-text-editor">
     <div
-      v-if="!readonly"
       class="editor-toolbar border-b border-gray-300 bg-gray-50 p-2 flex flex-wrap gap-2"
+      :class="{ 'opacity-50 pointer-events-none': disabled }"
     >
       <UButton
         variant="ghost"
@@ -97,8 +97,8 @@
     <div
       class="editor-content border border-gray-300 rounded-b-lg"
       :class="{
-        'rounded-t-lg': readonly,
-        'bg-gray-50': readonly,
+        'rounded-t-lg': disabled || readonly,
+        'bg-gray-50': disabled || readonly,
       }"
     >
       <EditorContent :editor="editor" />
@@ -115,6 +115,7 @@ interface Props {
   modelValue?: string | null
   placeholder?: string
   readonly?: boolean
+  disabled?: boolean
   rows?: number
 }
 
@@ -122,6 +123,7 @@ const props = withDefaults(defineProps<Props>(), {
   modelValue: '',
   placeholder: '',
   readonly: false,
+  disabled: false,
   rows: 12,
 })
 
@@ -137,7 +139,7 @@ const editor = useEditor({
       placeholder: props.placeholder,
     }),
   ],
-  editable: !props.readonly,
+  editable: !props.disabled && !props.readonly,
   onUpdate: ({ editor }) => {
     const html = editor.getHTML()
 
@@ -170,9 +172,9 @@ watch(
 )
 
 watch(
-  () => props.readonly,
-  (readonly) => {
-    editor.value?.setEditable(!readonly)
+  () => [props.readonly, props.disabled],
+  ([readonly, disabled]) => {
+    editor.value?.setEditable(!(disabled || readonly))
   },
 )
 

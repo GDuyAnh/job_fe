@@ -17,6 +17,7 @@ export class UserMapper {
       avatarUrl: value.avatarUrl ?? null,
       role: value.role,
       companyId: value.companyId,
+      isHostCompany: value.isHostCompany ?? false,
     }
   }
 }

@@ -1,6 +1,38 @@
 <template>
   <div class="flex flex-col gap-6 pb-8">
-    <!-- Name -->
+    <!-- MST (đặt lên đầu tiên) -->
+    <div>
+      <label class="font-medium text-sm text-gray-700">
+        MST
+        <span class="text-black">{{ $t('common.requiredMark') }}</span>
+      </label>
+      <div class="flex gap-2">
+        <UInput
+          v-model.trim="form.mst"
+          class="flex-1"
+          :class="{ 'border-red-500': errors.mst || mstError }"
+          placeholder="Mã số thuế"
+          :disabled="mstChecking || isEditMode"
+          @input="onMstInput"
+          @keyup.enter="validateMst"
+        />
+        <UButton
+          v-if="!isEditMode"
+          color="primary"
+          :loading="mstChecking"
+          :disabled="!form.mst?.trim() || mstChecking"
+          @click="validateMst"
+        >
+          {{ isMstVerified ? 'Kiểm tra lại' : 'Kiểm tra' }}
+        </UButton>
+      </div>
+      <p v-if="mstChecking" class="text-blue-500 text-sm mt-1">Đang kiểm tra MST...</p>
+      <p v-if="errors.mst" class="text-red-500 text-sm mt-1">{{ errors.mst }}</p>
+      <p v-if="mstError && !errors.mst" class="text-red-500 text-sm mt-1">{{ mstError }}</p>
+      <p v-if="isMstVerified && !mstError" class="text-green-500 text-sm mt-1">✓ MST đã được xác thực</p>
+    </div>
+
+    <!-- Name (disabled nếu auto-filled từ MST) -->
     <div>
       <label class="font-medium text-sm text-gray-700">
         {{ $t('company.name') }}
@@ -11,39 +43,25 @@
         class="w-full"
         :class="{ 'border-red-500': errors.name }"
         :placeholder="$t('company.form.placeholderName')"
+        :disabled="isNameAutoFilled || (!isMstVerified && !isEditMode)"
         @input="errors.name = ''"
       />
+      <p v-if="isNameAutoFilled" class="text-blue-500 text-sm mt-1">Tên công ty được tự động điền từ MST.</p>
       <p v-if="errors.name" class="text-red-500 text-sm mt-1">{{ errors.name }}</p>
     </div>
 
-    <!-- MST -->
-    <div>
-      <label class="font-medium text-sm text-gray-700">
-        MST
-        <span class="text-black">{{ $t('common.requiredMark') }}</span>
-      </label>
-      <UInput
-        v-model.trim="form.mst"
-        class="w-full"
-        :class="{ 'border-red-500': errors.mst }"
-        placeholder="Mã số thuế"
-        @input="errors.mst = ''"
-      />
-      <p v-if="errors.mst" class="text-red-500 text-sm mt-1">{{ errors.mst }}</p>
-    </div>
-
-    <!-- Insight, Overview, Description -->
+    <!-- Insight, Overview, Description (disabled cho đến khi MST verified) -->
     <div class="flex flex-col gap-2">
       <label class="font-medium text-sm text-gray-700">{{ $t('company.form.insightLabel') }}</label>
-      <UTextarea v-model.trim="form.insight" :rows="2" autoresize class="w-full" :placeholder="$t('company.form.placeholderInsight')" />
+      <UTextarea v-model.trim="form.insight" :rows="2" autoresize class="w-full" :placeholder="$t('company.form.placeholderInsight')" :disabled="(!isMstVerified && !isEditMode)" />
     </div>
     <div class="flex flex-col gap-2">
       <label class="font-medium text-sm text-gray-700">{{ $t('company.form.overviewLabel') }}</label>
-      <UTextarea v-model.trim="form.overview" :rows="3" autoresize class="w-full" :placeholder="$t('company.form.overviewPlaceholder')" />
+      <UTextarea v-model.trim="form.overview" :rows="3" autoresize class="w-full" :placeholder="$t('company.form.overviewPlaceholder')" :disabled="(!isMstVerified && !isEditMode)" />
     </div>
     <div class="flex flex-col gap-2">
       <label class="font-medium text-sm text-gray-700">{{ $t('company.form.descLabel') }}</label>
-      <UTextarea v-model.trim="form.description" :rows="4" autoresize class="w-full" :placeholder="$t('company.form.descPlaceholder')" />
+      <UTextarea v-model.trim="form.description" :rows="4" autoresize class="w-full" :placeholder="$t('company.form.descPlaceholder')" :disabled="(!isMstVerified && !isEditMode)" />
     </div>
 
     <!-- Address -->
@@ -57,6 +75,7 @@
         class="w-full"
         :class="{ 'border-red-500': errors.address }"
         :placeholder="$t('company.form.placeholderAddress')"
+        :disabled="(!isMstVerified && !isEditMode)"
         @input="errors.address = ''"
       />
       <p v-if="errors.address" class="text-red-500 text-sm mt-1">{{ errors.address }}</p>
@@ -65,7 +84,7 @@
     <!-- Tax Address -->
     <div>
       <label class="font-medium text-sm text-gray-700">Địa chỉ thuế</label>
-      <UInput v-model.trim="form.taxAddress" class="w-full" placeholder="Địa chỉ thuế" />
+      <UInput v-model.trim="form.taxAddress" class="w-full" placeholder="Địa chỉ thuế" :disabled="(!isMstVerified && !isEditMode)" />
     </div>
 
     <!-- Org type + Founded -->
@@ -80,6 +99,7 @@
           :model-value="form.organizationType?.toString()"
           class="w-full"
           :class="{ 'border-red-500': errors.organizationType }"
+          :disabled="(!isMstVerified && !isEditMode)"
           @update:model-value="(v) => { form.organizationType = Number(v ?? 0); errors.organizationType = '' }"
         />
         <p v-if="errors.organizationType" class="text-red-500 text-sm mt-1">{{ errors.organizationType }}</p>
@@ -93,18 +113,21 @@
           max="2100"
           class="w-full"
           :placeholder="$t('company.form.placeholderFounded') as string"
+          :disabled="(!isMstVerified && !isEditMode)"
         />
+        <p v-if="errors.foundedYear" class="text-red-500 text-sm mt-1">{{ errors.foundedYear }}</p>
       </div>
     </div>
 
     <!-- Company size, Website -->
     <div>
       <label class="font-medium text-sm text-gray-700">{{ $t('company.size') }}</label>
-      <UInput v-model.number="form.companySize" type="number" min="0" class="w-full" :placeholder="$t('company.form.placeholderCompanySize')" />
+      <UInput v-model.number="form.companySize" type="number" min="0" class="w-full" :placeholder="$t('company.form.placeholderCompanySize')" :disabled="(!isMstVerified && !isEditMode)" />
+      <p v-if="errors.companySize" class="text-red-500 text-sm mt-1">{{ errors.companySize }}</p>
     </div>
     <div>
       <label class="font-medium text-sm text-gray-700">{{ $t('company.website') }}</label>
-      <UInput v-model.trim="form.website" type="url" class="w-full" :class="{ 'border-red-500': errors.website }" :placeholder="$t('company.form.placeholderWebsite')" @input="errors.website = ''" />
+      <UInput v-model.trim="form.website" type="url" class="w-full" :class="{ 'border-red-500': errors.website }" :placeholder="$t('company.form.placeholderWebsite')" :disabled="(!isMstVerified && !isEditMode)" @input="errors.website = ''" />
       <p v-if="errors.website" class="text-red-500 text-sm mt-1">{{ errors.website }}</p>
     </div>
 
@@ -112,26 +135,26 @@
     <div class="grid grid-cols-2 gap-4">
       <div>
         <label class="font-medium text-sm text-gray-700">{{ $t('company.social.facebook') }}</label>
-        <UInput v-model.trim="form.facebookLink" class="w-full" :placeholder="$t('company.form.placeholderFacebook')" />
+        <UInput v-model.trim="form.facebookLink" class="w-full" :placeholder="$t('company.form.placeholderFacebook')" :disabled="(!isMstVerified && !isEditMode)" />
       </div>
       <div>
         <label class="font-medium text-sm text-gray-700">{{ $t('company.social.twitter') }}</label>
-        <UInput v-model.trim="form.twitterLink" class="w-full" :placeholder="$t('company.form.placeholderTwitter')" />
+        <UInput v-model.trim="form.twitterLink" class="w-full" :placeholder="$t('company.form.placeholderTwitter')" :disabled="(!isMstVerified && !isEditMode)" />
       </div>
       <div>
         <label class="font-medium text-sm text-gray-700">{{ $t('company.social.instagram') }}</label>
-        <UInput v-model.trim="form.instagramLink" class="w-full" :placeholder="$t('company.form.placeholderInstagram')" />
+        <UInput v-model.trim="form.instagramLink" class="w-full" :placeholder="$t('company.form.placeholderInstagram')" :disabled="(!isMstVerified && !isEditMode)" />
       </div>
       <div>
         <label class="font-medium text-sm text-gray-700">{{ $t('company.social.linkedin') }}</label>
-        <UInput v-model.trim="form.linkedInLink" class="w-full" :placeholder="$t('company.form.placeholderLinkedIn')" />
+        <UInput v-model.trim="form.linkedInLink" class="w-full" :placeholder="$t('company.form.placeholderLinkedIn')" :disabled="(!isMstVerified && !isEditMode)" />
       </div>
     </div>
 
     <!-- Video URL -->
     <div>
       <label class="font-medium text-sm text-gray-700">{{ $t('company.form.videoTitle') }}</label>
-      <UInput v-model.trim="form.videoUrl" type="url" class="w-full" :placeholder="$t('company.form.placeholderVideo')" />
+      <UInput v-model.trim="form.videoUrl" type="url" class="w-full" :placeholder="$t('company.form.placeholderVideo')" :disabled="(!isMstVerified && !isEditMode)" />
     </div>
 
     <!-- Logo (required, with crop) -->
@@ -142,12 +165,14 @@
       </label>
       <div
         class="border-2 border-dashed rounded-xl p-4 text-center cursor-pointer transition bg-gray-50"
-        :class="isDragging ? 'ring-2 ring-blue-400 bg-blue-50' : 'border-gray-400'"
-        @click="logoInput?.click()"
-        @dragenter.prevent="isDragging = true"
-        @dragleave.prevent="isDragging = false"
-        @dragover.prevent
-        @drop.prevent="onDropLogo"
+        :class="[
+          isDragging ? 'ring-2 ring-blue-400 bg-blue-50' : 'border-gray-400',
+          !isMstVerified ? 'opacity-50 cursor-not-allowed' : ''
+        ]"
+        @click="isMstVerified ? logoInput?.click() : null"
+        @dragover.prevent="isMstVerified ? isDragging = true : null"
+        @dragleave="isMstVerified ? isDragging = false : null"
+        @drop.prevent="isMstVerified ? onDropLogo : null"
       >
         <input ref="logoInput" type="file" accept="image/*" class="hidden" @change="onPickLogo" />
         <div v-if="logoPreview" class="flex justify-center">
@@ -160,9 +185,10 @@
               variant="solid"
               class="absolute top-2 left-2"
               :aria-label="$t('common.cropImage')"
+              :disabled="!isMstVerified"
               @click.stop="openCropModal"
             />
-            <UButton icon="i-lucide-trash-2" color="error" size="xs" class="absolute top-2 right-2" @click.stop="removeLogo" />
+            <UButton icon="i-lucide-trash-2" color="error" size="xs" class="absolute top-2 right-2" :disabled="!isMstVerified" @click.stop="removeLogo" />
           </div>
         </div>
         <p v-else class="text-gray-500 text-sm">{{ $t('company.form.dropHint') }}</p>
@@ -175,7 +201,8 @@
       <label class="font-medium text-sm text-gray-700">{{ $t('company.form.addMore') }}</label>
       <div
         class="border-2 border-dashed rounded-xl p-4 text-center cursor-pointer bg-gray-50 border-gray-400"
-        @click="imagesInput?.click()"
+        :class="!isMstVerified ? 'opacity-50 cursor-not-allowed' : ''"
+        @click="isMstVerified ? imagesInput?.click() : null"
       >
         <input ref="imagesInput" type="file" accept="image/*" multiple class="hidden" @change="onPickImages" />
         <div v-if="imagePreviews.length" class="flex flex-wrap gap-2">
@@ -194,7 +221,8 @@
       <label class="font-medium text-sm text-gray-700">{{ $t('company.form.bannerTitle') }}</label>
       <div
         class="border-2 border-dashed rounded-xl p-4 text-center cursor-pointer bg-gray-50 border-gray-400"
-        @click="bannerInput?.click()"
+        :class="!isMstVerified ? 'opacity-50 cursor-not-allowed' : ''"
+        @click="isMstVerified ? bannerInput?.click() : null"
       >
         <input ref="bannerInput" type="file" accept="image/*" class="hidden" @change="onPickBanner" />
         <img v-if="bannerPreview" :src="bannerPreview" class="max-h-24 mx-auto object-contain rounded" />
@@ -350,6 +378,84 @@ const isEditMode = computed(() => !!props.initialCompany?.id)
 const loading = ref(false)
 const form = ref<CompanyAddUpdateEntity>(getDefaultForm())
 
+/** MST Validation State */
+const isMstVerified = ref(false)
+const isNameAutoFilled = ref(false)
+const mstChecking = ref(false)
+const mstError = ref('')
+const mstDebounceTimer = ref<ReturnType<typeof setTimeout> | null>(null)
+
+/** Handle MST Change with debounce */
+function onMstInput() {
+  mstError.value = ''
+  errors.value.mst = ''
+
+  // Clear previous timer
+  if (mstDebounceTimer.value) {
+    clearTimeout(mstDebounceTimer.value)
+  }
+
+  // Reset state if MST is cleared
+  if (!form.value.mst?.trim()) {
+    isMstVerified.value = false
+    isNameAutoFilled.value = false
+    return
+  }
+
+  // Debounce MST validation
+  mstDebounceTimer.value = setTimeout(async () => {
+    await validateMst()
+  }, 800)
+}
+
+/** Validate MST: check exist in DB, then check with external API */
+async function validateMst() {
+  const mst = form.value.mst?.trim()
+  if (!mst) return
+
+  mstChecking.value = true
+  mstError.value = ''
+
+  try {
+    // Step 1: Check if MST already exists in our database
+    try {
+      const existingCompany = await $api.company.checkExistMst(mst)
+      if (existingCompany) {
+        mstError.value = 'MST đã tồn tại trong hệ thống.'
+        useNotify({ message: 'MST đã tồn tại trong hệ thống.', type: 'error' })
+        mstChecking.value = false
+        return
+      }
+    } catch {
+      // checkExistMst returns error if not found, which is expected
+    }
+
+    // Step 2: Check with external MST API (VietQR)
+    try {
+      const externalData = await $api.company.getCompanyByMst(mst)
+      if (externalData && externalData.data) {
+        // Found in external system - auto fill data
+        form.value.name = externalData.data.name || form.value.name
+        form.value.taxAddress = externalData.data.address || form.value.taxAddress
+        isNameAutoFilled.value = true
+        isMstVerified.value = true
+
+        useNotify({
+          message: 'Đã tìm thấy thông tin từ hệ thống. Vui lòng kiểm tra và điền các thông tin còn lại.',
+          type: 'success',
+        })
+      }
+    } catch {
+      // MST not found in external system
+      mstError.value = 'Không tìm thấy MST trong hệ thống.'
+      useNotify({ message: 'Không tìm thấy MST trong hệ thống.', type: 'error' })
+      isMstVerified.value = false
+    }
+  } finally {
+    mstChecking.value = false
+  }
+}
+
 function getDefaultForm(): CompanyAddUpdateEntity {
   return {
     name: '',
@@ -369,7 +475,6 @@ function getDefaultForm(): CompanyAddUpdateEntity {
     instagramLink: '',
     linkedInLink: '',
     videoUrl: '',
-    isShow: false,
     isWaiting: true,
     isFeatured: false,
     companyImages: [],
@@ -402,11 +507,16 @@ const imagesInput = ref<HTMLInputElement | null>(null)
 const imageFiles = ref<File[]>([])
 const imagePreviews = ref<string[]>([])
 
+// Track deleted image URLs for cleanup on R2 when editing
+const deletedImageUrls = ref<string[]>([])
+
 const bannerInput = ref<HTMLInputElement | null>(null)
 const bannerFile = ref<File | null>(null)
 const bannerPreview = ref<string | null>(null)
 
 function fillFormFromCompany(company: any) {
+  console.log('[AdminCompanyForm] fillFormFromCompany called with:', company)
+  console.log('[AdminCompanyForm] company.id:', company?.id)
   form.value = {
     id: company.id,
     name: company.name ?? '',
@@ -426,18 +536,25 @@ function fillFormFromCompany(company: any) {
     instagramLink: company.instagramLink ?? null,
     linkedInLink: company.linkedInLink ?? null,
     videoUrl: company.videoUrl ?? null,
-    isShow: !!company.isShow,
     isWaiting: !!company.isWaiting,
     isFeatured: !!company.isFeatured,
     companyImages: Array.isArray(company.companyImages) ? company.companyImages.map((img: any) => ({ url: img?.url ?? '' })) : [],
     bannerImage: company.bannerImage ?? null,
   }
+  console.log('[AdminCompanyForm] form after fill:', form.value)
   logoPreview.value = company.logo || null
   bannerPreview.value = company.bannerImage || null
   imagePreviews.value = Array.isArray(company.companyImages) ? company.companyImages.map((img: any) => img?.url ?? '') : []
   imageFiles.value = []
   logoFile.value = null
   bannerFile.value = null
+  // Reset deleted URLs tracking
+  deletedImageUrls.value = []
+  // In edit mode, MST is already verified (no need to re-verify)
+  isMstVerified.value = true
+  isNameAutoFilled.value = false
+  mstError.value = ''
+  console.log('[AdminCompanyForm] isEditMode:', !!company.id, 'isMstVerified:', isMstVerified.value)
 }
 
 function resetForm() {
@@ -449,6 +566,16 @@ function resetForm() {
   bannerFile.value = null
   imagePreviews.value = []
   imageFiles.value = []
+  deletedImageUrls.value = [] // Reset deleted URLs tracking
+  // Reset MST validation state
+  isMstVerified.value = false
+  isNameAutoFilled.value = false
+  mstError.value = ''
+  mstChecking.value = false
+  if (mstDebounceTimer.value) {
+    clearTimeout(mstDebounceTimer.value)
+    mstDebounceTimer.value = null
+  }
 }
 
 watch(
@@ -471,6 +598,8 @@ function onPickLogo(e: Event) {
   if (logoPreview.value?.startsWith('blob:')) URL.revokeObjectURL(logoPreview.value)
   logoFile.value = file
   logoPreview.value = URL.createObjectURL(file)
+  // Clear the form logo URL since we're using file now
+  form.value.logo = null
   if (logoInput.value) logoInput.value.value = ''
 }
 
@@ -482,11 +611,18 @@ function onDropLogo(e: DragEvent) {
   if (logoPreview.value?.startsWith('blob:')) URL.revokeObjectURL(logoPreview.value)
   logoFile.value = file
   logoPreview.value = URL.createObjectURL(file)
+  // Clear the form logo URL since we're using file now
+  form.value.logo = null
 }
 function removeLogo() {
+  // Track URL deletion for R2 cleanup (only for existing URLs, not blobs)
+  if (form.value.logo && !form.value.logo.startsWith('blob:')) {
+    deletedImageUrls.value.push(form.value.logo)
+  }
   if (logoPreview.value?.startsWith('blob:')) URL.revokeObjectURL(logoPreview.value)
   logoFile.value = null
   logoPreview.value = null
+  form.value.logo = null
 }
 
 function openCropModal() {
@@ -785,9 +921,29 @@ function onPickImages(e: Event) {
 }
 
 function removeImage(i: number) {
-  if (imagePreviews.value[i]?.startsWith('blob:')) URL.revokeObjectURL(imagePreviews.value[i])
+  const removedPreview = imagePreviews.value[i]
+  // Track URL deletion for R2 cleanup (only for existing URLs, not blobs)
+  if (removedPreview && !removedPreview.startsWith('blob:')) {
+    deletedImageUrls.value.push(removedPreview)
+  }
+  if (removedPreview?.startsWith('blob:')) {
+    URL.revokeObjectURL(removedPreview)
+  }
+  // Also remove from form.companyImages to keep in sync
+  const formUrls = form.value.companyImages.map((img: any) => img.url).filter(Boolean)
+  if (i >= 0 && i < formUrls.length) {
+    const removedUrl = formUrls[i]
+    if (removedUrl && !removedUrl.startsWith('blob:')) {
+      deletedImageUrls.value.push(removedUrl)
+    }
+    formUrls.splice(i, 1)
+    form.value.companyImages = formUrls.map((url: string) => ({ url }))
+  }
   imagePreviews.value.splice(i, 1)
-  imageFiles.value.splice(i, 1)
+  // Only splice imageFiles if it's a new file (index < imageFiles.length)
+  if (i < imageFiles.value.length) {
+    imageFiles.value.splice(i, 1)
+  }
 }
 
 function onPickBanner(e: Event) {
@@ -802,9 +958,14 @@ function onPickBanner(e: Event) {
 }
 
 function removeBanner() {
+  // Track URL deletion for R2 cleanup (only for existing URLs, not blobs)
+  if (form.value.bannerImage && !form.value.bannerImage.startsWith('blob:')) {
+    deletedImageUrls.value.push(form.value.bannerImage)
+  }
   if (bannerPreview.value?.startsWith('blob:')) URL.revokeObjectURL(bannerPreview.value)
   bannerFile.value = null
   bannerPreview.value = null
+  form.value.bannerImage = null
 }
 
 onBeforeUnmount(() => {
@@ -826,6 +987,12 @@ async function dataUrl(file: File): Promise<string> {
 function validate(): boolean {
   errors.value = {}
   let ok = true
+
+  // In add mode, require MST verification before allowing submit
+  if (!isEditMode.value && !isMstVerified.value) {
+    errors.value.mst = 'Vui lòng nhập và xác thực MST trước.'
+    ok = false
+  }
 
   if (!form.value.name?.trim()) {
     errors.value.name = t('company.form.errName')
@@ -855,7 +1022,9 @@ function validate(): boolean {
     errors.value.foundedYear = 'Năm thành lập từ 1800 đến 2100.'
     ok = false
   }
-  if (!logoFile.value && !form.value.logo) {
+  // Logo validation: required - must have either new file OR existing URL (not deleted)
+  // Logo validation: must have logo (either new file or existing URL in preview)
+  if (!logoFile.value && !logoPreview.value) {
     errors.value.logo = 'Vui lòng chọn logo.'
     ok = false
   }
@@ -865,39 +1034,97 @@ function validate(): boolean {
 }
 
 async function onSubmit() {
+  // Debug log
+  console.log('=== FORM SUBMIT DATA ===')
+  console.log('form.value:', form.value)
+  console.log('isEditMode:', isEditMode.value)
+  console.log('logoFile:', logoFile.value)
+  console.log('bannerFile:', bannerFile.value)
+  console.log('imageFiles:', imageFiles.value)
+  console.log('deletedImageUrls:', deletedImageUrls.value)
+  console.log('=========================')
+
   if (!validate()) return
 
   loading.value = true
 
   try {
-    let logoUrl: string | null = form.value.logo || null
+    // Build submission data - create a clean object to avoid reactivity issues
+    const formData = JSON.parse(JSON.stringify(form.value))
+    const { id: _, ...formDataWithoutId } = formData
 
-    if (logoFile.value) logoUrl = await dataUrl(logoFile.value)
-
-    let detailUrls: string[] = []
-
-    if (imageFiles.value.length) {
-      detailUrls = await Promise.all(imageFiles.value.map(dataUrl))
+    // Step 1: Delete removed images from R2
+    if (deletedImageUrls.value.length > 0) {
+      await $api.upload.deleteBatchR2(deletedImageUrls.value)
     }
 
-    let bannerUrl: string | null = form.value.bannerImage || null
+    // Step 2: Upload new images to R2 and build final URLs
+    let logoUrl: string | null = formDataWithoutId.logo || null
+    let bannerUrl: string | null = formDataWithoutId.bannerImage || null
+    let companyImageUrls: string[] = Array.isArray(formDataWithoutId.companyImages)
+      ? formDataWithoutId.companyImages.map((img: any) => img.url).filter(Boolean)
+      : []
 
-    if (bannerFile.value) bannerUrl = await dataUrl(bannerFile.value)
+    // Upload logo if new file selected
+    if (logoFile.value) {
+      const url = await $api.upload.uploadImageR2(logoFile.value, 'logo')
+      if (url) logoUrl = url
+    }
 
-    form.value.logo = logoUrl
-    form.value.companyImages = detailUrls.map((url) => ({ url }))
-    form.value.bannerImage = bannerUrl
-    form.value.mst = form.value.mst || null
+    // Upload banner if new file selected
+    if (bannerFile.value) {
+      const url = await $api.upload.uploadImageR2(bannerFile.value, 'banner')
+      if (url) bannerUrl = url
+    }
+
+    // Upload company images if new files selected
+    if (imageFiles.value.length > 0) {
+      for (const file of imageFiles.value) {
+        const url = await $api.upload.uploadImageR2(file, 'company-images')
+        if (url) companyImageUrls.push(url)
+      }
+    }
+
+    // Build final submit data
+    const submitData: CompanyAddUpdateEntity = {
+      ...formDataWithoutId,
+      logo: logoUrl || null,
+      companyImages: companyImageUrls.map((url) => ({ url })),
+      bannerImage: bannerUrl || null,
+      mst: formDataWithoutId.mst || null,
+      website: formDataWithoutId.website || null,
+      facebookLink: formDataWithoutId.facebookLink || null,
+      twitterLink: formDataWithoutId.twitterLink || null,
+      linkedInLink: formDataWithoutId.linkedInLink || null,
+      instagramLink: formDataWithoutId.instagramLink || null,
+      videoUrl: formDataWithoutId.videoUrl || null,
+      description: formDataWithoutId.description || null,
+      insight: formDataWithoutId.insight || null,
+      overview: formDataWithoutId.overview || null,
+      taxAddress: formDataWithoutId.taxAddress || null,
+    }
+
+    // Ensure companyImages is always an array
+    if (!Array.isArray(submitData.companyImages)) {
+      submitData.companyImages = []
+    }
+
+    console.log('=== SUBMIT DATA ===')
+    console.log('submitData:', submitData)
+    console.log('=========================')
 
     if (form.value.id) {
-      await $api.company.editCompany(form.value.id, form.value)
+      await $api.company.editCompany(form.value.id, submitData)
       useNotify({ message: (t('company.editCompany.editCompanyComplete') as string) || 'Cập nhật công ty thành công.', type: 'success' })
     } else {
-      await $api.company.addCompany(form.value)
+      await $api.company.addCompany(submitData)
       useNotify({ message: t('company.form.createSuccess') as string, type: 'success' })
     }
     emit('success')
   } catch (e: any) {
+    console.error('=== SUBMIT ERROR ===')
+    console.error(e)
+    console.error('=========================')
     useNotify({
       message: Array.isArray(e?.message) ? e.message[0] : e?.message || (form.value.id ? 'Cập nhật thất bại.' : t('company.form.createFailed')),
       type: 'error',

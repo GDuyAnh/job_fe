@@ -12,4 +12,5 @@ export interface UserModel {
   avatarUrl?: string | null
   role: number
   companyId: number
+  isHostCompany: boolean
 }
