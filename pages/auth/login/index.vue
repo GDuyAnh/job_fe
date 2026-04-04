@@ -236,6 +236,7 @@ onMounted(() => {
 
   if (message) {
     useNotify({
+      type: 'warning',
       message: t(message),
     })
     messageStore.clearMessage()

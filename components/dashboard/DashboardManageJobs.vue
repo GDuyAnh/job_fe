@@ -162,9 +162,9 @@
 
           <!-- Actions -->
           <div class="flex items-center justify-end gap-2 pt-4 border-t border-gray-100">
-            <!-- Approve button - only show for pending jobs -->
+            <!-- Approve button - only show for host company and pending jobs -->
             <UButton
-              v-if="!isJobVisible(job)"
+              v-if="isHostCompanyUser && !isJobVisible(job)"
               variant="ghost"
               size="sm"
               icon="i-lucide-check-circle"
@@ -342,6 +342,9 @@ const router = useRouter()
 const { $api } = useNuxtApp()
 const authStore = useAuthStore()
 
+// Check if current user is the host company
+const isHostCompanyUser = computed(() => authStore.user?.isHostCompany === true)
+
 // Reactive data
 const loading = ref(false)
 const jobs = ref<JobModel[]>([])
@@ -403,7 +406,15 @@ const fetchJobs = async () => {
   loading.value = true
 
   try {
-    const response = await $api.job.findJobByUserId(authStore.user.id)
+    let response
+
+    // If host company, get all jobs of the company
+    // If not host, get only jobs created by this user
+    if (isHostCompanyUser.value && authStore.user?.companyId) {
+      response = await $api.job.adminListJob({ companyId: authStore.user.companyId })
+    } else {
+      response = await $api.job.findJobByUserId(authStore.user.id)
+    }
 
     if (response && Array.isArray(response)) {
       jobs.value = response.map((job) => JobMapper.toModel(job))
@@ -422,8 +433,13 @@ const fetchJobs = async () => {
 }
 
 const viewJob = (job: JobModel) => {
-  // Navigate to job detail page
-  router.push(`/jobs/${job.id}`)
+  // If job is not approved (pending), open preview page in new tab
+  if (!isJobVisible(job)) {
+    window.open(`/jobs/preview/${job.id}`, '_blank')
+  } else {
+    // Navigate to job detail page
+    router.push(`/jobs/${job.id}`)
+  }
 }
 
 const updateJob = (job: JobModel) => {

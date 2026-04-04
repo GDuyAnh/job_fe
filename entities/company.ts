@@ -22,7 +22,6 @@ export interface CompanyEntity {
   mst?: string
   logo: string | null
   organizationType: number | null
-  isShow: boolean
   isWaiting: boolean
   isFeatured: boolean
   facebookLink: string | null
@@ -57,7 +56,6 @@ export interface CompanyAddUpdateEntity {
   name: string
   logo: string | null
   organizationType: number | null
-  isShow: boolean
   isWaiting: boolean
   isFeatured?: boolean
   facebookLink: string | null

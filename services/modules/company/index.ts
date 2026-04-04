@@ -31,6 +31,13 @@ const CompanyModule = (apiService: FetchFactory) => {
     )
   }
 
+  // Protected endpoint - requires auth, returns full company details for owner/admin
+  const getCompanyDetailProtected = async (id: number) => {
+    return apiService.get<CompanyEntity>(
+      `${ROUTE_API.COMPANY.GET_COMPANY}/${id}/detail`,
+    )
+  }
+
   const getCompanyByMst = async (mst: string) => {
     return apiService.get<VietQRBusinessResponse>(
       `${ROUTE_API.COMPANY.GET_COMPANY_BY_MST}/${mst}`,
@@ -115,6 +122,7 @@ const CompanyModule = (apiService: FetchFactory) => {
     adminListCompany,
     adminGetCompanyDetail,
     getCompanyDetail,
+    getCompanyDetailProtected,
     getCompanyByMst,
     checkExistMst,
     addCompany,

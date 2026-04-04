@@ -191,10 +191,10 @@
             <UIcon name="i-lucide-alert-circle" class="w-5 h-5 text-gray-500 mt-0.5 flex-shrink-0" />
             <div class="flex-1">
               <p class="text-sm text-gray-700 mb-2">
-                {{ $t('dashboard.settings.deleteAccount.warning1') }}
+                {{ $t('dashboard.settings.deleteAccount.warningTitle') }}
               </p>
               <p class="text-sm text-gray-600">
-                {{ $t('dashboard.settings.deleteAccount.warning2') }}
+                {{ $t('dashboard.settings.deleteAccount.warningMessage') }}
               </p>
             </div>
           </div>

@@ -124,12 +124,22 @@ const CustomImage = Image.extend({
       align: {
         default: 'center',
         parseHTML: (element) => element.getAttribute('data-align') || 'center',
-        renderHTML: (attributes) => ({ 'data-align': attributes.align, class: `image-align-${attributes.align}`, style: `text-align: ${attributes.align}` }),
+        renderHTML: (attributes) => {
+          let style = `width: ${attributes.width}; `
+          if (attributes.align === 'center') {
+            style += 'display: block; margin-left: auto; margin-right: auto;'
+          } else if (attributes.align === 'left') {
+            style += 'display: block; margin-left: 0; margin-right: auto;'
+          } else if (attributes.align === 'right') {
+            style += 'display: block; margin-left: auto; margin-right: 0;'
+          }
+          return { 'data-align': attributes.align, class: `image-align-${attributes.align}`, style }
+        },
       },
       width: {
         default: '100%',
         parseHTML: (element) => element.getAttribute('data-width') || '100%',
-        renderHTML: (attributes) => ({ 'data-width': attributes.width, style: `width: ${attributes.width}` }),
+        renderHTML: (attributes) => ({ 'data-width': attributes.width }),
       },
       isUploaded: {
         default: false,
@@ -404,8 +414,8 @@ onBeforeUnmount(() => {
 :deep(.ProseMirror pre code) { background-color: transparent; color: inherit; padding: 0; }
 :deep(.ProseMirror img) { max-width: 100%; height: auto; border-radius: 0.5rem; margin: 1rem 0; display: block; cursor: pointer; }
 :deep(.ProseMirror img:hover) { opacity: 0.9; }
-:deep(.ProseMirror .image-align-left) { float: left; margin-right: 1rem; }
-:deep(.ProseMirror .image-align-center) { margin-left: auto; margin-right: auto; }
-:deep(.ProseMirror .image-align-right) { float: right; margin-left: 1rem; }
+:deep(.ProseMirror .image-align-left) { display: block; margin-left: 0; margin-right: auto; }
+:deep(.ProseMirror .image-align-center) { display: block; margin-left: auto; margin-right: auto; }
+:deep(.ProseMirror .image-align-right) { display: block; margin-left: auto; margin-right: 0; }
 :deep(.ProseMirror::after) { content: ''; display: table; clear: both; }
 </style>

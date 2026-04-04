@@ -207,11 +207,12 @@
                     variant="ghost"
                     size="xs"
                     color="primary"
+                    :disabled="!canApproveJob"
                     @click="approveJob(job)"
                   >
                     <UIcon name="i-lucide-check-circle" class="w-4 h-4" />
                   </UButton>
-                  <UButton variant="ghost" size="xs" icon="i-lucide-eye" @click="viewJob(job.id)" />
+                  <UButton variant="ghost" size="xs" icon="i-lucide-eye" @click="viewJob(job)" />
                   <UButton variant="ghost" size="xs" icon="i-lucide-pencil" @click="openEditJob(job)" />
                   <UButton variant="ghost" size="xs" color="error" icon="i-lucide-trash-2" @click="deleteJob(job)" />
                 </div>
@@ -283,11 +284,12 @@
               />
             </template>
             <template v-else>
-              <USelect
+              <USelectMenu
                 v-if="companySelectItems.length > 0"
+                v-model="selectedCompanyId"
                 :items="companySelectItems"
-                :model-value="selectedCompanyId?.toString() ?? ''"
                 placeholder="Chọn công ty"
+                searchable
                 class="w-full"
                 @update:model-value="onSelectCompany"
               />
@@ -295,7 +297,7 @@
             </template>
           </div>
           <DashboardNewJob
-            :company-data="companyDataForJob ?? undefined"
+            :company-data="companyDataForJob"
             :job-to-edit="editingJobForForm ?? undefined"
             :require-company-selection="!editingJob"
             @job-created="onJobSlideSuccess"
@@ -389,12 +391,19 @@
 <script setup lang="ts">
 import type { JobModel } from '~/models/job'
 import type { CompanyEntity } from '~/entities/company'
+import { USER_ROLES } from '~/constants/roles'
 
 const { $api } = useNuxtApp()
 const { t } = useI18n()
 const authStore = useAuthStore()
 
 const welcomeName = computed(() => authStore.user?.fullName || 'System Admin')
+
+  // Check if current user is admin
+const isAdmin = computed(() => authStore.user?.role === USER_ROLES.ADMIN)
+
+// Check if user can approve: admin OR host company
+const canApproveJob = computed(() => isAdmin.value)
 
 const loading = ref(false)
 const allJobs = ref<any[]>([])
@@ -535,7 +544,10 @@ const filteredJobs = computed(() => {
 const jobSlideOpen = ref(false)
 const editingJob = ref<any | null>(null)
 const companies = ref<CompanyEntity[]>([])
-const selectedCompanyId = ref<number | null>(null)
+const selectedCompanyId = ref<string | null>(null)
+
+// Lưu trữ company object đã chọn
+const selectedCompany = ref<CompanyEntity | null>(null)
 
 const companyDataForJob = computed<CompanyEntity | null>(() => {
   if (editingJob.value) {
@@ -544,11 +556,7 @@ const companyDataForJob = computed<CompanyEntity | null>(() => {
       name: editingJob.value.companyName || 'Công ty',
     } as CompanyEntity
   }
-  if (selectedCompanyId.value && companies.value.length > 0) {
-    const c = companies.value.find((x) => x.id === selectedCompanyId.value)
-    return c ? { id: c.id, name: c.name || 'Công ty' } : null
-  }
-  return null
+  return selectedCompany.value
 })
 
 const companySelectItems = computed(() =>
@@ -566,6 +574,7 @@ const editingJobForForm = computed<JobModel | null>(() => {
   const j = editingJob.value
   return j ? jobToListJobModel(j) : null
 })
+
 
 const jobSlideTitle = computed(() => (editingJob.value ? 'Edit Job' : 'New Job'))
 
@@ -591,7 +600,6 @@ function jobToListJobModel(j: any): JobModel | null {
     salaryMax: j.salaryMax != null ? String(j.salaryMax) : null,
     salaryType: Number(j.salaryType ?? 0),
     benefits: j.benefits ?? null,
-    isFeatured: !!j.isFeatured,
     status: (j.status || '').toUpperCase() || 'ADMIN_REVIEW',
     createdAt: j.createdAt ? new Date(j.createdAt) : undefined,
     deadline: j.deadline ? new Date(j.deadline) : undefined,
@@ -699,6 +707,7 @@ async function fetchCompanies() {
 function openNewJob() {
   editingJob.value = null
   selectedCompanyId.value = null
+  selectedCompany.value = null
   jobSlideOpen.value = true
   if (companies.value.length === 0) fetchCompanies()
 }
@@ -706,6 +715,7 @@ function openNewJob() {
 function openEditJob(job: any) {
   editingJob.value = job
   selectedCompanyId.value = null
+  selectedCompany.value = null
   jobSlideOpen.value = true
 }
 
@@ -713,6 +723,7 @@ function closeJobSlide() {
   jobSlideOpen.value = false
   editingJob.value = null
   selectedCompanyId.value = null
+  selectedCompany.value = null
 }
 
 function onJobSlideSuccess() {
@@ -720,13 +731,35 @@ function onJobSlideSuccess() {
   fetchJobs()
 }
 
-function onSelectCompany(value: string) {
-  const id = value ? Number(value) : null
-  selectedCompanyId.value = id
+function onSelectCompany(value: any) {
+  // USelectMenu passes item object with value and label properties
+  // selectedCompanyId cần là object {value, label} để hiển thị đúng
+  selectedCompanyId.value = value || null
+  selectedCompany.value = value ? {
+    id: Number(value.value),
+    name: value.label || 'Công ty',
+  } as CompanyEntity : null
 }
 
-function viewJob(id: number) {
-  window.open(`/jobs/${id}`, '_blank')
+function viewJob(job: any) {
+  // Check if job should be redirected to preview
+  const isExpired = isJobExpired(job)
+  const isApproved = isJobApproved(job)
+
+  // If expired or not approved (pending, admin_review, rejected), go to preview page
+  if (isExpired || !isApproved) {
+    window.open(`/jobs/preview/${job.id}`, '_blank')
+  } else {
+    window.open(`/jobs/${job.id}`, '_blank')
+  }
+}
+
+function isJobExpired(job: any): boolean {
+  if (!job.deadline) return false
+  const d = typeof job.deadline === 'string' ? new Date(job.deadline) : job.deadline
+  const now = new Date()
+  now.setHours(0, 0, 0, 0)
+  return d < now
 }
 
 function deleteJob(job: any) {

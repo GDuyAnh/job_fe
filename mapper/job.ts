@@ -31,7 +31,6 @@ export class JobMapper {
       salaryMax: value.salaryMax,
       salaryType: value.salaryType,
       benefits: value.benefits,
-      isFeatured: value.isFeatured,
       status: (value as any).status ?? 'ADMIN_REVIEW',
       createdAt: value.createdAt || new Date(),
       deadline: value.deadline,
@@ -40,6 +39,7 @@ export class JobMapper {
       phoneNumber: value.phoneNumber,
       address: value.address || '',
       jobAddress: (value as any).jobAddress || null,
+      postType: (value as any).postType || 'Basic',
     }
   }
 
@@ -73,7 +73,6 @@ export class JobMapper {
       benefits: value.benefits 
         ? value.benefits.split(',').map(b => b.trim()).filter(b => b)
         : undefined,
-      isFeatured: value.isFeatured,
       deadline: value.deadline
         ? new Date(value.deadline).toISOString().split('T')[0]
         : undefined,
@@ -87,6 +86,7 @@ export class JobMapper {
       email: value.email ?? undefined,
       phoneNumber: value.phoneNumber ?? undefined,
       address: value.address || '',
+      postType: (value as any).postType || 'Basic',
     }
   }
 }

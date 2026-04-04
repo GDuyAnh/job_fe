@@ -19,7 +19,6 @@ export interface CompanyModel {
   name: string
   logo: string | null
   organizationType: number | null
-  isShow: boolean
   facebookLink: string | null
   linkedInLink: string | null
   twitterLink: string | null

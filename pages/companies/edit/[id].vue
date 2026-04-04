@@ -684,7 +684,6 @@ async function save() {
       logo,
       companyImages,
       bannerImage: form.bannerImage ?? null,
-      isShow: false,
       isWaiting: false,
     }
 

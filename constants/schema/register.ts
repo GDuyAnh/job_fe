@@ -22,4 +22,27 @@ export const registerSchema = () => {
   })
 }
 
+export const registerCompanySchema = () => {
+  const { $i18n } = useNuxtApp()
+
+  return z.object({
+    taxCode: Validate.field($i18n.t('auth.taxCode')).createSchema(
+      (field) => field.required(),
+      (field) => field.minLength(5),
+      (field) => field.maxLength(20),
+    ),
+    email: Validate.field($i18n.t('common.fields.email')).createSchema(
+      (field) => field.required(),
+      (field) => field.email(),
+    ),
+    password: Validate.field($i18n.t('common.fields.password')).createSchema(
+      (field) => field.required(),
+      (field) => field.password(),
+      (field) => field.minLength(6),
+      (field) => field.maxLength(CONSTANTS.MAX_LENGTH.PASSWORD),
+    ),
+  })
+}
+
 export type RegisterType = z.infer<ReturnType<typeof registerSchema>>
+export type RegisterCompanyType = z.infer<ReturnType<typeof registerCompanySchema>>

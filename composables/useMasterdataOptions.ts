@@ -119,6 +119,12 @@ export const useJobFilters = () => {
     })),
   )
 
+  const postTypeOptions = [
+    { value: 'Basic', label: 'Cơ bản', color: 'blue' },
+    { value: 'Hot', label: 'Mới nhất', color: 'amber' },
+    { value: 'Urgent', label: 'Tuyển gấp', color: 'red' },
+  ]
+
   return {
     locationEnumLabel,
     locationItems,
@@ -142,5 +148,6 @@ export const useJobFilters = () => {
     gradeItems,
     requiredQualificationLabel,
     requiredQualificationItems,
+    postTypeOptions,
   }
 }

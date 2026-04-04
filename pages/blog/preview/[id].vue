@@ -1,8 +1,8 @@
 <template>
   <div class="min-h-screen bg-gray-100 relative">
-    <!-- Overlay for draft preview -->
+    <!-- Overlay for preview -->
     <div
-      v-show="isDraft && showOverlay"
+      v-show="showOverlay"
       class="fixed inset-0 z-[100] bg-[#0000009c] flex items-center justify-center"
     >
       <div class="bg-transparent text-center">
@@ -20,7 +20,7 @@
             <UIcon name="i-lucide-arrow-left" class="w-5 h-5" />
             <span class="font-medium">Quay lại Blog</span>
           </NuxtLink>
-          <span class="text-sm text-gray-500">Jobter Blog</span>
+          <span class="text-sm text-gray-500">Jobter Blog - Admin Preview</span>
         </div>
       </UContainer>
     </header>
@@ -40,10 +40,13 @@
 
           <div class="px-6 py-8 md:px-12 md:py-10">
             <!-- Category badge -->
-            <div class="mb-4">
+            <div class="mb-4 flex items-center gap-2">
               <span class="inline-flex items-center rounded-full bg-orange-100 px-3 py-1 text-xs font-semibold text-orange-700 border border-orange-200">
                 {{ blogCategoryLabel }}
               </span>
+              <UBadge v-if="blog?.status === 'draft'" color="warning" variant="soft">
+                Nháp
+              </UBadge>
             </div>
 
             <!-- Title -->
@@ -60,18 +63,6 @@
               <div class="flex items-center gap-2">
                 <UIcon name="i-lucide-user" class="w-4 h-4" />
                 <span>{{ blog?.author || 'Jobter' }}</span>
-              </div>
-              <div class="flex items-center gap-3 ml-auto">
-                <span class="text-xs uppercase tracking-wide text-gray-400">Chia sẻ</span>
-                <button
-                  v-for="icon in shareIcons"
-                  :key="icon.name"
-                  type="button"
-                  class="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-600 transition-colors"
-                  @click="onShare(icon.type)"
-                >
-                  <UIcon :name="icon.name" class="w-4 h-4" />
-                </button>
               </div>
             </div>
 
@@ -116,13 +107,12 @@ const { $api } = useNuxtApp()
 
 const blog = ref<BlogEntity | null>(null)
 const loading = ref(false)
+const showOverlay = ref(true)
+const overlayTitle = 'Blog nháp - Chỉ preview'
 
-const shareIcons = [
-  { type: 'facebook', name: 'i-lucide-facebook' },
-  { type: 'twitter', name: 'i-lucide-twitter' },
-  { type: 'linkedin', name: 'i-lucide-linkedin' },
-  { type: 'copy', name: 'i-lucide-link' },
-]
+const hideOverlayAndView = () => {
+  showOverlay.value = false
+}
 
 const formattedDate = computed(() => {
   if (!blog.value?.createdAt) return ''
@@ -132,20 +122,6 @@ const formattedDate = computed(() => {
 })
 
 const blogCategoryLabel = computed(() => blog.value?.category || 'Blog')
-
-const isDraft = computed(() => blog.value?.status === 'draft')
-
-const showOverlay = ref(true)
-
-const overlayTitle = computed(() => {
-  return isDraft.value ? 'Blog nháp - Chỉ preview' : ''
-})
-
-const hideOverlayAndView = () => {
-  if (isDraft.value) {
-    showOverlay.value = false
-  }
-}
 
 const processedContent = computed(() => {
   if (!blog.value?.content) return ''
@@ -158,7 +134,6 @@ const processedContent = computed(() => {
   content = content.replace(/\n/g, '<br>')
 
   // Process image - handle data-width and data-align attributes
-  // Use a function to build the complete replacement
   content = content.replace(/<img([^>]*)>/gi, (match, attrs) => {
     let widthStyle = ''
     let alignStyle = ''
@@ -167,11 +142,7 @@ const processedContent = computed(() => {
     const widthMatch = attrs.match(/data-width="([^"]*)"/)
     if (widthMatch) {
       const width = widthMatch[1]
-      if (width.endsWith('%')) {
-        widthStyle = `width: ${width};`
-      } else {
-        widthStyle = `width: ${width};`
-      }
+      widthStyle = `width: ${width};`
     }
 
     // Extract data-align and convert to alignment style
@@ -186,7 +157,6 @@ const processedContent = computed(() => {
         alignStyle = 'margin-left: auto; margin-right: 0; padding-top: 16px; padding-bottom: 16px;'
       }
     } else {
-      // Default with padding
       alignStyle = 'display: block; margin-left: auto; margin-right: auto; padding-top: 16px; padding-bottom: 16px;'
     }
 
@@ -195,9 +165,7 @@ const processedContent = computed(() => {
     let newAttrs = attrs
 
     if (allStyles) {
-      // Remove existing style attribute if present
       newAttrs = newAttrs.replace(/\s*style="[^"]*"/gi, '')
-      // Add new style attribute
       newAttrs += ` style="${allStyles}"`
     }
 
@@ -215,34 +183,20 @@ async function fetchBlog() {
     return
   }
 
-  // Reset overlay when fetching new blog
-  showOverlay.value = true
-
   loading.value = true
   try {
-    const data = await $api.blog.getBlogById(numId)
-    blog.value = data as BlogEntity
+    // Use admin endpoint to get all blogs including drafts
+    const response = await $api.blog.getAllBlogsForAdmin()
+    if (Array.isArray(response)) {
+      const found = response.find((b: BlogEntity) => b.id === numId)
+      blog.value = found || null
+    }
   } catch (e) {
     console.error('Failed to load blog detail:', e)
     blog.value = null
   } finally {
     loading.value = false
   }
-}
-
-function onShare(type: string) {
-  const url = window.location.href
-  if (type === 'copy') {
-    navigator.clipboard?.writeText(url).catch(() => {})
-    return
-  }
-  const encodedUrl = encodeURIComponent(url)
-  let shareUrl = ''
-  if (type === 'facebook') shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`
-  else if (type === 'twitter') shareUrl = `https://twitter.com/intent/tweet?url=${encodedUrl}`
-  else if (type === 'linkedin') shareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`
-
-  if (shareUrl) window.open(shareUrl, '_blank', 'noopener,noreferrer')
 }
 
 onMounted(() => {

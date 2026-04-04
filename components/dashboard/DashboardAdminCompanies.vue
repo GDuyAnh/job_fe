@@ -283,7 +283,7 @@
                     size="xs"
                     icon="i-lucide-eye"
                     :title="$t('dashboard.admin.companies.actions.view')"
-                    @click="viewCompany(company.id)"
+                    @click="viewCompany(company)"
                   />
                   <UButton
                     variant="ghost"
@@ -527,8 +527,14 @@ const formatRegistrationDate = (company: any): string => {
   return date.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' })
 }
 
-const viewCompany = (id: number) => {
-  window.open(`/companies/${id}`, '_blank', 'noopener,noreferrer')
+const viewCompany = (company: any) => {
+  if (company.isWaiting) {
+    // Redirect to preview page for unapproved companies
+    window.open(`/companies/preview/${company.id}`, '_blank', 'noopener,noreferrer')
+  } else {
+    // Redirect to normal view page for approved companies
+    window.open(`/companies/${company.id}`, '_blank', 'noopener,noreferrer')
+  }
 }
 
 const editCompany = (company: any) => {
