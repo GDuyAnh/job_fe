@@ -425,6 +425,111 @@
       </UContainer>
     </div>
 
+    <!-- Urgent Jobs -->
+    <div class="min-h-screen bg-white flex flex-row items-center relative z-10">
+      <UContainer>
+        <!-- Header -->
+        <div class="mb-8">
+          <div class="flex flew-row justify-between items-start">
+            <div>
+              <h2 class="text-4xl font-extrabold text-gray-900 mb-2">
+                Việc làm tuyển gấp
+              </h2>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div class="job-board grid grid-cols-2 gap-6">
+            <div
+              v-for="job in urgentJobsRes"
+              :key="job.id"
+              class="job-card rounded-xl p-4 flex flex-col justify-between bg-white cursor-pointer border border-gray-200"
+              @click.stop="viewJob(job)"
+            >
+              <div>
+                <div class="flex items-center gap-4">
+                  <div class="bg-black p-3 rounded-lg text-white w-20 h-20">
+                    {{
+                      job.title
+                        .split(' ')
+                        .map((word) => word[0])
+                        .join('')
+                        .toUpperCase()
+                    }}
+                  </div>
+                  <div class="flex-1">
+                    <h2 class="font-bold text-lg">{{ job.title }}</h2>
+                    <div class="flex items-center justify-between">
+                      <UTooltip
+                        v-if="getFullLocationText(job)"
+                        :text="getFullLocationText(job)"
+                        :popper="{ placement: 'top' }"
+                      >
+                        <span class="text-sm font-bold cursor-help">
+                          <UIcon
+                            name="i-raphael:globealt"
+                            style="font-size: 12px !important"
+                          />
+                          {{ truncateText(getFullLocationText(job), 40) }}
+                        </span>
+                      </UTooltip>
+                      <span class="text-sm text-gray-600 ml-auto">
+                        {{
+                          employmentTypesEnumLabel?.[
+                            job.typeOfEmployment as unknown as number
+                          ] ?? job.typeOfEmployment
+                        }}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="flex flex-row justify-between mt-4">
+                <div>
+                  <p class="text-sm text-gray-500">
+                    {{
+                      (() => {
+                        const firstCategory = job.category
+                          ? job.category.split(',')[0].trim()
+                          : ''
+                        return (
+                          categoryEnumLabel?.[
+                            firstCategory as unknown as number
+                          ] ??
+                          (firstCategory || job.category)
+                        )
+                      })()
+                    }}
+                  </p>
+                </div>
+                <div class="text-right text-xs mt-2">
+                  {{
+                    job.createdAt
+                      ? formatDateVN(new Date(job.createdAt))
+                      : $t('common.nanValue')
+                  }}
+                  {{ $t('homePage.featuredJobOffers.by') }}
+                  <span class="font-semibold">{{ job.companyName }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-6">
+          <app-button
+            class="mt-5 p-6 bg-black text-white"
+            variant="outline"
+            shape="round"
+            compact
+            @click="viewAllClick()"
+            >{{ $t('homePage.buttonContent.seeAll') }}</app-button
+          >
+        </div>
+      </UContainer>
+    </div>
+
     <!-- Featured Cities -->
     <div class="min-h-screen bg-white py-16">
       <UContainer>
@@ -858,6 +963,7 @@ const viewAllClick = () => {
 
 // Call Api OnMouted
 const featureJobsRes = ref<JobModel[]>([])
+const urgentJobsRes = ref<JobModel[]>([])
 const categoryJobsRes = ref<CategoryJobModel[]>([])
 const locationJobsRes = ref<LocationJobModel[]>([])
 const bannerRes = ref<CompanyBannerModel[]>([])
@@ -877,19 +983,31 @@ const getFeatureJobs = async () => {
     console.log('[getFeatureJobs] API response:', response)
 
     if (response && Array.isArray(response)) {
-      // Filter: postType is Hot or Urgent, then sort by createdAt DESC
-      const urgentHotJobs = response
-        .filter((job: any) => (job.postType === 'Hot' || job.postType === 'Urgent') && job.status === 'APPROVED')
+      // Filter: Featured section chỉ hiển thị job tag "Mới nhất" (postType = Hot)
+      const hotJobs = response
+        .filter((job: any) => job.postType === 'Hot' && job.status === 'APPROVED')
         .sort((a: any, b: any) => {
           const dateA = new Date(a.createdAt || 0).getTime()
           const dateB = new Date(b.createdAt || 0).getTime()
           return dateB - dateA // Newest first
         })
 
-      console.log('[getFeatureJobs] filtered Hot/Urgent jobs:', urgentHotJobs)
-      featureJobsRes.value = urgentHotJobs.map((job: any) => JobMapper.toModel(job))
+      console.log('[getFeatureJobs] filtered Hot jobs:', hotJobs)
+      featureJobsRes.value = hotJobs.map((job: any) => JobMapper.toModel(job))
+
+      // Section "Việc làm tuyển gấp": postType = Urgent
+      const urgentJobs = response
+        .filter((job: any) => job.postType === 'Urgent' && job.status === 'APPROVED')
+        .sort((a: any, b: any) => {
+          const dateA = new Date(a.createdAt || 0).getTime()
+          const dateB = new Date(b.createdAt || 0).getTime()
+          return dateB - dateA
+        })
+      console.log('[getFeatureJobs] filtered Urgent jobs:', urgentJobs)
+      urgentJobsRes.value = urgentJobs.map((job: any) => JobMapper.toModel(job))
     } else {
       featureJobsRes.value = []
+      urgentJobsRes.value = []
     }
   } catch (error: any) {
     console.error('Search failed:', error)
@@ -897,6 +1015,7 @@ const getFeatureJobs = async () => {
       message: error.message,
     })
     featureJobsRes.value = []
+    urgentJobsRes.value = []
   }
 }
 

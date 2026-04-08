@@ -146,19 +146,6 @@
             />
             <p v-if="employerFormErrors.fullName" class="text-red-500 text-sm mt-1">{{ employerFormErrors.fullName }}</p>
           </div>
-          <!-- Phone number -->
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">
-              Phone number <span class="text-red-500">*</span>
-            </label>
-            <UInput
-              v-model.trim="employerForm.phoneNumber"
-              class="w-full"
-              placeholder="Phone number"
-              :class="{ 'border-red-500': employerFormErrors.phoneNumber }"
-            />
-            <p v-if="employerFormErrors.phoneNumber" class="text-red-500 text-sm mt-1">{{ employerFormErrors.phoneNumber }}</p>
-          </div>
           <!-- Email (BE bắt buộc) -->
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">
@@ -232,7 +219,7 @@
       <div class="flex flex-wrap items-center gap-3">
         <UInput
           v-model="jobSearch"
-          placeholder="Search by location..."
+          placeholder="Search..."
           icon="i-lucide-search"
           class="w-[220px] h-10"
         />
@@ -624,11 +611,30 @@ const jobPendingDelete = ref<any | null>(null)
 const jobPendingApprove = ref<any | null>(null)
 const employerPage = ref(1)
 const employerPerPage = 10
-const employerTotalPages = computed(() => Math.ceil(employers.value.length / employerPerPage))
+const filteredEmployers = computed(() => {
+  let list = employers.value
+  const kw = employerSearch.value?.trim().toLowerCase()
+  if (kw) {
+    list = list.filter((u: any) => {
+      const name = (u.fullName ?? '').toString().toLowerCase()
+      const email = (u.email ?? '').toString().toLowerCase()
+      return name.includes(kw) || email.includes(kw)
+    })
+  }
+  return list
+})
+
+const employerTotalPages = computed(() =>
+  Math.ceil(filteredEmployers.value.length / employerPerPage),
+)
 
 const paginatedEmployers = computed(() => {
   const start = (employerPage.value - 1) * employerPerPage
-  return employers.value.slice(start, start + employerPerPage)
+  return filteredEmployers.value.slice(start, start + employerPerPage)
+})
+
+watch(employerSearch, () => {
+  employerPage.value = 1
 })
 
 const allJobs = ref<any[]>([])
@@ -685,13 +691,12 @@ const jobStatusCards = computed(() => {
 
 const filteredJobs = computed(() => {
   let list = allJobs.value
-  // Search theo location (job.location hoặc job.address)
+  // Search giống màn "Quản lý công việc": lọc theo title
   const kw = jobSearch.value?.trim().toLowerCase()
   if (kw) {
     list = list.filter((j: any) => {
-      const loc = (j.location ?? '').toString().toLowerCase()
-      const addr = (j.address ?? '').toLowerCase()
-      return loc.includes(kw) || addr.includes(kw)
+      const title = (j.title ?? '').toString().toLowerCase()
+      return title.includes(kw)
     })
   }
   const status = jobStatusFilter.value
@@ -761,7 +766,6 @@ const addEmployerLoading = ref(false)
 const employerForm = ref({
   isHost: false,
   fullName: '',
-  phoneNumber: '',
   email: '',
   password: '',
   confirmPassword: '',
@@ -838,7 +842,6 @@ function openNewEmployer() {
   employerForm.value = {
     isHost: false,
     fullName: '',
-    phoneNumber: '',
     email: '',
     password: '',
     confirmPassword: '',
@@ -849,7 +852,6 @@ function openNewEmployer() {
 async function submitAddEmployer() {
   employerFormErrors.value = {}
   if (!employerForm.value.fullName) employerFormErrors.value.fullName = 'Required'
-  if (!employerForm.value.phoneNumber) employerFormErrors.value.phoneNumber = 'Required'
   if (!employerForm.value.email) employerFormErrors.value.email = 'Required'
   if (!employerForm.value.password) employerFormErrors.value.password = 'Required'
   if (employerForm.value.password !== employerForm.value.confirmPassword) {
@@ -859,15 +861,35 @@ async function submitAddEmployer() {
 
   addEmployerLoading.value = true
   try {
-    await $api.users.register({
-      ...employerForm.value,
+    // BE `CreateUserDto` không nhận `isHost`, `confirmPassword` và bắt buộc `username`.
+    // Đồng thời để đúng "employee", ta set role = 3 (COMPANY) + companyId.
+    const username =
+      employerForm.value.email.split('@')[0] +
+      '_' +
+      Date.now().toString().slice(-6)
+
+    const created = await $api.users.register({
+      fullName: employerForm.value.fullName,
+      email: employerForm.value.email,
+      password: employerForm.value.password,
+      username,
+      role: 3,
       companyId: props.companyId,
-    })
+    } as any)
+
+    // Nếu tick Host thì set host sau khi tạo (BE mặc định isHostCompany=false)
+    if (employerForm.value.isHost && created?.id) {
+      await $api.users.setHostCompany(created.id, props.companyId, true)
+    }
+
     addEmployerSlideOpen.value = false
     await fetchEmployers()
   } catch (e: any) {
     console.error('Failed to create employer', e)
-    employerFormErrors.value.email = e.response?._data?.message || 'Failed to create'
+    employerFormErrors.value.email =
+      e?.message ||
+      e?.response?._data?.message ||
+      'Failed to create'
   } finally {
     addEmployerLoading.value = false
   }
