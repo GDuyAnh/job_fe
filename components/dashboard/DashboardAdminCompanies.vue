@@ -455,15 +455,19 @@ const filteredCompanies = computed(() => {
     result = result.filter(c => c.bannerImage && c.bannerImage.trim() !== '')
   }
   
-  // Sort by company type (isWaiting)
+  // Sort: mặc định mới nhất theo ngày tạo; khi chọn cột Company type thì sort theo trạng thái duyệt
   if (sortBy.value === 'companyType') {
     result = [...result].sort((a, b) => {
       const aWaiting = a.isWaiting ? 1 : 0
       const bWaiting = b.isWaiting ? 1 : 0
-      return sortOrder.value === 'asc' ? aWaiting - bWaiting : bWaiting - aWaiting
+      const cmp = sortOrder.value === 'asc' ? aWaiting - bWaiting : bWaiting - aWaiting
+      if (cmp !== 0) return cmp
+      return companyCreatedTime(b) - companyCreatedTime(a)
     })
+  } else {
+    result = [...result].sort((a, b) => companyCreatedTime(b) - companyCreatedTime(a))
   }
-  
+
   return result
 })
 
@@ -513,6 +517,18 @@ const displayProvince = (company: any): string => {
   if (v == null || String(v).trim() === '') return '–'
 
   return String(v)
+}
+
+function companyCreatedTime(company: any): number {
+  const d = company.createdAt ?? company.createDate
+
+  if (!d) return 0
+
+  const date = typeof d === 'string' ? new Date(d) : d
+
+  if (Number.isNaN(date.getTime())) return 0
+
+  return date.getTime()
 }
 
 const formatRegistrationDate = (company: any): string => {

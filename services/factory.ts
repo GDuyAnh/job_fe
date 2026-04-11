@@ -1,4 +1,5 @@
 import type { FetchOptions as FetchOptionsSystem } from 'ofetch'
+import { sortResponseListsByCreateDateDesc } from '~/utils/sortResponseListsByCreateDate'
 
 export default class FetchFactory {
   protected instance: any
@@ -39,6 +40,14 @@ export default class FetchFactory {
             const authStore = useAuthStore()
             authStore.logout()
           }
+        }
+      },
+
+      onResponse({ response, options }: { response: any; options: any }) {
+        if (options?.sortByCreateDate === false) return
+        const data = response._data
+        if (data !== null && data !== undefined && typeof data === 'object') {
+          response._data = sortResponseListsByCreateDateDesc(data)
         }
       },
 
