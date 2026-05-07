@@ -1,5 +1,12 @@
 <template>
-  <div class="min-h-screen bg-gray-100 relative">
+  <div
+    class="min-h-screen relative"
+    style="
+      background: radial-gradient(circle at 8% 4%, rgba(88, 128, 255, 0.12), transparent 26%),
+        radial-gradient(circle at 92% 10%, rgba(146, 186, 255, 0.1), transparent 24%),
+        linear-gradient(180deg, #eef5ff 0%, #f7faff 68%, #ffffff 100%);
+    "
+  >
     <!-- Overlay for draft preview -->
     <div
       v-show="isDraft && showOverlay"
@@ -12,97 +19,140 @@
       </div>
     </div>
 
-    <!-- Header -->
-    <header class="bg-white border-b border-gray-200 sticky top-0 z-50">
-      <UContainer class="py-4">
-        <div class="flex items-center justify-between">
-          <NuxtLink to="/blog" class="flex items-center gap-2 text-gray-700 hover:text-gray-900 transition-colors">
-            <UIcon name="i-lucide-arrow-left" class="w-5 h-5" />
-            <span class="font-medium">Quay lại Blog</span>
-          </NuxtLink>
-          <span class="text-sm text-gray-500">Jobter Blog</span>
-        </div>
-      </UContainer>
-    </header>
-
-    <main class="py-8 lg:py-12">
+    <main class="pt-4 pb-16">
       <UContainer>
-        <!-- Blog card wrapper -->
-        <article class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-          <!-- Cover image -->
-          <div v-if="blog?.image" class="w-full">
-            <img
-              :src="blog.image"
-              :alt="blog.title"
-              class="w-full h-auto max-h-[450px] object-cover"
-            />
+        <!-- Cover -->
+        <div class="overflow-hidden rounded-3xl bg-transparent">
+          <div>
+            <div class="h-[220px] md:h-[360px] w-full overflow-hidden rounded-3xl bg-[rgba(29,36,51,0.04)]">
+              <img
+                v-if="blog?.image"
+                :src="blog.image"
+                :alt="blog.title"
+                class="h-full w-full object-cover"
+              />
+              <div v-else class="h-full w-full flex items-center justify-center">
+                <UIcon name="i-lucide-image" class="w-12 h-12 text-gray-300" />
+              </div>
+            </div>
+
+            <div class="mt-5 px-1 md:px-2">
+              <h1 class="text-[28px] md:text-[34px] font-extrabold leading-tight text-[#1d2433]">
+                {{ blog?.title || '' }}
+              </h1>
+            </div>
           </div>
+        </div>
 
-          <div class="px-6 py-8 md:px-12 md:py-10">
-            <!-- Category badge -->
-            <div class="mb-4">
-              <span class="inline-flex items-center rounded-full bg-orange-100 px-3 py-1 text-xs font-semibold text-orange-700 border border-orange-200">
-                {{ blogCategoryLabel }}
-              </span>
-            </div>
-
-            <!-- Title -->
-            <h1 class="text-3xl md:text-4xl font-extrabold leading-tight text-gray-900 mb-6">
-              {{ blog?.title || '' }}
-            </h1>
-
-            <!-- Meta info -->
-            <div class="flex flex-wrap items-center gap-6 text-sm text-gray-500 pb-6 border-b border-gray-200">
-              <div class="flex items-center gap-2">
-                <UIcon name="i-lucide-calendar" class="w-4 h-4" />
-                <span>{{ formattedDate }}</span>
+        <!-- Main: content + sidebar -->
+        <div class="mt-6 grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-5">
+          <!-- Left -->
+          <div>
+            <div
+              class="rounded-3xl bg-white p-6 md:p-8"
+              style="border: 1px solid rgba(29, 36, 51, 0.12); box-shadow: 0 10px 26px rgba(29, 36, 51, 0.05)"
+            >
+              <div v-if="blog" class="prose prose-lg max-w-none prose-headings:text-[#1d2433] prose-headings:font-extrabold prose-p:text-[rgba(29,36,51,0.70)] prose-a:text-[var(--blue)] prose-a:no-underline hover:prose-a:underline prose-strong:text-[#1d2433] prose-li:text-[rgba(29,36,51,0.70)]">
+                <div
+                  v-html="processedContent"
+                  class="[&_img]:max-w-full [&_img]:h-auto [&_img.align-center]:block [&_img.align-center]:mx-auto [&_img.align-left]:float-left [&_img.align-right]:float-right"
+                />
               </div>
-              <div class="flex items-center gap-2">
-                <UIcon name="i-lucide-user" class="w-4 h-4" />
-                <span>{{ blog?.author || 'Jobter' }}</span>
+              <div v-else-if="loading" class="py-12 text-center text-[rgba(29,36,51,0.55)]">
+                Đang tải bài viết...
               </div>
-              <div class="flex items-center gap-3 ml-auto">
-                <span class="text-xs uppercase tracking-wide text-gray-400">Chia sẻ</span>
-                <button
-                  v-for="icon in shareIcons"
-                  :key="icon.name"
-                  type="button"
-                  class="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-600 transition-colors"
-                  @click="onShare(icon.type)"
-                >
-                  <UIcon :name="icon.name" class="w-4 h-4" />
-                </button>
+              <div v-else class="py-12 text-center text-[rgba(29,36,51,0.55)]">
+                Không tìm thấy bài viết.
               </div>
             </div>
 
-            <!-- Content -->
-            <div v-if="blog" class="mt-8">
-              <div
-                class="prose prose-lg max-w-none prose-headings:text-gray-900 prose-headings:font-bold prose-p:text-gray-700 prose-a:text-blue-600 prose-a:no-underline hover:prose-a:underline prose-strong:text-gray-900 prose-li:text-gray-700"
-              >
-                <div v-html="processedContent" class="[&_img]:max-w-full [&_img]:h-auto [&_img.align-center]:block [&_img.align-center]:mx-auto [&_img.align-left]:float-left [&_img.align-right]:float-right" />
-              </div>
-            </div>
-
-            <div v-else-if="loading" class="py-12 text-center text-gray-400">
-              Đang tải bài viết...
-            </div>
-            <div v-else class="py-12 text-center text-gray-400">
-              Không tìm thấy bài viết.
-            </div>
-
-            <!-- Footer nav -->
-            <div class="mt-12 pt-6 border-t border-gray-200">
+            <div class="mt-5">
               <NuxtLink
                 to="/blog"
-                class="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 font-medium transition-colors"
+                class="inline-flex items-center gap-2 text-[var(--blue)] hover:text-[var(--blue-dark)] font-semibold transition-colors"
               >
                 <UIcon name="i-lucide-arrow-left" class="w-4 h-4" />
                 Quay lại danh sách blog
               </NuxtLink>
             </div>
           </div>
-        </article>
+
+          <!-- Right -->
+          <aside
+            class="space-y-5 lg:sticky lg:self-start"
+            style="top: calc(var(--app-header-height) + 16px)"
+          >
+            <!-- CTA: Jobs -->
+            <div
+              class="rounded-3xl p-6"
+              style="
+                background: radial-gradient(circle at 8% 10%, rgba(53, 99, 255, 0.18), transparent 40%),
+                  linear-gradient(180deg, rgba(53, 99, 255, 0.10), rgba(53, 99, 255, 0.06));
+                border: 1px solid rgba(53, 99, 255, 0.16);
+              "
+            >
+              <div class="text-[11px] font-semibold text-[var(--blue)]">Bạn đang tìm việc?</div>
+              <div class="mt-2 text-[14px] font-extrabold text-[#1d2433]">Tìm công việc giáo viên phù hợp</div>
+              <UButton
+                to="/jobs/search"
+                label="Xem việc làm"
+                class="mt-4 !h-[34px] !rounded-[14px] !px-[12px] bg-[var(--blue)] hover:bg-[var(--blue-dark)] text-white font-extrabold shadow-sm"
+              />
+            </div>
+
+            <!-- Related posts -->
+            <div
+              class="rounded-3xl bg-white p-6"
+              style="
+                border: 1px solid rgba(53, 99, 255, 0.16);
+                box-shadow: 0 10px 22px rgba(29, 36, 51, 0.05);
+              "
+            >
+              <div class="text-[16px] font-extrabold text-[#1d2433]">bài viết liên quan</div>
+              <div class="mt-4 space-y-4">
+                <NuxtLink
+                  v-for="r in relatedBlogs"
+                  :key="r.id"
+                  :to="`/blog/${r.id}`"
+                  class="block rounded-2xl bg-white p-5 transition"
+                  style="border: 1px solid rgba(53, 99, 255, 0.16)"
+                >
+                  <div class="text-[12px] font-semibold text-[var(--blue)]">
+                    {{ (r as any)?.category || 'Blog' }}
+                  </div>
+                  <div class="mt-2 text-[14px] font-extrabold text-[#1d2433] leading-snug line-clamp-2">
+                    {{ r.title }}
+                  </div>
+                  <div class="mt-2 text-[12px] text-[rgba(29,36,51,0.55)]">
+                    {{ readingTimeText(r) }}
+                  </div>
+                </NuxtLink>
+              </div>
+            </div>
+
+            <!-- CTA: Recruiter -->
+            <div
+              class="rounded-2xl p-5"
+              style="
+                background: radial-gradient(circle at 92% 18%, rgba(53, 99, 255, 0.10), transparent 48%),
+                  linear-gradient(180deg, rgba(239, 246, 255, 0.95) 0%, rgba(255, 255, 255, 0.98) 78%);
+                border: 1px solid rgba(53, 99, 255, 0.14);
+                box-shadow: 0 10px 22px rgba(29, 36, 51, 0.06);
+              "
+            >
+              <div class="text-[12px] font-semibold text-[var(--blue)]">Nhà tuyển dụng</div>
+              <div class="mt-2 text-[18px] font-extrabold text-[#1d2433]">
+                Đăng tin tuyển giáo viên
+              </div>
+              <NuxtLink
+                to="/jobs/upload"
+                class="mt-2 inline-flex text-[13px] font-semibold text-[var(--blue)] hover:text-[var(--blue-dark)]"
+              >
+                Đăng tin miễn phí
+              </NuxtLink>
+            </div>
+          </aside>
+        </div>
       </UContainer>
     </main>
   </div>
@@ -116,13 +166,14 @@ const { $api } = useNuxtApp()
 
 const blog = ref<BlogEntity | null>(null)
 const loading = ref(false)
+const relatedBlogs = ref<BlogEntity[]>([])
 
-const shareIcons = [
-  { type: 'facebook', name: 'i-lucide-facebook' },
-  { type: 'twitter', name: 'i-lucide-twitter' },
-  { type: 'linkedin', name: 'i-lucide-linkedin' },
-  { type: 'copy', name: 'i-lucide-link' },
-]
+useHead({
+  title: computed(() => {
+    const t = blog.value?.title?.trim()
+    return t && t.length > 0 ? t : 'Bài viết'
+  }),
+})
 
 const formattedDate = computed(() => {
   if (!blog.value?.createdAt) return ''
@@ -207,11 +258,37 @@ const processedContent = computed(() => {
   return content
 })
 
+const estimateMinutes = (text: string) => {
+  const clean = String(text || '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim()
+  const approxWords = Math.max(1, Math.round(clean.length / 5))
+  const minutes = Math.min(12, Math.max(3, Math.round(approxWords / 200)))
+  return minutes
+}
+
+const readingTimeText = (b: BlogEntity) => {
+  const minutes = estimateMinutes(`${b.title ?? ''} ${(b as any)?.description ?? ''} ${(b as any)?.content ?? ''}`)
+  return `${minutes} phút đọc`
+}
+
+async function fetchRelated() {
+  if (!blog.value) {
+    relatedBlogs.value = []
+    return
+  }
+  try {
+    // Prefer backend endpoint (published + same category)
+    relatedBlogs.value = await $api.blog.getRelatedBlogs(blog.value.id, 3)
+  } catch {
+    relatedBlogs.value = []
+  }
+}
+
 async function fetchBlog() {
   const id = route.params.id
   const numId = typeof id === 'string' ? Number(id) : Number(id?.[0])
   if (!numId || Number.isNaN(numId)) {
     blog.value = null
+    relatedBlogs.value = []
     return
   }
 
@@ -222,27 +299,14 @@ async function fetchBlog() {
   try {
     const data = await $api.blog.getBlogById(numId)
     blog.value = data as BlogEntity
+    await fetchRelated()
   } catch (e) {
     console.error('Failed to load blog detail:', e)
     blog.value = null
+    relatedBlogs.value = []
   } finally {
     loading.value = false
   }
-}
-
-function onShare(type: string) {
-  const url = window.location.href
-  if (type === 'copy') {
-    navigator.clipboard?.writeText(url).catch(() => {})
-    return
-  }
-  const encodedUrl = encodeURIComponent(url)
-  let shareUrl = ''
-  if (type === 'facebook') shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`
-  else if (type === 'twitter') shareUrl = `https://twitter.com/intent/tweet?url=${encodedUrl}`
-  else if (type === 'linkedin') shareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`
-
-  if (shareUrl) window.open(shareUrl, '_blank', 'noopener,noreferrer')
 }
 
 onMounted(() => {

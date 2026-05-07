@@ -167,6 +167,10 @@ definePageMeta({
   layout: 'auth',
 })
 
+useHead({
+  title: 'Đăng nhập',
+})
+
 const { t } = useI18n()
 const authStore = useAuthStore()
 const router = useRouter()

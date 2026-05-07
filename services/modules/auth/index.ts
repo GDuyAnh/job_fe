@@ -10,6 +10,7 @@ const AuthModule = (apiService: FetchFactory) => {
     email: string
     password: string
     username: string
+    phoneNumber?: string
     role?: number
     taxCode?: string
     companyId?: number
