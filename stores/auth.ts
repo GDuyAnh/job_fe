@@ -56,6 +56,7 @@ export const useAuthStore = defineStore('auth', {
       fullName,
       email,
       password,
+      phoneNumber,
       role,
       taxCode,
       companyId,
@@ -63,6 +64,7 @@ export const useAuthStore = defineStore('auth', {
       fullName: string
       email: string
       password: string
+      phoneNumber?: string
       role?: number
       taxCode?: string
       companyId?: number
@@ -74,6 +76,7 @@ export const useAuthStore = defineStore('auth', {
         email,
         password,
         username: email,
+        phoneNumber,
         role,
         taxCode,
         companyId,

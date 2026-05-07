@@ -1,806 +1,496 @@
 <template>
-  <div>
-    <!-- Enhanced Custom Tab Bar -->
-    <nav
-      class="w-full bg-[#e5f2ff] flex items-center border-b border-[#88909854] justify-between px-2 md:px-8 py-2 md:py-3 sticky top-0 z-30"
+  <div class="bg-[var(--bg)]">
+    <!-- Header is handled by `layouts/default.vue` via <AppHeader /> -->
+    <!-- Hero -->
+    <section
+      ref="heroRef"
+      class="home-hero relative overflow-hidden"
     >
-      <div class="flex-1 flex justify-center overflow-x-auto scrollbar-hide">
-        <div class="flex gap-2 md:gap-10">
-          <button
-            v-for="tab in visibleTabs"
-            :key="tab.name"
-            class="relative pb-2 px-3 md:px-2 text-base font-semibold text-[#222] border-b-2 border-transparent transition hover:text-[#000000fe] hover:bg-[#454e571a] rounded-t-lg duration-200"
-            :class="
-              activeTab === tab.name ? 'font-extrabold text-[#8a7754]' : ''
-            "
-            style="min-width: 80px"
-            @click="gotoTab(tab)"
+      <div class="home-hero__bg" />
+      <div class="home-hero__radial" />
+
+      <!-- Floating cards: outer = theo hướng chuột (cùng/đảo); inner = float + hover nảy -->
+      <div class="home-hero__floatLayer">
+        <div
+          v-for="c in heroCards"
+          :key="c.text"
+          class="home-hero__floatCardOuter"
+          :style="getHeroCardOuterStyle(c)"
+        >
+          <div
+            class="home-hero__floatCard"
+            :class="c.depth"
+            :style="getHeroCardInnerStyle(c)"
           >
-            <span>{{ $t(tab.label) }}</span>
-            <span
-              v-if="activeTab === tab.name"
-              class="absolute left-1/2 -translate-x-1/2 bottom-0 w-12 h-[3px] bg-gradient-to-r from-[#000000] to-[#eaf3fc] rounded-full transition-all duration-300"
-            ></span>
-          </button>
+            {{ c.text }}
+          </div>
         </div>
       </div>
-      <div class="flex items-center ml-2 md:ml-8">
-        <template v-if="authStore.user">
-          <div class="relative">
-            <!-- User Profile Dropdown -->
-            <div class="relative user-dropdown-container">
-              <button
-                class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-[#002b57] hover:text-[#ffffff] transition-colors border border-gray-200 w-56"
-                @click="toggleUserDropdown"
-              >
-                <div class="flex items-center justify-between gap-2 w-full">
-                  <!-- User Avatar -->
-                  <div class="flex items-center gap-2">
-                    <!-- Avatar with image or fallback to initials -->
-                    <div
-                      v-if="authStore.user.avatarUrl"
-                      class="w-8 h-8 rounded-full overflow-hidden bg-gray-200"
-                    >
-                      <img
-                        :src="authStore.user.avatarUrl"
-                        :alt="authStore.user.fullName || 'User'"
-                        class="w-full h-full object-cover"
-                      />
-                    </div>
-                    <div
-                      v-else
-                      class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center"
-                    >
-                      <span class="text-white font-semibold text-sm">
-                        {{
-                          authStore.user.fullName?.charAt(0)?.toUpperCase() ||
-                          'U'
-                        }}
-                      </span>
-                    </div>
-                    <!-- User Name -->
-                    <span class="font-medium text-sm">
-                      {{ authStore.user.fullName }}
-                    </span>
-                  </div>
-                  <!-- Dropdown Icon -->
-                  <UIcon
-                    name="i-lucide-chevron-down"
-                    class="w-4 h-4 text-gray-500"
-                  />
-                </div>
-              </button>
 
-              <!-- Dropdown Menu -->
-              <div
-                v-if="showUserDropdown"
-                class="absolute right-0 mt-2 w-56 bg-white rounded-md shadow-lg border border-gray-200 z-50"
-              >
-                <div class="py-1">
-                  <button
-                    v-for="item in userMenuItems"
-                    :key="item.label"
-                    class="flex items-center gap-3 w-full px-4 py-2 text-sm text-gray-700 hover:bg-[#002b57] hover:text-[#ffffff] transition-colors"
-                    @click="handleMenuItemClick(item)"
-                  >
-                    <UIcon :name="item.icon" class="w-4 h-4" />
-                    {{ item.label }}
-                  </button>
-                </div>
-              </div>
-            </div>
+      <UContainer class="relative z-10">
+        <div class="home-hero__wrap">
+          <div class="home-hero__trust">
+            <span class="home-hero__trustDots">
+              <span class="d d1" />
+              <span class="d d2" />
+              <span class="d d3" />
+            </span>
+            <span>Được tin dùng bởi <b>2.000+</b> giáo viên và trường học</span>
           </div>
-        </template>
 
-        <template v-else>
-          <button
-            class="px-6 py-1 text-white border-0 bg-[#0969C3] shadow-md hover:bg-[#002b57] transition duration-200 font-bold rounded-full text-base"
-            style="
-              box-shadow: 0 2px 8px 0 rgba(138, 119, 84, 0.1);
-              min-width: 100px;
-            "
-            @click="gotoLogin"
-          >
-            {{ $t('homePage.header.signIn') }}
-          </button>
-        </template>
-      </div>
-    </nav>
-    <!-- Hero image group -->
-    <div class="min-h-screen bg-[#eaf3fc] flex items-center relative">
-      <!-- clip-diagonal -->
-      <div
-        class="absolute right-0 bottom-[200px] w-9/20 h-[150%] rounded-[200px] bg-[#002b57] z-0 animate-slide-right-1"
-        style="
-          transform: rotate(32deg);
-          transform-origin: bottom left;
-          right: -5000px;
-        "
-      />
+          <h1 class="home-hero__title">
+            Việc Làm Giáo Viên <span class="home-hero__titleHi">Toàn Quốc</span>
+          </h1>
+          <p class="home-hero__subtitle">
+            Nền tảng tuyển dụng chuyên biệt cho giáo viên, trường học và các đơn vị giáo dục tại Việt Nam.
+          </p>
 
-      <UContainer class="z-1">
-        <div
-          class="grid grid-cols-1 md:grid-cols-[2fr_1fr] gap-12 items-center"
-        >
-          <!-- Left: Content -->
-          <div>
-            <h1 class="text-5xl md:text-6xl font-extrabold leading-tight mb-4">
-              {{ $t('homePage.heroImage.title1') }} <br />
-              {{ $t('homePage.heroImage.title2') }}
-            </h1>
-            <p class="text-lg text-gray-500 mb-8">
-              {{ $t('homePage.heroImage.subtitle') }}
-            </p>
-            <!-- Redesigned Search box -->
-            <div
-              class="flex items-stretch gap-3 mb-8 bg-white rounded-full shadow-2xl px-4 py-2 max-w-4xl mx-auto border border-gray-200"
+          <div class="home-hero__search">
+            <input
+              v-model="keyword"
+              placeholder="Vị trí ứng tuyển"
+              class="home-hero__input"
+              @keyup.enter="searchJobs"
+            />
+
+            <div class="home-hero__divider" />
+
+            <USelect
+              v-model="location"
+              :items="locationItems"
+              variant="none"
+              size="lg"
+              class="home-hero__select"
+            />
+
+            <UButton
+              label="Tìm kiếm"
+              class="home-hero__searchBtn !rounded-[20px] !h-[46px] !px-[40px]"
+              @click="searchJobs"
+            />
+          </div>
+
+          <div class="home-hero__tags">
+            <span class="home-hero__tagsLabel">Tìm nhanh:</span>
+            <button
+              v-for="tag in popularTags.slice(0, 5)"
+              :key="tag.value"
+              type="button"
+              class="home-hero__tag"
+              @click="onCategoryClick(tag.value)"
             >
-              <!-- 1. Keyword -->
-              <input
-                v-model="keyword"
-                :placeholder="$t('homePage.heroImage.searchPlaceholder')"
-                class="flex-1 min-w-0 truncate bg-white border-none outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-200 text-base placeholder-[#8a98b8] font-medium px-4 h-12 rounded-full transition-all duration-200"
-                @keyup.enter="searchJobs"
-              />
-
-              <!-- 3. Locations -->
-              <USelect
-                v-model="location"
-                :items="locationItems"
-                class="flex-1 min-w-0"
-                variant="none"
-                size="lg"
-              />
-
-              <div
-                class="flex items-center justify-center h-12 w-12 rounded-full bg-[#0969C3] hover:bg-[#002745] text-white shadow-lg"
-              >
-                <NuxtSearch @click="searchJobs" />
-              </div>
-            </div>
-
-            <!-- Redesigned Popular tags -->
-            <!-- :key="tag.key" -->
-            <!-- {{ $t(tag.label) }} -->
-            <div class="flex flex-wrap gap-2 mb-4">
-              <UBadge
-                v-for="tag in popularTags"
-                :key="tag.value"
-                class="bg-blue-100 text-blue-700 px-4 py-1.5 rounded-full text-sm font-medium hover:bg-blue-200 transition cursor-pointer mb-2"
-                @click="onCategoryClick(tag.value)"
-              >
-                {{ $t(tag.label) }}
-              </UBadge>
-            </div>
-            <!-- Partner logos (optional) -->
-            <div class="flex gap-6 opacity-60">
-              <!-- Thêm các logo khác nếu muốn -->
-            </div>
-          </div>
-          <!-- Right: Image + Stats -->
-          <div class="relative flex justify-center items-center">
-            <div class="relative">
-              <img
-                alt="Professional"
-                src="../public/hero_banner.png"
-                class="relative rounded-3xl shadow-xl w-[370px] h-[500px] object-fit z-5"
-              />
-              <div
-                class="absolute bottom-0 right-0 w-[370px] h-[500px] rounded-[2rem] bg-[#378aff] z-3 animate-slide-in-1"
-              />
-              <div
-                class="absolute bottom-0 right-0 w-[370px] h-[500px] rounded-[2rem] bg-[#e6f0f9] z-2 animate-slide-in-2"
-              ></div>
-
-              <div
-                class="absolute bottom-4 left-1/2 bg-white/90 backdrop-blur rounded-xl shadow-lg p-6 min-w-[300px] z-30 animate-slide-left-1"
-              >
-                <div
-                  v-for="item in stats"
-                  :key="item.label"
-                  class="grid grid-cols-3 items-center gap-3 mb-2 last:mb-0"
-                >
-                  <span
-                    class="text-2xl text-right font-extrabold text-blue-900"
-                    >{{ item.count }}</span
-                  >
-                  <span class="text-base text-gray-700 col-span-2">{{
-                    $t(item.label)
-                  }}</span>
-                </div>
-              </div>
-              <!-- Decorative shapes (optional, dùng CSS hoặc SVG nếu muốn) -->
-            </div>
+              {{ $t(tag.label) }}
+            </button>
           </div>
         </div>
       </UContainer>
-    </div>
+    </section>
 
     <!-- Search by category -->
-    <div class="min-h-screen bg-white flex flex-row items-center relative z-10">
+    <section data-reveal-jobs class="bg-[var(--bg)] py-16 relative z-10">
       <UContainer>
-        <!-- Header -->
         <div class="mb-8">
-          <div class="flex flow-row justify-between items-start">
-            <div>
-              <h2 class="text-4xl font-extrabold text-gray-900 mb-2">
-                {{ $t('homePage.searchByCategory.title1') }}
-              </h2>
-              <p class="text-gray-500 text-sm">
-                {{ $t('homePage.searchByCategory.title2') }}
-              </p>
-            </div>
-          </div>
-          <div class="flex flow-row justify-between items-start">
-            <div />
-            <div class="flex flow-row justify-between items-start">
-              <div>
-                <a
-                  class="text-blue-600 font-medium text-sm hover:underline inline-flex items-center cursor-pointer"
-                  @click="viewAllClick()"
-                >
-                  {{ $t('homePage.searchByCategory.allCategories') }}
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
-        <!-- Slide -->
-        <UCarousel
-          :items="categoryJobsRes"
-          :ui="uiOptions"
-          :dots="true"
-          class="mb-8"
-        >
-          <template #default="{ item }">
-            <div
-              class="flex flex-col items-center justify-center p-4 bg-[#eaf4fd] rounded-2xl shadow hover:shadow-xl min-h-[250px] cursor-pointer"
-              @click="onCategoryClick(item.category)"
+          <h2 class="text-[32px] font-extrabold text-[#1d2433] leading-tight">
+            Khám phá theo danh mục
+          </h2>
+          <div class="mt-2 flex items-center justify-between gap-6">
+            <p class="text-[14px] text-[rgba(29,36,51,0.6)]">
+              Chọn nhanh nhóm công việc phù hợp để xem các vị trí tuyển dụng mới nhất.
+            </p>
+
+            <button
+              type="button"
+              class="shrink-0 text-[14px] font-medium text-[var(--blue)] hover:text-[var(--blue-dark)] transition-colors"
+              @click="viewAllClick()"
             >
-              <div
-                class="bg-white p-4 rounded-2xl shadow-sm mb-4 w-30 h-30 flex items-center justify-center text-3xl text-[#002b57]"
-              >
-                {{
-                  (() => {
-                    const categoryLabel = categoryEnumLabel?.[item.category as unknown as number] ?? item.category
-                    return categoryLabel
-                      .split(' ')
-                      .map((word) => word[0])
-                      .join('')
-                      .toUpperCase()
-                  })()
-                }}
-              </div>
-
-              <h3 class="text-center font-semibold text-black">
-                {{
-                  categoryEnumLabel?.[item.category as unknown as number] ?? item.category
-                }}
-              </h3>
-              <p class="text-sm text-gray-600 mt-8">
-                {{ item.jobCount }}
-                {{ $t('homePage.searchByCategory.openPosition') }}
-              </p>
-            </div>
-          </template>
-        </UCarousel>
-      </UContainer>
-    </div>
-
-    <!-- Banner -->
-    <div class="bg-white items-center relative z-10 mb-10">
-      <div class="px-8">
-        <UCarousel :items="bannerRes" class="mt-8">
-          <template #default="{ item }">
-            <div
-              class="flex flex-col items-left justify-left p-16 rounded-2xl shadow hover:shadow-xl min-h-[400px] max-h-[400px] border-1 border-gray-200 relative overflow-hidden"
-              :style="`background-image: url('${item.image}'); background-size: cover; background-position: center;`"
-            >
-              <!-- Overlay -->
-              <div class="absolute inset-0 bg-[#0000005c]"></div>
-
-              <!-- Content -->
-              <div
-                class="relative z-10 text-left text-5xl font-bold text-white max-w-6/10"
-              >
-                {{ item.insight }}
-              </div>
-              <div class="relative z-10 text-md text-gray-200 mt-8 max-w-5/10">
-                {{ item.overview }}
-              </div>
-              <div class="relative z-10 mt-8">
-                <app-button
-                  class="mt-5 p-6 bg-white text-black hover:bg-gray-700 hover:text-white"
-                  variant="outline"
-                  shape="round"
-                  compact
-                  @click.stop="viewCompany(item.id)"
-                >
-                  {{ $t('homePage.buttonContent.detailCompany') }}
-                </app-button>
-              </div>
-            </div>
-          </template>
-        </UCarousel>
-      </div>
-    </div>
-
-    <!-- Featured Job Offers -->
-    <div
-      class="min-h-screen bg-[#eaf3fc] flex flex-row items-center relative z-10"
-    >
-      <UContainer>
-        <!-- Header -->
-        <div class="mb-8">
-          <div class="flex flew-row justify-between items-start">
-            <div>
-              <h2 class="text-4xl font-extrabold text-gray-900 mb-2">
-                {{ $t('homePage.featuredJobOffers.title') }}
-              </h2>
-            </div>
+              {{ $t('homePage.searchByCategory.allCategories') }}
+            </button>
           </div>
         </div>
-        <!-- List featured job -->
-        <div>
-          <div class="job-board grid grid-cols-2 gap-6">
-            <div
-              v-for="job in featureJobsRes"
-              :key="job.id"
-              class="job-card rounded-xl p-4 flex flex-col justify-between bg-white cursor-pointer"
-              @click.stop="viewJob(job)"
-            >
-              <div>
-                <div class="flex items-center gap-4">
-                  <div class="bg-black p-3 rounded-lg text-white w-20 h-20">
-                    {{
-                      job.title
-                        .split(' ')
-                        .map((word) => word[0])
-                        .join('')
-                        .toUpperCase()
-                    }}
-                  </div>
-                  <div class="flex-1">
-                    <h2 class="font-bold text-lg">{{ job.title }}</h2>
-                    <div class="flex items-center justify-between">
-                      <UTooltip
-                        v-if="getFullLocationText(job)"
-                        :text="getFullLocationText(job)"
-                        :popper="{ placement: 'top' }"
-                      >
-                        <span class="text-sm font-bold cursor-help">
-                          <UIcon
-                            name="i-raphael:globealt"
-                            style="font-size: 12px !important"
-                          />
-                          {{ truncateText(getFullLocationText(job), 40) }}
-                        </span>
-                      </UTooltip>
-                      <span class="text-sm text-gray-600 ml-auto">
-                        {{
-                          employmentTypesEnumLabel?.[
-                            job.typeOfEmployment as unknown as number
-                          ] ?? job.typeOfEmployment
-                        }}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div class="flex flex-row justify-between mt-4">
-                <div>
-                  <p class="text-sm text-gray-500">
-                    {{
-                      (() => {
-                        // Get first category from comma-separated string
-                        const firstCategory = job.category ? job.category.split(',')[0].trim() : ''
-                        return categoryEnumLabel?.[firstCategory as unknown as number] ?? (firstCategory || job.category)
-                      })()
-                    }}
-                  </p>
-                </div>
-                <div class="text-right text-xs mt-2">
-                  {{
-                    job.createdAt
-                      ? formatDateVN(new Date(job.createdAt))
-                      : $t('common.nanValue')
-                  }}
-                  {{ $t('homePage.featuredJobOffers.by') }}
-                  <span class="font-semibold">{{ job.companyName }}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="mt-6">
-          <app-button
-            class="mt-5 p-6 bg-black text-white"
-            variant="outline"
-            shape="round"
-            compact
-            @click="viewAllClick()"
-            >{{ $t('homePage.buttonContent.seeAll') }}</app-button
+
+        <div class="relative group">
+          <UCarousel
+            :items="categoryJobsRes"
+            :dots="false"
+            arrows
+            prev-icon="i-heroicons-chevron-left"
+            next-icon="i-heroicons-chevron-right"
+            :prev="{
+              variant: 'solid',
+              color: 'neutral',
+              class:
+                'h-10 w-10 rounded-full bg-white shadow-sm border border-[rgba(29,36,51,0.12)] hover:bg-white hover:border-[rgba(29,36,51,0.18)] text-black hover:text-[var(--blue)] active:!text-[var(--blue)] focus:!text-[var(--blue)] focus-visible:!text-[var(--blue)] active:!bg-white focus:!bg-white focus-visible:!bg-white active:!border-[rgba(29,36,51,0.18)] disabled:hidden',
+            }"
+            :next="{
+              variant: 'solid',
+              color: 'neutral',
+              class:
+                'h-10 w-10 rounded-full bg-white shadow-sm border border-[rgba(29,36,51,0.12)] hover:bg-white hover:border-[rgba(29,36,51,0.18)] text-black hover:text-[var(--blue)] active:!text-[var(--blue)] focus:!text-[var(--blue)] focus-visible:!text-[var(--blue)] active:!bg-white focus:!bg-white focus-visible:!bg-white active:!border-[rgba(29,36,51,0.18)] disabled:hidden',
+            }"
+            :ui="{
+              ...uiOptions,
+              prev: 'absolute !start-[-2%] top-1/2 -translate-y-1/2 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-1000 ease-in-out',
+              next: 'absolute !start-[99%] top-1/2 -translate-y-1/2 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-1000 ease-in-out',
+            }"
+            class="relative"
           >
-        </div>
-      </UContainer>
-    </div>
-
-    <!-- Urgent Jobs -->
-    <div class="min-h-screen bg-white flex flex-row items-center relative z-10">
-      <UContainer>
-        <!-- Header -->
-        <div class="mb-8">
-          <div class="flex flew-row justify-between items-start">
-            <div>
-              <h2 class="text-4xl font-extrabold text-gray-900 mb-2">
-                Việc làm tuyển gấp
-              </h2>
-            </div>
-          </div>
-        </div>
-
-        <div>
-          <div class="job-board grid grid-cols-2 gap-6">
-            <div
-              v-for="job in urgentJobsRes"
-              :key="job.id"
-              class="job-card rounded-xl p-4 flex flex-col justify-between bg-white cursor-pointer border border-gray-200"
-              @click.stop="viewJob(job)"
-            >
-              <div>
-                <div class="flex items-center gap-4">
-                  <div class="bg-black p-3 rounded-lg text-white w-20 h-20">
-                    {{
-                      job.title
-                        .split(' ')
-                        .map((word) => word[0])
-                        .join('')
-                        .toUpperCase()
-                    }}
-                  </div>
-                  <div class="flex-1">
-                    <h2 class="font-bold text-lg">{{ job.title }}</h2>
-                    <div class="flex items-center justify-between">
-                      <UTooltip
-                        v-if="getFullLocationText(job)"
-                        :text="getFullLocationText(job)"
-                        :popper="{ placement: 'top' }"
-                      >
-                        <span class="text-sm font-bold cursor-help">
-                          <UIcon
-                            name="i-raphael:globealt"
-                            style="font-size: 12px !important"
-                          />
-                          {{ truncateText(getFullLocationText(job), 40) }}
-                        </span>
-                      </UTooltip>
-                      <span class="text-sm text-gray-600 ml-auto">
-                        {{
-                          employmentTypesEnumLabel?.[
-                            job.typeOfEmployment as unknown as number
-                          ] ?? job.typeOfEmployment
-                        }}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div class="flex flex-row justify-between mt-4">
-                <div>
-                  <p class="text-sm text-gray-500">
-                    {{
-                      (() => {
-                        const firstCategory = job.category
-                          ? job.category.split(',')[0].trim()
-                          : ''
-                        return (
-                          categoryEnumLabel?.[
-                            firstCategory as unknown as number
-                          ] ??
-                          (firstCategory || job.category)
-                        )
-                      })()
-                    }}
-                  </p>
-                </div>
-                <div class="text-right text-xs mt-2">
-                  {{
-                    job.createdAt
-                      ? formatDateVN(new Date(job.createdAt))
-                      : $t('common.nanValue')
-                  }}
-                  {{ $t('homePage.featuredJobOffers.by') }}
-                  <span class="font-semibold">{{ job.companyName }}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="mt-6">
-          <app-button
-            class="mt-5 p-6 bg-black text-white"
-            variant="outline"
-            shape="round"
-            compact
-            @click="viewAllClick()"
-            >{{ $t('homePage.buttonContent.seeAll') }}</app-button
-          >
-        </div>
-      </UContainer>
-    </div>
-
-    <!-- Featured Cities -->
-    <div class="min-h-screen bg-white py-16">
-      <UContainer>
-        <!-- Title -->
-        <div class="mb-8">
-          <div class="flex flow-row justify-between items-start">
-            <div>
-              <h2 class="text-4xl font-extrabold text-gray-900 mb-2">
-                {{ $t('homePage.featuredCities.title1') }}
-              </h2>
-              <p class="text-gray-500 text-sm">
-                {{ $t('homePage.featuredCities.title2') }}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <!-- City Cards Grid -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-          <div
-            v-for="city in locationJobsRes"
-            :key="city.location"
-            class="bg-[#eaf3fc] rounded-3xl overflow-hidden shadow-sm hover:shadow-lg transition cursor-pointer"
-            @click="onLocationClick(city.location)"
-          >
-            <img
-              class="w-full h-40 object-cover"
-              :src="city.image"
-              alt="No images found"
-            />
-            <div class="p-6">
-              <h3 class="text-lg font-semibold text-gray-900">
-                {{
-                  (() => {
-                    const locationValue = String(city.location)
-                    // If location is "0", return "Toàn Quốc"
-                    if (locationValue === '0') return 'Toàn Quốc'
-                    // Try to get label from enum, supporting both string and number keys
-                    return (locationEnumLabel as any)?.[locationValue] ?? (locationEnumLabel as any)?.[Number(locationValue)] ?? locationValue
-                  })()
-                }}
-              </h3>
-              <p class="text-gray-500 text-sm">
-                {{ city.jobCount }}
-                {{ $t('homePage.searchByCategory.openPosition') }}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div class="mt-6">
-          <app-button
-            class="mt-5 p-6 bg-black text-white"
-            variant="outline"
-            shape="round"
-            compact
-            @click="viewAllClick()"
-            >{{ $t('homePage.buttonContent.seeAll') }}</app-button
-          >
-        </div>
-      </UContainer>
-    </div>
-
-    <!-- Blogs -->
-    <div class="min-h-screen bg-[#eaf3fc] py-16">
-      <UContainer>
-        <!-- Title -->
-        <div class="mb-8">
-          <div class="flex flow-row justify-between items-start">
-            <div>
-              <h2 class="text-4xl font-extrabold text-gray-900 mb-2">
-                {{ $t('homePage.blog.title1') }}
-              </h2>
-            </div>
-          </div>
-        </div>
-
-        <!-- Blogs Cards -->
-        <div v-if="blogRes.length > 0">
-          <UCarousel :items="blogRes" :ui="{ item: 'basis-1/4' }" class="mb-8">
             <template #default="{ item }">
-              <UCard
-                variant="solid"
-                class="bg-white border border-gray-200"
-                :ui="{
-                  header: 'p-0 sm:px-0',
-                  body: 'px-4 py-3 min-h-[170px] max-h-[220px]',
-                }"
-              >
-                <template #header>
-                  <img
-                    :src="item.image"
-                    alt="Blog Image"
-                    class="w-full h-[180px] object-cover"
-                  />
-                </template>
-                <div clas>
-                  <h3 class="text-base font-bold text-gray-900 mb-2 leading-snug">
-                    {{ item.title }}
-                  </h3>
-                  <p class="text-sm text-gray-600 leading-snug line-clamp-3">
-                    {{ item.description }}
-                  </p>
-                </div>
-
-                <template #footer>
-                  <NuxtLink
-                    :to="`/blog/${item.id}`"
-                    class="text-blue-600 font-medium text-sm hover:underline inline-flex items-center"
+              <div>
+                <div
+                  class="flex items-center justify-between gap-5 bg-white border rounded-2xl px-6 py-5 shadow-sm transition-all duration-200 ease-out cursor-pointer select-none hover:-translate-y-1 hover:shadow-lg"
+                  style="border: 1px solid rgba(29, 36, 51, 0.12)"
+                  @click="onCategoryClick(item.category)"
+                >
+                <div class="flex items-center gap-4 min-w-0">
+                  <div
+                    class="h-12 w-12 rounded-2xl flex items-center justify-center text-[14px] font-bold"
+                    :style="getCategoryIconStyle(getCategoryLabel(item.category))"
                   >
-                    {{ $t('homePage.blog.readMore') }}
-                  </NuxtLink>
-                </template>
-              </UCard>
+                    {{ getCategoryInitials(getCategoryLabel(item.category)) }}
+                  </div>
+
+                  <div class="min-w-0">
+                    <div class="truncate text-[16px] font-semibold text-[#1d2433]">
+                      {{ getCategoryLabel(item.category) }}
+                    </div>
+                    <div class="mt-1 text-[13px] text-[rgba(29,36,51,0.55)]">
+                      {{ item.jobCount }} vị trí mở
+                    </div>
+                  </div>
+                </div>
+              </div>
+              </div>
             </template>
           </UCarousel>
+        </div>
+
+        <!-- Banner (gộp chung section) -->
+        <div class="mt-10">
+          <UCarousel
+            :items="bannerRes"
+            :dots="true"
+            :ui="{
+              dots: 'mt-4 flex items-center justify-center gap-2',
+              dot: 'h-2 w-2 rounded-full bg-[rgba(29,36,51,0.24)] transition-all data-[state=active]:w-6 data-[state=active]:bg-[var(--blue)]',
+            }"
+          >
+            <template #default="{ item }">
+              <div
+                role="link"
+                tabindex="0"
+                class="flex flex-col items-left justify-left p-16 rounded-2xl shadow hover:shadow-xl min-h-[400px] max-h-[400px] relative overflow-hidden cursor-pointer"
+                style="border: 1px solid rgba(29, 36, 51, 0.12)"
+                :style="`background-image: url('${item.image}'); background-size: cover; background-position: center;`"
+                @click="viewCompany(item.id)"
+                @keydown.enter.prevent="viewCompany(item.id)"
+                @keydown.space.prevent="viewCompany(item.id)"
+              >
+                <!-- Overlay -->
+                <div class="absolute inset-0 bg-[#0000005c]"></div>
+
+                <!-- Content -->
+                <div
+                  class="relative z-10 text-left text-5xl font-bold text-white max-w-6/10"
+                >
+                  {{ item.insight }}
+                </div>
+                <div class="relative z-10 text-md text-gray-200 mt-8 max-w-5/10">
+                  {{ item.overview }}
+                </div>
+              </div>
+            </template>
+          </UCarousel>
+        </div>
+      </UContainer>
+    </section>
+
+    <!-- Featured Job Offers -->
+    <section data-reveal-jobs class="py-16 relative z-10">
+      <UContainer>
+        <!-- Header -->
+        <div class="mb-6 flex items-start justify-between gap-6">
+          <div class="flex items-center gap-3">
+            <span class="h-6 w-1.5 rounded-full bg-[var(--blue)]" />
+            <h2 class="text-[28px] font-extrabold text-[#1d2433]">
+              Việc làm mới nhất
+            </h2>
+          </div>
+        </div>
+
+        <!-- List: max 6 items -->
+        <div class="space-y-4">
+            <div
+              v-for="job in latestJobs"
+              :key="job.id"
+              class="group relative overflow-hidden rounded-2xl bg-white cursor-pointer px-6 py-5 shadow-sm transition-all duration-300 ease-out hover:shadow-md hover:-translate-y-1 border border-[rgba(29,36,51,0.12)]"
+              @click.stop="viewJob(job)"
+            >
+              <!-- Hover left accent: reveal from center to top/bottom -->
+              <span
+                class="pointer-events-none absolute left-0 top-1/2 -translate-y-1/2 h-[calc(100%-8px)] w-1 rounded-full bg-[var(--blue)] scale-y-0 origin-center transition-transform duration-300 ease-out group-hover:scale-y-100"
+              />
+
+              <!-- Hover action -->
+              <div class="absolute right-4 top-4 opacity-0 translate-y-1 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 ease-out">
+                <UButton
+                  label="Ứng tuyển"
+                  size="sm"
+                  variant="solid"
+                  class="rounded-full !text-[var(--blue)] !bg-[rgba(53,99,255,0.10)] !border !border-[rgba(53,99,255,0.22)] hover:!bg-[rgba(53,99,255,0.16)] hover:!border-[rgba(53,99,255,0.30)]"
+                  @click.stop="viewJob(job)"
+                />
+              </div>
+
+              <div class="flex items-start gap-4">
+                <!-- Logo -->
+                <div
+                  class="h-12 w-12 rounded-xl bg-white flex items-center justify-center overflow-hidden shrink-0"
+                  style="border: 1px solid rgba(29, 36, 51, 0.12)"
+                >
+                  <img
+                    v-if="job.companyLogo"
+                    :src="job.companyLogo"
+                    :alt="job.companyName"
+                    class="h-full w-full object-contain"
+                  />
+                  <span
+                    v-else
+                    class="text-[12px] font-bold text-[rgba(29,36,51,0.7)]"
+                  >
+                    {{ (job.companyName || 'CT').slice(0, 2).toUpperCase() }}
+                  </span>
+                </div>
+
+                <div class="min-w-0 flex-1">
+                  <div class="truncate text-[16px] font-bold text-[#1d2433] group-hover:text-[var(--blue)] transition-colors duration-200">
+                    {{ job.title }}
+                  </div>
+                  <div class="mt-1 truncate text-[14px] text-[var(--blue)]">
+                    {{ job.companyName }}
+                  </div>
+
+                  <!-- Meta row -->
+                  <div class="mt-3 flex flex-wrap items-center gap-x-5 gap-y-2 text-[12px] text-[rgba(29,36,51,0.55)]">
+                    <div v-if="getFullLocationText(job)" class="inline-flex items-center gap-2">
+                      <UIcon name="i-heroicons-map-pin" class="h-4 w-4 text-[rgba(29,36,51,0.4)]" />
+                      <span class="truncate max-w-[160px]">{{ truncateText(getFullLocationText(job), 24) }}</span>
+                    </div>
+
+                    <div class="inline-flex items-center gap-2">
+                      <UIcon name="i-heroicons-currency-dollar" class="h-4 w-4 text-[rgba(29,36,51,0.4)]" />
+                      <span>{{ getSalaryText(job) }}</span>
+                    </div>
+
+                    <div class="inline-flex items-center gap-2">
+                      <UIcon name="i-heroicons-clock" class="h-4 w-4 text-[rgba(29,36,51,0.4)]" />
+                      <span>{{ job.createdAt ? timeAgo(job.createdAt) : '' }}</span>
+                    </div>
+
+                    <div class="inline-flex items-center gap-2">
+                      <UIcon name="i-heroicons-briefcase" class="h-4 w-4 text-[rgba(29,36,51,0.4)]" />
+                      <span>{{ getExperienceText(job) }}</span>
+                    </div>
+
+                    <div class="inline-flex items-center gap-2">
+                      <span class="inline-block h-1.5 w-1.5 rounded-full bg-[rgba(29,36,51,0.25)]" />
+                      <span>{{ getPrimaryCategoryLabel(job.category) }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+        </div>
+
+        <div class="mt-4">
+          <button
+            type="button"
+            class="text-[14px] font-medium text-[var(--blue)] hover:text-[var(--blue-dark)] transition-colors inline-flex items-center gap-2"
+            @click="viewAllClick()"
+          >
+            Xem tất cả
+            <UIcon name="i-heroicons-arrow-right" class="h-4 w-4" />
+          </button>
+        </div>
+      </UContainer>
+    </section>
+
+    <!-- Urgent Jobs -->
+    <section data-reveal-jobs class="py-16 relative z-10">
+      <UContainer>
+        <!-- Header -->
+        <div class="mb-6 flex items-start justify-between gap-6">
+          <div class="flex items-center gap-3">
+            <span class="h-6 w-1.5 rounded-full bg-[var(--blue)]" />
+            <h2 class="text-[28px] font-extrabold text-[#1d2433]">
+              Việc làm tuyển gấp
+            </h2>
+          </div>
+        </div>
+
+        <!-- List: max 6 items -->
+        <div class="space-y-4">
+          <div
+            v-for="job in urgentLatestJobs"
+            :key="job.id"
+            class="group relative overflow-hidden rounded-2xl bg-white cursor-pointer px-6 py-5 shadow-sm transition-all duration-300 ease-out hover:shadow-md hover:-translate-y-1 border border-[rgba(29,36,51,0.12)]"
+            @click.stop="viewJob(job)"
+          >
+            <!-- Hover left accent: reveal from center to top/bottom -->
+            <span
+              class="pointer-events-none absolute left-0 top-1/2 -translate-y-1/2 h-[calc(100%-8px)] w-1 rounded-full bg-[var(--blue)] scale-y-0 origin-center transition-transform duration-300 ease-out group-hover:scale-y-100"
+            />
+
+            <!-- Hover action -->
+            <div class="absolute right-4 top-4 opacity-0 translate-y-1 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 ease-out">
+              <UButton
+                label="Ứng tuyển"
+                size="sm"
+                variant="solid"
+                class="rounded-full !text-[var(--blue)] !bg-[rgba(53,99,255,0.10)] !border !border-[rgba(53,99,255,0.22)] hover:!bg-[rgba(53,99,255,0.16)] hover:!border-[rgba(53,99,255,0.30)]"
+                @click.stop="viewJob(job)"
+              />
+            </div>
+
+            <div class="flex items-start gap-4">
+              <!-- Logo -->
+              <div
+                class="h-12 w-12 rounded-xl bg-white flex items-center justify-center overflow-hidden shrink-0"
+                style="border: 1px solid rgba(29, 36, 51, 0.12)"
+              >
+                <img
+                  v-if="job.companyLogo"
+                  :src="job.companyLogo"
+                  :alt="job.companyName"
+                  class="h-full w-full object-contain"
+                />
+                <span
+                  v-else
+                  class="text-[12px] font-bold text-[rgba(29,36,51,0.7)]"
+                >
+                  {{ (job.companyName || 'CT').slice(0, 2).toUpperCase() }}
+                </span>
+              </div>
+
+              <div class="min-w-0 flex-1">
+                <div class="truncate text-[16px] font-bold text-[#1d2433] group-hover:text-[var(--blue)] transition-colors duration-200">
+                  {{ job.title }}
+                </div>
+                <div class="mt-1 truncate text-[14px] text-[var(--blue)]">
+                  {{ job.companyName }}
+                </div>
+
+                <!-- Meta row -->
+                <div class="mt-3 flex flex-wrap items-center gap-x-5 gap-y-2 text-[12px] text-[rgba(29,36,51,0.55)]">
+                  <div v-if="getFullLocationText(job)" class="inline-flex items-center gap-2">
+                    <UIcon name="i-heroicons-map-pin" class="h-4 w-4 text-[rgba(29,36,51,0.4)]" />
+                    <span class="truncate max-w-[160px]">{{ truncateText(getFullLocationText(job), 24) }}</span>
+                  </div>
+
+                  <div class="inline-flex items-center gap-2">
+                    <UIcon name="i-heroicons-currency-dollar" class="h-4 w-4 text-[rgba(29,36,51,0.4)]" />
+                    <span>{{ getSalaryText(job) }}</span>
+                  </div>
+
+                  <div class="inline-flex items-center gap-2">
+                    <UIcon name="i-heroicons-clock" class="h-4 w-4 text-[rgba(29,36,51,0.4)]" />
+                    <span>{{ job.createdAt ? timeAgo(job.createdAt) : '' }}</span>
+                  </div>
+
+                  <div class="inline-flex items-center gap-2">
+                    <UIcon name="i-heroicons-briefcase" class="h-4 w-4 text-[rgba(29,36,51,0.4)]" />
+                    <span>{{ getExperienceText(job) }}</span>
+                  </div>
+
+                  <div class="inline-flex items-center gap-2">
+                    <span class="inline-block h-1.5 w-1.5 rounded-full bg-[rgba(29,36,51,0.25)]" />
+                    <span>{{ getPrimaryCategoryLabel(job.category) }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-4">
+          <button
+            type="button"
+            class="text-[14px] font-medium text-[var(--blue)] hover:text-[var(--blue-dark)] transition-colors inline-flex items-center gap-2"
+            @click="viewAllClick()"
+          >
+            Xem tất cả
+            <UIcon name="i-heroicons-arrow-right" class="h-4 w-4" />
+          </button>
+        </div>
+      </UContainer>
+    </section>
+
+    <!-- Blogs -->
+    <section data-reveal-jobs class="py-16">
+      <UContainer>
+        <!-- Title + See all -->
+        <div class="mb-8 flex items-center justify-between gap-6">
+          <h2 class="text-[28px] font-extrabold text-[#1d2433]">
+            Blog &amp; Cẩm nang
+          </h2>
+          <button
+            type="button"
+            class="text-[14px] font-medium text-[var(--blue)] hover:text-[var(--blue-dark)] transition-colors inline-flex items-center gap-2"
+            @click="navigateTo('/blog')"
+          >
+            Xem tất cả
+            <UIcon name="i-heroicons-arrow-right" class="h-4 w-4" />
+          </button>
+        </div>
+
+        <!-- List (max 3) -->
+        <div v-if="blogRes.length > 0" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <article
+            v-for="item in blogRes.slice(0, 3)"
+            :key="item.id"
+            class="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 ease-out hover:-translate-y-1"
+            style="border: 1px solid rgba(29, 36, 51, 0.12)"
+          >
+            <NuxtLink :to="`/blog/${item.id}`" class="block">
+              <img
+                :src="item.image"
+                :alt="item.title"
+                class="w-full h-[190px] object-cover"
+              />
+            </NuxtLink>
+
+            <div class="p-5">
+              <div class="flex items-center justify-between gap-4 mb-3">
+                <span
+                  class="inline-flex items-center px-3 py-1 rounded-full text-[12px] font-semibold"
+                  :style="getBlogBadgeStyle(item)"
+                >
+                  {{ getBlogBadgeText(item) }}
+                </span>
+                <span class="text-[12px] text-[rgba(29,36,51,0.55)]">
+                  {{ getReadingTimeText(item) }}
+                </span>
+              </div>
+
+              <h3 class="text-[18px] font-extrabold text-[#1d2433] leading-snug line-clamp-2">
+                {{ item.title }}
+              </h3>
+
+              <NuxtLink
+                :to="`/blog/${item.id}`"
+                class="mt-4 inline-flex items-center text-[14px] font-medium text-[var(--blue)] hover:text-[var(--blue-dark)] transition-colors"
+              >
+                Đọc bài viết
+              </NuxtLink>
+            </div>
+          </article>
         </div>
         <div v-else class="mb-8 text-center text-gray-500">
           Hiện tại không có blog nào.
         </div>
-
-        <div class="mt-6">
-          <app-button
-            class="mt-5 p-6 bg-black text-white"
-            variant="outline"
-            shape="round"
-            compact
-            @click="navigateTo('/blog')"
-            >{{ $t('homePage.buttonContent.seeAll') }}</app-button
-          >
-        </div>
       </UContainer>
-    </div>
+    </section>
 
-    <!-- Last banner & Footer -->
-    <div class="bg-white">
-      <!-- Last banner -->
-      <div
-        class="bg-gradient-to-r from-blue-800 to-blue-500 text-white text-center py-20 px-4"
-      >
-        <h2 class="text-3xl sm:text-4xl font-bold mb-4">
-          {{ $t('homePage.lastBanner.title1') }}
-        </h2>
-        <p class="text-lg sm:text-xl mb-8">
-          {{ $t('homePage.lastBanner.title2') }}
-          <br />
-          <a href="#" class="font-semibold">{{
-            $t('homePage.lastBanner.url')
-          }}</a>
-        </p>
-        <div class="flex flex-col sm:flex-row justify-center gap-4">
-          <a
-            href="/jobs/search"
-            class="bg-white text-blue-700 font-semibold py-3 px-6 rounded-md border border-blue-600 hover:bg-blue-100 transition inline-flex items-center justify-center min-h-[48px] max-h-[60px]"
-          >
-            {{ $t('homePage.lastBanner.button1') }}
-          </a>
-          <button
-            v-if="authStore.user?.role === USER_ROLES.COMPANY"
-            class="bg-green-600 text-white font-semibold py-3 px-6 rounded-md hover:bg-green-700 transition inline-flex items-center justify-center min-h-[48px] max-h-[60px]"
-            @click="handlePostJob"
-          >
-            {{ $t('homePage.lastBanner.button2') }}
-          </button>
-        </div>
-      </div>
-
-      <!-- Footer -->
-      <footer class="bg-[#0B1320] text-gray-300 text-sm">
-        <div
-          class="max-w-7xl mx-auto px-6 py-10 grid grid-cols-1 md:grid-cols-3 gap-8 border-b border-gray-700"
-        >
-          <!-- Left -->
-          <div>
-            <h2 class="text-white font-bold text-xl mb-4">
-              {{ $t('homePage.lastBanner.url') }}
-            </h2>
-            <p>
-              {{ $t('homePage.footer.subscription') }}
-            </p>
-            <div class="flex space-x-4 mt-4">
-              <a
-                href="#"
-                class="bg-gray-800 hover:bg-gray-700 p-2 rounded-full"
-              >
-                <i class="fab fa-facebook-f text-white"></i>
-              </a>
-              <a
-                href="#"
-                class="bg-gray-800 hover:bg-gray-700 p-2 rounded-full"
-              >
-                <i class="fab fa-twitter text-white"></i>
-              </a>
-              <a
-                href="#"
-                class="bg-gray-800 hover:bg-gray-700 p-2 rounded-full"
-              >
-                <i class="fab fa-linkedin-in text-white"></i>
-              </a>
-            </div>
-          </div>
-
-          <!-- Candidate -->
-          <div>
-            <h3 class="text-white font-bold mb-4">
-              {{ $t('homePage.footer.titleCandidate') }}
-            </h3>
-            <ul class="space-y-2">
-              <li>
-                <a href="#" class="hover:text-white"
-                  >{{ $t('homePage.footer.featureCandidate1') }}
-                </a>
-              </li>
-              <li>
-                <a href="#" class="hover:text-white">{{
-                  $t('homePage.footer.featureCandidate2')
-                }}</a>
-              </li>
-              <li>
-                <a href="#" class="hover:text-white">{{
-                  $t('homePage.footer.featureCandidate3')
-                }}</a>
-              </li>
-            </ul>
-          </div>
-
-          <!-- Recruiter -->
-          <div>
-            <h3 class="text-white font-bold mb-4">
-              {{ $t('homePage.footer.titleRecruit') }}
-            </h3>
-            <ul class="space-y-2">
-              <li>
-                <a href="#" class="hover:text-white">{{
-                  $t('homePage.footer.featureRecruit1')
-                }}</a>
-              </li>
-              <li>
-                <a href="#" class="hover:text-white">{{
-                  $t('homePage.footer.featureRecruit2')
-                }}</a>
-              </li>
-              <li>
-                <a href="#" class="hover:text-white">{{
-                  $t('homePage.footer.featureRecruit3')
-                }}</a>
-              </li>
-            </ul>
-          </div>
-        </div>
-
-        <div
-          class="max-w-7xl mx-auto px-6 py-4 flex flex-col md:flex-row justify-between items-center text-gray-400 text-sm"
-        >
-          <div class="mb-2 md:mb-0">
-            {{ $t('homePage.footer.copyRight') }}
-          </div>
-          <div class="flex space-x-6">
-            <a href="#" class="hover:text-white">{{
-              $t('homePage.footer.policies')
-            }}</a>
-            <a href="#" class="hover:text-white">{{
-              $t('homePage.footer.sercurity')
-            }}</a>
-            <a href="#" class="hover:text-white">{{
-              $t('homePage.footer.contact')
-            }}</a>
-          </div>
-        </div>
-      </footer>
-    </div>
+    <!-- Footer is rendered by default layout -->
   </div>
 </template>
 
@@ -811,23 +501,217 @@ import { USER_ROLES } from '~/constants/roles'
 import { JobMapper } from '~/mapper/job'
 import type { CategoryJobModel } from '~/models/category'
 import { CategoryJobMapper } from '~/mapper/category'
-import { LocationJobMapper } from '~/mapper/location'
-import type { LocationJobModel } from '~/models/location'
 import type { CompanyBannerModel } from '~/models/company'
 import { CompanyMapper } from '~/mapper/company'
 import type { BlogModel } from '~/models/blog'
 import { BlogMapper } from '~/mapper/blog'
 
+useHead({
+  title: 'Trang chủ',
+})
+
 const {
   locationItems,
   categoryEnumLabel,
-  locationEnumLabel,
   employmentTypesEnumLabel,
 } = useJobFilters()
+
+const getCategoryLabel = (category: string) => {
+  return (categoryEnumLabel?.[category as unknown as number] as string) ?? category
+}
+
+const splitWordsForInitials = (label: string) => {
+  return label
+    .split(/\s+/)
+    .map((w) => w.replace(/[^\p{L}\p{N}]+/gu, ''))
+    .filter(Boolean)
+}
+
+// Rule: take initials of the last 2 words; if only 1 word, take first 2 letters.
+const getCategoryInitials = (label: string) => {
+  const words = splitWordsForInitials(label)
+  if (words.length >= 2) {
+    const w1 = words[words.length - 2]
+    const w2 = words[words.length - 1]
+    return `${w1.charAt(0)}${w2.charAt(0)}`.toUpperCase()
+  }
+  if (words.length === 1) {
+    return words[0].slice(0, 2).toUpperCase()
+  }
+  return ''
+}
+
+const categoryIconPalette = [
+  { bg: 'rgba(53, 99, 255, 0.10)', text: 'rgba(53, 99, 255, 1)' }, // blue
+  { bg: 'rgba(255, 184, 0, 0.12)', text: 'rgba(207, 127, 0, 1)' }, // amber
+  { bg: 'rgba(0, 200, 155, 0.10)', text: 'rgba(0, 140, 110, 1)' }, // teal
+  { bg: 'rgba(139, 92, 246, 0.10)', text: 'rgba(109, 40, 217, 1)' }, // purple
+  { bg: 'rgba(236, 72, 153, 0.10)', text: 'rgba(190, 24, 93, 1)' }, // pink
+  { bg: 'rgba(59, 130, 246, 0.10)', text: 'rgba(29, 78, 216, 1)' }, // blue alt
+]
+
+const getCategoryIconStyle = (label: string) => {
+  const initials = getCategoryInitials(label)
+  const hash = Array.from(initials).reduce((acc, ch) => acc + ch.charCodeAt(0), 0)
+  const pick = categoryIconPalette[hash % categoryIconPalette.length]
+  return {
+    background: pick.bg,
+    color: pick.text,
+  }
+}
 
 const keyword = ref('')
 
 const location = ref('0')
+
+// Hero parallax + floating cards
+const heroRef = ref<HTMLElement | null>(null)
+const parallax = reactive({ x: 0, y: 0 })
+
+type HeroCard = {
+  text: string
+  top: string
+  left: string
+  speed: number
+  floatDuration: string
+  floatDelay: string
+  depth: string
+  /** 1: cùng hướng con trỏ, -1: ngược hướng con trỏ */
+  mouseSign: 1 | -1
+}
+
+const getHeroCardOuterStyle = (c: HeroCard) => {
+  // Transform tính trực tiếp (tránh calc CSS + tránh transition xung đột với cập nhật mỗi frame)
+  const tx = parallax.x * c.speed * c.mouseSign
+  const ty = parallax.y * c.speed * c.mouseSign
+
+  return {
+    top: c.top,
+    left: c.left,
+    transform: `translate3d(${tx}px, ${ty}px, 0)`,
+  } as Record<string, string>
+}
+
+const getHeroCardInnerStyle = (c: HeroCard) => {
+  return {
+    animationDuration: c.floatDuration,
+    animationDelay: c.floatDelay,
+  } as Record<string, string>
+}
+
+const heroCards: HeroCard[] = [
+  {
+    text: 'Giáo viên Toán',
+    top: '90px',
+    left: '90px',
+    speed: 0.35,
+    floatDuration: '6.8s',
+    floatDelay: '-1.2s',
+    depth: 'd-near',
+    mouseSign: 1,
+  },
+  {
+    text: 'Giáo viên Tiếng Anh',
+    top: '70px',
+    left: '50%',
+    speed: 0.22,
+    floatDuration: '8.6s',
+    floatDelay: '-3.4s',
+    depth: 'd-mid',
+    mouseSign: 1,
+  },
+  {
+    text: 'Giáo viên Mầm non',
+    top: '95px',
+    left: 'calc(100% - 210px)',
+    speed: 0.3,
+    floatDuration: '7.4s',
+    floatDelay: '-2.2s',
+    depth: 'd-near',
+    mouseSign: -1,
+  },
+  {
+    text: 'Giáo viên Tiểu học',
+    top: '500px',
+    left: '70px',
+    speed: 0.18,
+    floatDuration: '9.2s',
+    floatDelay: '-5.2s',
+    depth: 'd-far',
+    mouseSign: -1,
+  },
+  {
+    text: 'Giáo viên IELTS',
+    top: '510px',
+    left: 'calc(100% - 220px)',
+    speed: 0.2,
+    floatDuration: '8.8s',
+    floatDelay: '-6.0s',
+    depth: 'd-far',
+    mouseSign: 1,
+  },
+]
+
+let disposeHeroParallax: (() => void) | undefined
+let skipHeroParallaxSetup = false
+
+onMounted(() => {
+  // Đợi ref DOM ổn định (Nuxt/transition)
+  nextTick(() => {
+    if (skipHeroParallaxSetup) return
+    const el = heroRef.value
+    if (!el) return
+
+    const reduceMotion =
+      typeof window !== 'undefined' &&
+      window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches
+
+    const target = { x: 0, y: 0 }
+    let rafId = 0
+    let active = true
+
+    const onMove = (ev: PointerEvent) => {
+      if (reduceMotion) return
+      const rect = el.getBoundingClientRect()
+      if (rect.width < 1 || rect.height < 1) return
+      const nx = (ev.clientX - rect.left) / rect.width - 0.5
+      const ny = (ev.clientY - rect.top) / rect.height - 0.5
+      // Biên độ lớn hơn + phản hồi nhanh hơn (lerp k bên dưới)
+      target.x = nx * 42
+      target.y = ny * 30
+    }
+
+    const onLeave = () => {
+      target.x = 0
+      target.y = 0
+    }
+
+    const tick = () => {
+      if (!active) return
+      rafId = requestAnimationFrame(tick)
+      if (reduceMotion) return
+      const k = 0.26
+      parallax.x += (target.x - parallax.x) * k
+      parallax.y += (target.y - parallax.y) * k
+    }
+
+    el.addEventListener('pointermove', onMove, { passive: true })
+    el.addEventListener('pointerleave', onLeave, { passive: true })
+    rafId = requestAnimationFrame(tick)
+
+    disposeHeroParallax = () => {
+      active = false
+      el.removeEventListener('pointermove', onMove)
+      el.removeEventListener('pointerleave', onLeave)
+      cancelAnimationFrame(rafId)
+    }
+  })
+})
+
+onUnmounted(() => {
+  skipHeroParallaxSetup = true
+  disposeHeroParallax?.()
+})
 
 // 1. Get range of values from CategoryList
 const categoryValues = Object.entries(categoryEnumLabel)
@@ -895,6 +779,41 @@ const authStore = useAuthStore()
 // User dropdown state
 const showUserDropdown = ref(false)
 
+// Scroll reveal (hiện dần khi kéo tới, chạy 1 lần rồi giữ)
+onMounted(() => {
+  const reduce =
+    typeof window !== 'undefined' &&
+    window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches
+
+  const els = Array.from(
+    document.querySelectorAll<HTMLElement>('[data-reveal-jobs]'),
+  )
+  if (!els.length) return
+
+  if (reduce) {
+    els.forEach((el) => el.classList.add('sr-reveal', 'is-visible'))
+    return
+  }
+
+  els.forEach((el) => el.classList.add('sr-reveal'))
+
+  const io = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return
+        const el = entry.target as HTMLElement
+        el.classList.add('is-visible')
+        io.unobserve(el) // chỉ chạy 1 lần, rồi để đó
+      })
+    },
+    { threshold: 0.12, rootMargin: '0px 0px -10% 0px' },
+  )
+
+  els.forEach((el) => io.observe(el))
+
+  onUnmounted(() => io.disconnect())
+})
+
 // Fill search fields from URL query parameters
 onMounted(() => {
   const query = route.query
@@ -916,7 +835,6 @@ onMounted(() => {
   // Fetch Api
   getFeatureJobs()
   getCategoryJobs()
-  getLocationJobs()
   getCompanyBanners()
   getBlogs()
 })
@@ -945,15 +863,6 @@ const onCategoryClick = (tag: string) => {
   })
 }
 
-const onLocationClick = (tag: string) => {
-  router.push({
-    path: '/jobs/search',
-    query: {
-      location: tag,
-    },
-  })
-}
-
 const viewAllClick = () => {
   router.push({
     path: '/jobs/search',
@@ -965,9 +874,45 @@ const viewAllClick = () => {
 const featureJobsRes = ref<JobModel[]>([])
 const urgentJobsRes = ref<JobModel[]>([])
 const categoryJobsRes = ref<CategoryJobModel[]>([])
-const locationJobsRes = ref<LocationJobModel[]>([])
 const bannerRes = ref<CompanyBannerModel[]>([])
 const blogRes = ref<BlogModel[]>([])
+
+const latestJobs = computed(() => featureJobsRes.value.slice(0, 6))
+const urgentLatestJobs = computed(() => urgentJobsRes.value.slice(0, 6))
+
+const getPrimaryCategoryLabel = (categoryStr: string) => {
+  const firstCategory = categoryStr ? categoryStr.split(',')[0].trim() : ''
+  return (
+    (categoryEnumLabel as any)?.[firstCategory as any] ??
+    (firstCategory || categoryStr || '')
+  )
+}
+
+const getSalaryText = (job: JobModel) => {
+  // salaryType = 5 thường là thỏa thuận
+  if (job.salaryType === 5) return 'Thỏa thuận'
+  const min = (job.salaryMin ?? '').toString().trim()
+  const max = (job.salaryMax ?? '').toString().trim()
+  if (!min && !max) return 'Thỏa thuận'
+  if (min && max) return `${min} - ${max} triệu`
+  return `${min || max} triệu`
+}
+
+const timeAgo = (d: Date) => {
+  const date = d instanceof Date ? d : new Date(d)
+  const diffMs = Date.now() - date.getTime()
+  const diffMins = Math.floor(diffMs / 60000)
+  if (diffMins < 60) return `${Math.max(diffMins, 1)} phút trước`
+  const diffHours = Math.floor(diffMins / 60)
+  if (diffHours < 24) return `${diffHours} giờ trước`
+  const diffDays = Math.floor(diffHours / 24)
+  return `${diffDays} ngày trước`
+}
+
+const getExperienceText = (job: JobModel) => {
+  const exp = (job.experienceLevel ?? '').toString().trim()
+  return exp ? exp : 'Có kinh nghiệm'
+}
 
 // initialize Api
 const { $api } = useNuxtApp()
@@ -1041,28 +986,6 @@ const getCategoryJobs = async () => {
   }
 }
 
-// Fetch Location JobModel
-const getLocationJobs = async () => {
-  try {
-    // Call API
-    const response = await $api.job.getLocationJobs()
-
-    if (response && Array.isArray(response)) {
-      locationJobsRes.value = response.map((locJob) =>
-        LocationJobMapper.toModel(locJob),
-      )
-    } else {
-      locationJobsRes.value = []
-    }
-  } catch (error: any) {
-    console.error('Get Location Jobs failed:', error)
-    useNotify({
-      message: error.message,
-    })
-    locationJobsRes.value = []
-  }
-}
-
 // Fetch Company Banners
 const getCompanyBanners = async () => {
   try {
@@ -1121,7 +1044,11 @@ const getBlogs = async () => {
 const getLocationLabel = (locationValue: string): string => {
   if (locationValue === '0') return 'Toàn Quốc'
 
-  return (locationEnumLabel as any)?.[locationValue] ?? (locationEnumLabel as any)?.[Number(locationValue)] ?? locationValue
+  const val = String(locationValue)
+  const match = locationItems.value?.find(
+    (i: any) => String(i.value) === val,
+  )
+  return (match?.label as string) ?? val
 }
 
 // Function to get all location labels for a job
@@ -1145,6 +1072,30 @@ const truncateText = (text: string, maxLength: number = 40): string => {
   if (text.length <= maxLength) return text
 
   return text.substring(0, maxLength).trim() + '...'
+}
+
+const getBlogBadgeText = (blog: BlogModel) => {
+  const t = (blog.title || '').toLowerCase()
+  if (t.includes('cv')) return 'CV'
+  if (t.includes('phỏng vấn') || t.includes('phong van')) return 'Phỏng vấn'
+  if (t.includes('kinh nghiệm') || t.includes('kinh nghiem')) return 'Kinh nghiệm'
+  return 'Cẩm nang'
+}
+
+const getBlogBadgeStyle = (blog: BlogModel) => {
+  const badge = getBlogBadgeText(blog)
+  if (badge === 'CV') return { background: 'rgba(53, 99, 255, 0.10)', color: 'rgba(37, 80, 232, 1)' }
+  if (badge === 'Phỏng vấn') return { background: 'rgba(255, 184, 0, 0.14)', color: 'rgba(207, 127, 0, 1)' }
+  if (badge === 'Kinh nghiệm') return { background: 'rgba(0, 200, 155, 0.12)', color: 'rgba(0, 140, 110, 1)' }
+  return { background: 'rgba(148, 163, 184, 0.16)', color: 'rgba(51, 65, 85, 1)' }
+}
+
+const getReadingTimeText = (blog: BlogModel) => {
+  const text = `${blog.title ?? ''} ${blog.description ?? ''}`.trim()
+  // ~200 words/min, Vietnamese approx: 4.5 chars/word
+  const approxWords = Math.max(1, Math.round(text.length / 5))
+  const minutes = Math.min(12, Math.max(3, Math.round(approxWords / 200)))
+  return `${minutes} phút đọc`
 }
 
 const viewJob = (job: JobModel) => {
@@ -1394,6 +1345,359 @@ const userMenuItems = computed(() => {
   return items
 })
 </script>
+
+<style scoped>
+.sr-reveal {
+  opacity: 0;
+  transform: translate3d(0, 14px, 0);
+  filter: blur(6px);
+  transition:
+    opacity 700ms ease,
+    transform 700ms cubic-bezier(0.2, 0.65, 0.2, 1),
+    filter 700ms ease;
+  will-change: opacity, transform, filter;
+}
+
+.sr-reveal.is-visible {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+  filter: blur(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sr-reveal {
+    opacity: 1;
+    transform: none;
+    filter: none;
+    transition: none;
+  }
+}
+
+.home-hero {
+  min-height: calc(100vh - var(--app-header-height));
+  display: flex;
+  align-items: center;
+  padding: 84px 0 76px;
+}
+
+.home-hero__bg {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(900px 420px at 55% 45%, rgba(53, 99, 255, 0.20), transparent 62%),
+    radial-gradient(700px 360px at 35% 60%, rgba(53, 99, 255, 0.10), transparent 65%),
+    linear-gradient(180deg, rgba(245, 247, 251, 0.85), rgba(245, 247, 251, 1));
+}
+
+.home-hero__radial {
+  position: absolute;
+  inset: -120px -120px -120px -120px;
+  background: radial-gradient(900px 460px at 50% 45%, rgba(255, 255, 255, 0.70), transparent 65%);
+  filter: blur(10px);
+  opacity: 0.9;
+  pointer-events: none;
+}
+
+.home-hero__wrap {
+  max-width: 1200px;
+  margin: 0 auto;
+  text-align: center;
+  padding: 0 12px;
+}
+
+.home-hero__trust {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 18px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(29, 36, 51, 0.12);
+  box-shadow: 0 10px 26px rgba(29, 36, 51, 0.08);
+  backdrop-filter: blur(10px);
+  font-size: 14px;
+  color: rgba(29, 36, 51, 0.68);
+}
+
+.home-hero__trust b {
+  color: rgba(29, 36, 51, 0.92);
+}
+
+.home-hero__trustDots {
+  display: inline-flex;
+  align-items: center;
+}
+
+.home-hero__trustDots .d {
+  width: 28px;
+  height: 28px;
+  border-radius: 9999px;
+  display: inline-block;
+  border: 3px solid #fff;
+  box-shadow: 0 6px 14px rgba(29, 36, 51, 0.08);
+}
+
+.home-hero__trustDots .d + .d { margin-left: -12px; }
+.home-hero__trustDots .d1 { background: #9ec5ff; }
+.home-hero__trustDots .d2 { background: #f6c343; }
+.home-hero__trustDots .d3 { background: #72d28a; }
+
+.home-hero__title {
+  margin-top: 26px;
+  font-weight: 900;
+  font-size: clamp(44px, 5.2vw, 80px);
+  line-height: 1.05;
+  letter-spacing: -1.2px;
+  color: rgba(29, 36, 51, 0.96);
+  white-space: nowrap;
+}
+
+.home-hero__titleHi {
+  position: relative;
+  display: inline-block;
+  padding: 0 14px 6px;
+  margin: 0 2px;
+  background: rgba(208, 226, 255, 1);
+  border-radius: 14px;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.65) inset,
+    0 8px 18px rgba(29, 36, 51, 0.06);
+}
+
+.home-hero__titleHi::after {
+  content: '';
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  bottom: 4px;
+  height: 3px;
+  border-radius: 9999px;
+  background: rgba(120, 162, 255, 0.75);
+}
+
+.home-hero__subtitle {
+  margin-top: 16px;
+  font-size: 14px;
+  color: rgba(29, 36, 51, 0.55);
+}
+
+.home-hero__search {
+  --search-radius: 20px;
+  margin: 28px auto 0;
+  max-width: 860px;
+  height: 70px;
+  display: grid;
+  grid-template-columns: 1fr 1px 1fr auto;
+  align-items: center;
+  gap: 0;
+  padding: 12px 14px;
+  border-radius: var(--search-radius);
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(53, 99, 255, 0.22);
+  box-shadow:
+    0 18px 48px rgba(29, 36, 51, 0.10),
+    0 1px 0 rgba(255, 255, 255, 0.9) inset;
+  backdrop-filter: blur(12px);
+  transition: box-shadow 180ms ease, transform 180ms ease, border-color 180ms ease;
+}
+
+.home-hero__search:hover {
+  box-shadow:
+    0 34px 78px rgba(29, 36, 51, 0.16),
+    0 1px 0 rgba(255, 255, 255, 0.9) inset;
+}
+
+.home-hero__divider {
+  height: 30px;
+  background: rgba(29, 36, 51, 0.08);
+}
+
+.home-hero__input {
+  height: 44px;
+  border: 0;
+  outline: none;
+  background: transparent;
+  padding: 0 18px;
+  font-size: 14px;
+  font-weight: 500;
+  color: rgba(29, 36, 51, 0.88);
+}
+
+.home-hero__input::placeholder {
+  color: rgba(29, 36, 51, 0.42);
+}
+
+.home-hero__select {
+  padding: 0 10px;
+}
+
+/* Make USelect look like plain input */
+.home-hero__select :deep(button),
+.home-hero__select :deep([role='combobox']) {
+  height: 44px;
+  padding: 0 18px;
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  font-size: 14px;
+  font-weight: 500;
+  color: rgba(29, 36, 51, 0.72);
+  justify-content: flex-start;
+}
+
+.home-hero__select :deep(svg),
+.home-hero__select :deep(.icon) {
+  color: rgba(29, 36, 51, 0.35);
+}
+
+.home-hero__searchBtn {
+  height: 46px !important;
+  padding: 0 40px !important;
+  border-radius: 20px !important;
+  background: var(--blue) !important;
+  color: #fff !important;
+  font-weight: 800 !important;
+  font-size: 15px !important;
+  box-shadow:
+    0 12px 26px rgba(53, 99, 255, 0.22),
+    0 1px 0 rgba(255, 255, 255, 0.35) inset !important;
+}
+
+.home-hero__searchBtn:hover {
+  background: var(--blue-dark) !important;
+}
+
+.home-hero__tags {
+  margin-top: 14px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  color: rgba(29, 36, 51, 0.62);
+  font-size: 13px;
+}
+
+.home-hero__tagsLabel {
+  margin-right: 2px;
+  font-weight: 500;
+}
+
+.home-hero__tag {
+  padding: 10px 16px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.55);
+  border: 1px solid rgba(29, 36, 51, 0.08);
+  color: rgba(29, 36, 51, 0.72);
+  backdrop-filter: blur(10px);
+  transition: background 160ms ease, transform 160ms ease, border-color 160ms ease, color 160ms ease;
+}
+
+.home-hero__tag:hover {
+  transform: translateY(-1px);
+  background: rgba(255, 255, 255, 0.75);
+  border-color: rgba(29, 36, 51, 0.12);
+  color: rgba(29, 36, 51, 0.88);
+}
+
+.home-hero__floatLayer {
+  position: absolute;
+  inset: 0;
+  /* Trên nội dung hero (UContainer z-10) để badge hiển thị; lớp nền vẫn bấm xuyên vì pointer-events: none */
+  z-index: 12;
+  pointer-events: none;
+}
+
+/* Lớp ngoài: transform do inline style từ parallax (không dùng transition ở đây – tránh tắt cập nhật theo chuột) */
+.home-hero__floatCardOuter {
+  position: absolute;
+  will-change: transform;
+  pointer-events: auto;
+  z-index: 0;
+}
+
+.home-hero__floatCardOuter:hover {
+  z-index: 3;
+}
+
+.home-hero__floatCard {
+  padding: 10px 14px;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(29, 36, 51, 0.12);
+  box-shadow: 0 10px 30px rgba(29, 36, 51, 0.08);
+  backdrop-filter: blur(10px);
+  font-size: 12px;
+  color: rgba(29, 36, 51, 0.62);
+  white-space: nowrap;
+  transform-origin: 50% 100%;
+  animation-name: heroFloat;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+  /* ease-out mượt, tăng dần ở cuối – khớp hover / rời hover */
+  --float-ease: cubic-bezier(0.22, 0.8, 0.28, 1);
+  transition:
+    transform 0.55s var(--float-ease),
+    box-shadow 0.55s var(--float-ease),
+    filter 0.45s ease,
+    opacity 0.45s ease,
+    border-color 0.45s ease,
+    color 0.45s ease;
+}
+
+.home-hero__floatCard.d-near {
+  opacity: 0.95;
+  filter: blur(0px);
+}
+
+.home-hero__floatCard.d-mid {
+  opacity: 0.75;
+  filter: blur(0.5px);
+}
+
+.home-hero__floatCard.d-far {
+  opacity: 0.55;
+  filter: blur(1.1px);
+}
+
+/* Hover: tạm dừng float, nâng rất nhẹ – transition ở .home-hero__floatCard (mượt, bớt “nảy”) */
+.home-hero__floatCardOuter:hover .home-hero__floatCard {
+  animation-play-state: paused;
+  transform: translate3d(0, -2px, 0) scale(1.012);
+  box-shadow:
+    0 12px 28px rgba(29, 36, 51, 0.09),
+    0 4px 12px rgba(53, 99, 255, 0.1);
+  filter: blur(0) !important;
+  opacity: 1 !important;
+  border-color: rgba(53, 99, 255, 0.2);
+  color: rgba(29, 36, 51, 0.78);
+}
+
+@keyframes heroFloat {
+  0%,
+  100% {
+    transform: translate3d(0, -6px, 0);
+  }
+  50% {
+    transform: translate3d(0, 6px, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-hero__floatCardOuter:hover .home-hero__floatCard {
+    animation: none;
+    transform: translate3d(0, -1px, 0) scale(1.01);
+  }
+}
+
+@media (max-width: 768px) {
+  .home-hero__title { font-size: 44px; white-space: normal; }
+  .home-hero__search { --search-radius: 16px; grid-template-columns: 1fr; height: auto; border-radius: var(--search-radius); padding: 10px; row-gap: 10px; }
+  .home-hero__divider { display: none; }
+  .home-hero__searchBtn { width: 100%; }
+  .home-hero__floatCardOuter { display: none; }
+}
+</style>
 
 <style scoped>
 @keyframes slideIn1 {

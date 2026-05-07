@@ -2,7 +2,7 @@
 @import "@nuxt/ui";
 
 :root {
-  --ui-primary: #89714e;
+  --ui-primary: #3563ff;
   --ui-secondary: #1d1a16;
   --ui-success: #75cd69;
   --ui-neutral: #b7ac9c;
@@ -17,6 +17,11 @@
   --ui-border-line-light: #eaeaea;
   --ui-cream: #fff8ec;
   --ui-main-light: #ebeff3;
+  --blue: #3563ff;
+  --blue-dark: #2550e8;
+  --border-default: 1px solid rgba(29, 36, 51, 0.12);
+  --line: rgba(29, 36, 51, 0.12);
+  --bg: #f5f7fb;
 }
 
 @theme default {
@@ -38,9 +43,9 @@
 }
 
 @theme static {
-  --font-sans: "Noto Sans JP", sans-serif;
+  --font-sans: "Manrope", sans-serif;
   --font-serif: "Noto Serif JP", serif;
-  --app-header-height: 60px;
+  --app-header-height: 68px;
   --app-tab-bar-height: 90px;
 }
 
@@ -62,4 +67,16 @@ body {
   overflow-x: hidden;
   font-family: var(--font-sans);
   color: var(--color-secondary);
+}
+
+/* UDrawer: đồng bộ 80% với dashboard đã dùng zoom 0.8 (panel thường fixed/portal, không kế thừa zoom của layout) */
+.ui-drawer-scale-80 {
+  zoom: 0.8;
+}
+
+@supports not (zoom: 1) {
+  .ui-drawer-scale-80 {
+    transform: scale(0.8);
+    transform-origin: right center;
+  }
 }

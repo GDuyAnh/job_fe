@@ -15,6 +15,9 @@ const BlogModule = (apiService: FetchFactory) => {
   const getBlogById = async (id: number) =>
     apiService.get<BlogEntity>(`/blogs/${id}`)
 
+  const getRelatedBlogs = async (id: number, limit: number = 3) =>
+    apiService.get<BlogEntity[]>(`/blogs/${id}/related?limit=${limit}`)
+
   const createBlog = async (data: {
     title: string
     content: string
@@ -55,6 +58,7 @@ const BlogModule = (apiService: FetchFactory) => {
     getAllBlogs,
     getAllBlogsForAdmin,
     getBlogById,
+    getRelatedBlogs,
     createBlog,
     updateBlog,
     deleteBlog,

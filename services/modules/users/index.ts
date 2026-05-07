@@ -17,6 +17,7 @@ const UsersModule = (apiService: FetchFactory) => {
   const updateProfile = async (body: {
     fullName: string
     username: string
+    gender?: 'male' | 'female' | 'both' | null
     phoneNumber?: string | null
     location?: string | null
     expertise?: string | null

@@ -1,8 +1,10 @@
 <template>
   <div>
+    <AppHeader />
     <div>
       <slot />
     </div>
+    <AppFooter />
     <!-- <app-tab-bar /> -->
   </div>
 </template>

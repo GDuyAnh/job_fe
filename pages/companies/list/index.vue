@@ -166,7 +166,12 @@
 <script setup lang="ts">
 import type { CompanyModel } from '~/models/company'
 import { useI18n } from 'vue-i18n'
+import { computed } from 'vue'
 const { t } = useI18n()
+
+useHead({
+  title: computed(() => t('company.listCompanyUser.title')),
+})
 
 // Lấy label từ composable (đã có sẵn trong dự án)
 const { organizationTypesLabel } = useJobFilters()

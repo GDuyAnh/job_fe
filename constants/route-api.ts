@@ -38,5 +38,7 @@ export const ROUTE_API = {
     STATS: 'admin/stats',
     APPLICATIONS: 'admin/applications',
     APPLICATION_DELETE: (id: number) => `admin/applications/${id}`,
+    IMPORT_TEMPLATE: 'admin/import/excel-template',
+    IMPORT_EXCEL: 'admin/import/excel',
   },
 }
