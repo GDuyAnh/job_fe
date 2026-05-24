@@ -5,6 +5,9 @@ export default defineAppConfig({
     class: 'icon', // default <Icon> class applied
   },
   ui: {
+    container: {
+      base: 'w-full max-w-(--ui-container) mx-auto px-8 sm:px-12 lg:px-20',
+    },
     button: {
       slots: {
         base: 'cursor-pointer inline-flex items-center justify-center font-semibold disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:!bg-gray disabled:!text-disabled',

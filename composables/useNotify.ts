@@ -1,3 +1,5 @@
+import { getApiErrorMessage, translateErrorMessage } from '~/utils/translateErrorMessage'
+
 interface UseNotifyProps {
   error?: any
   message?: string
@@ -10,10 +12,16 @@ export const useNotify = ({
   type = 'error',
 }: UseNotifyProps) => {
   const toast = useToast()
-  const msg =
+  const raw =
     message ||
     error?.errors?.[0]?.message?.replace(/\\n/g, '\n') ||
     error?.message?.replace(/\\n/g, '\n')
+
+  const msg = raw
+    ? translateErrorMessage(String(raw).replace(/\\n/g, '\n'))
+  : error
+    ? getApiErrorMessage(error)
+    : 'Đã xảy ra lỗi'
 
   return toast.add({
     title: msg,

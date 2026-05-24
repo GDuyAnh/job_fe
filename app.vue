@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="app-root min-h-screen min-h-dvh">
     <NuxtPwaAssets />
     <NuxtLoadingIndicator />
 

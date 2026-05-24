@@ -1,329 +1,386 @@
 <template>
-  <div>
-    <div class="mb-6">
-      <h1 class="text-3xl font-bold text-gray-900">
-        {{ $t('dashboard.sidebar.settings') }}
-      </h1>
-      <p class="text-gray-600 mt-2">
-        {{ $t('dashboard.settings.description') }}
-      </p>
+  <section class="candidate-panel candidate-settings-panel candidate-settings-page">
+    <div class="candidate-settings-head">
+      <h1>Cài đặt</h1>
     </div>
 
-    <div class="space-y-6">
-      <!-- Account Information Section -->
-      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-        <h2 class="text-xl font-bold text-gray-900 mb-6">
-          {{ $t('dashboard.settings.accountInfo.title') }}
-        </h2>
-
-        <form class="space-y-6" @submit.prevent="handleUpdateProfile">
-          <!-- Email -->
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">
-              {{ $t('dashboard.settings.accountInfo.email') }}
-            </label>
-            <UInput
-              :model-value="authStore.user?.email || ''"
-              disabled
-              class="w-full bg-gray-50"
-            />
-            <div class="flex items-start gap-2 mt-2">
-              <UIcon name="i-lucide-info" class="w-4 h-4 text-gray-400 mt-0.5 flex-shrink-0" />
-              <p class="text-xs text-gray-500">
-                {{ $t('dashboard.settings.accountInfo.emailWarning') }}
-              </p>
-            </div>
-          </div>
-
-          <!-- Full Name -->
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">
-              {{ $t('dashboard.settings.accountInfo.fullName') }}
-              <span aria-hidden="true" class="text-black">{{
-                $t('common.requiredMark')
-              }}</span>
-            </label>
-            <UInput
-              v-model="userForm.fullName"
-              :placeholder="$t('dashboard.settings.accountInfo.fullNamePlaceholder')"
-              :disabled="updatingProfile"
-              class="w-full"
-            />
-          </div>
-
-          <!-- Username -->
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">
-              {{ $t('dashboard.settings.accountInfo.username') }}
-              <span aria-hidden="true" class="text-black">{{
-                $t('common.requiredMark')
-              }}</span>
-            </label>
-            <UInput
-              v-model="userForm.username"
-              :placeholder="$t('dashboard.settings.accountInfo.usernamePlaceholder')"
-              :disabled="updatingProfile"
-              class="w-full"
-            />
-          </div>
-
-          <!-- Phone Number -->
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">
-              {{ $t('dashboard.settings.accountInfo.phoneNumber') }}
-            </label>
-            <UInput
-              v-model="userForm.phoneNumber"
-              type="tel"
-              :placeholder="$t('dashboard.settings.accountInfo.phoneNumberPlaceholder')"
-              :disabled="updatingProfile"
-              class="w-full"
-            />
-          </div>
-
-          <!-- Submit Button -->
-          <div class="flex justify-end pt-4">
-            <UButton
-              type="submit"
-              color="primary"
-              :loading="updatingProfile"
-              class="min-w-[140px]"
-            >
-              {{ $t('dashboard.settings.accountInfo.save') }}
-            </UButton>
-          </div>
-        </form>
+    <div class="candidate-settings-profile">
+      <div class="candidate-settings-info-row">
+        <span class="candidate-settings-label">Email:</span>
+        <div class="candidate-settings-info-copy">
+          <strong>{{ authStore.user?.email || '' }}</strong>
+          <p class="candidate-settings-note">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2" />
+              <path
+                d="M12 10v6M12 7.2h.01"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+              />
+            </svg>
+            <span>Bạn không thể thay đổi tài khoản email của bạn</span>
+          </p>
+        </div>
       </div>
 
-      <!-- Change Password Section -->
-      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-        <h2 class="text-xl font-bold text-gray-900 mb-6">
-          {{ $t('dashboard.settings.changePassword.title') }}
-        </h2>
-
-        <form class="space-y-4" @submit.prevent="handleChangePassword">
-          <!-- Current Password -->
-          <div>
-            <label
-              for="current-password"
-              class="block text-sm font-medium text-gray-700 mb-2"
-            >
-              {{ $t('dashboard.settings.changePassword.currentPassword') }}
-              <span aria-hidden="true" class="text-black">{{
-                $t('common.requiredMark')
-              }}</span>
-            </label>
-            <UInput
-              id="current-password"
-              v-model="passwordForm.currentPassword"
-              type="password"
-              :placeholder="$t('dashboard.settings.changePassword.currentPasswordPlaceholder')"
-              :disabled="changingPassword"
-              class="w-full"
-            />
-          </div>
-
-          <!-- New Password -->
-          <div>
-            <label
-              for="new-password"
-              class="block text-sm font-medium text-gray-700 mb-2"
-            >
-              {{ $t('dashboard.settings.changePassword.newPassword') }}
-              <span aria-hidden="true" class="text-black">{{
-                $t('common.requiredMark')
-              }}</span>
-            </label>
-            <UInput
-              id="new-password"
-              v-model="passwordForm.newPassword"
-              type="password"
-              :placeholder="$t('dashboard.settings.changePassword.newPasswordPlaceholder')"
-              :disabled="changingPassword"
-              class="w-full"
-            />
-          </div>
-
-          <!-- Confirm Password -->
-          <div>
-            <label
-              for="confirm-password"
-              class="block text-sm font-medium text-gray-700 mb-2"
-            >
-              {{ $t('dashboard.settings.changePassword.confirmPassword') }}
-              <span aria-hidden="true" class="text-black">{{
-                $t('common.requiredMark')
-              }}</span>
-            </label>
-            <UInput
-              id="confirm-password"
-              v-model="passwordForm.confirmPassword"
-              type="password"
-              :placeholder="$t('dashboard.settings.changePassword.confirmPasswordPlaceholder')"
-              :disabled="changingPassword"
-              class="w-full"
-            />
-          </div>
-
-          <!-- Submit Button -->
-          <div class="flex justify-end pt-4">
-            <UButton
-              type="submit"
-              color="primary"
-              :loading="changingPassword"
-              class="min-w-[140px]"
-            >
-              {{ $t('dashboard.settings.changePassword.submit') }}
-            </UButton>
-          </div>
-        </form>
-      </div>
-
-      <!-- Delete Account Section -->
-      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-        <h2 class="text-xl font-bold text-gray-900 mb-6">
-          {{ $t('dashboard.settings.deleteAccount.title') }}
-        </h2>
-
-        <div class="space-y-4">
-          <!-- Warning Message -->
-          <div class="flex items-start gap-3 p-4 bg-gray-50 rounded-lg">
-            <UIcon name="i-lucide-alert-circle" class="w-5 h-5 text-gray-500 mt-0.5 flex-shrink-0" />
-            <div class="flex-1">
-              <p class="text-sm text-gray-700 mb-2">
-                {{ $t('dashboard.settings.deleteAccount.warningTitle') }}
-              </p>
-              <p class="text-sm text-gray-600">
-                {{ $t('dashboard.settings.deleteAccount.warningMessage') }}
-              </p>
-            </div>
-          </div>
-
-          <!-- Delete Button -->
-          <div class="flex justify-end pt-4">
-            <UButton
-              color="error"
-              variant="outline"
-              :loading="deletingAccount"
-              @click="handleDeleteAccount"
-            >
-              {{ $t('dashboard.settings.deleteAccount.button') }}
-            </UButton>
-          </div>
+      <div class="candidate-settings-info-row">
+        <span class="candidate-settings-label">Họ Tên:</span>
+        <div class="candidate-settings-info-copy">
+          <strong>{{ authStore.user?.fullName || 'Ứng viên' }}</strong>
+          <p class="candidate-settings-note">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2" />
+              <path
+                d="M12 10v6M12 7.2h.01"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+              />
+            </svg>
+            <span>Tên tài khoản của bạn được đồng bộ hóa với thông tin hồ sơ.</span>
+          </p>
+          <button
+            type="button"
+            class="candidate-settings-edit-link"
+            @click="$emit('edit-profile')"
+          >
+            <span>Chỉnh sửa thông tin cá nhân</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path
+                d="m9 18 6-6-6-6"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+          </button>
         </div>
       </div>
     </div>
-  </div>
+
+    <form
+      class="candidate-settings-password"
+      data-candidate-password-form=""
+      @submit.prevent="handleChangePassword"
+    >
+      <h2>Đổi mật khẩu</h2>
+
+      <label class="candidate-settings-password-field">
+        <span>Mật khẩu <span class="is-required">*</span></span>
+        <span class="candidate-password-control">
+          <input
+            v-model="passwordForm.currentPassword"
+            :type="showCurrent ? 'text' : 'password'"
+            placeholder="Mật khẩu"
+            data-candidate-password-input=""
+            autocomplete="current-password"
+          >
+          <button
+            type="button"
+            data-candidate-password-toggle=""
+            aria-label="Hiện hoặc ẩn mật khẩu"
+            @click="showCurrent = !showCurrent"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <template v-if="showCurrent">
+                <path
+                  d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z"
+                  stroke="currentColor"
+                  stroke-width="2"
+                />
+                <circle cx="12" cy="12" r="2.8" stroke="currentColor" stroke-width="2" />
+              </template>
+              <template v-else>
+                <path d="M4 4 20 20" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                <path
+                  d="M10.6 6.7c.45-.1.92-.15 1.4-.15 4 0 7.2 2.1 9 5.45a10.8 10.8 0 0 1-2.55 3.17"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+                <path
+                  d="M14.15 14.35A3 3 0 0 1 9.65 9.85"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                />
+                <path
+                  d="M6.4 8.35A11 11 0 0 0 3 12c1.8 3.35 5 5.45 9 5.45 1.6 0 3.05-.34 4.3-.95"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </template>
+            </svg>
+          </button>
+        </span>
+      </label>
+
+      <label class="candidate-settings-password-field">
+        <span>Mật khẩu mới <span class="is-required">*</span></span>
+        <span class="candidate-password-control">
+          <input
+            v-model="passwordForm.newPassword"
+            :type="showNew ? 'text' : 'password'"
+            placeholder="Mật khẩu mới"
+            data-candidate-password-input=""
+            autocomplete="new-password"
+          >
+          <button
+            type="button"
+            data-candidate-password-toggle=""
+            aria-label="Hiện hoặc ẩn mật khẩu"
+            @click="showNew = !showNew"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <template v-if="showNew">
+                <path
+                  d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z"
+                  stroke="currentColor"
+                  stroke-width="2"
+                />
+                <circle cx="12" cy="12" r="2.8" stroke="currentColor" stroke-width="2" />
+              </template>
+              <template v-else>
+                <path d="M4 4 20 20" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                <path
+                  d="M10.6 6.7c.45-.1.92-.15 1.4-.15 4 0 7.2 2.1 9 5.45a10.8 10.8 0 0 1-2.55 3.17"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+                <path
+                  d="M14.15 14.35A3 3 0 0 1 9.65 9.85"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                />
+                <path
+                  d="M6.4 8.35A11 11 0 0 0 3 12c1.8 3.35 5 5.45 9 5.45 1.6 0 3.05-.34 4.3-.95"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </template>
+            </svg>
+          </button>
+        </span>
+      </label>
+
+      <label class="candidate-settings-password-field">
+        <span>Xác nhận mật khẩu <span class="is-required">*</span></span>
+        <span class="candidate-password-control">
+          <input
+            v-model="passwordForm.confirmPassword"
+            :type="showConfirm ? 'text' : 'password'"
+            placeholder="Xác nhận mật khẩu"
+            data-candidate-password-input=""
+            autocomplete="new-password"
+          >
+          <button
+            type="button"
+            data-candidate-password-toggle=""
+            aria-label="Hiện hoặc ẩn mật khẩu"
+            @click="showConfirm = !showConfirm"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <template v-if="showConfirm">
+                <path
+                  d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z"
+                  stroke="currentColor"
+                  stroke-width="2"
+                />
+                <circle cx="12" cy="12" r="2.8" stroke="currentColor" stroke-width="2" />
+              </template>
+              <template v-else>
+                <path d="M4 4 20 20" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                <path
+                  d="M10.6 6.7c.45-.1.92-.15 1.4-.15 4 0 7.2 2.1 9 5.45a10.8 10.8 0 0 1-2.55 3.17"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+                <path
+                  d="M14.15 14.35A3 3 0 0 1 9.65 9.85"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                />
+                <path
+                  d="M6.4 8.35A11 11 0 0 0 3 12c1.8 3.35 5 5.45 9 5.45 1.6 0 3.05-.34 4.3-.95"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </template>
+            </svg>
+          </button>
+        </span>
+      </label>
+
+      <div class="candidate-settings-password-actions">
+        <button
+          type="submit"
+          class="candidate-primary-btn"
+          :disabled="changingPassword"
+        >
+          {{ changingPassword ? 'Đang đổi...' : 'Đổi mật khẩu' }}
+        </button>
+      </div>
+    </form>
+
+    <section class="candidate-settings-delete">
+      <h2>Xóa tài khoản</h2>
+      <p class="candidate-settings-note">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2" />
+          <path
+            d="M12 10v6M12 7.2h.01"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+          />
+        </svg>
+        <span>Xóa tài khoản là hành động vĩnh viễn và không thể hoàn tác.</span>
+      </p>
+      <button
+        type="button"
+        class="candidate-danger-btn"
+        data-candidate-delete-account=""
+        :disabled="deletingAccount"
+        @click="openDeleteModal"
+      >
+        Xóa tài khoản của bạn
+      </button>
+
+      <UModal
+        v-model:open="deleteModalOpen"
+        :ui="{
+          overlay: 'bg-[rgba(29,36,51,0.45)] backdrop-blur-sm',
+          content: 'w-[94vw] sm:max-w-xl overflow-hidden rounded-2xl border-0 ring-0 shadow-2xl bg-white',
+          header: 'hidden',
+          close: 'hidden',
+          body: 'p-0',
+        }"
+      >
+        <template #body="{ close }">
+          <div class="candidate-delete-modal">
+            <button
+              type="button"
+              class="candidate-delete-modal-close"
+              aria-label="Đóng"
+              @click.stop.prevent="closeDeleteModal(close)"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </button>
+
+            <header class="candidate-delete-modal-head">
+              <h3>Xác nhận xoá tài khoản</h3>
+              <p>Hành động này không thể hoàn tác. Vui lòng nhập mật khẩu để tiếp tục.</p>
+            </header>
+
+            <div class="candidate-delete-modal-body">
+              <label class="candidate-delete-modal-field">
+                <span>Mật khẩu</span>
+                <input
+                  v-model="deletePassword"
+                  type="password"
+                  placeholder="Nhập mật khẩu"
+                  autocomplete="current-password"
+                >
+                <p v-if="deleteErrors.password" class="candidate-delete-modal-error">
+                  {{ deleteErrors.password }}
+                </p>
+              </label>
+
+              <div class="candidate-delete-modal-terms">
+                <label class="candidate-delete-modal-checkbox">
+                  <input v-model="deleteAgree" type="checkbox">
+                  <span>
+                    Tôi đồng ý với
+                    <NuxtLink
+                      to="/policy#dieu-khoan-dieu-kien"
+                      class="is-link"
+                      @click.stop="closeDeleteModalForPolicy"
+                    >
+                      Điều khoản
+                    </NuxtLink>
+                    và
+                    <NuxtLink
+                      to="/policy#chinh-sach-quyen-rieng-tu"
+                      class="is-link"
+                      @click.stop="closeDeleteModalForPolicy"
+                    >
+                      Chính sách quyền riêng tư
+                    </NuxtLink>
+                  </span>
+                </label>
+                <p v-if="deleteErrors.terms" class="candidate-delete-modal-error">
+                  {{ deleteErrors.terms }}
+                </p>
+              </div>
+            </div>
+
+            <footer class="candidate-delete-modal-actions">
+              <button
+                type="button"
+                class="candidate-delete-modal-submit"
+                :disabled="deletingAccount || !deleteAgree || !deletePassword"
+                @click="confirmDeleteAccount"
+              >
+                {{ deletingAccount ? 'Đang xử lý...' : 'Xoá tài khoản' }}
+              </button>
+            </footer>
+          </div>
+        </template>
+      </UModal>
+    </section>
+  </section>
 </template>
 
 <script setup lang="ts">
 defineEmits<{
   back: []
-  editProfile: []
+  'edit-profile': []
 }>()
 
 const { $api } = useNuxtApp()
 const authStore = useAuthStore()
 const router = useRouter()
 
-// User profile data
-const userProfile = ref<any>(null)
-const loadingProfile = ref(false)
-
-// User form
-const userForm = ref({
-  fullName: '',
-  username: '',
-  phoneNumber: '',
-})
-const updatingProfile = ref(false)
-
-// Password form
 const passwordForm = ref({
   currentPassword: '',
   newPassword: '',
   confirmPassword: '',
 })
 const changingPassword = ref(false)
+const showCurrent = ref(false)
+const showNew = ref(false)
+const showConfirm = ref(false)
 
-// Delete account
 const deletingAccount = ref(false)
+const deleteModalOpen = ref(false)
+const deletePassword = ref('')
+const deleteAgree = ref(false)
+const deleteErrors = ref<{ password?: string; terms?: string }>({})
 
-// Load user profile
-const loadUserProfile = async () => {
-  loadingProfile.value = true
-  try {
-    const profile = await $api.users.getProfile()
-
-    userProfile.value = profile
-    // Populate form
-    userForm.value = {
-      fullName: profile.fullName || '',
-      username: profile.username || '',
-      phoneNumber: profile.phoneNumber || '',
-    }
-  } catch (error: any) {
-    console.error('Failed to load user profile:', error)
-  } finally {
-    loadingProfile.value = false
-  }
-}
-
-// Handle update profile
-const handleUpdateProfile = async () => {
-  // Validation
-  if (!userForm.value.fullName || userForm.value.fullName.trim().length < 2) {
-    useNotify({
-      message: 'Họ và tên phải có ít nhất 2 ký tự',
-    })
-
-    return
-  }
-
-  if (!userForm.value.username || userForm.value.username.trim().length < 3) {
-    useNotify({
-      message: 'Tên đăng nhập phải có ít nhất 3 ký tự',
-    })
-
-    return
-  }
-
-  updatingProfile.value = true
-
-  try {
-    const updatedProfile = await $api.users.updateProfile({
-      fullName: userForm.value.fullName.trim(),
-      username: userForm.value.username.trim(),
-      phoneNumber: userForm.value.phoneNumber?.trim() || null,
-    })
-
-    // Update auth store
-    if (authStore.user) {
-      authStore.user.fullName = updatedProfile.fullName
-      authStore.user.username = updatedProfile.username
-      authStore.user.phoneNumber = updatedProfile.phoneNumber || null
-    }
-
-    useNotify({
-      message: 'Cập nhật thông tin thành công',
-      type: 'success',
-    })
-  } catch (error: any) {
-    console.error('Update profile failed:', error)
-    useNotify({
-      message:
-        Array.isArray(error.message)
-          ? error.message[0]
-          : error.message || 'Cập nhật thông tin thất bại',
-    })
-  } finally {
-    updatingProfile.value = false
-  }
-}
-
-// Handle change password
 const handleChangePassword = async () => {
-  // Validation
   if (!passwordForm.value.currentPassword) {
     useNotify({
       message: 'Vui lòng nhập mật khẩu hiện tại',
@@ -362,13 +419,16 @@ const handleChangePassword = async () => {
       type: 'success',
     })
 
-    // Reset form
     passwordForm.value = {
       currentPassword: '',
       newPassword: '',
       confirmPassword: '',
     }
-  } catch (error: any) {
+    showCurrent.value = false
+    showNew.value = false
+    showConfirm.value = false
+  }
+  catch (error: any) {
     console.error('Change password failed:', error)
     useNotify({
       message:
@@ -376,64 +436,66 @@ const handleChangePassword = async () => {
           ? error.message[0]
           : error.message || 'Đổi mật khẩu thất bại',
     })
-  } finally {
+  }
+  finally {
     changingPassword.value = false
   }
 }
 
-// Handle delete account
-const handleDeleteAccount = async () => {
-  if (
-    !confirm(
-      'Bạn có chắc chắn muốn xóa tài khoản? Hành động này không thể hoàn tác.',
-    )
-  ) {
-    return
+const openDeleteModal = () => {
+  deleteErrors.value = {}
+  deletePassword.value = ''
+  deleteAgree.value = false
+  deleteModalOpen.value = true
+}
+
+const closeDeleteModal = (close?: () => void) => {
+  try {
+    close?.()
   }
-
-  // Double confirmation
-  const confirmText = prompt(
-    'Vui lòng nhập "XÓA" để xác nhận xóa tài khoản:',
-  )
-
-  if (confirmText !== 'XÓA') {
-    useNotify({
-      message: 'Xác nhận không đúng. Hành động đã bị hủy.',
-    })
-
-    return
+  finally {
+    deleteModalOpen.value = false
   }
+}
+
+/** Đóng modal rồi chuyển sang trang policy (hash do NuxtLink xử lý) */
+const closeDeleteModalForPolicy = () => {
+  window.setTimeout(() => {
+    deleteModalOpen.value = false
+  }, 0)
+}
+
+const confirmDeleteAccount = async () => {
+  deleteErrors.value = {}
+  if (!deletePassword.value) deleteErrors.value.password = 'Vui lòng nhập mật khẩu.'
+  if (!deleteAgree.value) deleteErrors.value.terms = 'Vui lòng tick đồng ý trước khi xoá.'
+  if (deleteErrors.value.password || deleteErrors.value.terms) return
 
   deletingAccount.value = true
-
   try {
-    await $api.users.deleteAccount()
+    await $api.users.deleteAccount({ password: deletePassword.value })
 
     useNotify({
       message: 'Tài khoản đã được xóa thành công',
       type: 'success',
     })
 
-    // Logout and redirect
+    deleteModalOpen.value = false
     authStore.logout()
     router.push('/')
-  } catch (error: any) {
+  }
+  catch (error: any) {
     console.error('Delete account failed:', error)
     useNotify({
       message:
         Array.isArray(error.message)
           ? error.message[0]
           : error.message || 'Xóa tài khoản thất bại',
+      type: 'error',
     })
-  } finally {
+  }
+  finally {
     deletingAccount.value = false
   }
 }
-
-
-// Initialize
-onMounted(() => {
-  loadUserProfile()
-})
 </script>
-

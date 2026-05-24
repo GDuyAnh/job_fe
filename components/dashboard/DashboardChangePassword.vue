@@ -236,7 +236,10 @@ const handleChangePassword = async () => {
     // Handle specific error messages
     if (error.message?.includes('Current password is incorrect')) {
       formErrors.value.currentPassword = t('dashboard.settings.changePassword.validation.currentPasswordIncorrect')
-    } else if (error.message?.includes('do not match')) {
+    } else if (
+      error.message?.includes('do not match')
+      || error.message?.includes('không khớp')
+    ) {
       formErrors.value.confirmPassword = t('dashboard.settings.changePassword.validation.passwordMismatch')
     } else {
       useNotify({

@@ -20,7 +20,7 @@ export const useImageUpload = () => {
       const { $api } = useNuxtApp()
 
       if (!$api?.upload) {
-        throw new Error('Upload service not available')
+        throw new Error('Dịch vụ tải lên không khả dụng')
       }
 
       const response = await $api.upload.uploadImage(
@@ -39,10 +39,10 @@ export const useImageUpload = () => {
           deleteUrl: response.data.delete_url,
         }
       } else {
-        throw new Error('Upload failed')
+        throw new Error('Tải lên thất bại')
       }
     } catch (err: any) {
-      const errorMessage = err.message || 'Upload failed'
+      const errorMessage = err.message || 'Tải lên thất bại'
 
       error.value = errorMessage
 
@@ -107,7 +107,7 @@ export const useImageUpload = () => {
   const validateImageFile = (file: File, maxSize: number = 32): boolean => {
     // Check file type
     if (!file.type.startsWith('image/')) {
-      error.value = 'File must be an image'
+      error.value = 'Tệp phải là ảnh'
 
       return false
     }
@@ -116,7 +116,7 @@ export const useImageUpload = () => {
     const maxSizeBytes = maxSize * 1024 * 1024
 
     if (file.size > maxSizeBytes) {
-      error.value = `File size must be less than ${maxSize}MB`
+      error.value = `Kích thước tệp phải nhỏ hơn ${maxSize}MB`
 
       return false
     }
@@ -141,7 +141,7 @@ export const useImageUpload = () => {
       const { $api } = useNuxtApp()
 
       if (!$api?.upload) {
-        throw new Error('Upload service not available')
+        throw new Error('Dịch vụ tải lên không khả dụng')
       }
 
       const imageUrl = await $api.upload.uploadImageAndGetUrl(
@@ -152,7 +152,7 @@ export const useImageUpload = () => {
 
       return imageUrl || ''
     } catch (err: any) {
-      const errorMessage = err.message || 'Upload failed'
+      const errorMessage = err.message || 'Tải lên thất bại'
 
       error.value = errorMessage
 

@@ -490,6 +490,10 @@ import type { CompanyAddUpdateEntity, CompanyEntity } from '~/entities/company'
 
 const { t } = useI18n()
 
+useHead({
+  title: computed(() => t('company.form.createTitle')),
+})
+
 const stepper = useTemplateRef('stepper')
 const router = useRouter()
 const { $api } = useNuxtApp()

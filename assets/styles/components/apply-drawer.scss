@@ -1,0 +1,358 @@
+/* Job apply drawer — content is portaled; do not scope under .job-apply-drawer-root */
+
+.job-apply-drawer-overlay {
+  background: rgba(10, 16, 34, 0.55) !important;
+  backdrop-filter: blur(4px);
+}
+
+/* UDrawer / vaul: DrawerContent is teleported to body */
+.job-apply-drawer-content,
+[data-vaul-drawer-direction='right'].job-apply-drawer-content {
+  position: fixed !important;
+  top: 0 !important;
+  right: 0 !important;
+  left: auto !important;
+  bottom: 0 !important;
+  width: min(520px, calc(100vw - 48px)) !important;
+  min-width: 0 !important;
+  max-width: min(520px, calc(100vw - 48px)) !important;
+  height: 100vh !important;
+  height: 100dvh !important;
+  max-height: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  overflow: hidden !important;
+}
+
+.job-apply-drawer-content > div,
+.job-apply-drawer-body {
+  width: 100% !important;
+  max-width: none !important;
+  height: 100% !important;
+  padding: 0 !important;
+  overflow: hidden;
+}
+
+.job-apply-drawer-content .apply-modal-panel {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  height: 100dvh;
+  max-height: none;
+  overflow: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(180, 190, 210, 0.42) transparent;
+  padding: 24px 28px 0;
+  border-radius: 0;
+  border: 0;
+  border-left: 1px solid rgba(221, 229, 243, 0.96);
+  background: #ffffff;
+  box-shadow: -24px 0 70px rgba(18, 28, 56, 0.16);
+}
+
+.job-apply-drawer-content .apply-modal-close {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  border: 1px solid rgba(223, 228, 239, 0.96);
+  background: #ffffff;
+  color: #5f6b82;
+  cursor: pointer;
+  transition: background 0.18s ease, color 0.18s ease;
+}
+
+.job-apply-drawer-content .apply-modal-close:hover {
+  background: #f5f7fb;
+  color: var(--text);
+}
+
+.job-apply-drawer-content .apply-modal-header {
+  margin-bottom: 0;
+  padding: 0 44px 18px 0;
+}
+
+.job-apply-drawer-content .apply-modal-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  padding: 0 9px;
+  border-radius: 999px;
+  background: #eef3ff;
+  color: var(--blue);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.job-apply-drawer-content .apply-modal-header h2 {
+  margin: 12px 0 5px;
+  font-size: 24px;
+  line-height: 1.08;
+  letter-spacing: 0;
+  font-weight: 800;
+  color: var(--text);
+}
+
+.job-apply-drawer-content .apply-modal-header p {
+  margin: 0;
+  color: #64748b;
+  font-size: 13px;
+  line-height: 1.52;
+}
+
+.job-apply-drawer-content .apply-modal-form {
+  display: grid;
+  gap: 0;
+}
+
+.job-apply-drawer-content .apply-profile-section:first-of-type {
+  padding-top: 18px;
+}
+
+.job-apply-drawer-content .apply-profile-section {
+  display: grid;
+  gap: 14px;
+  padding: 18px 0;
+  border-top: 1px solid rgba(226, 232, 240, 0.96);
+}
+
+.job-apply-drawer-content .apply-profile-section-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: 12px;
+}
+
+.job-apply-drawer-content .apply-profile-section-head h3 {
+  margin: 0;
+  color: #111827;
+  font-size: 14px;
+  line-height: 1.2;
+  font-weight: 700;
+}
+
+.job-apply-drawer-content .apply-profile-resume:has(.apply-profile-resume-file[hidden]) {
+  grid-template-columns: 1fr;
+}
+
+.job-apply-drawer-content .apply-profile-resume {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+}
+
+.job-apply-drawer-content .apply-profile-resume-file[hidden] {
+  display: none !important;
+}
+
+.job-apply-drawer-content .apply-profile-resume-file {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.job-apply-drawer-content .apply-profile-resume-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 38px;
+  color: #1d46c6;
+  flex-shrink: 0;
+}
+
+.job-apply-drawer-content .apply-profile-resume-copy {
+  display: grid;
+  gap: 0;
+  min-width: 0;
+}
+
+.job-apply-drawer-content .apply-profile-resume-name-row {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  flex-wrap: wrap;
+}
+
+.job-apply-drawer-content .apply-profile-resume-name {
+  color: #1f2937;
+  font-size: 13px;
+  line-height: 1.4;
+  font-weight: 700;
+}
+
+.job-apply-drawer-content .apply-profile-resume-status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #16a34a;
+}
+
+.job-apply-drawer-content .apply-profile-resume-side {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  justify-self: start;
+  flex-shrink: 0;
+}
+
+.job-apply-drawer-content .apply-profile-resume-side p {
+  margin: 0;
+  color: #6b7280;
+  max-width: none;
+  font-size: 12px;
+  line-height: 1.5;
+  white-space: nowrap;
+}
+
+.job-apply-drawer-content .apply-modal-upload-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 92px;
+  min-height: 32px;
+  padding: 0 12px;
+  border-radius: 9px;
+  background: #1d46c6;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.18s ease;
+}
+
+.job-apply-drawer-content .apply-modal-upload-btn:hover {
+  background: #1739a8;
+}
+
+.job-apply-drawer-content .apply-profile-editor-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+.job-apply-drawer-content .apply-modal-field {
+  display: grid;
+  gap: 6px;
+}
+
+.job-apply-drawer-content .apply-modal-field span {
+  color: #374151;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.job-apply-drawer-content .apply-modal-field input,
+.job-apply-drawer-content .apply-modal-field textarea {
+  width: 100%;
+  border: 1px solid rgba(210, 219, 235, 0.96);
+  border-radius: 10px;
+  background: #ffffff;
+  color: var(--text);
+  font-size: 13px;
+  line-height: 1.45;
+  padding: 0 12px;
+  box-shadow: none;
+  font-family: inherit;
+}
+
+.job-apply-drawer-content .apply-modal-field input {
+  min-height: 44px;
+}
+
+.job-apply-drawer-content .apply-modal-field input:disabled {
+  background: #f8fafc;
+  color: #64748b;
+  cursor: not-allowed;
+}
+
+.job-apply-drawer-content .apply-modal-field-wide,
+.job-apply-drawer-content .apply-modal-field-textarea {
+  grid-column: 1 / -1;
+}
+
+.job-apply-drawer-content .apply-modal-field textarea {
+  min-height: 132px;
+  padding-top: 12px;
+  padding-bottom: 12px;
+  resize: vertical;
+  line-height: 1.5;
+}
+
+.job-apply-drawer-content .apply-modal-field small {
+  justify-self: end;
+  color: #8b95a9;
+  font-size: 12px;
+}
+
+.job-apply-drawer-content .apply-modal-field-error {
+  margin: 0;
+  color: #dc2626;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.job-apply-drawer-content .apply-modal-actions {
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  margin: 2px -28px 0;
+  padding: 14px 28px 18px;
+  border-top: 1px solid rgba(226, 232, 240, 0.92);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.86), #fff 34%);
+}
+
+.job-apply-drawer-content .apply-modal-cancel,
+.job-apply-drawer-content .apply-modal-submit {
+  min-height: 42px;
+  padding: 0 18px;
+  border-radius: 10px;
+  font-size: 14px;
+}
+
+.job-apply-drawer-content .apply-modal-submit:disabled {
+  background: #edf1f7 !important;
+  color: #b2bccd !important;
+  box-shadow: none !important;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+@media (max-width: 640px) {
+  .job-apply-drawer-content,
+  [data-vaul-drawer-direction='right'].job-apply-drawer-content {
+    width: calc(100vw - 24px) !important;
+    max-width: calc(100vw - 24px) !important;
+  }
+
+  .job-apply-drawer-content .apply-modal-panel {
+    padding: 20px 20px 0;
+  }
+
+  .job-apply-drawer-content .apply-modal-actions {
+    margin-left: -20px;
+    margin-right: -20px;
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+
+  .job-apply-drawer-content .apply-profile-resume-side p {
+    white-space: normal;
+  }
+}

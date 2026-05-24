@@ -1,0 +1,1169 @@
+/* Trang đăng tin miễn phí — employer post wizard */
+.page-job-upload {
+  min-height: 100vh;
+  background: var(--bg, #f5f7fb);
+  font-family: "Manrope", sans-serif;
+}
+
+.page-job-upload .employer-post-shell {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 24px 16px 40px;
+}
+
+@media (min-width: 640px) {
+  .page-job-upload .employer-post-shell {
+    padding: 32px 24px 48px;
+  }
+}
+
+.employer-page-head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 18px;
+  padding: 0 2px;
+}
+
+.employer-page-back {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #425574;
+  background: rgba(255, 255, 255, 0.86);
+  border: 1px solid rgba(210, 220, 237, 0.86);
+  box-shadow: 0 4px 12px rgba(34, 52, 107, 0.06);
+  transition: background 0.2s, box-shadow 0.2s;
+  text-decoration: none;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.employer-page-back:hover {
+  background: #ffffff;
+  box-shadow: 0 6px 16px rgba(34, 52, 107, 0.1);
+}
+
+.employer-page-head h1 {
+  margin: 0;
+  font-size: clamp(22px, 2.4vw, 30px);
+  line-height: 1.2;
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  color: #1e2d4a;
+}
+
+.employer-post-card {
+  padding: 24px 28px 28px;
+  border-radius: 16px;
+  border: 1px solid rgba(218, 226, 241, 0.8);
+  background: #ffffff;
+  box-shadow: 0 8px 32px rgba(31, 49, 93, 0.06);
+}
+
+@media (max-width: 639px) {
+  .employer-post-card {
+    padding: 20px 16px 24px;
+  }
+}
+
+.page-job-upload .upload-stepper-wrap .stepper-cus [data-slot="header"],
+.page-job-upload .upload-stepper-wrap .stepper-cus--compact > div:first-child {
+  display: none !important;
+  height: 0 !important;
+  overflow: hidden !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.employer-stepper {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: start;
+  gap: 14px;
+  padding: 0 8% 20px;
+  margin-bottom: 0;
+}
+
+.employer-stepper-track {
+  position: absolute;
+  left: 26%;
+  right: 26%;
+  top: 22px;
+  height: 2px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(53, 99, 255, 0.18), rgba(53, 99, 255, 0.12));
+}
+
+.employer-step {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  color: #8798b5;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  transition: color 0.3s;
+}
+
+.employer-step.is-active {
+  color: #2e4a7a;
+}
+
+.employer-step.is-done {
+  color: #5b6d8a;
+}
+
+.employer-step-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #b0bdd3;
+  background: #eef2f8;
+  border: 2px solid #dfe6f0;
+  transition: all 0.3s ease;
+}
+
+.employer-step.is-active .employer-step-icon,
+.employer-step.is-done .employer-step-icon {
+  color: #ffffff;
+  background: linear-gradient(135deg, #3563ff 0%, #5b8bff 100%);
+  border-color: transparent;
+  box-shadow: 0 6px 16px rgba(53, 99, 255, 0.25);
+}
+
+.employer-step-panel {
+  padding-top: 4px;
+}
+
+.employer-step-detail-wrap {
+  padding-top: 8px;
+}
+
+.employer-lookup-form {
+  border-top: none;
+  padding-top: 0;
+  margin-bottom: 0;
+}
+
+.employer-field-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+/* Label → input / select / multi-select: 7px (form đăng tin + drawer) */
+.employer-label-control-stack,
+.page-job-upload .space-y-1\.5,
+.page-dashboard-newjob.page-job-upload .space-y-1\.5 {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.page-job-upload .space-y-1\.5 > *,
+.page-dashboard-newjob.page-job-upload .space-y-1\.5 > * {
+  margin-top: 0 !important;
+}
+
+.employer-field {
+  display: grid;
+  gap: 7px;
+}
+
+.employer-field-full {
+  grid-column: 1 / -1;
+}
+
+/* Nhãn input / field */
+.employer-input-label,
+.page-job-upload .employer-step-panel label,
+.page-job-upload .employer-step-panel .employer-field > span {
+  display: block;
+  color: #3d4f6c !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.01em !important;
+  font-family: "Manrope", sans-serif;
+}
+
+.page-job-upload .employer-step-panel label .text-red-500,
+.page-job-upload .employer-step-panel .employer-field > span .text-red-500 {
+  color: #ef4444 !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+}
+
+.employer-inline-field {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+}
+
+.page-job-upload .employer-field input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]):not([type="file"]),
+.page-job-upload .employer-field select,
+.page-job-upload .employer-field textarea:not(.ProseMirror) {
+  width: 100%;
+  min-height: var(--employer-control-min-height);
+  padding: 0 14px;
+  border-radius: 10px;
+  border: 1.5px solid rgba(200, 214, 236, 0.9) !important;
+  background: #fafbfe !important;
+  color: #2d3750 !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  font-family: "Manrope", sans-serif !important;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+  box-shadow: none !important;
+  --tw-ring-shadow: 0 0 #0000 !important;
+  --tw-ring-offset-shadow: 0 0 #0000 !important;
+  outline: none !important;
+}
+
+.page-job-upload .employer-field input:focus,
+.page-job-upload .employer-field select:focus,
+.page-job-upload .employer-field textarea:focus {
+  border-color: rgba(53, 99, 255, 0.55) !important;
+  box-shadow: 0 0 0 3px rgba(53, 99, 255, 0.12) !important;
+  background: #ffffff !important;
+}
+
+.page-job-upload .employer-field #company-mst {
+  border-radius: 0.75rem !important;
+}
+
+.employer-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px 18px;
+}
+
+.employer-grid-third {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.employer-grid-location {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+@media (max-width: 767px) {
+  .employer-grid,
+  .employer-grid-third,
+  .employer-grid-location {
+    grid-template-columns: 1fr;
+  }
+}
+
+.employer-company-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  border-top: none;
+  padding-top: 0;
+  margin-top: 8px;
+}
+
+.employer-company-found {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  margin-bottom: 0;
+  border-radius: 10px;
+  background: rgba(34, 197, 94, 0.08);
+  border: 1px solid rgba(34, 197, 94, 0.2);
+  color: #15803d;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.employer-optional-details {
+  margin-top: 18px;
+  border: 1px solid rgba(218, 226, 241, 0.7);
+  border-radius: 12px;
+  overflow: visible;
+}
+
+.employer-optional-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 14px 18px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 700;
+  color: #3563ff;
+  background: rgba(53, 99, 255, 0.03);
+  border: none;
+  text-align: left;
+  transition: background 0.2s;
+  user-select: none;
+  font-family: inherit;
+}
+
+.employer-optional-toggle:hover {
+  background: rgba(53, 99, 255, 0.06);
+}
+
+.employer-optional-hint {
+  color: #8798b5;
+  font-weight: 500;
+  font-size: 12px;
+}
+
+.employer-optional-content {
+  padding: 18px;
+  display: grid;
+  gap: 16px;
+  border-top: 1px solid rgba(218, 226, 241, 0.6);
+}
+
+/* Step 1 — Thêm thông tin bổ sung (collapsible nội dung) */
+.page-job-upload .employer-optional-details .employer-optional-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  padding: 20px 20px 24px;
+}
+
+@media (min-width: 640px) {
+  .page-job-upload .employer-optional-details .employer-optional-inner {
+    padding: 22px 24px 28px;
+  }
+}
+
+.page-job-upload .employer-optional-details .employer-optional-block {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.page-job-upload .employer-optional-details .employer-optional-grid {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px;
+  align-items: start;
+}
+
+@media (min-width: 640px) {
+  .page-job-upload .employer-optional-details .employer-optional-grid {
+    gap: 24px;
+  }
+}
+
+.employer-actions {
+  display: flex;
+  justify-content: flex-start;
+  margin-top: 22px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.employer-actions-end {
+  justify-content: flex-end;
+}
+
+.employer-secondary-btn,
+.employer-primary-btn,
+.page-job-upload .job-upload-lookup-btn {
+  min-height: 44px;
+  padding: 0 20px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.2s, background 0.2s;
+  font-family: inherit;
+  letter-spacing: -0.01em;
+}
+
+.employer-secondary-btn,
+.page-job-upload .job-upload-lookup-btn {
+  border: 1.5px solid rgba(216, 224, 238, 0.96) !important;
+  background: #eef2fb !important;
+  color: #3a4b67 !important;
+  box-shadow: none !important;
+}
+
+.employer-secondary-btn:hover:not(:disabled),
+.page-job-upload .job-upload-lookup-btn:hover:not(:disabled) {
+  background: #e4eaf8 !important;
+}
+
+.employer-primary-btn {
+  border: none;
+  color: #ffffff;
+  background: linear-gradient(135deg, #3563ff 0%, #5b8bff 100%);
+  box-shadow: 0 6px 18px rgba(53, 99, 255, 0.22);
+}
+
+.employer-primary-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 22px rgba(53, 99, 255, 0.28);
+}
+
+.employer-primary-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.employer-submit-btn {
+  min-width: 11rem;
+}
+
+.employer-back-link {
+  min-height: 44px;
+  padding: 0 16px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #4a5a75;
+  background: #f3f6fb;
+  border: 1.5px solid rgba(216, 224, 238, 0.9);
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.employer-back-link:hover {
+  background: #e8edf6;
+}
+
+/* Điều khoản — dùng chung .auth-check / .auth-check-terms (giống login) */
+.page-job-upload .employer-terms.auth-check {
+  margin-top: 20px;
+  display: flex;
+  width: 100%;
+}
+
+/* Accordion step 2 */
+.employer-accordion {
+  border: 1.5px solid rgba(218, 226, 241, 0.7);
+  border-radius: 12px;
+  margin-bottom: 12px;
+  overflow: visible;
+  transition: border-color 0.3s;
+}
+
+.employer-accordion.is-open {
+  border-color: rgba(53, 99, 255, 0.2);
+}
+
+.employer-accordion-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 16px 18px;
+  border: none;
+  background: #fafbfe;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.2s;
+  text-align: left;
+}
+
+.employer-accordion.is-open .employer-accordion-head {
+  background: rgba(53, 99, 255, 0.04);
+  border-bottom: 1px solid rgba(218, 226, 241, 0.5);
+}
+
+.employer-accordion-num {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #e8edf6;
+  color: #5b6d8a;
+  font-size: 13px;
+  font-weight: 800;
+  flex-shrink: 0;
+  transition: background 0.3s, color 0.3s;
+}
+
+.employer-accordion.is-open .employer-accordion-num {
+  background: linear-gradient(135deg, #3563ff 0%, #5b8bff 100%);
+  color: #ffffff;
+}
+
+.employer-accordion-label {
+  flex: 1;
+  font-size: 14px;
+  font-weight: 700;
+  color: #2e3e58;
+  letter-spacing: -0.01em;
+}
+
+.employer-accordion-arrow {
+  color: #8798b5;
+  transition: transform 0.3s ease, color 0.3s;
+  flex-shrink: 0;
+}
+
+.employer-accordion.is-open .employer-accordion-arrow {
+  transform: rotate(180deg);
+  color: #3563ff;
+}
+
+.employer-accordion-body {
+  padding: 20px 18px 22px;
+  display: grid;
+  gap: 16px;
+}
+
+/* Chỉ dùng gap của accordion-body, bỏ margin-top thừa (tránh 16px + 16px) */
+.page-job-upload .employer-accordion-body > .mt-4 {
+  margin-top: 0 !important;
+}
+
+.page-job-upload .upload-stepper-wrap {
+  padding: 0;
+}
+
+/* Biến input — áp dụng cả drawer (employer-step-panel) và trang upload */
+.page-job-upload {
+  --employer-input-border: 1.5px solid rgba(200, 214, 236, 0.9);
+  --employer-input-bg: #fafbfe;
+  --employer-input-color: #2d3750;
+  --employer-control-visual-height: 44px;
+  --employer-control-min-height: var(--employer-control-visual-height);
+}
+
+/* Chiều cao thống nhất 44px layout → ~39.6px sau zoom 0.9 (input / select / calendar) */
+.page-job-upload .employer-field-control,
+.page-job-upload .employer-field-control[data-slot="base"],
+.page-job-upload button.employer-field-control,
+.employer-admin-job-drawer-company .employer-field-control,
+.employer-admin-job-drawer-company .employer-admin-job-drawer-company-select [data-slot="base"],
+.employer-admin-job-drawer-company .employer-admin-job-drawer-company-select button[role="combobox"],
+.employer-admin-company-drawer-form .employer-field-control,
+.employer-org-type-select [data-slot="base"],
+.employer-org-type-select button[role="combobox"] {
+  box-sizing: border-box !important;
+  min-height: var(--employer-control-min-height, 44px) !important;
+  height: var(--employer-control-min-height, 44px) !important;
+}
+
+.page-job-upload .employer-inline-field [data-slot="base"]:has(input),
+.page-job-upload .employer-inline-field [data-slot="base"]:has(button[role="combobox"]),
+.page-job-upload .employer-post-card [data-slot="base"]:has(input),
+.page-job-upload .employer-post-card [data-slot="base"]:has(button[role="combobox"]),
+.page-job-upload .employer-post-card .employer-field-stack [data-slot="base"]:has(input),
+.page-job-upload .employer-post-card .employer-field-stack [data-slot="base"]:has(button[role="combobox"]),
+.page-job-upload .employer-accordion-body [data-slot="base"]:has(input),
+.page-job-upload .employer-accordion-body [data-slot="base"]:has(button[role="combobox"]),
+.page-job-upload .employer-optional-inner [data-slot="base"]:has(input),
+.page-job-upload .employer-optional-details [data-slot="base"]:has(button[role="combobox"]),
+.page-job-upload .employer-step-panel [data-slot="base"]:has(input),
+.page-job-upload .employer-step-panel [data-slot="base"]:has(button[role="combobox"]) {
+  width: 100%;
+  min-height: var(--employer-control-min-height);
+  height: var(--employer-control-min-height);
+  box-sizing: border-box;
+  padding: 0 14px;
+  border-radius: 10px !important;
+  border: var(--employer-input-border) !important;
+  background: var(--employer-input-bg) !important;
+  color: var(--employer-input-color) !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  font-family: "Manrope", sans-serif !important;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease !important;
+  box-shadow: none !important;
+  --tw-ring-shadow: 0 0 #0000 !important;
+  --tw-ring-offset-shadow: 0 0 #0000 !important;
+  outline: none !important;
+}
+
+.page-job-upload .employer-inline-field [data-slot="base"]:has(input),
+.page-job-upload .employer-post-card [data-slot="base"]:has(input),
+.page-job-upload .employer-post-card .employer-field-stack [data-slot="base"]:has(input),
+.page-job-upload .employer-accordion-body [data-slot="base"]:has(input),
+.page-job-upload .employer-optional-inner [data-slot="base"]:has(input) {
+  height: var(--employer-control-min-height);
+}
+
+.page-job-upload .employer-inline-field [data-slot="base"] input,
+.page-job-upload .employer-post-card [data-slot="base"] input,
+.page-job-upload .employer-post-card .employer-field-stack [data-slot="base"] input,
+.page-job-upload .employer-accordion-body [data-slot="base"] input,
+.page-job-upload .employer-optional-inner [data-slot="base"] input,
+.page-job-upload .employer-step-panel [data-slot="base"] input {
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  box-sizing: border-box;
+  min-height: 0;
+  height: 100%;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+/* USelect / single select — đồng bộ 44px (h-11) */
+.page-job-upload .employer-post-card button[role="combobox"],
+.page-job-upload .employer-step-panel button[role="combobox"],
+.page-job-upload .employer-accordion-body button[role="combobox"],
+.page-job-upload .employer-optional-details button[role="combobox"],
+.page-job-upload #job-deadline-field button {
+  min-height: var(--employer-control-min-height) !important;
+  height: var(--employer-control-min-height) !important;
+}
+
+.page-job-upload [data-slot="base"].h-10,
+.page-job-upload [data-slot="base"].h-11,
+.page-job-upload [data-slot="base"].min-h-\[44px\],
+.page-job-upload button[role="combobox"].h-10,
+.page-job-upload button[role="combobox"].h-11,
+.page-job-upload button[role="combobox"].min-h-\[44px\],
+.page-job-upload #job-deadline-field .h-10,
+.page-job-upload #job-deadline-field .h-11,
+.page-job-upload #job-deadline-field .min-h-\[44px\] {
+  min-height: var(--employer-control-min-height) !important;
+  height: var(--employer-control-min-height) !important;
+}
+
+.page-job-upload .employer-inline-field [data-slot="base"]:focus-within,
+.page-job-upload .employer-post-card .employer-field-stack [data-slot="base"]:focus-within:has(input),
+.page-job-upload .employer-accordion-body [data-slot="base"]:focus-within:has(input) {
+  border-color: rgba(53, 99, 255, 0.55) !important;
+  box-shadow: 0 0 0 3px rgba(53, 99, 255, 0.12) !important;
+  background: #ffffff !important;
+}
+
+.page-job-upload .employer-post-card [data-slot="base"][class*="ring-red"]:has(input) {
+  border-color: #ef4444 !important;
+  box-shadow: 0 0 0 1px rgba(239, 68, 68, 0.35) !important;
+}
+
+/* Rich text — không đụng toolbar logic; ghi đè Tailwind mặc định của RichTextEditor */
+.page-job-upload .employer-post-card .rich-text-editor,
+.page-job-upload .employer-step-panel .rich-text-editor,
+.page-job-upload .employer-accordion-body .rich-text-editor,
+.page-job-upload .rich-text-output .rich-text-editor {
+  border: var(--employer-input-border) !important;
+  border-radius: 10px !important;
+  overflow: hidden;
+  background: var(--employer-input-bg) !important;
+  box-shadow: none !important;
+}
+
+.page-job-upload .employer-post-card .rich-text-editor .editor-toolbar,
+.page-job-upload .employer-step-panel .rich-text-editor .editor-toolbar,
+.page-job-upload .employer-accordion-body .rich-text-editor .editor-toolbar,
+.page-job-upload .rich-text-output .rich-text-editor .editor-toolbar {
+  min-height: 44px;
+  padding: 8px 10px !important;
+  background: #f3f6fb !important;
+  border: 0 !important;
+  border-bottom: 1px solid rgba(214, 223, 239, 0.8) !important;
+}
+
+.page-job-upload .employer-post-card .rich-text-editor .ProseMirror,
+.page-job-upload .employer-step-panel .rich-text-editor .ProseMirror,
+.page-job-upload .employer-accordion-body .rich-text-editor .ProseMirror,
+.page-job-upload .rich-text-output .rich-text-editor .ProseMirror {
+  min-height: 100px;
+  padding: 12px 14px;
+  font-size: 14px;
+  font-weight: 500;
+  font-family: "Manrope", sans-serif;
+  color: var(--employer-input-color);
+  background: var(--employer-input-bg);
+}
+
+.page-job-upload .employer-post-card .rich-text-editor:focus-within,
+.page-job-upload .employer-step-panel .rich-text-editor:focus-within,
+.page-job-upload .employer-accordion-body .rich-text-editor:focus-within {
+  border-color: rgba(53, 99, 255, 0.55) !important;
+  box-shadow: 0 0 0 3px rgba(53, 99, 255, 0.12) !important;
+}
+
+.page-job-upload .employer-post-card .rich-text-editor[class*="ring-red"],
+.page-job-upload .employer-step-panel .rich-text-editor[class*="ring-red"],
+.page-job-upload .employer-accordion-body .rich-text-editor[class*="ring-red"] {
+  border-color: #ef4444 !important;
+  box-shadow: 0 0 0 1px rgba(239, 68, 68, 0.35) !important;
+}
+
+/* Địa chỉ + Tỉnh/Thành — spacing đồng bộ các hàng khác (accordion-body gap 16px) */
+.page-job-upload .job-address-location-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 0;
+}
+
+/* Label ↔ control — gap 7px (field stack + vue-select wrapper) */
+.page-job-upload .employer-step-panel .employer-field-stack > *,
+.page-job-upload .employer-lookup-form .employer-field-stack > *,
+.page-job-upload .employer-post-card .employer-field-stack > *,
+.page-job-upload .employer-accordion-body .employer-field-stack > * {
+  margin-top: 0 !important;
+}
+
+.page-job-upload .employer-step-panel .rich-text-output.employer-field-stack,
+.page-job-upload .employer-post-card .rich-text-output.employer-field-stack {
+  gap: 7px;
+}
+
+.page-job-upload .employer-optional-content .employer-grid-third {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px 18px;
+}
+
+@media (max-width: 767px) {
+  .page-job-upload .employer-optional-content .employer-grid-third {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Pulldown / dropdown — không bị cắt bởi accordion, collapsible */
+.page-job-upload .employer-accordion [data-slot="content"],
+.page-job-upload .employer-optional-details [data-slot="content"],
+.page-job-upload .upload-stepper-wrap,
+.page-job-upload .employer-step-panel {
+  overflow: visible !important;
+}
+
+.page-job-upload .job-vselect {
+  position: relative;
+}
+
+.page-job-upload .employer-accordion:has(.vs--open) {
+  position: relative;
+  z-index: 400;
+}
+
+.page-job-upload .job-vselect:has(.vs--open) {
+  z-index: 401;
+}
+
+.page-job-upload .job-vselect .v-select.vs--open {
+  z-index: 401;
+}
+
+/* vue-select (multi) — min-height 44px; tự cao khi chọn nhiều tag */
+.page-job-upload .job-vselect .v-select .vs__dropdown-toggle {
+  display: flex !important;
+  align-items: center !important;
+  box-sizing: border-box !important;
+  min-height: var(--employer-control-min-height) !important;
+  height: auto !important;
+  max-height: none !important;
+  border-radius: 10px !important;
+  border: var(--employer-input-border) !important;
+  padding: 4px 10px !important;
+  background-color: var(--employer-input-bg) !important;
+  font-family: "Manrope", sans-serif !important;
+}
+
+.page-job-upload .job-vselect .v-select .vs__selected-options {
+  align-items: center;
+  min-height: 0;
+  flex-wrap: wrap;
+}
+
+.page-job-upload .job-vselect .v-select.vs--open .vs__dropdown-toggle,
+.page-job-upload .job-vselect .v-select .vs__dropdown-toggle:focus,
+.page-job-upload .job-vselect .v-select .vs__dropdown-toggle:focus-within {
+  border-color: rgba(53, 99, 255, 0.55) !important;
+  box-shadow: 0 0 0 3px rgba(53, 99, 255, 0.12) !important;
+  outline: none !important;
+}
+
+.page-job-upload .job-vselect--error .v-select .vs__dropdown-toggle {
+  border-color: #ef4444 !important;
+  box-shadow: 0 0 0 1px rgba(239, 68, 68, 0.35) !important;
+}
+
+.page-job-upload .job-vselect .v-select .vs__selected {
+  border-radius: 9999px;
+  background: rgba(239, 246, 255, 0.9);
+  border: 1px solid rgba(147, 197, 253, 0.85);
+  color: #2d3750;
+  font-size: 14px;
+  font-weight: 500;
+  font-family: "Manrope", sans-serif;
+  line-height: 1.25;
+  padding: 4px 10px;
+  margin: 3px 6px 3px 0;
+}
+
+.page-job-upload .job-vselect .v-select .vs__selected span,
+.page-job-upload .job-vselect .v-select .vs__selected button {
+  font-size: 14px;
+  font-weight: 500;
+  font-family: "Manrope", sans-serif;
+  color: #2d3750;
+}
+
+.page-job-upload .job-vselect .v-select .vs__search {
+  margin: 3px 0;
+  min-height: 24px;
+  line-height: 24px;
+  font-size: 14px;
+  font-weight: 500;
+  font-family: "Manrope", sans-serif;
+  color: var(--employer-input-color);
+}
+
+.page-job-upload .job-vselect .v-select .vs__search:focus {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.page-job-upload .job-vselect .vs__search::placeholder,
+.page-job-upload .job-vselect .vs__placeholder {
+  font-size: 14px;
+  font-weight: 500;
+  font-family: "Manrope", sans-serif;
+  color: #94a3b8;
+}
+
+.page-job-upload .job-vselect .v-select .vs__actions {
+  padding-left: 6px;
+}
+
+/* vue-select append-to-body — menu render trên body */
+body:has(.page-job-upload) .vs__dropdown-menu,
+body:has(.page-dashboard-newjob.page-job-upload) .vs__dropdown-menu {
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 9999 !important;
+  border: 1px solid rgba(200, 214, 236, 0.9);
+  border-radius: 10px;
+  background: #ffffff;
+  box-shadow: 0 8px 24px rgba(31, 49, 93, 0.1);
+  padding: 4px 0;
+  margin-top: 6px;
+}
+
+body:has(.page-job-upload) .vs__dropdown-option,
+body:has(.page-dashboard-newjob.page-job-upload) .vs__dropdown-option {
+  margin: 2px 6px;
+  padding: 6px 8px;
+  border-radius: 0.75rem;
+  font-size: 0.75rem;
+  color: #1f2937;
+  cursor: pointer;
+}
+
+body:has(.page-job-upload) .vs__dropdown-option:hover,
+body:has(.page-job-upload) .vs__dropdown-option--highlight,
+body:has(.page-dashboard-newjob.page-job-upload) .vs__dropdown-option:hover,
+body:has(.page-dashboard-newjob.page-job-upload) .vs__dropdown-option--highlight {
+  background-color: #f7f9fc;
+}
+
+body:has(.page-job-upload) .vs__dropdown-option--selected,
+body:has(.page-dashboard-newjob.page-job-upload) .vs__dropdown-option--selected {
+  background-color: #e0f2fe;
+  color: #1f2937;
+}
+
+/* USelect / Popover (portal ra body) */
+body:has(.page-job-upload) [data-reka-popper-content-wrapper],
+body:has(.page-job-upload) [role="listbox"],
+body:has(.page-job-upload) [data-reka-popover-content],
+body:has(.page-job-upload) [data-reka-combobox-content],
+body:has(.page-dashboard-newjob.page-job-upload) [data-reka-popper-content-wrapper],
+body:has(.page-dashboard-newjob.page-job-upload) [role="listbox"],
+body:has(.page-dashboard-newjob.page-job-upload) [data-reka-popover-content],
+body:has(.page-dashboard-newjob.page-job-upload) [data-reka-combobox-content] {
+  z-index: 9999 !important;
+}
+
+/* Select chevron — ẩn icon mặc định, dùng CSS arrow */
+html body .page-job-upload .employer-step-panel button[role="combobox"] svg,
+html body .page-job-upload .employer-step-panel button[role="combobox"] .icon,
+html body .page-job-upload .employer-step-panel button[role="combobox"] > span[class*="end-0"],
+html body .page-job-upload .job-vselect .v-select .vs__open-indicator {
+  display: none !important;
+  visibility: hidden !important;
+  width: 0 !important;
+  height: 0 !important;
+  overflow: hidden !important;
+}
+
+html body .page-job-upload .employer-post-card button[role="combobox"],
+html body .page-job-upload .employer-step-panel button[role="combobox"],
+html body .page-job-upload .employer-accordion-body button[role="combobox"],
+html body .page-job-upload .employer-step-panel select {
+  box-sizing: border-box !important;
+  min-height: var(--employer-control-min-height) !important;
+  height: var(--employer-control-min-height) !important;
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  padding-right: 36px !important;
+  background-image:
+    linear-gradient(45deg, transparent 50%, rgba(152, 166, 191, 0.72) 50%),
+    linear-gradient(135deg, rgba(152, 166, 191, 0.72) 50%, transparent 50%),
+    linear-gradient(to right, var(--employer-input-bg), var(--employer-input-bg)) !important;
+  background-position:
+    calc(100% - 18px) calc(50% - 2px),
+    calc(100% - 13px) calc(50% - 2px),
+    0 0 !important;
+  background-size: 5px 5px, 5px 5px, 100% 100% !important;
+  background-repeat: no-repeat !important;
+}
+
+html body .page-job-upload .employer-post-card button[role="combobox"],
+html body .page-job-upload .employer-step-panel button[role="combobox"],
+html body .page-job-upload .employer-accordion-body button[role="combobox"] {
+  background-color: var(--employer-input-bg) !important;
+}
+
+html body .page-job-upload .job-vselect .v-select .vs__dropdown-toggle,
+html body .page-dashboard-newjob.page-job-upload .job-vselect .v-select .vs__dropdown-toggle {
+  box-sizing: border-box !important;
+  min-height: var(--employer-control-min-height) !important;
+  height: auto !important;
+  max-height: none !important;
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  padding: 4px 36px 4px 10px !important;
+  background-color: var(--employer-input-bg) !important;
+  background-image:
+    linear-gradient(45deg, transparent 50%, rgba(152, 166, 191, 0.72) 50%),
+    linear-gradient(135deg, rgba(152, 166, 191, 0.72) 50%, transparent 50%),
+    linear-gradient(to right, var(--employer-input-bg), var(--employer-input-bg)) !important;
+  background-position:
+    calc(100% - 18px) calc(50% - 2px),
+    calc(100% - 13px) calc(50% - 2px),
+    0 0 !important;
+  background-size: 5px 5px, 5px 5px, 100% 100% !important;
+  background-repeat: no-repeat !important;
+}
+
+/* Hạn nộp — UButton mặc định font-semibold, đồng bộ font-weight 500 như input */
+html body .page-job-upload #job-deadline-field button,
+html body .page-job-upload #job-deadline-field button span {
+  font-weight: 500 !important;
+}
+
+/* Drawer dashboard — step 4 admin (giữ nội dung, style accordion) */
+.page-job-upload .employer-admin-action-body {
+  display: grid;
+  gap: 28px;
+}
+
+.page-job-upload .employer-admin-action-fields {
+  display: grid;
+  gap: 28px;
+}
+
+.page-job-upload .employer-admin-action-block {
+  display: grid;
+  gap: 7px;
+}
+
+.page-job-upload .employer-admin-action-block .employer-input-label {
+  margin-bottom: 0;
+}
+
+.page-job-upload .employer-admin-action-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  row-gap: 12px;
+  align-items: center;
+}
+
+.page-job-upload .employer-admin-action-pill {
+  cursor: pointer;
+}
+
+.page-job-upload button.employer-admin-action-pill {
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  font: inherit;
+  line-height: inherit;
+}
+
+.page-job-upload button.employer-admin-action-pill:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.page-job-upload .employer-admin-action-pill-label {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 16px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  transition:
+    background 0.18s ease,
+    border-color 0.18s ease,
+    color 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+/* Status & loại tin — mặc định trắng; màu khi hover / active / đã chọn */
+.page-job-upload .employer-admin-status-pill,
+.page-job-upload .employer-admin-post-type-pill {
+  background: #ffffff;
+  color: #64748b;
+  border: 1.5px solid rgba(203, 213, 225, 0.95);
+  box-shadow: none;
+}
+
+.page-job-upload .employer-admin-post-type-pill {
+  border-radius: 999px;
+  border-width: 2px;
+}
+
+.page-job-upload
+  button.employer-admin-action-pill:not(:disabled):hover
+  .employer-admin-status-pill.is-admin-review,
+.page-job-upload
+  button.employer-admin-action-pill:not(:disabled):active
+  .employer-admin-status-pill.is-admin-review,
+.page-job-upload
+  button.employer-admin-action-pill:not(:disabled):focus-visible
+  .employer-admin-status-pill.is-admin-review,
+.page-job-upload .employer-admin-status-pill.is-admin-review.is-selected {
+  background: #fef3c7;
+  border-color: #fcd34d;
+  color: #92400e;
+}
+
+.page-job-upload
+  button.employer-admin-action-pill:not(:disabled):hover
+  .employer-admin-status-pill.is-pending,
+.page-job-upload
+  button.employer-admin-action-pill:not(:disabled):active
+  .employer-admin-status-pill.is-pending,
+.page-job-upload
+  button.employer-admin-action-pill:not(:disabled):focus-visible
+  .employer-admin-status-pill.is-pending,
+.page-job-upload .employer-admin-status-pill.is-pending.is-selected {
+  background: #ffedd5;
+  border-color: #fdba74;
+  color: #9a3412;
+}
+
+.page-job-upload
+  button.employer-admin-action-pill:not(:disabled):hover
+  .employer-admin-status-pill.is-approved,
+.page-job-upload
+  button.employer-admin-action-pill:not(:disabled):active
+  .employer-admin-status-pill.is-approved,
+.page-job-upload
+  button.employer-admin-action-pill:not(:disabled):focus-visible
+  .employer-admin-status-pill.is-approved,
+.page-job-upload .employer-admin-status-pill.is-approved.is-selected {
+  background: #2563eb;
+  border-color: #2563eb;
+  color: #ffffff;
+}
+
+.page-job-upload
+  button.employer-admin-action-pill:not(:disabled):hover
+  .employer-admin-status-pill.is-rejected,
+.page-job-upload
+  button.employer-admin-action-pill:not(:disabled):active
+  .employer-admin-status-pill.is-rejected,
+.page-job-upload
+  button.employer-admin-action-pill:not(:disabled):focus-visible
+  .employer-admin-status-pill.is-rejected,
+.page-job-upload .employer-admin-status-pill.is-rejected.is-selected {
+  background: #fee2e2;
+  border-color: #fca5a5;
+  color: #b91c1c;
+}
+
+.page-job-upload
+  button.employer-admin-action-pill:not(:disabled):hover
+  .employer-admin-post-type-pill.is-basic,
+.page-job-upload
+  button.employer-admin-action-pill:not(:disabled):active
+  .employer-admin-post-type-pill.is-basic,
+.page-job-upload
+  button.employer-admin-action-pill:not(:disabled):focus-visible
+  .employer-admin-post-type-pill.is-basic,
+.page-job-upload .employer-admin-post-type-pill.is-basic.is-selected {
+  background: #dbeafe;
+  border-color: #93c5fd;
+  color: #1e40af;
+}
+
+.page-job-upload
+  button.employer-admin-action-pill:not(:disabled):hover
+  .employer-admin-post-type-pill.is-hot,
+.page-job-upload
+  button.employer-admin-action-pill:not(:disabled):active
+  .employer-admin-post-type-pill.is-hot,
+.page-job-upload
+  button.employer-admin-action-pill:not(:disabled):focus-visible
+  .employer-admin-post-type-pill.is-hot,
+.page-job-upload .employer-admin-post-type-pill.is-hot.is-selected {
+  background: #fef3c7;
+  border-color: #fcd34d;
+  color: #92400e;
+}
+
+.page-job-upload
+  button.employer-admin-action-pill:not(:disabled):hover
+  .employer-admin-post-type-pill.is-urgent,
+.page-job-upload
+  button.employer-admin-action-pill:not(:disabled):active
+  .employer-admin-post-type-pill.is-urgent,
+.page-job-upload
+  button.employer-admin-action-pill:not(:disabled):focus-visible
+  .employer-admin-post-type-pill.is-urgent,
+.page-job-upload .employer-admin-post-type-pill.is-urgent.is-selected {
+  background: #fee2e2;
+  border-color: #fca5a5;
+  color: #b91c1c;
+}
+
+.page-job-upload .employer-admin-action-pill-label.is-selected {
+  box-shadow: 0 0 0 2px rgba(148, 163, 184, 0.2);
+}
+
+.page-job-upload .employer-admin-action-pill:has(input:disabled) {
+  cursor: not-allowed;
+}
+
+/* vue-select / popover khi form trong drawer */
+body:has(.page-dashboard-newjob.page-job-upload) .vs__dropdown-menu,
+body:has(.page-job-upload) .vs__dropdown-menu {
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 9999 !important;
+  border: 1px solid rgba(200, 214, 236, 0.9);
+  border-radius: 10px;
+  background: #ffffff;
+  box-shadow: 0 8px 24px rgba(31, 49, 93, 0.1);
+  padding: 4px 0;
+  margin-top: 6px;
+}
+
+body:has(.page-dashboard-newjob.page-job-upload) [data-reka-popper-content-wrapper],
+body:has(.page-dashboard-newjob.page-job-upload) [role="listbox"],
+body:has(.page-dashboard-newjob.page-job-upload) [data-reka-popover-content],
+body:has(.page-dashboard-newjob.page-job-upload) [data-reka-combobox-content] {
+  z-index: 9999 !important;
+}

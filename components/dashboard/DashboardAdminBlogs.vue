@@ -1,20 +1,22 @@
 <template>
   <div>
-    <!-- Header: title + subtitle left, Feature checkbox + search + Add Blog right -->
-    <div
-      class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white rounded-xl shadow-sm border border-gray-200 px-4 py-4"
-    >
-      <div>
-        <h1 class="text-3xl font-bold text-gray-900">
+    <div class="employer-admin-blogs-scale">
+    <div class="employer-admin-blogs-panel">
+    <!-- Header: title + search + Add Blog -->
+    <div class="employer-admin-blogs-toolbar flex flex-col sm:flex-row sm:items-start sm:justify-between">
+      <div class="employer-admin-companies-head">
+        <h1 class="text-3xl font-bold text-gray-400">
           Blogs
         </h1>
-        <p class="text-gray-500 mt-1 text-sm">
-          Welcome, System Admin
+        <p class="text-gray-500 text-sm">
+          {{ $t('dashboard.admin.blogs.welcome') }}
         </p>
       </div>
-      <div class="flex items-center gap-3 flex-1 sm:flex-initial sm:max-w-md justify-end">
+      <div
+        class="employer-admin-blogs-search flex w-full min-w-0 flex-nowrap items-center gap-3 overflow-x-auto lg:flex-1 lg:justify-end"
+      >
         <!-- Feature Checkbox -->
-        <label class="flex items-center gap-2 cursor-pointer">
+        <label class="flex shrink-0 items-center gap-2 cursor-pointer">
           <input
             v-model="filterFeature"
             type="checkbox"
@@ -22,30 +24,246 @@
           />
           <span class="text-sm font-medium text-gray-700">Feature</span>
         </label>
-        
+
         <UInput
           v-model="searchQuery"
           placeholder="Search..."
           icon="i-lucide-search"
-          class="flex-1 min-w-0 rounded-full py-2"
-          size="md"
-          :ui="{ rounded: 'rounded-full' }"
+          class="min-w-0 max-w-[380px] flex-1"
+          :ui="{ base: 'h-10 w-full rounded-xl text-[13px]' }"
         />
-        <button
-          type="button"
-          class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-full shadow-lg flex items-center gap-2 transition-colors shrink-0"
-          @click="openCreateModal"
-        >
-          <UIcon name="i-lucide-plus" class="w-5 h-5" />
-          <span>Add Blog</span>
+        <div class="w-full min-w-[10rem] shrink-0 sm:max-w-[12rem]">
+          <Teleport to="body">
+            <div
+              v-if="showModal"
+              class="employer-admin-job-drawer-backdrop fixed inset-0 z-10 bg-[rgba(15,23,42,0.42)] backdrop-blur-sm"
+              aria-hidden="true"
+              @click="closeBlogDrawer"
+            />
+          </Teleport>
+          <UDrawer
+            v-model:open="showModal"
+            :title="blogDrawerTitle"
+            :description="blogDrawerSubtitle"
+            direction="right"
+            :modal="false"
+            :overlay="false"
+            :should-scale-background="false"
+            :no-body-styles="true"
+            handle-only
+            :ui="blogDrawerUi"
+          >
+            <template #header>
+              <AdminDrawerHeader
+                :kicker="blogDrawerKicker"
+                :title="blogDrawerTitle"
+                :subtitle="blogDrawerSubtitle"
+                @close="closeBlogDrawer"
+              />
+            </template>
+            <UButton
+              color="primary"
+              icon="i-lucide-plus"
+              class="h-10 w-full justify-center whitespace-nowrap rounded-xl px-4 text-[13px] font-semibold shadow-sm"
+              @click="openCreateModal"
+            >
+              Thêm blog
+            </UButton>
+            <template #body>
+              <div class="p-6 ui-drawer-body-vh">
+                <form
+                  class="employer-company-form employer-admin-blog-drawer-form"
+                  @submit.prevent="saveBlog"
+                >
+                  <label class="employer-field employer-field-full">
+                    <span>Title <span class="text-red-500">*</span></span>
+                    <UInput
+                      v-model="blogForm.title"
+                      placeholder="Blog title"
+                      class="w-full"
+                      :class="{ 'ring-red-500': formErrors.title }"
+                      @blur="formErrors.title = ''"
+                    />
+                    <p v-if="formErrors.title" class="employer-field-error">{{ formErrors.title }}</p>
+                  </label>
+
+                  <label class="employer-field employer-field-full employer-field-editor">
+                    <span>Blog content <span class="text-red-500">*</span></span>
+                    <div class="employer-editor rich-text-output">
+                      <BlogRichTextEditor
+                        ref="blogEditorRef"
+                        v-model="blogForm.content"
+                        class="w-full"
+                        :class="{ 'border-red-500': formErrors.content }"
+                      />
+                    </div>
+                    <p v-if="formErrors.content" class="employer-field-error">{{ formErrors.content }}</p>
+                  </label>
+
+                  <label class="employer-field employer-field-full">
+                    <span>Title SEO <span class="text-red-500">*</span></span>
+                    <UInput
+                      v-model="blogForm.titleSeo"
+                      placeholder="SEO title"
+                      class="w-full"
+                      :class="{ 'ring-red-500': formErrors.titleSeo }"
+                      @blur="formErrors.titleSeo = ''"
+                    />
+                    <p v-if="formErrors.titleSeo" class="employer-field-error">{{ formErrors.titleSeo }}</p>
+                  </label>
+
+                  <label class="employer-field employer-field-full">
+                    <span>Meta Description SEO <span class="text-red-500">*</span></span>
+                    <div class="employer-admin-blog-textarea-counter">
+                      <textarea
+                        v-model="blogForm.metaDescription"
+                        placeholder="Meta description"
+                        maxlength="1000"
+                        rows="4"
+                        :class="{ 'border-red-500': formErrors.metaDescription }"
+                        @blur="formErrors.metaDescription = ''"
+                      />
+                      <span class="employer-admin-blog-char-count">
+                        {{ blogForm.metaDescription?.length || 0 }}/1000
+                      </span>
+                    </div>
+                    <p v-if="formErrors.metaDescription" class="employer-field-error">
+                      {{ formErrors.metaDescription }}
+                    </p>
+                  </label>
+
+                  <label class="employer-field employer-field-full">
+                    <span>Schema <span class="text-xs font-normal text-gray-500">(Optional)</span></span>
+                    <div class="employer-admin-blog-textarea-counter">
+                      <textarea
+                        v-model="blogForm.schema"
+                        placeholder="Schema JSON"
+                        maxlength="1000"
+                        rows="4"
+                      />
+                      <span class="employer-admin-blog-char-count">
+                        {{ blogForm.schema?.length || 0 }}/1000
+                      </span>
+                    </div>
+                  </label>
+
+                  <div class="employer-admin-blog-cover-grid">
+                    <div class="employer-field employer-admin-blog-cover-field">
+                      <span>Cover Image <span class="text-red-500">*</span></span>
+                      <input
+                        ref="coverImageInput"
+                        type="file"
+                        accept="image/*"
+                        class="hidden"
+                        tabindex="-1"
+                        @change="handleCoverImageChange"
+                      />
+                      <div
+                        v-if="blogForm.coverImage"
+                        class="employer-admin-blog-cover-preview"
+                        role="button"
+                        tabindex="0"
+                        :class="{ 'is-disabled': uploadingImage }"
+                        @click.stop="openCoverImagePicker"
+                        @keydown.enter.prevent="openCoverImagePicker"
+                      >
+                        <img :src="blogForm.coverImage" alt="Cover" draggable="false" />
+                      </div>
+                      <div
+                        v-else
+                        class="employer-admin-company-upload-zone employer-admin-blog-cover-upload"
+                        :class="{ 'is-disabled': uploadingImage }"
+                        role="button"
+                        tabindex="0"
+                        @click.stop="openCoverImagePicker"
+                        @keydown.enter.prevent="openCoverImagePicker"
+                      >
+                        <UIcon name="i-lucide-image-plus" class="mx-auto mb-2 h-8 w-8 text-slate-400" />
+                        <p class="employer-admin-company-upload-hint">
+                          {{ uploadingImage ? 'Đang tải ảnh...' : 'Upload cover image' }}
+                        </p>
+                      </div>
+                      <p v-if="formErrors.coverImage" class="employer-field-error">
+                        {{ formErrors.coverImage }}
+                      </p>
+                    </div>
+
+                    <label class="employer-field employer-admin-blog-category-field">
+                      <span>Category <span class="text-red-500">*</span></span>
+                      <USelect
+                        :model-value="blogForm.category"
+                        :items="categoryOptions"
+                        placeholder="Select category"
+                        class="employer-admin-blog-category-select employer-field-select w-full"
+                        :class="{ 'employer-field-select--error': !!formErrors.category }"
+                        :ui="blogCategorySelectUi"
+                        @update:model-value="(val) => { blogForm.category = val; formErrors.category = '' }"
+                      />
+                      <p v-if="formErrors.category" class="employer-field-error">{{ formErrors.category }}</p>
+                    </label>
+                  </div>
+
+                  <label class="employer-admin-company-featured">
+                    <span class="employer-admin-company-featured-label">
+                      Display on homepage <span class="text-xs font-normal text-gray-500">(optional)</span>
+                    </span>
+                    <span class="employer-admin-company-featured-control">
+                      <UCheckbox v-model="blogForm.displayOnHomepage" />
+                      <span>Featured</span>
+                    </span>
+                  </label>
+
+                  <label class="employer-field employer-field-full">
+                    <span>Status <span class="text-red-500">*</span></span>
+                    <div class="employer-admin-company-status-row">
+                      <button
+                        type="button"
+                        class="employer-admin-company-status-btn"
+                        :class="{ 'is-active is-draft': blogForm.status === 'draft' }"
+                        @click="blogForm.status = 'draft'; formErrors.status = ''"
+                      >
+                        <UIcon name="i-lucide-file-pen" class="h-4 w-4" />
+                        Draft
+                      </button>
+                      <button
+                        type="button"
+                        class="employer-admin-company-status-btn"
+                        :class="{ 'is-active is-published': blogForm.status === 'published' }"
+                        @click="blogForm.status = 'published'; formErrors.status = ''"
+                      >
+                        <UIcon name="i-lucide-globe" class="h-4 w-4" />
+                        Public
         </button>
+                    </div>
+                    <p v-if="formErrors.status" class="employer-field-error">{{ formErrors.status }}</p>
+                  </label>
+
+                  <div class="employer-admin-drawer-form-actions">
+                    <UButton type="submit" color="primary" :loading="saving">
+                      {{ isEditMode ? 'Update' : 'Create' }}
+                    </UButton>
+                    <UButton
+                      type="button"
+                      variant="outline"
+                      color="neutral"
+                      :disabled="saving"
+                      @click="closeBlogDrawer"
+                    >
+                      Hủy
+                    </UButton>
+                  </div>
+                </form>
+              </div>
+            </template>
+          </UDrawer>
+        </div>
       </div>
     </div>
 
     <!-- Pagination (above table) -->
     <div
       v-if="filteredBlogs.length > 0"
-      class="mb-4 px-6 py-4 border-b border-gray-200 flex items-center justify-end gap-4 bg-white rounded-t-xl shadow-sm border border-gray-200"
+      class="employer-admin-blogs-pagination flex items-center justify-end gap-4"
     >
       <div class="flex items-center gap-2">
         <!-- Previous Arrow -->
@@ -118,7 +336,7 @@
     </div>
 
     <!-- Blogs Table -->
-    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+    <div class="employer-admin-blogs-body">
       <!-- Loading State -->
       <div v-if="loading" class="text-center py-12">
         <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
@@ -211,7 +429,7 @@
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 CREATED AT
               </th>
-              <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th class="is-action px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
                 ACTION
               </th>
             </tr>
@@ -264,300 +482,23 @@
                 {{ formatCreatedDate(blog.createdAt) }}
               </td>
 
-              <!-- ACTION -->
-              <td class="px-6 py-4 whitespace-nowrap text-right">
-                <div class="flex items-center justify-end gap-2">
-                  <button
-                    type="button"
-                    class="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors"
-                    title="View"
-                    @click="viewBlog(blog)"
-                  >
-                    <UIcon name="i-lucide-eye" class="w-4 h-4 text-gray-600" />
-                  </button>
-                  <button
-                    type="button"
-                    class="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors"
-                    title="Edit"
-                    @click="openEditModal(blog)"
-                  >
-                    <UIcon name="i-lucide-pencil" class="w-4 h-4 text-gray-600" />
-                  </button>
-                  <button
-                    type="button"
-                    class="w-8 h-8 rounded-full bg-gray-100 hover:bg-red-100 flex items-center justify-center transition-colors"
-                    title="Delete"
-                    @click="openDeleteConfirm(blog)"
-                  >
-                    <UIcon name="i-lucide-trash-2" class="w-4 h-4 text-gray-600" />
-                  </button>
-                </div>
+              <td class="is-action px-6 py-4 whitespace-nowrap">
+                <EmployerRowActions
+                  view-label="View"
+                  edit-label="Edit"
+                  delete-label="Delete"
+                  @view="viewBlog(blog)"
+                  @edit="openEditModal(blog)"
+                  @delete="openDeleteConfirm(blog)"
+                />
               </td>
             </tr>
           </tbody>
         </table>
       </div>
     </div>
-
-    <!-- Create/Edit Drawer (sử dụng UDrawer với handle-only để ngăn chặn kéo trong content) -->
-    <UDrawer
-      v-model:open="showModal"
-      :title="isEditMode ? 'Edit Blog' : 'Create Blog'"
-      direction="right"
-      :modal="false"
-      handle-only
-      :ui="{ content: 'w-full min-w-[400px] max-w-3xl' }"
-    >
-      <template #header>
-        <div class="flex items-center w-full gap-2">
-          <span class="flex-1 font-semibold">
-            {{ isEditMode ? 'Edit Blog' : 'Create Blog' }}
-          </span>
-          <UButton
-            color="neutral"
-            variant="ghost"
-            icon="i-lucide-x"
-            @click="showModal = false"
-          />
         </div>
-      </template>
-      <template #body>
-        <!-- Form Content - Scrollable -->
-        <div class="p-6 overflow-y-auto max-h-[85vh]">
-          <form @submit.prevent="saveBlog" class="space-y-6">
-            <!-- Title -->
-            <div>
-              <label class="block text-sm font-semibold text-gray-900 mb-2">
-                Title <span class="text-red-500">*</span>
-              </label>
-              <UInput
-                v-model="blogForm.title"
-                placeholder="Blog title"
-                class="w-full"
-                :class="{ 'border-red-500': formErrors.title }"
-                @blur="formErrors.title = ''"
-              />
-              <p v-if="formErrors.title" class="mt-1 text-sm text-red-600">
-                {{ formErrors.title }}
-              </p>
             </div>
-
-            <!-- Blog Content -->
-            <div>
-              <label class="block text-sm font-semibold text-gray-900 mb-2">
-                Blog content <span class="text-red-500">*</span>
-              </label>
-              <BlogRichTextEditor
-                ref="blogEditorRef"
-                v-model="blogForm.content"
-                class="w-full"
-                :class="{ 'border-red-500': formErrors.content }"
-              />
-              <p v-if="formErrors.content" class="mt-1 text-sm text-red-600">
-                {{ formErrors.content }}
-              </p>
-            </div>
-
-            <!-- Title SEO -->
-            <div>
-              <label class="block text-sm font-semibold text-gray-900 mb-2">
-                Title SEO <span class="text-red-500">*</span>
-              </label>
-              <UInput
-                v-model="blogForm.titleSeo"
-                placeholder="SEO title"
-                class="w-full"
-                :class="{ 'border-red-500': formErrors.titleSeo }"
-                @blur="formErrors.titleSeo = ''"
-              />
-              <p v-if="formErrors.titleSeo" class="mt-1 text-sm text-red-600">
-                {{ formErrors.titleSeo }}
-              </p>
-            </div>
-
-            <!-- Meta Description SEO -->
-            <div>
-              <label class="block text-sm font-semibold text-gray-900 mb-2">
-                Meta Description SEO <span class="text-red-500">*</span>
-              </label>
-              <div class="relative">
-                <textarea
-                  v-model="blogForm.metaDescription"
-                  placeholder="Meta description"
-                  maxlength="1000"
-                  rows="4"
-                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none resize-none pr-16"
-                  :class="{ 'border-red-500': formErrors.metaDescription }"
-                  @blur="formErrors.metaDescription = ''"
-                />
-                <div class="absolute bottom-3 right-3 text-xs text-gray-500">
-                  {{ blogForm.metaDescription?.length || 0 }}/1000
-                </div>
-              </div>
-              <p v-if="formErrors.metaDescription" class="mt-1 text-sm text-red-600">
-                {{ formErrors.metaDescription }}
-              </p>
-            </div>
-
-            <!-- Schema (optional) -->
-            <div>
-              <label class="block text-sm font-semibold text-gray-900 mb-2">
-                Schema <span class="text-xs text-gray-500">(Optional)</span>
-              </label>
-              <div class="relative">
-                <textarea
-                  v-model="blogForm.schema"
-                  placeholder="Schema JSON"
-                  maxlength="1000"
-                  rows="4"
-                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none resize-none pr-16"
-                />
-                <div class="absolute bottom-3 right-3 text-xs text-gray-500">
-                  {{ blogForm.schema?.length || 0 }}/1000
-                </div>
-              </div>
-            </div>
-
-            <!-- Cover Image and Category (same row) -->
-            <div class="grid grid-cols-2 gap-4">
-              <!-- Cover Image -->
-              <div>
-                <label class="block text-sm font-semibold text-gray-900 mb-2">
-                  Cover Image <span class="text-red-500">*</span>
-                </label>
-                <input
-                  ref="coverImageInput"
-                  type="file"
-                  accept="image/*"
-                  class="hidden"
-                  @change="handleCoverImageChange"
-                />
-                <div
-                  v-if="blogForm.coverImage"
-                  class="w-full aspect-square rounded-lg overflow-hidden border border-gray-300 cursor-pointer hover:border-blue-500 transition-colors"
-                  @click="coverImageInput?.click()"
-                >
-                  <img
-                    :src="blogForm.coverImage"
-                    alt="Cover"
-                    class="w-full h-full object-cover"
-                  />
-                </div>
-                <div
-                  v-else
-                  class="w-full aspect-square border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-blue-500 transition-colors"
-                  @click="coverImageInput?.click()"
-                >
-                  <UIcon name="i-lucide-plus" class="w-8 h-8 text-gray-400 mb-2" />
-                  <span class="text-sm text-gray-600">Upload</span>
-                </div>
-                <p v-if="formErrors.coverImage" class="mt-1 text-sm text-red-600">
-                  {{ formErrors.coverImage }}
-                </p>
-              </div>
-
-              <!-- Category -->
-              <div class="relative">
-                <label class="block text-sm font-semibold text-gray-900 mb-2">
-                  Category <span class="text-red-500">*</span>
-                </label>
-                <USelect
-                  :model-value="blogForm.category"
-                  :items="categoryOptions"
-                  placeholder="Select category"
-                  class="w-full"
-                  :class="{ 'border-red-500': formErrors.category }"
-                  :ui="{
-                    popper: {
-                      strategy: 'fixed',
-                      placement: 'bottom-start',
-                      z: 'z-[200]'
-                    }
-                  }"
-                  @update:model-value="(val) => { blogForm.category = val; formErrors.category = '' }"
-                />
-                <p v-if="formErrors.category" class="mt-1 text-sm text-red-600">
-                  {{ formErrors.category }}
-                </p>
-              </div>
-            </div>
-
-            <!-- Display on homepage (optional) -->
-            <div>
-              <label class="flex items-center gap-2 cursor-pointer">
-                <input
-                  v-model="blogForm.displayOnHomepage"
-                  type="checkbox"
-                  class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                />
-                <span class="text-sm font-semibold text-gray-900">
-                  Display on homepage <span class="text-xs text-gray-500">(optional)</span>
-                </span>
-              </label>
-            </div>
-
-            <!-- Status -->
-            <div>
-              <label class="block text-sm font-semibold text-gray-900 mb-2">
-                Status <span class="text-red-500">*</span>
-              </label>
-              <div class="flex gap-3">
-                <!-- Draft -->
-                <button
-                  type="button"
-                  class="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium border-2 transition-colors"
-                  :class="blogForm.status === 'draft'
-                    ? 'bg-gray-100 text-gray-900 border-gray-300'
-                    : 'bg-white text-gray-600 border-gray-200 hover:border-gray-300'"
-                  @click="blogForm.status = 'draft'; formErrors.status = ''"
-                >
-                  <span
-                    class="inline-flex items-center justify-center w-4 h-4 rounded-full border"
-                    :class="blogForm.status === 'draft'
-                      ? 'border-gray-700 bg-gray-700'
-                      : 'border-gray-400 bg-white'"
-                  />
-                  <span>Draft</span>
-                </button>
-
-                <!-- Public -->
-                <button
-                  type="button"
-                  class="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium border-2 transition-colors"
-                  :class="blogForm.status === 'published'
-                    ? 'bg-blue-50 text-blue-700 border-blue-500'
-                    : 'bg-white text-gray-600 border-gray-200 hover:border-gray-300'"
-                  @click="blogForm.status = 'published'; formErrors.status = ''"
-                >
-                  <span
-                    class="inline-flex items-center justify-center w-4 h-4 rounded-full border"
-                    :class="blogForm.status === 'published'
-                      ? 'border-blue-600 bg-blue-600'
-                      : 'border-gray-400 bg-white'"
-                  />
-                  <span>Public</span>
-                </button>
-              </div>
-              <p v-if="formErrors.status" class="mt-1 text-sm text-red-600">
-                {{ formErrors.status }}
-              </p>
-            </div>
-          </form>
-        </div>
-      </template>
-      <template #footer>
-        <div class="px-6 py-4 border-t border-gray-200 flex justify-end bg-white">
-          <UButton
-            color="primary"
-            size="md"
-            :loading="saving"
-            @click="saveBlog"
-          >
-            {{ isEditMode ? 'Update' : 'Create' }}
-          </UButton>
-        </div>
-      </template>
-    </UDrawer>
 
     <!-- Delete confirm popup (custom, không dùng UModal) -->
     <Teleport to="body">
@@ -604,6 +545,8 @@
 <script setup lang="ts">
 import RichTextEditor from '~/components/RichTextEditor.vue'
 import BlogRichTextEditor from '~/components/BlogRichTextEditor.vue'
+import AdminDrawerHeader from '~/components/AdminDrawerHeader.vue'
+import { adminDrawerSelectContentZ, adminDrawerUi } from '~/utils/admin-drawer-ui'
 import { watch } from 'vue'
 
 const { $api } = useNuxtApp()
@@ -692,6 +635,44 @@ const formErrors = ref({
   status: '',
 })
 
+const blogDrawerKicker = computed(() =>
+  isEditMode.value ? 'Chỉnh sửa blog' : 'Tạo blog mới',
+)
+
+const blogDrawerTitle = computed(() =>
+  isEditMode.value ? 'Chỉnh sửa bài viết' : 'Thêm bài viết',
+)
+
+const blogDrawerSubtitle = computed(() => {
+  if (isEditMode.value) {
+    const name = blogForm.value.title?.trim()
+    return name
+      ? `Cập nhật nội dung, SEO và ảnh bìa cho "${name}".`
+      : 'Cập nhật nội dung, SEO và ảnh bìa cho bài viết.'
+  }
+  return 'Điền thông tin bài viết, SEO và ảnh bìa để xuất bản lên hệ thống.'
+})
+
+const blogCategorySelectUi = {
+  base: 'employer-admin-blog-category-select-base min-h-[44px] rounded-[12px] text-[14px]',
+  value: 'text-[14px]',
+  placeholder: 'text-[14px] text-slate-400',
+  trailingIcon: 'size-5',
+  content: adminDrawerSelectContentZ,
+}
+
+const blogDrawerUi = {
+  ...adminDrawerUi('max-w-3xl', 'employer-admin-blog-drawer'),
+  header: 'employer-admin-job-drawer-header employer-drawer-bg shrink-0 p-0',
+  container:
+    'employer-admin-job-drawer-container employer-drawer-bg w-full min-h-0 flex flex-1 flex-col gap-0 self-stretch p-0 overflow-hidden',
+  body: 'employer-admin-job-drawer-body employer-drawer-bg flex min-h-0 flex-1 flex-col overflow-hidden p-0',
+}
+
+function closeBlogDrawer() {
+  showModal.value = false
+}
+
 const filteredBlogs = computed(() => {
   let result = blogs.value
 
@@ -776,9 +757,21 @@ const formatCreatedDate = (date: string | Date | undefined): string => {
   return `${day} ${month}, ${year}`
 }
 
+const openCoverImagePicker = () => {
+  if (uploadingImage.value) return
+  coverImageInput.value?.click()
+}
+
 const handleCoverImageChange = async (e: Event) => {
-  const file = (e.target as HTMLInputElement).files?.[0]
+  const input = e.target as HTMLInputElement
+  const file = input.files?.[0]
   if (!file) return
+
+  if (!file.type.startsWith('image/')) {
+    input.value = ''
+    useNotify({ message: 'Vui lòng chọn file ảnh hợp lệ', type: 'error' })
+    return
+  }
 
   uploadingImage.value = true
   try {
@@ -788,11 +781,12 @@ const handleCoverImageChange = async (e: Event) => {
   } catch (error: any) {
     console.error('Failed to upload image:', error)
     useNotify({
-      message: error.message || 'Failed to upload image',
+      message: error.message || 'Tải ảnh lên thất bại',
       type: 'error',
     })
   } finally {
     uploadingImage.value = false
+    input.value = ''
   }
 }
 
@@ -809,40 +803,40 @@ const validateForm = (): boolean => {
   }
 
   if (!blogForm.value.title.trim()) {
-    formErrors.value.title = 'Title is required'
+    formErrors.value.title = 'Tiêu đề không được để trống'
     isValid = false
   }
 
   if (!blogForm.value.content || !blogForm.value.content.trim()) {
-    formErrors.value.content = 'Blog content is required'
+    formErrors.value.content = 'Nội dung bài viết không được để trống'
     isValid = false
   }
 
   if (!blogForm.value.titleSeo.trim()) {
-    formErrors.value.titleSeo = 'Title SEO is required'
+    formErrors.value.titleSeo = 'Tiêu đề SEO không được để trống'
     isValid = false
   }
 
   if (!blogForm.value.metaDescription.trim()) {
-    formErrors.value.metaDescription = 'Meta description is required'
+    formErrors.value.metaDescription = 'Mô tả meta không được để trống'
     isValid = false
   } else if (blogForm.value.metaDescription.length > 1000) {
-    formErrors.value.metaDescription = 'Meta description must be 1000 characters or less'
+    formErrors.value.metaDescription = 'Mô tả meta không được vượt quá 1000 ký tự'
     isValid = false
   }
 
   if (!blogForm.value.coverImage) {
-    formErrors.value.coverImage = 'Cover image is required'
+    formErrors.value.coverImage = 'Ảnh bìa không được để trống'
     isValid = false
   }
 
   if (!blogForm.value.category) {
-    formErrors.value.category = 'Category is required'
+    formErrors.value.category = 'Danh mục không được để trống'
     isValid = false
   }
 
   if (!blogForm.value.status) {
-    formErrors.value.status = 'Status is required'
+    formErrors.value.status = 'Trạng thái không được để trống'
     isValid = false
   }
 
@@ -861,7 +855,7 @@ const fetchBlogs = async () => {
   } catch (error: any) {
     console.error('Failed to fetch blogs:', error)
     useNotify({
-      message: error.message || 'Failed to load blogs',
+      message: error.message || 'Không tải được danh sách blog',
       type: 'error',
     })
   } finally {
@@ -1048,13 +1042,13 @@ const saveBlog = async () => {
     if (isEditMode.value && blogForm.value.id) {
       await $api.blog.updateBlog(blogForm.value.id, blogData)
       useNotify({
-        message: 'Blog updated successfully',
+        message: 'Cập nhật blog thành công',
         type: 'success',
       })
     } else {
       await $api.blog.createBlog(blogData)
       useNotify({
-        message: 'Blog created successfully',
+        message: 'Tạo blog thành công',
         type: 'success',
       })
     }
@@ -1064,7 +1058,7 @@ const saveBlog = async () => {
   } catch (error: any) {
     console.error('Failed to save blog:', error)
     useNotify({
-      message: error.message || 'Failed to save blog',
+      message: error.message || 'Không thể lưu blog',
       type: 'error',
     })
   } finally {
@@ -1089,7 +1083,7 @@ const deleteBlog = async (blogId: number) => {
     }
 
     useNotify({
-      message: 'Blog deleted successfully',
+      message: 'Xóa blog thành công',
       type: 'success',
     })
     showDeleteModal.value = false
@@ -1098,7 +1092,7 @@ const deleteBlog = async (blogId: number) => {
   } catch (error: any) {
     console.error('Failed to delete blog:', error)
     useNotify({
-      message: error.message || 'Failed to delete blog',
+      message: error.message || 'Không thể xóa blog',
       type: 'error',
     })
   }
@@ -1131,8 +1125,3 @@ onMounted(() => {
 })
 </script>
 
-<style scoped>
-::deep([data-reka-popper-content-wrapper]) {
-  z-index: 200 !important;
-}
-</style>

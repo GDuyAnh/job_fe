@@ -189,7 +189,7 @@ const handleDeleteAccount = async () => {
     console.error('Failed to delete account:', error)
 
     // Handle specific errors
-    if (error.message?.includes('Password is incorrect') || error.message?.includes('password')) {
+    if (error.message?.includes('Mật khẩu không chính xác') || error.message?.includes('password')) {
       passwordError.value = t('dashboard.settings.deleteAccount.passwordIncorrect')
     } else {
       useNotify({

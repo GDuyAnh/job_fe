@@ -1,106 +1,116 @@
 <template>
-  <div class="bg-[var(--bg)]">
+  <div class="bg-[var(--bg)] home-page">
     <!-- Header is handled by `layouts/default.vue` via <AppHeader /> -->
     <!-- Hero -->
     <section
       ref="heroRef"
-      class="home-hero relative overflow-hidden"
+      class="hero-home"
     >
-      <div class="home-hero__bg" />
-      <div class="home-hero__radial" />
+      <div class="hero-shell">
+        <div class="hero-banner" data-hero>
 
-      <!-- Floating cards: outer = theo hướng chuột (cùng/đảo); inner = float + hover nảy -->
-      <div class="home-hero__floatLayer">
-        <div
-          v-for="c in heroCards"
-          :key="c.text"
-          class="home-hero__floatCardOuter"
-          :style="getHeroCardOuterStyle(c)"
-        >
-          <div
-            class="home-hero__floatCard"
-            :class="c.depth"
-            :style="getHeroCardInnerStyle(c)"
+          <div class="hero-orbits" aria-hidden="true">
+            <span data-parallax-depth="26" data-parallax-center />
+            <span data-parallax-depth="20" data-parallax-center />
+            <span data-parallax-depth="14" data-parallax-center />
+          </div>
+
+          <span
+            v-for="chip in heroChips"
+            :key="chip.text"
+            class="hero-floating-chip"
+            :class="chip.positionClass"
+            data-hero-chip
+            data-scroll-drift="0.04"
           >
-            {{ c.text }}
+            {{ chip.text }}
+          </span>
+
+          <div class="hero-copy">
+            <span class="hero-kicker hero-trust-pill">
+              <span class="hero-trust-avatars" aria-hidden="true">
+                <span />
+                <span />
+                <span />
+              </span>
+              <span>Được tin dùng bởi <strong>2.000+</strong> giáo viên và trường học</span>
+            </span>
+
+            <h1>Việc Làm Giáo Viên <span>Toàn Quốc</span></h1>
+            <p>
+              Nền tảng tuyển dụng chuyên biệt cho giáo viên, trường học và các đơn vị giáo dục tại Việt Nam.
+            </p>
+
+            <form
+              class="search-card hero-search-card is-visible"
+              data-animate
+              style="--delay: 0.22s"
+              @submit.prevent="searchJobs"
+            >
+              <div class="search-row search-row-hero">
+                <div class="search-item search-item-hero search-item-keyword">
+                  <input
+                    v-model="keyword"
+                    type="text"
+                    placeholder="Vị trí ứng tuyển"
+                  >
+                </div>
+                <div class="search-item search-item-hero">
+                  <USelect
+                    v-model="location"
+                    :items="locationItems"
+                    variant="none"
+                    class="hero-location-select"
+                  />
+                  <span class="arr">▾</span>
+                </div>
+                <button type="submit" class="primary-btn hero-search-submit">
+                  <span>Tìm kiếm</span>
+                </button>
+              </div>
+            </form>
+
+            <div
+              class="hero-search-meta is-visible"
+              data-animate
+              style="--delay: 0.28s"
+            >
+              <div class="hero-search-meta-row">
+                <span>Tìm nhanh:</span>
+                <button
+                  v-for="tag in popularTags.slice(0, 5)"
+                  :key="tag.value"
+                  type="button"
+                  @click="onCategoryClick(tag.value)"
+                >
+                  {{ $t(tag.label) }}
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
-
-      <UContainer class="relative z-10">
-        <div class="home-hero__wrap">
-          <div class="home-hero__trust">
-            <span class="home-hero__trustDots">
-              <span class="d d1" />
-              <span class="d d2" />
-              <span class="d d3" />
-            </span>
-            <span>Được tin dùng bởi <b>2.000+</b> giáo viên và trường học</span>
-          </div>
-
-          <h1 class="home-hero__title">
-            Việc Làm Giáo Viên <span class="home-hero__titleHi">Toàn Quốc</span>
-          </h1>
-          <p class="home-hero__subtitle">
-            Nền tảng tuyển dụng chuyên biệt cho giáo viên, trường học và các đơn vị giáo dục tại Việt Nam.
-          </p>
-
-          <div class="home-hero__search">
-            <input
-              v-model="keyword"
-              placeholder="Vị trí ứng tuyển"
-              class="home-hero__input"
-              @keyup.enter="searchJobs"
-            />
-
-            <div class="home-hero__divider" />
-
-            <USelect
-              v-model="location"
-              :items="locationItems"
-              variant="none"
-              size="lg"
-              class="home-hero__select"
-            />
-
-            <UButton
-              label="Tìm kiếm"
-              class="home-hero__searchBtn !rounded-[20px] !h-[46px] !px-[40px]"
-              @click="searchJobs"
-            />
-          </div>
-
-          <div class="home-hero__tags">
-            <span class="home-hero__tagsLabel">Tìm nhanh:</span>
-            <button
-              v-for="tag in popularTags.slice(0, 5)"
-              :key="tag.value"
-              type="button"
-              class="home-hero__tag"
-              @click="onCategoryClick(tag.value)"
-            >
-              {{ $t(tag.label) }}
-            </button>
-          </div>
-        </div>
-      </UContainer>
     </section>
 
     <!-- Search by category -->
-    <section data-reveal-jobs class="bg-[var(--bg)] py-16 relative z-10">
-      <UContainer>
-        <div class="mb-8">
-          <h2 class="text-[32px] font-extrabold text-[#1d2433] leading-tight">
-            Khám phá theo danh mục
-          </h2>
-          <div class="mt-2 flex items-center justify-between gap-6">
-            <p class="text-[14px] text-[rgba(29,36,51,0.6)]">
+    <section
+      id="home-categories"
+      data-reveal-jobs
+      class="section-block category-block"
+      data-animate
+    >
+      <div class="container">
+        <div class="section-head">
+          <div class="category-copy">
+            <h2>Khám phá theo danh mục</h2>
+            <p class="category-lead">
               Chọn nhanh nhóm công việc phù hợp để xem các vị trí tuyển dụng mới nhất.
             </p>
-
+          </div>
+          <div class="category-head-actions">
             <button
               type="button"
-              class="shrink-0 text-[14px] font-medium text-[var(--blue)] hover:text-[var(--blue-dark)] transition-colors"
+              class="category-all-link"
               @click="viewAllClick()"
             >
               {{ $t('homePage.searchByCategory.allCategories') }}
@@ -108,386 +118,368 @@
           </div>
         </div>
 
-        <div class="relative group">
-          <UCarousel
-            :items="categoryJobsRes"
-            :dots="false"
-            arrows
-            prev-icon="i-heroicons-chevron-left"
-            next-icon="i-heroicons-chevron-right"
-            :prev="{
-              variant: 'solid',
-              color: 'neutral',
-              class:
-                'h-10 w-10 rounded-full bg-white shadow-sm border border-[rgba(29,36,51,0.12)] hover:bg-white hover:border-[rgba(29,36,51,0.18)] text-black hover:text-[var(--blue)] active:!text-[var(--blue)] focus:!text-[var(--blue)] focus-visible:!text-[var(--blue)] active:!bg-white focus:!bg-white focus-visible:!bg-white active:!border-[rgba(29,36,51,0.18)] disabled:hidden',
-            }"
-            :next="{
-              variant: 'solid',
-              color: 'neutral',
-              class:
-                'h-10 w-10 rounded-full bg-white shadow-sm border border-[rgba(29,36,51,0.12)] hover:bg-white hover:border-[rgba(29,36,51,0.18)] text-black hover:text-[var(--blue)] active:!text-[var(--blue)] focus:!text-[var(--blue)] focus-visible:!text-[var(--blue)] active:!bg-white focus:!bg-white focus-visible:!bg-white active:!border-[rgba(29,36,51,0.18)] disabled:hidden',
-            }"
-            :ui="{
-              ...uiOptions,
-              prev: 'absolute !start-[-2%] top-1/2 -translate-y-1/2 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-1000 ease-in-out',
-              next: 'absolute !start-[99%] top-1/2 -translate-y-1/2 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-1000 ease-in-out',
-            }"
-            class="relative"
+        <div class="category-rail-wrap">
+          <button
+            type="button"
+            class="category-nav-btn category-nav-btn-prev"
+            data-category-prev
+            aria-label="Danh mục trước"
+            :disabled="!canScrollCategoryPrev"
+            @click="scrollCategoryRail(-1)"
           >
-            <template #default="{ item }">
-              <div>
-                <div
-                  class="flex items-center justify-between gap-5 bg-white border rounded-2xl px-6 py-5 shadow-sm transition-all duration-200 ease-out cursor-pointer select-none hover:-translate-y-1 hover:shadow-lg"
-                  style="border: 1px solid rgba(29, 36, 51, 0.12)"
-                  @click="onCategoryClick(item.category)"
-                >
-                <div class="flex items-center gap-4 min-w-0">
-                  <div
-                    class="h-12 w-12 rounded-2xl flex items-center justify-center text-[14px] font-bold"
-                    :style="getCategoryIconStyle(getCategoryLabel(item.category))"
-                  >
-                    {{ getCategoryInitials(getCategoryLabel(item.category)) }}
-                  </div>
+            <span aria-hidden="true">‹</span>
+          </button>
 
-                  <div class="min-w-0">
-                    <div class="truncate text-[16px] font-semibold text-[#1d2433]">
-                      {{ getCategoryLabel(item.category) }}
-                    </div>
-                    <div class="mt-1 text-[13px] text-[rgba(29,36,51,0.55)]">
-                      {{ item.jobCount }} vị trí mở
-                    </div>
-                  </div>
-                </div>
-              </div>
-              </div>
-            </template>
-          </UCarousel>
+          <div
+            ref="categoryRailRef"
+            class="category-rail"
+            data-category-rail
+            @scroll="updateCategoryRailNav"
+          >
+            <NuxtLink
+              v-for="item in categoryJobsRes"
+              :key="item.category"
+              class="category-card"
+              :to="{
+                path: '/jobs/search',
+                query: { category: item.category },
+              }"
+            >
+              <span class="category-card-icon">
+                {{ getCategoryInitials(getCategoryLabel(item.category)) }}
+              </span>
+              <span class="category-card-copy">
+                <strong>{{ getCategoryLabel(item.category) }}</strong>
+                <span>{{ item.jobCount }} vị trí mở</span>
+              </span>
+            </NuxtLink>
+          </div>
+
+          <button
+            type="button"
+            class="category-nav-btn category-nav-btn-next"
+            data-category-next
+            aria-label="Danh mục tiếp theo"
+            :disabled="!canScrollCategoryNext"
+            @click="scrollCategoryRail(1)"
+          >
+            <span aria-hidden="true">›</span>
+          </button>
         </div>
+      </div>
+    </section>
 
-        <!-- Banner (gộp chung section) -->
-        <div class="mt-10">
-          <UCarousel
-            :items="bannerRes"
-            :dots="true"
-            :ui="{
-              dots: 'mt-4 flex items-center justify-center gap-2',
-              dot: 'h-2 w-2 rounded-full bg-[rgba(29,36,51,0.24)] transition-all data-[state=active]:w-6 data-[state=active]:bg-[var(--blue)]',
-            }"
-          >
-            <template #default="{ item }">
-              <div
-                role="link"
-                tabindex="0"
-                class="flex flex-col items-left justify-left p-16 rounded-2xl shadow hover:shadow-xl min-h-[400px] max-h-[400px] relative overflow-hidden cursor-pointer"
-                style="border: 1px solid rgba(29, 36, 51, 0.12)"
-                :style="`background-image: url('${item.image}'); background-size: cover; background-position: center;`"
-                @click="viewCompany(item.id)"
-                @keydown.enter.prevent="viewCompany(item.id)"
-                @keydown.space.prevent="viewCompany(item.id)"
+    <section
+      v-if="bannerRes.length"
+      class="employer-image-banner-block"
+      data-animate
+      style="--delay: 0.04s"
+    >
+      <div class="container">
+        <div
+          class="employer-image-slider"
+          @mouseenter="pauseBannerAutoplay"
+          @mouseleave="resumeBannerAutoplay"
+        >
+          <div class="employer-image-slider-track">
+            <NuxtLink
+              v-for="(item, index) in bannerRes"
+              :key="item.id"
+              :to="`/companies/${item.id}`"
+              class="employer-image-slide"
+              :class="{ 'is-active': activeBannerIndex === index }"
+              :tabindex="activeBannerIndex === index ? 0 : -1"
+              :aria-hidden="activeBannerIndex !== index"
+            >
+              <img
+                :src="item.image"
+                :alt="getBannerAlt(item)"
+                loading="lazy"
               >
-                <!-- Overlay -->
-                <div class="absolute inset-0 bg-[#0000005c]"></div>
+            </NuxtLink>
+          </div>
 
-                <!-- Content -->
-                <div
-                  class="relative z-10 text-left text-5xl font-bold text-white max-w-6/10"
-                >
-                  {{ item.insight }}
-                </div>
-                <div class="relative z-10 text-md text-gray-200 mt-8 max-w-5/10">
-                  {{ item.overview }}
-                </div>
-              </div>
-            </template>
-          </UCarousel>
+          <div
+            v-if="bannerRes.length > 1"
+            class="employer-slider-dots"
+            aria-label="Điều hướng banner nhà tuyển dụng"
+          >
+            <button
+              v-for="(_, index) in bannerRes"
+              :key="index"
+              type="button"
+              class="employer-slider-dot"
+              :class="{ 'is-active': activeBannerIndex === index }"
+              :aria-label="`Xem banner ${index + 1}`"
+              :aria-current="activeBannerIndex === index ? 'true' : undefined"
+              @click="setActiveBanner(index)"
+            />
+          </div>
         </div>
-      </UContainer>
+      </div>
     </section>
 
     <!-- Featured Job Offers -->
-    <section data-reveal-jobs class="py-16 relative z-10">
-      <UContainer>
-        <!-- Header -->
-        <div class="mb-6 flex items-start justify-between gap-6">
-          <div class="flex items-center gap-3">
-            <span class="h-6 w-1.5 rounded-full bg-[var(--blue)]" />
-            <h2 class="text-[28px] font-extrabold text-[#1d2433]">
-              Việc làm mới nhất
-            </h2>
-          </div>
+    <section class="section-block latest-jobs-block py-8 relative z-10">
+      <div class="container">
+        <div class="section-head">
+          <h2>Việc làm mới nhất</h2>
         </div>
 
-        <!-- List: max 6 items -->
-        <div class="space-y-4">
-            <div
-              v-for="job in latestJobs"
+        <div class="job-frame">
+          <div class="job-list job-list-latest">
+            <article
+              v-for="(job, index) in latestJobs"
               :key="job.id"
-              class="group relative overflow-hidden rounded-2xl bg-white cursor-pointer px-6 py-5 shadow-sm transition-all duration-300 ease-out hover:shadow-md hover:-translate-y-1 border border-[rgba(29,36,51,0.12)]"
-              @click.stop="viewJob(job)"
+              class="job-row job-row-latest"
+              data-animate
+              :style="{ '--delay': `${getJobRowDelay(index)}s` }"
+              @click="viewJob(job)"
             >
-              <!-- Hover left accent: reveal from center to top/bottom -->
-              <span
-                class="pointer-events-none absolute left-0 top-1/2 -translate-y-1/2 h-[calc(100%-8px)] w-1 rounded-full bg-[var(--blue)] scale-y-0 origin-center transition-transform duration-300 ease-out group-hover:scale-y-100"
-              />
-
-              <!-- Hover action -->
-              <div class="absolute right-4 top-4 opacity-0 translate-y-1 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 ease-out">
-                <UButton
-                  label="Ứng tuyển"
-                  size="sm"
-                  variant="solid"
-                  class="rounded-full !text-[var(--blue)] !bg-[rgba(53,99,255,0.10)] !border !border-[rgba(53,99,255,0.22)] hover:!bg-[rgba(53,99,255,0.16)] hover:!border-[rgba(53,99,255,0.30)]"
-                  @click.stop="viewJob(job)"
-                />
-              </div>
-
-              <div class="flex items-start gap-4">
-                <!-- Logo -->
-                <div
-                  class="h-12 w-12 rounded-xl bg-white flex items-center justify-center overflow-hidden shrink-0"
-                  style="border: 1px solid rgba(29, 36, 51, 0.12)"
-                >
-                  <img
-                    v-if="job.companyLogo"
-                    :src="job.companyLogo"
-                    :alt="job.companyName"
-                    class="h-full w-full object-contain"
-                  />
-                  <span
-                    v-else
-                    class="text-[12px] font-bold text-[rgba(29,36,51,0.7)]"
-                  >
-                    {{ (job.companyName || 'CT').slice(0, 2).toUpperCase() }}
-                  </span>
-                </div>
-
-                <div class="min-w-0 flex-1">
-                  <div class="truncate text-[16px] font-bold text-[#1d2433] group-hover:text-[var(--blue)] transition-colors duration-200">
-                    {{ job.title }}
-                  </div>
-                  <div class="mt-1 truncate text-[14px] text-[var(--blue)]">
-                    {{ job.companyName }}
-                  </div>
-
-                  <!-- Meta row -->
-                  <div class="mt-3 flex flex-wrap items-center gap-x-5 gap-y-2 text-[12px] text-[rgba(29,36,51,0.55)]">
-                    <div v-if="getFullLocationText(job)" class="inline-flex items-center gap-2">
-                      <UIcon name="i-heroicons-map-pin" class="h-4 w-4 text-[rgba(29,36,51,0.4)]" />
-                      <span class="truncate max-w-[160px]">{{ truncateText(getFullLocationText(job), 24) }}</span>
-                    </div>
-
-                    <div class="inline-flex items-center gap-2">
-                      <UIcon name="i-heroicons-currency-dollar" class="h-4 w-4 text-[rgba(29,36,51,0.4)]" />
-                      <span>{{ getSalaryText(job) }}</span>
-                    </div>
-
-                    <div class="inline-flex items-center gap-2">
-                      <UIcon name="i-heroicons-clock" class="h-4 w-4 text-[rgba(29,36,51,0.4)]" />
-                      <span>{{ job.createdAt ? timeAgo(job.createdAt) : '' }}</span>
-                    </div>
-
-                    <div class="inline-flex items-center gap-2">
-                      <UIcon name="i-heroicons-briefcase" class="h-4 w-4 text-[rgba(29,36,51,0.4)]" />
-                      <span>{{ getExperienceText(job) }}</span>
-                    </div>
-
-                    <div class="inline-flex items-center gap-2">
-                      <span class="inline-block h-1.5 w-1.5 rounded-full bg-[rgba(29,36,51,0.25)]" />
-                      <span>{{ getPrimaryCategoryLabel(job.category) }}</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-        </div>
-
-        <div class="mt-4">
-          <button
-            type="button"
-            class="text-[14px] font-medium text-[var(--blue)] hover:text-[var(--blue-dark)] transition-colors inline-flex items-center gap-2"
-            @click="viewAllClick()"
-          >
-            Xem tất cả
-            <UIcon name="i-heroicons-arrow-right" class="h-4 w-4" />
-          </button>
-        </div>
-      </UContainer>
-    </section>
-
-    <!-- Urgent Jobs -->
-    <section data-reveal-jobs class="py-16 relative z-10">
-      <UContainer>
-        <!-- Header -->
-        <div class="mb-6 flex items-start justify-between gap-6">
-          <div class="flex items-center gap-3">
-            <span class="h-6 w-1.5 rounded-full bg-[var(--blue)]" />
-            <h2 class="text-[28px] font-extrabold text-[#1d2433]">
-              Việc làm tuyển gấp
-            </h2>
-          </div>
-        </div>
-
-        <!-- List: max 6 items -->
-        <div class="space-y-4">
-          <div
-            v-for="job in urgentLatestJobs"
-            :key="job.id"
-            class="group relative overflow-hidden rounded-2xl bg-white cursor-pointer px-6 py-5 shadow-sm transition-all duration-300 ease-out hover:shadow-md hover:-translate-y-1 border border-[rgba(29,36,51,0.12)]"
-            @click.stop="viewJob(job)"
-          >
-            <!-- Hover left accent: reveal from center to top/bottom -->
-            <span
-              class="pointer-events-none absolute left-0 top-1/2 -translate-y-1/2 h-[calc(100%-8px)] w-1 rounded-full bg-[var(--blue)] scale-y-0 origin-center transition-transform duration-300 ease-out group-hover:scale-y-100"
-            />
-
-            <!-- Hover action -->
-            <div class="absolute right-4 top-4 opacity-0 translate-y-1 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 ease-out">
-              <UButton
-                label="Ứng tuyển"
-                size="sm"
-                variant="solid"
-                class="rounded-full !text-[var(--blue)] !bg-[rgba(53,99,255,0.10)] !border !border-[rgba(53,99,255,0.22)] hover:!bg-[rgba(53,99,255,0.16)] hover:!border-[rgba(53,99,255,0.30)]"
-                @click.stop="viewJob(job)"
-              />
-            </div>
-
-            <div class="flex items-start gap-4">
-              <!-- Logo -->
               <div
-                class="h-12 w-12 rounded-xl bg-white flex items-center justify-center overflow-hidden shrink-0"
-                style="border: 1px solid rgba(29, 36, 51, 0.12)"
+                class="job-logo"
+                :class="{ 'logo-has-image': !!job.companyLogo }"
               >
                 <img
                   v-if="job.companyLogo"
                   :src="job.companyLogo"
-                  :alt="job.companyName"
-                  class="h-full w-full object-contain"
-                />
-                <span
-                  v-else
-                  class="text-[12px] font-bold text-[rgba(29,36,51,0.7)]"
+                  :alt="`${job.companyName} logo`"
+                  loading="lazy"
                 >
+                <template v-else>
                   {{ (job.companyName || 'CT').slice(0, 2).toUpperCase() }}
-                </span>
+                </template>
               </div>
 
-              <div class="min-w-0 flex-1">
-                <div class="truncate text-[16px] font-bold text-[#1d2433] group-hover:text-[var(--blue)] transition-colors duration-200">
-                  {{ job.title }}
+              <div class="job-row-content">
+                <div class="job-row-head">
+                  <div>
+                    <NuxtLink
+                      :to="`/jobs/${job.id}`"
+                      class="job-row-title-link"
+                      @click.stop
+                    >
+                      <div class="job-row-title">{{ job.title }}</div>
+                    </NuxtLink>
+                    <div class="job-row-company">
+                      <NuxtLink
+                        v-if="job.companyId"
+                        :to="`/companies/${job.companyId}`"
+                        class="jobs-employer-link"
+                        @click.stop
+                      >
+                        {{ job.companyName }}
+                      </NuxtLink>
+                      <span v-else>{{ job.companyName }}</span>
+                    </div>
+                  </div>
+                  <NuxtLink
+                    :to="`/jobs/${job.id}`"
+                    class="apply-chip"
+                    @click.stop
+                  >
+                    Ứng tuyển
+                  </NuxtLink>
                 </div>
-                <div class="mt-1 truncate text-[14px] text-[var(--blue)]">
-                  {{ job.companyName }}
-                </div>
 
-                <!-- Meta row -->
-                <div class="mt-3 flex flex-wrap items-center gap-x-5 gap-y-2 text-[12px] text-[rgba(29,36,51,0.55)]">
-                  <div v-if="getFullLocationText(job)" class="inline-flex items-center gap-2">
-                    <UIcon name="i-heroicons-map-pin" class="h-4 w-4 text-[rgba(29,36,51,0.4)]" />
-                    <span class="truncate max-w-[160px]">{{ truncateText(getFullLocationText(job), 24) }}</span>
-                  </div>
-
-                  <div class="inline-flex items-center gap-2">
-                    <UIcon name="i-heroicons-currency-dollar" class="h-4 w-4 text-[rgba(29,36,51,0.4)]" />
-                    <span>{{ getSalaryText(job) }}</span>
-                  </div>
-
-                  <div class="inline-flex items-center gap-2">
-                    <UIcon name="i-heroicons-clock" class="h-4 w-4 text-[rgba(29,36,51,0.4)]" />
-                    <span>{{ job.createdAt ? timeAgo(job.createdAt) : '' }}</span>
-                  </div>
-
-                  <div class="inline-flex items-center gap-2">
-                    <UIcon name="i-heroicons-briefcase" class="h-4 w-4 text-[rgba(29,36,51,0.4)]" />
-                    <span>{{ getExperienceText(job) }}</span>
-                  </div>
-
-                  <div class="inline-flex items-center gap-2">
-                    <span class="inline-block h-1.5 w-1.5 rounded-full bg-[rgba(29,36,51,0.25)]" />
-                    <span>{{ getPrimaryCategoryLabel(job.category) }}</span>
-                  </div>
+                <div class="job-row-meta">
+                  <span v-if="getFullLocationText(job)">
+                    <span class="meta-ico">📍</span>
+                    {{ truncateText(getFullLocationText(job), 24) }}
+                  </span>
+                  <span>
+                    <span class="meta-ico">₫</span>
+                    {{ formatSalaryRange(job) }}
+                  </span>
+                  <span v-if="job.createdAt">
+                    <span class="meta-ico">🕒</span>
+                    {{ timeAgo(job.createdAt) }}
+                  </span>
+                  <span v-if="getExperienceText(job)">
+                    <span class="meta-ico">⚑</span>
+                    {{ getExperienceText(job) }}
+                  </span>
                 </div>
               </div>
-            </div>
+            </article>
           </div>
         </div>
 
-        <div class="mt-4">
+        <div class="section-footer-cta">
           <button
             type="button"
-            class="text-[14px] font-medium text-[var(--blue)] hover:text-[var(--blue-dark)] transition-colors inline-flex items-center gap-2"
+            class="section-cta-link"
             @click="viewAllClick()"
           >
-            Xem tất cả
-            <UIcon name="i-heroicons-arrow-right" class="h-4 w-4" />
+            <span>Xem tất cả</span>
           </button>
         </div>
-      </UContainer>
+      </div>
+    </section>
+
+    <!-- Urgent Jobs -->
+    <section
+      class="section-block urgent-jobs-block py-8 relative z-10"
+      data-animate
+      style="--delay: 0.08s"
+    >
+      <div class="container">
+        <div class="section-head">
+          <h2>Việc làm tuyển gấp</h2>
+        </div>
+
+        <div class="job-frame job-frame-urgent">
+          <div class="job-list job-list-urgent">
+            <article
+              v-for="(job, index) in urgentLatestJobs"
+              :key="job.id"
+              class="job-row job-row-urgent"
+              data-animate
+              :style="{ '--delay': `${getUrgentJobRowDelay(index)}s` }"
+              @click="viewJob(job)"
+            >
+              <div
+                class="job-logo"
+                :class="{ 'logo-has-image': !!job.companyLogo }"
+              >
+                <img
+                  v-if="job.companyLogo"
+                  :src="job.companyLogo"
+                  :alt="`${job.companyName} logo`"
+                  loading="lazy"
+                >
+                <template v-else>
+                  {{ (job.companyName || 'CT').slice(0, 2).toUpperCase() }}
+                </template>
+              </div>
+
+              <div class="job-row-content">
+                <div class="job-row-head">
+                  <div>
+                    <NuxtLink
+                      :to="`/jobs/${job.id}`"
+                      class="job-row-title-link"
+                      @click.stop
+                    >
+                      <div class="job-row-title">{{ job.title }}</div>
+                    </NuxtLink>
+                    <div class="job-row-company">
+                      <NuxtLink
+                        v-if="job.companyId"
+                        :to="`/companies/${job.companyId}`"
+                        class="jobs-employer-link"
+                        @click.stop
+                      >
+                        {{ job.companyName }}
+                      </NuxtLink>
+                      <span v-else>{{ job.companyName }}</span>
+                    </div>
+                  </div>
+                  <NuxtLink
+                    :to="`/jobs/${job.id}`"
+                    class="apply-chip apply-chip-urgent"
+                    @click.stop
+                  >
+                    Tuyển gấp
+                  </NuxtLink>
+                </div>
+
+                <div class="job-row-meta">
+                  <span v-if="getFullLocationText(job)">
+                    <span class="meta-ico">📍</span>
+                    {{ truncateText(getFullLocationText(job), 24) }}
+                  </span>
+                  <span>
+                    <span class="meta-ico">₫</span>
+                    {{ formatSalaryRange(job) }}
+                  </span>
+                  <span v-if="job.createdAt">
+                    <span class="meta-ico">🕒</span>
+                    {{ timeAgo(job.createdAt) }}
+                  </span>
+                  <span v-if="getExperienceText(job)">
+                    <span class="meta-ico">⚑</span>
+                    {{ getExperienceText(job) }}
+                  </span>
+                </div>
+              </div>
+            </article>
+          </div>
+        </div>
+
+        <div class="section-footer-cta">
+          <button
+            type="button"
+            class="section-cta-link"
+            @click="viewAllClick()"
+          >
+            <span>Xem tất cả</span>
+          </button>
+        </div>
+      </div>
     </section>
 
     <!-- Blogs -->
-    <section data-reveal-jobs class="py-16">
-      <UContainer>
-        <!-- Title + See all -->
-        <div class="mb-8 flex items-center justify-between gap-6">
-          <h2 class="text-[28px] font-extrabold text-[#1d2433]">
-            Blog &amp; Cẩm nang
-          </h2>
-          <button
-            type="button"
-            class="text-[14px] font-medium text-[var(--blue)] hover:text-[var(--blue-dark)] transition-colors inline-flex items-center gap-2"
-            @click="navigateTo('/blog')"
-          >
-            Xem tất cả
-            <UIcon name="i-heroicons-arrow-right" class="h-4 w-4" />
-          </button>
-        </div>
-
-        <!-- List (max 3) -->
-        <div v-if="blogRes.length > 0" class="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <article
-            v-for="item in blogRes.slice(0, 3)"
-            :key="item.id"
-            class="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 ease-out hover:-translate-y-1"
-            style="border: 1px solid rgba(29, 36, 51, 0.12)"
-          >
-            <NuxtLink :to="`/blog/${item.id}`" class="block">
-              <img
-                :src="item.image"
-                :alt="item.title"
-                class="w-full h-[190px] object-cover"
-              />
+    <section
+      id="home-blog"
+      class="py-8"
+      data-animate
+      style="--delay: 0.1s"
+    >
+      <div class="container">
+        <section class="guide-block">
+          <div class="section-head">
+            <h2>Blog &amp; Cẩm nang</h2>
+            <NuxtLink
+              to="/blog"
+              class="section-cta-link section-cta-link-right"
+            >
+              <span>Xem tất cả</span>
+              <span aria-hidden="true">→</span>
             </NuxtLink>
+          </div>
 
-            <div class="p-5">
-              <div class="flex items-center justify-between gap-4 mb-3">
-                <span
-                  class="inline-flex items-center px-3 py-1 rounded-full text-[12px] font-semibold"
-                  :style="getBlogBadgeStyle(item)"
-                >
-                  {{ getBlogBadgeText(item) }}
-                </span>
-                <span class="text-[12px] text-[rgba(29,36,51,0.55)]">
-                  {{ getReadingTimeText(item) }}
-                </span>
-              </div>
-
-              <h3 class="text-[18px] font-extrabold text-[#1d2433] leading-snug line-clamp-2">
-                {{ item.title }}
-              </h3>
-
-              <NuxtLink
-                :to="`/blog/${item.id}`"
-                class="mt-4 inline-flex items-center text-[14px] font-medium text-[var(--blue)] hover:text-[var(--blue-dark)] transition-colors"
+          <div
+            v-if="blogRes.length > 0"
+            class="guide-rail-wrap"
+          >
+            <div
+              class="guide-grid"
+              data-guide-rail
+            >
+              <article
+                v-for="(item, index) in blogRes.slice(0, 5)"
+                :key="item.id"
+                class="guide-card"
               >
-                Đọc bài viết
-              </NuxtLink>
+                <div
+                  class="guide-card-media"
+                  :class="getGuideCardMediaClass(index)"
+                  :style="getGuideCardMediaStyle(item)"
+                />
+                <div class="guide-card-body">
+                  <div class="guide-card-meta">
+                    <span class="guide-card-tag">{{ getBlogBadgeText(item) }}</span>
+                    <span>{{ getReadingTimeText(item) }}</span>
+                  </div>
+                  <h3>{{ item.title }}</h3>
+                  <div class="guide-card-footer">
+                    <NuxtLink :to="`/blog/${item.id}`">
+                      Đọc bài viết
+                    </NuxtLink>
+                  </div>
+                </div>
+              </article>
             </div>
-          </article>
-        </div>
-        <div v-else class="mb-8 text-center text-gray-500">
-          Hiện tại không có blog nào.
-        </div>
-      </UContainer>
+          </div>
+          <div
+            v-else
+            class="py-8 text-center text-[rgba(29,36,51,0.55)]"
+          >
+            Hiện tại không có blog nào.
+          </div>
+        </section>
+      </div>
     </section>
 
     <!-- Footer is rendered by default layout -->
@@ -514,6 +506,7 @@ const {
   locationItems,
   categoryEnumLabel,
   employmentTypesEnumLabel,
+  experienceLevelsEnumLabel,
 } = useJobFilters()
 
 const getCategoryLabel = (category: string) => {
@@ -541,170 +534,161 @@ const getCategoryInitials = (label: string) => {
   return ''
 }
 
-const categoryIconPalette = [
-  { bg: 'rgba(53, 99, 255, 0.10)', text: 'rgba(53, 99, 255, 1)' }, // blue
-  { bg: 'rgba(255, 184, 0, 0.12)', text: 'rgba(207, 127, 0, 1)' }, // amber
-  { bg: 'rgba(0, 200, 155, 0.10)', text: 'rgba(0, 140, 110, 1)' }, // teal
-  { bg: 'rgba(139, 92, 246, 0.10)', text: 'rgba(109, 40, 217, 1)' }, // purple
-  { bg: 'rgba(236, 72, 153, 0.10)', text: 'rgba(190, 24, 93, 1)' }, // pink
-  { bg: 'rgba(59, 130, 246, 0.10)', text: 'rgba(29, 78, 216, 1)' }, // blue alt
-]
-
-const getCategoryIconStyle = (label: string) => {
-  const initials = getCategoryInitials(label)
-  const hash = Array.from(initials).reduce((acc, ch) => acc + ch.charCodeAt(0), 0)
-  const pick = categoryIconPalette[hash % categoryIconPalette.length]
-  return {
-    background: pick.bg,
-    color: pick.text,
-  }
-}
-
 const keyword = ref('')
 
 const location = ref('0')
 
 // Hero parallax + floating cards
 const heroRef = ref<HTMLElement | null>(null)
-const parallax = reactive({ x: 0, y: 0 })
 
-type HeroCard = {
+type HeroChip = {
   text: string
-  top: string
-  left: string
-  speed: number
-  floatDuration: string
-  floatDelay: string
-  depth: string
-  /** 1: cùng hướng con trỏ, -1: ngược hướng con trỏ */
-  mouseSign: 1 | -1
+  positionClass: string
 }
 
-const getHeroCardOuterStyle = (c: HeroCard) => {
-  // Transform tính trực tiếp (tránh calc CSS + tránh transition xung đột với cập nhật mỗi frame)
-  const tx = parallax.x * c.speed * c.mouseSign
-  const ty = parallax.y * c.speed * c.mouseSign
-
-  return {
-    top: c.top,
-    left: c.left,
-    transform: `translate3d(${tx}px, ${ty}px, 0)`,
-  } as Record<string, string>
-}
-
-const getHeroCardInnerStyle = (c: HeroCard) => {
-  return {
-    animationDuration: c.floatDuration,
-    animationDelay: c.floatDelay,
-  } as Record<string, string>
-}
-
-const heroCards: HeroCard[] = [
-  {
-    text: 'Giáo viên Toán',
-    top: '90px',
-    left: '90px',
-    speed: 0.35,
-    floatDuration: '6.8s',
-    floatDelay: '-1.2s',
-    depth: 'd-near',
-    mouseSign: 1,
-  },
-  {
-    text: 'Giáo viên Tiếng Anh',
-    top: '70px',
-    left: '50%',
-    speed: 0.22,
-    floatDuration: '8.6s',
-    floatDelay: '-3.4s',
-    depth: 'd-mid',
-    mouseSign: 1,
-  },
-  {
-    text: 'Giáo viên Mầm non',
-    top: '95px',
-    left: 'calc(100% - 210px)',
-    speed: 0.3,
-    floatDuration: '7.4s',
-    floatDelay: '-2.2s',
-    depth: 'd-near',
-    mouseSign: -1,
-  },
-  {
-    text: 'Giáo viên Tiểu học',
-    top: '500px',
-    left: '70px',
-    speed: 0.18,
-    floatDuration: '9.2s',
-    floatDelay: '-5.2s',
-    depth: 'd-far',
-    mouseSign: -1,
-  },
-  {
-    text: 'Giáo viên IELTS',
-    top: '510px',
-    left: 'calc(100% - 220px)',
-    speed: 0.2,
-    floatDuration: '8.8s',
-    floatDelay: '-6.0s',
-    depth: 'd-far',
-    mouseSign: 1,
-  },
+const heroChips: HeroChip[] = [
+  { text: 'Giáo viên Tiếng Anh', positionClass: 'hero-floating-chip-top' },
+  { text: 'Giáo viên Mầm non', positionClass: 'hero-floating-chip-upper-right' },
+  { text: 'Giáo viên Toán', positionClass: 'hero-floating-chip-upper-left' },
+  { text: 'Giáo viên Tiểu học', positionClass: 'hero-floating-chip-low-left' },
+  { text: 'Giáo viên IELTS', positionClass: 'hero-floating-chip-low-right' },
 ]
 
 let disposeHeroParallax: (() => void) | undefined
 let skipHeroParallaxSetup = false
 
+function setupHeroParallax(hero: HTMLElement) {
+  const layers = Array.from(hero.querySelectorAll<HTMLElement>('[data-parallax-depth]'))
+  const driftingItems = hero.querySelectorAll<HTMLElement>('[data-scroll-drift]')
+  const followChips = Array.from(hero.querySelectorAll<HTMLElement>('[data-hero-chip]'))
+  const PARALLAX_SPEED = 0.76
+  const MOTION_LERP = 0.11
+
+  const layerMotion = layers.map(() => ({ x: 0, y: 0, tx: 0, ty: 0 }))
+  const chipMotion = followChips.map(() => ({ x: 0, y: 0, tx: 0, ty: 0 }))
+
+  const applyLayerMotion = (layer: HTMLElement, x: number, y: number) => {
+    if (layer.hasAttribute('data-parallax-center')) {
+      layer.style.transform = `translate3d(calc(-50% + ${x}px), calc(-50% + ${y}px), 0)`
+    } else {
+      layer.style.transform = `translate3d(${x}px, ${y}px, 0)`
+    }
+  }
+
+  const applyChipMotion = (chip: HTMLElement, x: number, y: number) => {
+    chip.style.setProperty('--chip-follow-x', `${x}px`)
+    chip.style.setProperty('--chip-follow-y', `${y}px`)
+  }
+
+  let rafId = 0
+
+  const tickHeroMotion = () => {
+    layerMotion.forEach((motion, index) => {
+      motion.x += (motion.tx - motion.x) * MOTION_LERP
+      motion.y += (motion.ty - motion.y) * MOTION_LERP
+      applyLayerMotion(layers[index]!, motion.x, motion.y)
+    })
+
+    chipMotion.forEach((motion, index) => {
+      motion.x += (motion.tx - motion.x) * MOTION_LERP
+      motion.y += (motion.ty - motion.y) * MOTION_LERP
+      applyChipMotion(followChips[index]!, motion.x, motion.y)
+    })
+
+    rafId = window.requestAnimationFrame(tickHeroMotion)
+  }
+
+  rafId = window.requestAnimationFrame(tickHeroMotion)
+
+  const resetHeroMotion = () => {
+    layerMotion.forEach((motion) => {
+      motion.tx = 0
+      motion.ty = 0
+    })
+    chipMotion.forEach((motion) => {
+      motion.tx = 0
+      motion.ty = 0
+    })
+  }
+
+  const onPointerMove = (event: PointerEvent) => {
+    const bounds = hero.getBoundingClientRect()
+    const isInsideHero =
+      event.clientX >= bounds.left
+      && event.clientX <= bounds.right
+      && event.clientY >= bounds.top
+      && event.clientY <= bounds.bottom
+
+    if (!isInsideHero) {
+      resetHeroMotion()
+      return
+    }
+
+    const offsetX = event.clientX - bounds.left - bounds.width / 2
+    const offsetY = event.clientY - bounds.top - bounds.height / 2
+    const normalizedX = offsetX / bounds.width
+    const normalizedY = offsetY / bounds.height
+
+    layers.forEach((layer, index) => {
+      const depth = (Number(layer.getAttribute('data-parallax-depth')) || 10) * PARALLAX_SPEED
+      layerMotion[index]!.tx = normalizedX * depth
+      layerMotion[index]!.ty = normalizedY * depth
+    })
+
+    followChips.forEach((chip, index) => {
+      const depth = Math.max(11, (42 - index * 3.6) * PARALLAX_SPEED)
+      const direction = index % 2 === 0 ? 1 : -1
+      chipMotion[index]!.tx = normalizedX * depth * direction
+      chipMotion[index]!.ty = normalizedY * depth
+    })
+  }
+
+  const syncHeroDrift = () => {
+    const rect = hero.getBoundingClientRect()
+    const progress = Math.max(0, -rect.top)
+
+    driftingItems.forEach((item) => {
+      const rate = Number(item.getAttribute('data-scroll-drift')) || 0.04
+      item.style.translate = `0 ${Math.min(progress * rate, 42)}px`
+    })
+  }
+
+  window.addEventListener('pointermove', onPointerMove, { passive: true })
+  window.addEventListener('scroll', syncHeroDrift, { passive: true })
+  syncHeroDrift()
+
+  return () => {
+    window.cancelAnimationFrame(rafId)
+    window.removeEventListener('pointermove', onPointerMove)
+    window.removeEventListener('scroll', syncHeroDrift)
+    resetHeroMotion()
+    layers.forEach((layer) => {
+      layer.style.transform = ''
+    })
+    followChips.forEach((chip) => {
+      chip.style.setProperty('--chip-follow-x', '0px')
+      chip.style.setProperty('--chip-follow-y', '0px')
+    })
+    driftingItems.forEach((item) => {
+      item.style.translate = ''
+    })
+  }
+}
+
 onMounted(() => {
-  // Đợi ref DOM ổn định (Nuxt/transition)
   nextTick(() => {
     if (skipHeroParallaxSetup) return
-    const el = heroRef.value
-    if (!el) return
 
     const reduceMotion =
-      typeof window !== 'undefined' &&
-      window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches
+      typeof window !== 'undefined'
+      && window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches
 
-    const target = { x: 0, y: 0 }
-    let rafId = 0
-    let active = true
+    if (reduceMotion) return
 
-    const onMove = (ev: PointerEvent) => {
-      if (reduceMotion) return
-      const rect = el.getBoundingClientRect()
-      if (rect.width < 1 || rect.height < 1) return
-      const nx = (ev.clientX - rect.left) / rect.width - 0.5
-      const ny = (ev.clientY - rect.top) / rect.height - 0.5
-      // Biên độ lớn hơn + phản hồi nhanh hơn (lerp k bên dưới)
-      target.x = nx * 42
-      target.y = ny * 30
-    }
+    const hero = heroRef.value?.querySelector<HTMLElement>('[data-hero]')
+    if (!hero) return
 
-    const onLeave = () => {
-      target.x = 0
-      target.y = 0
-    }
-
-    const tick = () => {
-      if (!active) return
-      rafId = requestAnimationFrame(tick)
-      if (reduceMotion) return
-      const k = 0.26
-      parallax.x += (target.x - parallax.x) * k
-      parallax.y += (target.y - parallax.y) * k
-    }
-
-    el.addEventListener('pointermove', onMove, { passive: true })
-    el.addEventListener('pointerleave', onLeave, { passive: true })
-    rafId = requestAnimationFrame(tick)
-
-    disposeHeroParallax = () => {
-      active = false
-      el.removeEventListener('pointermove', onMove)
-      el.removeEventListener('pointerleave', onLeave)
-      cancelAnimationFrame(rafId)
-    }
+    disposeHeroParallax = setupHeroParallax(hero)
   })
 })
 
@@ -779,39 +763,97 @@ const authStore = useAuthStore()
 // User dropdown state
 const showUserDropdown = ref(false)
 
-// Scroll reveal (hiện dần khi kéo tới, chạy 1 lần rồi giữ)
-onMounted(() => {
-  const reduce =
-    typeof window !== 'undefined' &&
-    window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches
+const prefersReducedMotion = () =>
+  typeof window !== 'undefined' &&
+  !!window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches
 
-  const els = Array.from(
-    document.querySelectorAll<HTMLElement>('[data-reveal-jobs]'),
-  )
-  if (!els.length) return
+const isInViewport = (el: HTMLElement) => {
+  const rect = el.getBoundingClientRect()
+  return rect.top < window.innerHeight * 0.92 && rect.bottom > 0
+}
 
-  if (reduce) {
-    els.forEach((el) => el.classList.add('sr-reveal', 'is-visible'))
-    return
+let revealIo: IntersectionObserver | null = null
+let animateIo: IntersectionObserver | null = null
+const trackedReveal = new WeakSet<HTMLElement>()
+const trackedAnimate = new WeakSet<HTMLElement>()
+
+const bindHomeRevealAnimations = () => {
+  if (typeof window === 'undefined') return
+
+  const reduce = prefersReducedMotion()
+
+  if (!revealIo && !reduce) {
+    revealIo = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return
+          const el = entry.target as HTMLElement
+          el.classList.add('is-visible')
+          revealIo?.unobserve(el)
+        })
+      },
+      { threshold: 0.12, rootMargin: '0px 0px -8% 0px' },
+    )
   }
 
-  els.forEach((el) => el.classList.add('sr-reveal'))
+  if (!animateIo && !reduce) {
+    animateIo = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return
+          const el = entry.target as HTMLElement
+          el.classList.add('is-visible')
+          animateIo?.unobserve(el)
+        })
+      },
+      { threshold: 0.12, rootMargin: '0px 0px -8% 0px' },
+    )
+  }
 
-  const io = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry) => {
-        if (!entry.isIntersecting) return
-        const el = entry.target as HTMLElement
-        el.classList.add('is-visible')
-        io.unobserve(el) // chỉ chạy 1 lần, rồi để đó
-      })
-    },
-    { threshold: 0.12, rootMargin: '0px 0px -10% 0px' },
-  )
+  document.querySelectorAll<HTMLElement>('[data-reveal-jobs]').forEach((el) => {
+    if (el.classList.contains('is-visible') || trackedReveal.has(el)) return
+    trackedReveal.add(el)
 
-  els.forEach((el) => io.observe(el))
+    if (reduce) {
+      el.classList.add('sr-reveal', 'is-visible')
+      return
+    }
 
-  onUnmounted(() => io.disconnect())
+    el.classList.add('sr-reveal')
+    if (isInViewport(el)) {
+      el.classList.add('is-visible')
+      return
+    }
+    revealIo?.observe(el)
+  })
+
+  document.querySelectorAll<HTMLElement>('[data-animate]:not(.is-visible)').forEach((el) => {
+    if (trackedAnimate.has(el)) return
+    trackedAnimate.add(el)
+
+    if (reduce) {
+      el.classList.add('is-visible')
+      return
+    }
+
+    if (isInViewport(el)) {
+      el.classList.add('is-visible')
+      return
+    }
+    animateIo?.observe(el)
+  })
+}
+
+onMounted(() => {
+  nextTick(() => bindHomeRevealAnimations())
+})
+
+onUnmounted(() => {
+  stopBannerAutoplay()
+  revealIo?.disconnect()
+  animateIo?.disconnect()
+  revealIo = null
+  animateIo = null
 })
 
 // Fill search fields from URL query parameters
@@ -833,15 +875,21 @@ onMounted(() => {
   document.addEventListener('click', handleClickOutside)
 
   // Fetch Api
-  getFeatureJobs()
-  getCategoryJobs()
-  getCompanyBanners()
-  getBlogs()
+  Promise.all([getFeatureJobs(), getCategoryJobs(), getCompanyBanners(), getBlogs()]).finally(
+    () =>
+      nextTick(() => {
+        bindHomeRevealAnimations()
+        updateCategoryRailNav()
+      }),
+  )
+
+  window.addEventListener('resize', updateCategoryRailNav)
 })
 
 // Clean up event listener
 onUnmounted(() => {
   document.removeEventListener('click', handleClickOutside)
+  window.removeEventListener('resize', updateCategoryRailNav)
 })
 
 const searchJobs = () => {
@@ -870,33 +918,106 @@ const viewAllClick = () => {
   })
 }
 
+const getJobRowDelay = (index: number) => {
+  if (index === 0) return 0.2
+  return 0.24
+}
+
+const getUrgentJobRowDelay = (index: number) => 0.24
+
 // Call Api OnMouted
 const featureJobsRes = ref<JobModel[]>([])
 const urgentJobsRes = ref<JobModel[]>([])
 const categoryJobsRes = ref<CategoryJobModel[]>([])
 const bannerRes = ref<CompanyBannerModel[]>([])
+const activeBannerIndex = ref(0)
+const BANNER_AUTOPLAY_MS = 5200
+let bannerAutoplayTimer: ReturnType<typeof setInterval> | null = null
+let bannerAutoplayPaused = false
+
+const getBannerAlt = (item: CompanyBannerModel) => {
+  const title = item.insight?.trim()
+  return title ? `Banner tuyển dụng ${title}` : 'Banner nhà tuyển dụng'
+}
+
+const goToBanner = (index: number) => {
+  if (!bannerRes.value.length) return
+  activeBannerIndex.value = (index + bannerRes.value.length) % bannerRes.value.length
+}
+
+const stopBannerAutoplay = () => {
+  if (bannerAutoplayTimer) {
+    clearInterval(bannerAutoplayTimer)
+    bannerAutoplayTimer = null
+  }
+}
+
+const startBannerAutoplay = () => {
+  stopBannerAutoplay()
+  if (prefersReducedMotion() || bannerRes.value.length <= 1 || bannerAutoplayPaused) return
+  bannerAutoplayTimer = setInterval(() => {
+    goToBanner(activeBannerIndex.value + 1)
+  }, BANNER_AUTOPLAY_MS)
+}
+
+const restartBannerAutoplay = () => {
+  stopBannerAutoplay()
+  startBannerAutoplay()
+}
+
+const setActiveBanner = (index: number) => {
+  goToBanner(index)
+  restartBannerAutoplay()
+}
+
+const pauseBannerAutoplay = () => {
+  bannerAutoplayPaused = true
+  stopBannerAutoplay()
+}
+
+const resumeBannerAutoplay = () => {
+  bannerAutoplayPaused = false
+  startBannerAutoplay()
+}
+
+watch(bannerRes, () => {
+  activeBannerIndex.value = 0
+  nextTick(() => {
+    bindHomeRevealAnimations()
+    restartBannerAutoplay()
+  })
+})
 const blogRes = ref<BlogModel[]>([])
 
-const latestJobs = computed(() => featureJobsRes.value.slice(0, 6))
-const urgentLatestJobs = computed(() => urgentJobsRes.value.slice(0, 6))
+const categoryRailRef = ref<HTMLElement | null>(null)
+const canScrollCategoryPrev = ref(false)
+const canScrollCategoryNext = ref(false)
 
-const getPrimaryCategoryLabel = (categoryStr: string) => {
-  const firstCategory = categoryStr ? categoryStr.split(',')[0].trim() : ''
-  return (
-    (categoryEnumLabel as any)?.[firstCategory as any] ??
-    (firstCategory || categoryStr || '')
-  )
+function updateCategoryRailNav() {
+  const rail = categoryRailRef.value
+  if (!rail) return
+  const epsilon = 4
+  canScrollCategoryPrev.value = rail.scrollLeft > epsilon
+  canScrollCategoryNext.value =
+    rail.scrollLeft + rail.clientWidth < rail.scrollWidth - epsilon
 }
 
-const getSalaryText = (job: JobModel) => {
-  // salaryType = 5 thường là thỏa thuận
-  if (job.salaryType === 5) return 'Thỏa thuận'
-  const min = (job.salaryMin ?? '').toString().trim()
-  const max = (job.salaryMax ?? '').toString().trim()
-  if (!min && !max) return 'Thỏa thuận'
-  if (min && max) return `${min} - ${max} triệu`
-  return `${min || max} triệu`
+function scrollCategoryRail(direction: -1 | 1) {
+  const rail = categoryRailRef.value
+  if (!rail) return
+  const step = Math.max(rail.clientWidth * 0.82, 280)
+  rail.scrollBy({ left: direction * step, behavior: 'smooth' })
 }
+
+const latestJobs = computed(() => featureJobsRes.value.slice(0, 10))
+const urgentLatestJobs = computed(() => urgentJobsRes.value.slice(0, 10))
+
+watch([latestJobs, urgentLatestJobs, blogRes, categoryJobsRes], () => {
+  nextTick(() => {
+    bindHomeRevealAnimations()
+    updateCategoryRailNav()
+  })
+})
 
 const timeAgo = (d: Date) => {
   const date = d instanceof Date ? d : new Date(d)
@@ -910,8 +1031,13 @@ const timeAgo = (d: Date) => {
 }
 
 const getExperienceText = (job: JobModel) => {
-  const exp = (job.experienceLevel ?? '').toString().trim()
-  return exp ? exp : 'Có kinh nghiệm'
+  const v = (job.experienceLevel ?? '').toString().trim()
+  if (!v) return ''
+  return (
+    (experienceLevelsEnumLabel as any)?.[v as any] ??
+    (experienceLevelsEnumLabel as any)?.[Number(v) as any] ??
+    v
+  )
 }
 
 // initialize Api
@@ -1079,7 +1205,23 @@ const getBlogBadgeText = (blog: BlogModel) => {
   if (t.includes('cv')) return 'CV'
   if (t.includes('phỏng vấn') || t.includes('phong van')) return 'Phỏng vấn'
   if (t.includes('kinh nghiệm') || t.includes('kinh nghiem')) return 'Kinh nghiệm'
+  if (t.includes('lương') || t.includes('luong')) return 'Lương'
+  if (t.includes('hồ sơ') || t.includes('ho so')) return 'Hồ sơ'
   return 'Cẩm nang'
+}
+
+const guideCardMediaVariants = ['guide-card-media-blue', 'guide-card-media-dark', 'guide-card-media-light'] as const
+
+const getGuideCardMediaClass = (index: number) => {
+  return guideCardMediaVariants[index % guideCardMediaVariants.length]
+}
+
+const getGuideCardMediaStyle = (blog: BlogModel) => {
+  const image = blog.image?.trim()
+  if (!image) return undefined
+  return {
+    backgroundImage: `linear-gradient(180deg, rgba(255, 255, 255, 0.02) 0%, rgba(255, 255, 255, 0.02) 100%), url("${image}")`,
+  }
 }
 
 const getBlogBadgeStyle = (blog: BlogModel) => {
@@ -1129,20 +1271,11 @@ const handlePostJob = () => {
     return
   }
 
-  // COMPANY (role = 3): Mở dashboard company với view newJob
+  // COMPANY (role = 3): Mở dashboard company — Tổng quan
   if (userRole === USER_ROLES.COMPANY) {
-    openDashboardInNewTab(ROUTE_PAGE.DASHBOARD.COMPANY, { view: 'newJob' })
+    openDashboardInNewTab(ROUTE_PAGE.DASHBOARD.COMPANY, { view: 'dashboard' })
   }
 }
-
-const uiOptions = computed(() => {
-  const len = categoryJobsRes.value.length
-
-  return {
-    item:
-      len < 4 ? ['basis-1/1', 'basis-1/2', 'basis-1/3'][len - 1] : 'basis-1/4',
-  }
-})
 
 const gotoTab = (tab: any) => {
   activeTab.value = tab.name
@@ -1371,331 +1504,6 @@ const userMenuItems = computed(() => {
     filter: none;
     transition: none;
   }
-}
-
-.home-hero {
-  min-height: calc(100vh - var(--app-header-height));
-  display: flex;
-  align-items: center;
-  padding: 84px 0 76px;
-}
-
-.home-hero__bg {
-  position: absolute;
-  inset: 0;
-  background:
-    radial-gradient(900px 420px at 55% 45%, rgba(53, 99, 255, 0.20), transparent 62%),
-    radial-gradient(700px 360px at 35% 60%, rgba(53, 99, 255, 0.10), transparent 65%),
-    linear-gradient(180deg, rgba(245, 247, 251, 0.85), rgba(245, 247, 251, 1));
-}
-
-.home-hero__radial {
-  position: absolute;
-  inset: -120px -120px -120px -120px;
-  background: radial-gradient(900px 460px at 50% 45%, rgba(255, 255, 255, 0.70), transparent 65%);
-  filter: blur(10px);
-  opacity: 0.9;
-  pointer-events: none;
-}
-
-.home-hero__wrap {
-  max-width: 1200px;
-  margin: 0 auto;
-  text-align: center;
-  padding: 0 12px;
-}
-
-.home-hero__trust {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  padding: 12px 18px;
-  border-radius: 18px;
-  background: rgba(255, 255, 255, 0.9);
-  border: 1px solid rgba(29, 36, 51, 0.12);
-  box-shadow: 0 10px 26px rgba(29, 36, 51, 0.08);
-  backdrop-filter: blur(10px);
-  font-size: 14px;
-  color: rgba(29, 36, 51, 0.68);
-}
-
-.home-hero__trust b {
-  color: rgba(29, 36, 51, 0.92);
-}
-
-.home-hero__trustDots {
-  display: inline-flex;
-  align-items: center;
-}
-
-.home-hero__trustDots .d {
-  width: 28px;
-  height: 28px;
-  border-radius: 9999px;
-  display: inline-block;
-  border: 3px solid #fff;
-  box-shadow: 0 6px 14px rgba(29, 36, 51, 0.08);
-}
-
-.home-hero__trustDots .d + .d { margin-left: -12px; }
-.home-hero__trustDots .d1 { background: #9ec5ff; }
-.home-hero__trustDots .d2 { background: #f6c343; }
-.home-hero__trustDots .d3 { background: #72d28a; }
-
-.home-hero__title {
-  margin-top: 26px;
-  font-weight: 900;
-  font-size: clamp(44px, 5.2vw, 80px);
-  line-height: 1.05;
-  letter-spacing: -1.2px;
-  color: rgba(29, 36, 51, 0.96);
-  white-space: nowrap;
-}
-
-.home-hero__titleHi {
-  position: relative;
-  display: inline-block;
-  padding: 0 14px 6px;
-  margin: 0 2px;
-  background: rgba(208, 226, 255, 1);
-  border-radius: 14px;
-  box-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.65) inset,
-    0 8px 18px rgba(29, 36, 51, 0.06);
-}
-
-.home-hero__titleHi::after {
-  content: '';
-  position: absolute;
-  left: 10px;
-  right: 10px;
-  bottom: 4px;
-  height: 3px;
-  border-radius: 9999px;
-  background: rgba(120, 162, 255, 0.75);
-}
-
-.home-hero__subtitle {
-  margin-top: 16px;
-  font-size: 14px;
-  color: rgba(29, 36, 51, 0.55);
-}
-
-.home-hero__search {
-  --search-radius: 20px;
-  margin: 28px auto 0;
-  max-width: 860px;
-  height: 70px;
-  display: grid;
-  grid-template-columns: 1fr 1px 1fr auto;
-  align-items: center;
-  gap: 0;
-  padding: 12px 14px;
-  border-radius: var(--search-radius);
-  background: rgba(255, 255, 255, 0.92);
-  border: 1px solid rgba(53, 99, 255, 0.22);
-  box-shadow:
-    0 18px 48px rgba(29, 36, 51, 0.10),
-    0 1px 0 rgba(255, 255, 255, 0.9) inset;
-  backdrop-filter: blur(12px);
-  transition: box-shadow 180ms ease, transform 180ms ease, border-color 180ms ease;
-}
-
-.home-hero__search:hover {
-  box-shadow:
-    0 34px 78px rgba(29, 36, 51, 0.16),
-    0 1px 0 rgba(255, 255, 255, 0.9) inset;
-}
-
-.home-hero__divider {
-  height: 30px;
-  background: rgba(29, 36, 51, 0.08);
-}
-
-.home-hero__input {
-  height: 44px;
-  border: 0;
-  outline: none;
-  background: transparent;
-  padding: 0 18px;
-  font-size: 14px;
-  font-weight: 500;
-  color: rgba(29, 36, 51, 0.88);
-}
-
-.home-hero__input::placeholder {
-  color: rgba(29, 36, 51, 0.42);
-}
-
-.home-hero__select {
-  padding: 0 10px;
-}
-
-/* Make USelect look like plain input */
-.home-hero__select :deep(button),
-.home-hero__select :deep([role='combobox']) {
-  height: 44px;
-  padding: 0 18px;
-  border: 0 !important;
-  background: transparent !important;
-  box-shadow: none !important;
-  font-size: 14px;
-  font-weight: 500;
-  color: rgba(29, 36, 51, 0.72);
-  justify-content: flex-start;
-}
-
-.home-hero__select :deep(svg),
-.home-hero__select :deep(.icon) {
-  color: rgba(29, 36, 51, 0.35);
-}
-
-.home-hero__searchBtn {
-  height: 46px !important;
-  padding: 0 40px !important;
-  border-radius: 20px !important;
-  background: var(--blue) !important;
-  color: #fff !important;
-  font-weight: 800 !important;
-  font-size: 15px !important;
-  box-shadow:
-    0 12px 26px rgba(53, 99, 255, 0.22),
-    0 1px 0 rgba(255, 255, 255, 0.35) inset !important;
-}
-
-.home-hero__searchBtn:hover {
-  background: var(--blue-dark) !important;
-}
-
-.home-hero__tags {
-  margin-top: 14px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 12px;
-  color: rgba(29, 36, 51, 0.62);
-  font-size: 13px;
-}
-
-.home-hero__tagsLabel {
-  margin-right: 2px;
-  font-weight: 500;
-}
-
-.home-hero__tag {
-  padding: 10px 16px;
-  border-radius: 18px;
-  background: rgba(255, 255, 255, 0.55);
-  border: 1px solid rgba(29, 36, 51, 0.08);
-  color: rgba(29, 36, 51, 0.72);
-  backdrop-filter: blur(10px);
-  transition: background 160ms ease, transform 160ms ease, border-color 160ms ease, color 160ms ease;
-}
-
-.home-hero__tag:hover {
-  transform: translateY(-1px);
-  background: rgba(255, 255, 255, 0.75);
-  border-color: rgba(29, 36, 51, 0.12);
-  color: rgba(29, 36, 51, 0.88);
-}
-
-.home-hero__floatLayer {
-  position: absolute;
-  inset: 0;
-  /* Trên nội dung hero (UContainer z-10) để badge hiển thị; lớp nền vẫn bấm xuyên vì pointer-events: none */
-  z-index: 12;
-  pointer-events: none;
-}
-
-/* Lớp ngoài: transform do inline style từ parallax (không dùng transition ở đây – tránh tắt cập nhật theo chuột) */
-.home-hero__floatCardOuter {
-  position: absolute;
-  will-change: transform;
-  pointer-events: auto;
-  z-index: 0;
-}
-
-.home-hero__floatCardOuter:hover {
-  z-index: 3;
-}
-
-.home-hero__floatCard {
-  padding: 10px 14px;
-  border-radius: 9999px;
-  background: rgba(255, 255, 255, 0.72);
-  border: 1px solid rgba(29, 36, 51, 0.12);
-  box-shadow: 0 10px 30px rgba(29, 36, 51, 0.08);
-  backdrop-filter: blur(10px);
-  font-size: 12px;
-  color: rgba(29, 36, 51, 0.62);
-  white-space: nowrap;
-  transform-origin: 50% 100%;
-  animation-name: heroFloat;
-  animation-timing-function: ease-in-out;
-  animation-iteration-count: infinite;
-  /* ease-out mượt, tăng dần ở cuối – khớp hover / rời hover */
-  --float-ease: cubic-bezier(0.22, 0.8, 0.28, 1);
-  transition:
-    transform 0.55s var(--float-ease),
-    box-shadow 0.55s var(--float-ease),
-    filter 0.45s ease,
-    opacity 0.45s ease,
-    border-color 0.45s ease,
-    color 0.45s ease;
-}
-
-.home-hero__floatCard.d-near {
-  opacity: 0.95;
-  filter: blur(0px);
-}
-
-.home-hero__floatCard.d-mid {
-  opacity: 0.75;
-  filter: blur(0.5px);
-}
-
-.home-hero__floatCard.d-far {
-  opacity: 0.55;
-  filter: blur(1.1px);
-}
-
-/* Hover: tạm dừng float, nâng rất nhẹ – transition ở .home-hero__floatCard (mượt, bớt “nảy”) */
-.home-hero__floatCardOuter:hover .home-hero__floatCard {
-  animation-play-state: paused;
-  transform: translate3d(0, -2px, 0) scale(1.012);
-  box-shadow:
-    0 12px 28px rgba(29, 36, 51, 0.09),
-    0 4px 12px rgba(53, 99, 255, 0.1);
-  filter: blur(0) !important;
-  opacity: 1 !important;
-  border-color: rgba(53, 99, 255, 0.2);
-  color: rgba(29, 36, 51, 0.78);
-}
-
-@keyframes heroFloat {
-  0%,
-  100% {
-    transform: translate3d(0, -6px, 0);
-  }
-  50% {
-    transform: translate3d(0, 6px, 0);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .home-hero__floatCardOuter:hover .home-hero__floatCard {
-    animation: none;
-    transform: translate3d(0, -1px, 0) scale(1.01);
-  }
-}
-
-@media (max-width: 768px) {
-  .home-hero__title { font-size: 44px; white-space: normal; }
-  .home-hero__search { --search-radius: 16px; grid-template-columns: 1fr; height: auto; border-radius: var(--search-radius); padding: 10px; row-gap: 10px; }
-  .home-hero__divider { display: none; }
-  .home-hero__searchBtn { width: 100%; }
-  .home-hero__floatCardOuter { display: none; }
 }
 </style>
 

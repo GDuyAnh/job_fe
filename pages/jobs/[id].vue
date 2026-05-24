@@ -1,783 +1,119 @@
 <template>
-  <div class="min-h-screen bg-gray-50">
-    <!-- Header -->
-    <div class="bg-white shadow-sm border-b border-gray-200">
-      <UContainer>
-        <div class="py-4">
-          <div class="flex items-center gap-4">
-            <UButton
-              icon="i-heroicons-arrow-left"
-              variant="ghost"
-              color="neutral"
-              class="flex-shrink-0"
-              @click="goBack"
-            />
-            <h1 class="text-xl font-semibold text-gray-900">
-              {{ $t('job.detail.title') }}
-            </h1>
-          </div>
-        </div>
-      </UContainer>
+  <main class="job-detail-page">
+    <div v-if="loading" class="job-single-content job-detail-loading">
+      <div class="container job-detail-state">
+        <USkeleton class="h-32 w-full mb-4" />
+        <USkeleton class="h-64 w-full" />
+      </div>
     </div>
 
-    <UContainer>
-      <div class="py-8">
-        <!-- Loading -->
-        <div v-if="loading" class="space-y-6">
-          <USkeleton class="h-8 w-3/4" />
-          <USkeleton class="h-4 w-1/2" />
-          <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div class="lg:col-span-2 space-y-4">
-              <USkeleton class="h-32 w-full" />
-              <USkeleton class="h-24 w-full" />
-              <USkeleton class="h-48 w-full" />
-            </div>
-            <div class="space-y-4">
-              <USkeleton class="h-48 w-full" />
-              <USkeleton class="h-32 w-full" />
-            </div>
-          </div>
-        </div>
+    <DetailJobDetailBody
+      v-else-if="job"
+      :job="job"
+      show-similar-jobs
+      :similar-jobs="similarJobs"
+      :has-applied="hasApplied"
+      @apply="openApplyDrawer"
+      @view-similar="viewSimilarJob"
+    />
 
-        <!-- Job detail -->
-        <div v-else-if="job" class="space-y-8">
-          <div class="relative">
-            <!-- Banner Section -->
-            <div
-              class="w-full h-72 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl overflow-hidden"
-            >
-              <img
-                v-if="job.companyBannerImage"
-                :src="job.companyBannerImage"
-                :alt="job.companyName"
-                class="w-full h-full object-cover"
-              />
-              <div
-                v-else
-                class="w-full h-full flex items-center justify-center"
-              >
-                <UIcon
-                  name="i-heroicons-building-office"
-                  class="w-20 h-20 text-white opacity-50"
-                />
-              </div>
-            </div>
-
-            <!-- Job Info Section Overlay -->
-            <div
-              class="absolute -bottom-18 left-6 right-6 bg-white rounded-2xl shadow-lg border-t border-gray-200 py-4 px-6"
-            >
-              <div class="flex items-center gap-4">
-                <!-- Company Logo -->
-                <div class="flex-shrink-0">
-                  <div
-                    class="w-12 h-12 rounded-lg shadow-md overflow-hidden bg-white border border-gray-200"
-                  >
-                    <img
-                      v-if="job.companyLogo"
-                      :src="job.companyLogo"
-                      :alt="job.companyName"
-                      class="w-full h-full object-cover"
-                    />
-                    <div
-                      v-else
-                      class="w-full h-full flex items-center justify-center"
-                    >
-                      <UIcon
-                        name="i-heroicons-building-office"
-                        class="w-4 h-4 text-gray-400"
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Job Details -->
-                <div class="flex-1">
-                  <h1 class="text-xl font-bold text-gray-900 mb-1">
-                    {{ job.title }}
-                  </h1>
-                  <!-- Company and Location -->
-                  <div
-                    class="flex items-center gap-2 text-sm text-gray-600 mb-1"
-                  >
-                    <span
-                      class="font-medium cursor-pointer"
-                      @click="viewCompany()"
-                      >{{ job.companyName }}</span
-                    >
-                    &nbsp;
-                    <UTooltip
-                      v-if="fullLocationText"
-                      :text="fullLocationText"
-                      :popper="{ placement: 'top' }"
-                    >
-                      <span class="cursor-help">{{ truncateText(fullLocationText, 30) }}</span>
-                    </UTooltip>
-                  </div>
-                  <!-- Category, Created Date and Deadline -->
-                  <div class="flex items-center gap-3 text-xs text-gray-500">
-                    <span>{{
-                      (() => {
-                        // Get first category from comma-separated string
-                        const firstCategory = job.category ? job.category.split(',')[0].trim() : ''
-                        return categoryEnumLabel?.[firstCategory as unknown as number] ?? (firstCategory || job.category)
-                      })()
-                    }}</span>
-                    &nbsp;
-                    <span>{{
-                      job.createdAt
-                        ? `${$t('job.detail.postedDate')}: ${formatDate(new Date(job.createdAt))}`
-                        : $t('common.nanValue')
-                    }}</span>
-                    &nbsp;
-                    <span v-if="job.deadline">{{
-                      job.deadline
-                        ? `${$t('job.detail.deadline')}: ${formatDate(new Date(job.deadline))}`
-                        : $t('common.nanValue')
-                    }}</span>
-                  </div>
-                </div>
-
-                <!-- Right Side Actions -->
-                <div class="flex items-center gap-2">
-                  <!-- Apply Button -->
-                  <UModal
-                    v-if="!hasApplied"
-                    :title="$t('job.application.title')"
-                    :ui="{ content: 'w-full sm:max-w-4xl' }"
-                  >
-                    <UButton
-                      color="primary"
-                      variant="solid"
-                      size="sm"
-                      class="min-w-[80px] ml-1"
-                    >
-                      {{ $t('job.detail.applyNow') }}
-                    </UButton>
-
-                    <template #body>
-                      <JobApplicationModal
-                        v-model="showApplicationModal"
-                        :job-id="job?.id"
-                        :user-info="userInfo"
-                        @submit="handleApplicationSubmit"
-                      />
-                    </template>
-                  </UModal>
-
-                  <!-- Applied Successfully Button -->
-                  <UButton
-                    v-else
-                    color="success"
-                    variant="solid"
-                    size="sm"
-                    class="min-w-[80px] ml-1 cursor-default"
-                    disabled
-                  >
-                    {{ $t('job.applicationSuccess') }}
-                  </UButton>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-24">
-            <!-- Left column -->
-            <div class="lg:col-span-2 space-y-6">
-              <UCard>
-                <h2 class="text-xl font-semibold mb-4">
-                  {{ $t('job.detail.description') }}
-                </h2>
-                <div class="prose prose-gray max-w-none">
-                  <div
-                    v-if="job.detailDescription"
-                    class="rich-text-output"
-                    v-html="job.detailDescription"
-                  />
-                  <div
-                    v-else-if="job.description"
-                    class="rich-text-output"
-                    v-html="job.description"
-                  />
-                </div>
-              </UCard>
-            </div>
-
-            <!-- Sidebar -->
-            <div class="space-y-6">
-              <!-- Job Overview + Benefits -->
-              <UCard class="bg-[#f0f7ff] rounded-2xl shadow p-6">
-                <h3 class="text-lg font-semibold text-gray-800 mb-5">
-                  {{ $t('job.detail.jobOverview') }}
-                </h3>
-                <div class="space-y-4">
-                  <div class="flex justify-between text-sm">
-                    <span class="text-gray-600">{{
-                      $t('job.detail.postedDate')
-                    }}</span>
-                    <span class="font-medium text-gray-900">{{
-                      job.createdAt
-                        ? formatDate(new Date(job.createdAt))
-                        : $t('common.nanValue')
-                    }}</span>
-                  </div>
-                  <div class="flex justify-between text-sm">
-                    <span class="text-gray-600">{{
-                      $t('job.detail.experience')
-                    }}</span>
-                    <span class="font-medium text-gray-900">{{
-                      experienceLevelsEnumLabel?.[
-                        job.experienceLevel as unknown as number
-                      ] ?? job.experienceLevel
-                    }}</span>
-                  </div>
-                  <div class="flex justify-between text-sm">
-                    <span class="text-gray-600">{{
-                      $t('job.detail.employmentType')
-                    }}</span>
-                    <span class="font-medium text-gray-900">{{
-                      employmentTypesEnumLabel?.[
-                        job.typeOfEmployment as unknown as number
-                      ] ?? job.typeOfEmployment
-                    }}</span>
-                  </div>
-                  <div class="flex justify-between text-sm">
-                    <span class="text-gray-600">{{
-                      $t('job.detail.category')
-                    }}</span>
-                    <span class="font-medium text-gray-900">
-                      {{
-                        (() => {
-                          // Get first category from comma-separated string
-                          const firstCategory = job.category ? job.category.split(',')[0].trim() : ''
-                          return categoryEnumLabel?.[firstCategory as unknown as number] ?? (firstCategory || job.category)
-                        })()
-                      }}
-                    </span>
-                  </div>
-                  <div class="flex justify-between text-sm">
-                    <span class="text-gray-600">{{
-                      $t('job.detail.location')
-                    }}</span>
-                    <UTooltip
-                      v-if="fullLocationText"
-                      :text="fullLocationText"
-                      :popper="{ placement: 'top' }"
-                    >
-                      <span class="font-medium text-gray-900 cursor-help">{{ truncateText(fullLocationText, 40) }}</span>
-                    </UTooltip>
-                    <span v-else class="font-medium text-gray-900">{{ $t('common.nanValue') }}</span>
-                  </div>
-                  <div v-if="job.deadline" class="flex justify-between text-sm">
-                    <span class="text-gray-600">{{
-                      $t('job.detail.deadline')
-                    }}</span>
-                    <span class="font-medium text-gray-900">
-                      {{
-                        job.deadline
-                          ? formatDate(new Date(job.deadline))
-                          : $t('common.nanValue')
-                      }}
-                    </span>
-                  </div>
-                  <div v-if="job.jobAddress" class="flex justify-between text-sm">
-                    <span class="text-gray-600">{{
-                      $t('job.uploadJob.addressJobLabel')
-                    }}</span>
-                    <div
-                      class="font-medium text-gray-900 text-right rich-text-output max-w-[60%]"
-                      v-html="job.jobAddress"
-                    ></div>
-                  </div>
-                </div>
-
-                <!-- Benefits -->
-                <div
-                  v-if="job.benefits && processedBenefits.length > 0"
-                  class="mt-6"
-                >
-                  <h4 class="text-md font-semibold mb-2">
-                    {{ $t('job.detail.benefits') }}
-                  </h4>
-                  <ul class="space-y-1 text-sm">
-                    <li
-                      v-for="benefit in processedBenefits"
-                      :key="benefit"
-                      class="flex items-start gap-2"
-                    >
-                      <UIcon
-                        name="i-heroicons-check-circle"
-                        class="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0"
-                      />
-                      <span>{{ benefit }}</span>
-                    </li>
-                  </ul>
-                </div>
-
-                <!-- Salary -->
-                <div v-if="job.salaryMin" class="mt-6">
-                  <h4 class="text-md font-semibold mb-2">
-                    {{ $t('job.detail.salary') }}
-                  </h4>
-                  <p class="text-sm text-gray-700">
-                    {{ formatNumber(job.salaryMin) }}
-                  </p>
-                </div>
-              </UCard>
-
-              <!-- About Company -->
-              <UCard class="bg-[#f0f7ff] rounded-2xl shadow p-6">
-                <h3 class="text-lg font-semibold text-gray-800 mb-5">
-                  {{ $t('job.detail.aboutCompany') }}
-                </h3>
-                <div class="flex items-center gap-3 mb-3">
-                  <div
-                    class="w-12 h-12 bg-white rounded-lg flex items-center justify-center shadow-sm"
-                  >
-                    <img
-                      v-if="job.companyLogo"
-                      :src="job.companyLogo"
-                      :alt="job.companyName"
-                      class="w-10 h-10 object-cover rounded"
-                    />
-                    <UIcon
-                      v-else
-                      name="i-heroicons-building-office"
-                      class="w-6 h-6 text-gray-400"
-                    />
-                  </div>
-                  <div>
-                    <h4 class="font-semibold text-gray-900">
-                      {{ job.companyName }}
-                    </h4>
-                    <UTooltip
-                      v-if="fullLocationText"
-                      :text="fullLocationText"
-                      :popper="{ placement: 'top' }"
-                    >
-                      <p class="text-sm text-gray-600 cursor-help">{{ truncateText(fullLocationText, 30) }}</p>
-                    </UTooltip>
-                    <p v-else class="text-sm text-gray-600">{{ $t('common.nanValue') }}</p>
-                  </div>
-                </div>
-                <UButton
-                  variant="outline"
-                  color="primary"
-                  class="w-full mb-4"
-                  @click="viewCompany"
-                >
-                  {{ $t('job.detail.viewCompany') }}
-                </UButton>
-                <div class="space-y-2 text-sm">
-                  <div v-if="job.organizationType" class="flex justify-between">
-                    <span class="text-gray-600">{{
-                      $t('company.industry')
-                    }}</span>
-                    <span class="font-medium">{{
-                      organizationTypesLabel?.[
-                        job.organizationType as unknown as number
-                      ] ?? job.organizationType
-                    }}</span>
-                  </div>
-                  <div v-if="job.foundedYear" class="flex justify-between">
-                    <span class="text-gray-600">{{
-                      $t('company.founded')
-                    }}</span>
-                    <span class="font-medium">{{ job.foundedYear }}</span>
-                  </div>
-                  <div v-if="job.address" class="flex justify-between">
-                    <span class="text-gray-600">{{
-                      $t('company.address')
-                    }}</span>
-                    <div
-                      class="font-medium text-right rich-text-output"
-                      v-html="job.address"
-                    ></div>
-                  </div>
-                  <div v-if="job.website" class="flex justify-between">
-                    <span class="text-gray-600">{{
-                      $t('company.website')
-                    }}</span>
-                    <a
-                      :href="job.website"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      class="text-blue-600 hover:underline truncate ml-2"
-                    >
-                      {{ job.website }}
-                    </a>
-                  </div>
-                </div>
-
-                <!-- Social Media Links -->
-                <div
-                  v-if="hasSocialMediaLinks"
-                  class="mt-4 pt-4 border-t border-gray-200"
-                >
-                  <h4 class="text-sm font-semibold text-gray-800 mb-3">
-                    {{ $t('company.socialMedia') }}
-                  </h4>
-                  <div class="flex flex-wrap gap-2">
-                    <a
-                      v-if="job.facebookLink"
-                      :href="job.facebookLink"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      class="inline-flex items-center gap-1 px-3 py-1 bg-blue-600 text-white text-xs rounded-full hover:bg-blue-700 transition-colors"
-                    >
-                      <UIcon name="i-simple-icons-facebook" class="w-3 h-3" />
-                      <!-- {{ $t('company.platforms.facebook') }} -->
-                    </a>
-                    <a
-                      v-if="job.twitterLink"
-                      :href="job.twitterLink"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      class="inline-flex items-center gap-1 px-3 py-1 bg-sky-500 text-white text-xs rounded-full hover:bg-sky-600 transition-colors"
-                    >
-                      <UIcon name="i-simple-icons-twitter" class="w-3 h-3" />
-                      <!-- {{ $t('company.platforms.twitter') }} -->
-                    </a>
-                    <a
-                      v-if="job.linkedInLink"
-                      :href="job.linkedInLink"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      class="inline-flex items-center gap-1 px-3 py-1 bg-blue-700 text-white text-xs rounded-full hover:bg-blue-800 transition-colors"
-                    >
-                      <UIcon name="i-simple-icons-linkedin" class="w-3 h-3" />
-                      <!-- {{ $t('company.platforms.linkedin') }} -->
-                    </a>
-                    <a
-                      v-if="job.instagramLink"
-                      :href="job.instagramLink"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      class="inline-flex items-center gap-1 px-3 py-1 bg-pink-600 text-white text-xs rounded-full hover:bg-pink-700 transition-colors"
-                    >
-                      <UIcon name="i-simple-icons-instagram" class="w-3 h-3" />
-                      <!-- {{ $t('company.platforms.instagram') }} -->
-                    </a>
-                  </div>
-                </div>
-              </UCard>
-            </div>
-          </div>
-        </div>
-
-        <!-- Error -->
-        <UCard v-else class="text-center py-12">
-          <UIcon
-            name="i-heroicons-exclamation-triangle"
-            class="w-16 h-16 text-red-400 mx-auto mb-4"
-          />
-          <h3 class="text-lg font-medium mb-2">
-            {{ $t('job.detail.notFound') }}
-          </h3>
-          <p class="text-gray-600 mb-6">
-            {{ $t('job.detail.notFoundDescription') }}
-          </p>
-          <UButton variant="outline" color="primary" @click="goBack">
-            {{ $t('job.detail.goBack') }}
-          </UButton>
-        </UCard>
+    <div v-else class="job-single-content">
+      <div class="container job-detail-state">
+        <UIcon name="i-heroicons-exclamation-triangle" class="w-16 h-16 text-red-400 mx-auto" />
+        <h3>{{ $t('job.detail.notFound') }}</h3>
+        <p>{{ $t('job.detail.notFoundDescription') }}</p>
+        <button type="button" class="primary-btn" @click="goBack">
+          {{ $t('job.detail.goBack') }}
+        </button>
       </div>
-    </UContainer>
-  </div>
+    </div>
+
+    <JobsJobApplicationDrawer
+      v-model:open="applyDrawerOpen"
+      :job="applyingJob"
+      @success="onApplySuccess"
+    />
+  </main>
 </template>
 
 <script setup lang="ts">
 import type { JobModel } from '~/models/job'
 import { JobMapper } from '~/mapper/job'
-import { formatDate, formatNumber } from '~/utils/helper'
-import { processEnumArray } from '~/utils/enum-helper'
-import JobApplicationModal from '~/components/JobApplicationModal.vue'
 
-const {
-  categoryEnumLabel,
-  experienceLevelsEnumLabel,
-  employmentTypesEnumLabel,
-  locationEnumLabel,
-  jobBenefits,
-  organizationTypesLabel,
-} = useJobFilters()
 const route = useRoute()
 const router = useRouter()
 const { $api } = useNuxtApp()
 
 const loading = ref(false)
 const job = ref<JobModel | null>(null)
+const hasApplied = ref(false)
+const similarJobs = ref<JobModel[]>([])
+const applyDrawerOpen = ref(false)
+const applyingJob = ref<JobModel | null>(null)
 
-// Get auth store for user info
-const authStore = useAuthStore()
-
-// Debug auth store immediately
-console.log('Auth store debug:', {
-  user: authStore.user,
-  isLoggedIn: authStore.isLoggedIn,
-  token: authStore.token,
+useHead({
+  title: computed(() => job.value?.title?.trim() || 'Chi tiết công việc'),
 })
-
-// Computed property for user info
-const userInfo = computed(() => {
-  console.log('userInfo computed - authStore.user:', authStore.user)
-  console.log('userInfo computed - authStore.isLoggedIn:', authStore.isLoggedIn)
-
-  if (authStore.isLoggedIn && authStore.user) {
-    const result = {
-      fullName: authStore.user.fullName || '',
-      email: authStore.user.email || '',
-      phone: authStore.user.phoneNumber || '',
-      cvUrl: authStore.user.cvUrl || null,
-      coverLetterUrl: authStore.user.coverLetterUrl || null,
-      coverLetterText: authStore.user.coverLetterText || null,
-    }
-
-    console.log('userInfo computed result:', result)
-
-    return result
-  }
-
-  console.log('userInfo computed - returning null')
-
-  return null
-})
-
-// Debug watcher
-watch(
-  () => authStore.user,
-  (newUser) => {
-    console.log('authStore.user changed:', newUser)
-  },
-  { immediate: true },
-)
-
-// Debug watcher for isLoggedIn
-watch(
-  () => authStore.isLoggedIn,
-  (isLoggedIn) => {
-    console.log('authStore.isLoggedIn changed:', isLoggedIn)
-  },
-  { immediate: true },
-)
-
-// Process benefits string (comma-separated) using the utility
-const processBenefits = (benefits: string | null): string[] => {
-  if (!benefits) return []
-  // Split comma-separated string into array
-  const benefitsArray = benefits.split(',').map(b => b.trim()).filter(b => b)
-
-  return processEnumArray(jobBenefits, benefitsArray)
-}
 
 const goBack = () => router.back()
 
+const viewSimilarJob = (j: JobModel) => {
+  router.push(`/jobs/${j.id}`)
+}
+
+const openApplyDrawer = (j: JobModel) => {
+  applyingJob.value = j
+  applyDrawerOpen.value = true
+}
+
+const onApplySuccess = (jobId: number) => {
+  if (Number(jobId) === Number(job.value?.id)) {
+    hasApplied.value = true
+  }
+}
+
+const loadSimilarJobs = async () => {
+  if (!job.value) return
+
+  try {
+    const params: Record<string, string> = {}
+    const category = String(job.value.category || '').split(',')[0]?.trim()
+    const location = String(job.value.location || '').split(',')[0]?.trim()
+    if (category) params.category = category
+    if (location && location !== '0') params.location = location
+
+    const res = await $api.job.searchJob(params)
+    if (Array.isArray(res)) {
+      similarJobs.value = res
+        .filter((x: { id?: number }) => Number(x?.id) !== Number(job.value?.id))
+        .slice(0, 3)
+        .map((x) => JobMapper.toModel(x))
+    } else {
+      similarJobs.value = []
+    }
+  } catch {
+    similarJobs.value = []
+  }
+}
+
 const loadJobDetail = async () => {
   const jobId = route.params.id as string
-
   if (!jobId) return
+
   loading.value = true
   try {
-    const response = await $api.job.getJobDetail(parseInt(jobId))
-
-    if (response) job.value = JobMapper.toModel(response)
-  } catch (error: any) {
-    useNotify({ message: error.message })
+    const response = await $api.job.getJobDetail(parseInt(jobId, 10))
+    if (response) {
+      job.value = JobMapper.toModel(response)
+      await loadSimilarJobs()
+    }
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Không tải được tin tuyển dụng'
+    useNotify({ message, type: 'error' })
+    job.value = null
   } finally {
     loading.value = false
   }
-}
-
-const showApplicationModal = ref(false)
-
-const hasApplied = ref(false)
-
-const handleApplicationSubmit = async (data: any) => {
-  console.log('Application submitted:', data)
-
-  try {
-    // Upload CV to Cloudflare R2 if new file uploaded, otherwise use existing CV URL from profile
-    let cvUrl: string | undefined
-
-    if (data.cvFile) {
-      // User uploaded a new CV file - upload to R2
-      // If user had old CV, it will be deleted automatically
-      const { uploadCv } = useCvUpload()
-      const oldCvUrl = data.cvUrl || undefined
-      const result = await uploadCv(data.cvFile, oldCvUrl)
-      
-      if (!result) {
-        throw new Error('Không thể tải lên CV')
-      }
-      
-      cvUrl = result.url
-      
-      // If user is logged in, save the filename to their profile
-      if (authStore.isLoggedIn && authStore.user) {
-        await $api.users.updateProfile({
-          username: authStore.user.username,
-          fullName: authStore.user.fullName,
-          cvUrl: result.url,
-          cvFileName: result.originalName,
-        })
-      }
-    } else if (data.cvUrl) {
-      // Use existing CV URL from profile
-      cvUrl = data.cvUrl
-    }
-
-    // Upload Cover Letter to Cloudflare R2 if new file uploaded, otherwise use existing URL from profile
-    let coverLetterUrl: string | undefined
-
-    if (data.coverLetterFile) {
-      // User uploaded a new cover letter file - upload to R2
-      // If user had old cover letter, it will be deleted automatically
-      const { uploadCoverLetter } = useCvUpload()
-      const oldCoverLetterUrl = data.coverLetterUrl || undefined
-      const result = await uploadCoverLetter(
-        data.coverLetterFile,
-        oldCoverLetterUrl,
-      )
-      
-      if (!result) {
-        throw new Error('Không thể tải lên thư ứng tuyển')
-      }
-      
-      coverLetterUrl = result.url
-      
-      // If user is logged in, save the filename to their profile
-      if (authStore.isLoggedIn && authStore.user) {
-        await $api.users.updateProfile({
-          username: authStore.user.username,
-          fullName: authStore.user.fullName,
-          coverLetterUrl: result.url,
-          coverLetterFileName: result.originalName,
-        })
-      }
-    } else if (data.coverLetterUrl) {
-      // Use existing cover letter URL from profile
-      coverLetterUrl = data.coverLetterUrl
-    }
-
-    // Prepare application data
-    const applicationData: any = {
-      jobId: job.value?.id as number,
-      fullName: data.fullName,
-      phone: data.phone,
-      email: data.email,
-      cvUrl,
-      coverLetter: data.coverLetter || undefined,
-      coverLetterUrl,
-    }
-
-    // TH 3: User đã đăng nhập - add userId
-    if (authStore.isLoggedIn && authStore.user) {
-      applicationData.userId = authStore.user.id
-    }
-
-    console.log('Submitting application with data:', applicationData)
-
-    // Submit application to backend
-    const response = await $api.job.submitApplication(applicationData)
-
-    console.log('Application response:', response)
-
-    // TH 1: User chưa đăng ký email - isNewUser = true
-    if (response.data.isNewUser) {
-      // Auto login using auth store (same as normal login flow)
-      await authStore.autoLogin(data.email)
-
-      useNotify({
-        message: 'Đơn ứng tuyển đã được gửi thành công! Đang chuyển hướng...',
-        type: 'success',
-      })
-
-      // Wait a bit for cookie to be set, then redirect
-      await new Promise(resolve => setTimeout(resolve, 500))
-      
-      // Redirect to dashboard applications
-      await navigateTo('/users/dashboard')
-    }
-    // TH 2: User đã đăng ký nhưng chưa đăng nhập - isNewUser = false, not logged in
-    else if (!authStore.isLoggedIn) {
-      showApplicationModal.value = false
-      
-      useNotify({
-        message: 'Vui lòng đăng nhập để xem thông tin chi tiết việc làm ứng tuyển',
-        type: 'success',
-      })
-    }
-    // TH 3: User đã đăng nhập - Update button state
-    else {
-      hasApplied.value = true
-      showApplicationModal.value = false
-      
-      // Refresh user data to get updated CV and Cover Letter
-      await authStore.getMe()
-      
-      useNotify({
-        message: 'Đơn ứng tuyển đã được gửi thành công!',
-        type: 'success',
-      })
-    }
-  } catch (error: any) {
-    console.error('Error submitting application:', error)
-    useNotify({
-      message: error.message || 'Có lỗi xảy ra khi gửi đơn ứng tuyển. Vui lòng thử lại.',
-      type: 'error',
-    })
-  }
-}
-
-const viewCompany = () => {
-  window.open(`/companies/${job.value?.companyId}`, '_blank')
-}
-
-// Computed property to check if company has any social media links
-const hasSocialMediaLinks = computed(() => {
-  if (!job.value) return false
-
-  return !!(
-    job.value.facebookLink ||
-    job.value.twitterLink ||
-    job.value.linkedInLink ||
-    job.value.instagramLink
-  )
-})
-
-// Computed property for processed benefits
-const processedBenefits = computed(() => {
-  if (!job.value?.benefits) return []
-
-  return processBenefits(job.value.benefits)
-})
-
-// Function to get location label
-const getLocationLabel = (locationValue: string): string => {
-  if (locationValue === '0') return 'Toàn Quốc'
-
-  return (locationEnumLabel as any)?.[locationValue] ?? (locationEnumLabel as any)?.[Number(locationValue)] ?? locationValue
-}
-
-// Computed property for all location labels
-const allLocationLabels = computed(() => {
-  if (!job.value?.location) return []
-  const locationStr = String(job.value.location)
-  const locations = locationStr.split(',').map(l => l.trim()).filter(l => l)
-
-  return locations.map(loc => getLocationLabel(loc))
-})
-
-// Computed property for full location text
-const fullLocationText = computed(() => {
-  return allLocationLabels.value.join(', ')
-})
-
-// Function to truncate text
-const truncateText = (text: string, maxLength: number = 50): string => {
-  if (text.length <= maxLength) return text
-
-  return text.substring(0, maxLength).trim() + '...'
 }
 
 onMounted(loadJobDetail)

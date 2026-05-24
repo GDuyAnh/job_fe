@@ -31,7 +31,7 @@ export class JobMapper {
       salaryMax: value.salaryMax,
       salaryType: value.salaryType,
       benefits: value.benefits,
-      status: (value as any).status ?? 'ADMIN_REVIEW',
+      status: (value as any).status ?? undefined,
       createdAt: value.createdAt || new Date(),
       deadline: value.deadline,
       detailDescription: value.detailDescription,

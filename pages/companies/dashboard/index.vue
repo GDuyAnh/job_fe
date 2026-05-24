@@ -1,283 +1,343 @@
 <template>
-  <div class="min-h-screen bg-white">
-    <!-- Header -->
-    <header class="bg-white shadow-sm border-b border-gray-200">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between items-center h-16">
-          <!-- Logo -->
-          <NuxtLink to="/" class="flex items-center cursor-pointer">
-            <h1 class="text-2xl font-bold text-blue-900 hover:text-blue-700 transition-colors">
-              {{ $t('dashboard.header.logo') }}
-            </h1>
+  <div class="employer-dashboard-page">
+    <div
+      class="employer-dashboard employer-dashboard-simple"
+      :class="{
+        'employer-overview-page': activeView === 'dashboard',
+        'employer-company-page': activeView === 'editProfile',
+        'employer-manage-jobs-page': activeView === 'manageJobs',
+        'employer-candidates-page': activeView === 'candidates',
+        'employer-settings-page': activeView === 'settings',
+      }"
+      data-employer-overview=""
+    >
+      <aside class="employer-sidebar">
+        <div class="employer-sidebar-brand-wrap">
+          <NuxtLink to="/" class="employer-sidebar-brand wordmark" aria-label="Trang chủ">
+            <span class="wordmark-main">TuyenGiaoVien</span>
+            <span class="wordmark-dot">.vn</span>
           </NuxtLink>
-
-          <!-- Right side actions -->
-          <div class="flex items-center space-x-4">
-            <!-- Post a Job Button -->
-            <button
-              class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-              @click="navigateToPostJob"
-            >
-              {{ $t('dashboard.header.postJob') }}
-            </button>
-
-            <!-- Notifications -->
-            <button class="relative p-2 text-gray-600 hover:text-gray-900">
-              <UIcon name="i-lucide-bell" class="w-6 h-6" />
-              <span
-                v-if="unreadNotifications > 0"
-                class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center"
-              >
-                {{ unreadNotifications }}
-              </span>
-            </button>
-
-            <!-- User Profile -->
-            <div class="relative">
-              <button
-                class="flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-100"
-                @click="toggleUserDropdown"
-              >
-                <!-- Avatar with image or fallback to initials -->
-                <div
-                  v-if="authStore.user?.avatarUrl"
-                  class="w-8 h-8 rounded-full overflow-hidden bg-gray-200"
-                >
-                  <img
-                    :src="authStore.user.avatarUrl"
-                    :alt="authStore.user.fullName || 'User'"
-                    class="w-full h-full object-cover"
-                  />
-                </div>
-                <div
-                  v-else
-                  class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center"
-                >
-                  <span class="text-white font-semibold text-sm">
-                    {{
-                      authStore.user?.fullName?.charAt(0)?.toUpperCase() || 'U'
-                    }}
-                  </span>
-                </div>
-                <span class="text-gray-900 font-medium">{{
-                  authStore.user?.fullName || 'User'
-                }}</span>
-                <UIcon
-                  name="i-lucide-chevron-down"
-                  class="w-4 h-4 text-gray-500"
-                />
-              </button>
-
-              <!-- User Dropdown -->
-              <div
-                v-if="showUserDropdown"
-                class="absolute right-0 mt-2 w-56 bg-white rounded-md shadow-lg border border-gray-200 z-50"
-              >
-                <div class="py-1">
-                  <button
-
-                    v-for="item in userMenuItems"
-                    :key="item.label"
-                    class="flex items-center gap-3 w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
-                    @click="handleMenuItemClick(item)"
-                  >
-                    <UIcon :name="item.icon" class="w-4 h-4" />
-                    {{ item.label }}
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
-      </div>
-    </header>
 
-    <div class="flex">
-      <!-- Sidebar -->
-      <aside class="w-64 bg-blue-50 min-h-screen">
-        <nav class="mt-8">
-          <!-- Admin Section (only visible for admin role) -->
-          <div v-if="isAdmin" class="px-4 mb-6">
-            <h3
-              class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3"
+        <nav class="employer-sidebar-nav" :aria-label="isAdmin ? 'Dashboard quản trị' : 'Dashboard nhà tuyển dụng'">
+          <template v-if="isAdmin">
+            <p class="employer-sidebar-section-title">Quản trị viên</p>
+            <button
+              type="button"
+              class="employer-sidebar-link"
+              :class="{ 'is-active': activeView === 'adminDashboard' }"
+              @click="setActiveView('adminDashboard')"
             >
-              Quản trị viên
-            </h3>
-            <div class="space-y-1">
-              <button
-                :class="[
-                  'w-full flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors',
-                  activeView === 'adminDashboard'
-                    ? 'text-white bg-blue-600'
-                    : 'text-gray-700 hover:bg-blue-100'
-                ]"
-                @click="setActiveView('adminDashboard')"
-              >
-                <UIcon name="i-lucide-layout-dashboard" class="w-5 h-5 mr-3" />
-                {{ $t('dashboard.sidebar.adminDashboard') }}
-              </button>
-              <button
-                :class="[
-                  'w-full flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors',
-                  activeView === 'adminCompanies'
-                    ? 'text-white bg-blue-600'
-                    : 'text-gray-700 hover:bg-blue-100'
-                ]"
-                @click="setActiveView('adminCompanies')"
-              >
-                <UIcon name="i-lucide-building" class="w-5 h-5 mr-3" />
-                {{ $t('dashboard.sidebar.adminCompanies') }}
-              </button>
-              <button
-                :class="[
-                  'w-full flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors',
-                  activeView === 'adminManageJobs'
-                    ? 'text-white bg-blue-600'
-                    : 'text-gray-700 hover:bg-blue-100'
-                ]"
-                @click="setActiveView('adminManageJobs')"
-              >
-                <UIcon name="i-lucide-briefcase" class="w-5 h-5 mr-3" />
-                {{ $t('dashboard.sidebar.adminManageJobs') }}
-              </button>
-              <button
-                :class="[
-                  'w-full flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors',
-                  activeView === 'adminCandidates'
-                    ? 'text-white bg-blue-600'
-                    : 'text-gray-700 hover:bg-blue-100'
-                ]"
-                @click="setActiveView('adminCandidates')"
-              >
-                <UIcon name="i-lucide-users" class="w-5 h-5 mr-3" />
-                {{ $t('dashboard.sidebar.adminCandidates') }}
-              </button>
-              <button
-                :class="[
-                  'w-full flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors',
-                  activeView === 'adminUsers'
-                    ? 'text-white bg-blue-600'
-                    : 'text-gray-700 hover:bg-blue-100'
-                ]"
-                @click="setActiveView('adminUsers')"
-              >
-                <UIcon name="i-lucide-users-round" class="w-5 h-5 mr-3" />
-                {{ $t('dashboard.sidebar.adminUsers') }}
-              </button>
-              <button
-                :class="[
-                  'w-full flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors',
-                  activeView === 'adminBlogs'
-                    ? 'text-white bg-blue-600'
-                    : 'text-gray-700 hover:bg-blue-100'
-                ]"
-                @click="setActiveView('adminBlogs')"
-              >
-                <UIcon name="i-lucide-file-text" class="w-5 h-5 mr-3" />
-                {{ $t('dashboard.sidebar.adminBlogs') }}
-              </button>
-              <button
-                :class="[
-                  'w-full flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors',
-                  activeView === 'adminSettings'
-                    ? 'text-white bg-blue-600'
-                    : 'text-gray-700 hover:bg-blue-100'
-                ]"
-                @click="setActiveView('adminSettings')"
-              >
-                <UIcon name="i-lucide-settings" class="w-5 h-5 mr-3" />
-                {{ $t('dashboard.sidebar.adminSettings') }}
-              </button>
-            </div>
-          </div>
+              <span class="employer-sidebar-link-icon" aria-hidden="true">
+                <UIcon name="i-lucide-layout-dashboard" class="size-[22px]" />
+              </span>
+              <span>{{ $t('dashboard.sidebar.adminDashboard') }}</span>
+            </button>
+            <button
+              type="button"
+              class="employer-sidebar-link"
+              :class="{ 'is-active': activeView === 'adminCompanies' }"
+              @click="setActiveView('adminCompanies')"
+            >
+              <span class="employer-sidebar-link-icon" aria-hidden="true">
+                <UIcon name="i-lucide-building-2" class="size-[22px]" />
+              </span>
+              <span>{{ $t('dashboard.sidebar.adminCompanies') }}</span>
+            </button>
+            <button
+              type="button"
+              class="employer-sidebar-link"
+              :class="{ 'is-active': activeView === 'adminManageJobs' }"
+              @click="setActiveView('adminManageJobs')"
+            >
+              <span class="employer-sidebar-link-icon" aria-hidden="true">
+                <UIcon name="i-lucide-briefcase" class="size-[22px]" />
+              </span>
+              <span>{{ $t('dashboard.sidebar.adminManageJobs') }}</span>
+            </button>
+            <button
+              type="button"
+              class="employer-sidebar-link"
+              :class="{ 'is-active': activeView === 'adminCandidates' }"
+              @click="setActiveView('adminCandidates')"
+            >
+              <span class="employer-sidebar-link-icon" aria-hidden="true">
+                <UIcon name="i-lucide-clipboard-list" class="size-[22px]" />
+              </span>
+              <span>{{ $t('dashboard.sidebar.adminCandidates') }}</span>
+            </button>
+            <button
+              type="button"
+              class="employer-sidebar-link"
+              :class="{ 'is-active': activeView === 'adminUsers' }"
+              @click="setActiveView('adminUsers')"
+            >
+              <span class="employer-sidebar-link-icon" aria-hidden="true">
+                <UIcon name="i-lucide-users" class="size-[22px]" />
+              </span>
+              <span>{{ $t('dashboard.sidebar.adminUsers') }}</span>
+            </button>
+            <button
+              type="button"
+              class="employer-sidebar-link"
+              :class="{ 'is-active': activeView === 'adminBlogs' }"
+              @click="setActiveView('adminBlogs')"
+            >
+              <span class="employer-sidebar-link-icon" aria-hidden="true">
+                <UIcon name="i-lucide-newspaper" class="size-[22px]" />
+              </span>
+              <span>{{ $t('dashboard.sidebar.adminBlogs') }}</span>
+            </button>
+            <button
+              type="button"
+              class="employer-sidebar-link"
+              :class="{ 'is-active': activeView === 'adminSettings' }"
+              @click="setActiveView('adminSettings')"
+            >
+              <span class="employer-sidebar-link-icon" aria-hidden="true">
+                <UIcon name="i-lucide-settings" class="size-[22px]" />
+              </span>
+              <span>{{ $t('dashboard.sidebar.adminSettings') }}</span>
+            </button>
+          </template>
 
-          <!-- Company Tools -->
-          <div v-if="!isAdmin" class="px-4 mb-6">
-            <h3
-              class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3"
+          <template v-else>
+            <button
+              type="button"
+              class="employer-sidebar-link"
+              :class="{ 'is-active': activeView === 'dashboard' }"
+              @click="setActiveView('dashboard')"
             >
-              {{ $t('dashboard.sidebar.adminTools') }}
-            </h3>
-            <div class="space-y-1">
-              <button
-                :class="[
-                  'w-full flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors',
-                  activeView === 'dashboard'
-                    ? 'text-white bg-blue-600'
-                    : 'text-gray-700 hover:bg-blue-100'
-                ]"
-                @click="setActiveView('dashboard')"
-              >
-                <UIcon name="i-lucide-layout-dashboard" class="w-5 h-5 mr-3" />
-                {{ $t('dashboard.sidebar.dashboard') }}
-              </button>
-              <button
-                :class="[
-                  'w-full flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors',
-                  activeView === 'editProfile'
-                    ? 'text-white bg-blue-600'
-                    : 'text-gray-700 hover:bg-blue-100'
-                ]"
-                @click="setActiveView('editProfile')"
-              >
-                <UIcon name="i-lucide-user" class="w-5 h-5 mr-3" />
-                {{ $t('dashboard.sidebar.editProfile') }}
-              </button>
-              <button
-                :class="[
-                  'w-full flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors',
-                  activeView === 'newJob'
-                    ? 'text-white bg-blue-600'
-                    : 'text-gray-700 hover:bg-blue-100'
-                ]"
-                @click="handleCreateNewJob"
-              >
-                <UIcon name="i-lucide-file-text" class="w-5 h-5 mr-3" />
-                {{ $t('dashboard.sidebar.newJob') }}
-              </button>
-              <button
-                :class="[
-                  'w-full flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors',
-                  activeView === 'manageJobs'
-                    ? 'text-white bg-blue-600'
-                    : 'text-gray-700 hover:bg-blue-100'
-                ]"
-                @click="setActiveView('manageJobs')"
-              >
-                <UIcon name="i-lucide-briefcase" class="w-5 h-5 mr-3" />
-                {{ $t('dashboard.sidebar.manageJobs') }}
-              </button>
-              <button
-                :class="[
-                  'w-full flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors',
-                  activeView === 'candidates'
-                    ? 'text-white bg-blue-600'
-                    : 'text-gray-700 hover:bg-blue-100'
-                ]"
-                @click="setActiveView('candidates')"
-              >
-                <UIcon name="i-lucide-users" class="w-5 h-5 mr-3" />
-                {{ $t('dashboard.sidebar.candidates') }}
-              </button>
-              <button
-                :class="[
-                  'w-full flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors',
-                  activeView === 'settings'
-                    ? 'text-white bg-blue-600'
-                    : 'text-gray-700 hover:bg-blue-100'
-                ]"
-                @click="setActiveView('settings')"
-              >
-                <UIcon name="i-lucide-settings" class="w-5 h-5 mr-3" />
-                {{ $t('dashboard.sidebar.settings') }}
-              </button>
-            </div>
-          </div>
+              <span class="employer-sidebar-link-icon" aria-hidden="true">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                  <rect x="3" y="3" width="7" height="7" rx="2" stroke="currentColor" stroke-width="2" />
+                  <rect x="14" y="3" width="7" height="7" rx="2" stroke="currentColor" stroke-width="2" />
+                  <rect x="3" y="14" width="7" height="7" rx="2" stroke="currentColor" stroke-width="2" />
+                  <rect x="14" y="14" width="7" height="7" rx="2" stroke="currentColor" stroke-width="2" />
+                </svg>
+              </span>
+              <span>Tổng quan</span>
+            </button>
+            <button
+              type="button"
+              class="employer-sidebar-link"
+              :class="{ 'is-active': activeView === 'editProfile' }"
+              @click="setActiveView('editProfile')"
+            >
+              <span class="employer-sidebar-link-icon" aria-hidden="true">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                  <path d="M12 12a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" stroke="currentColor" stroke-width="2" />
+                  <path d="M5 18a4 4 0 0 1 4-4h6a4 4 0 0 1 4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                  <path d="M4 10a2.5 2.5 0 0 1 2.5-2.5M20 10a2.5 2.5 0 0 0-2.5-2.5M7 6a2 2 0 0 0-2-2M17 6a2 2 0 0 1 2-2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" opacity="0.65" />
+                </svg>
+              </span>
+              <span>Hồ sơ công ty</span>
+            </button>
+            <button
+              type="button"
+              class="employer-sidebar-link employer-sidebar-link--post-job"
+              data-open-post-wizard=""
+              @click="handleCreateNewJob"
+            >
+              <span class="employer-sidebar-link-icon" aria-hidden="true">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                  <path d="M8 7V5a4 4 0 1 1 8 0v2" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                  <rect x="4" y="7" width="16" height="13" rx="3" stroke="currentColor" stroke-width="2" />
+                  <path d="M12 11v5M9.5 13.5h5" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                </svg>
+              </span>
+              <span>Đăng tin mới</span>
+            </button>
+            <button
+              type="button"
+              class="employer-sidebar-link"
+              :class="{ 'is-active': activeView === 'manageJobs' }"
+              @click="setActiveView('manageJobs')"
+            >
+              <span class="employer-sidebar-link-icon" aria-hidden="true">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                  <path d="M7 3.5h8l4 4V20a1 1 0 0 1-1 1H7a2 2 0 0 1-2-2V5.5a2 2 0 0 1 2-2Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round" />
+                  <path d="M15 3.5V8h4" stroke="currentColor" stroke-width="2" stroke-linejoin="round" />
+                  <path d="M9 12h6M9 16h6M9 8.5h2" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                </svg>
+              </span>
+              <span>Quản lí tin đăng</span>
+            </button>
+            <button
+              type="button"
+              class="employer-sidebar-link"
+              :class="{ 'is-active': activeView === 'candidates' }"
+              @click="setActiveView('candidates')"
+            >
+              <span class="employer-sidebar-link-icon" aria-hidden="true">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                  <path d="M16 19a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                  <circle cx="10" cy="8" r="3" stroke="currentColor" stroke-width="2" />
+                  <path d="M20 19a4 4 0 0 0-3-3.87" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                  <path d="M16.5 5.2a3 3 0 0 1 0 5.6" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                </svg>
+              </span>
+              <span>Quản lý ứng viên</span>
+            </button>
+            <button
+              type="button"
+              class="employer-sidebar-link"
+              :class="{ 'is-active': activeView === 'settings' }"
+              @click="setActiveView('settings')"
+            >
+              <span class="employer-sidebar-link-icon" aria-hidden="true">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                  <path d="M12 8.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7Z" stroke="currentColor" stroke-width="2" />
+                  <path d="M19.4 15a1 1 0 0 0 .2 1.1l.1.1a1.7 1.7 0 0 1-1.2 2.9h-.2a1 1 0 0 0-.9.6l-.1.2a1.7 1.7 0 0 1-3.1 0l-.1-.2a1 1 0 0 0-.9-.6h-.2a1.7 1.7 0 0 1-1.2-2.9l.1-.1a1 1 0 0 0-.2-1.1l-.1-.2a1.7 1.7 0 0 1 0-1.6l.1-.2a1 1 0 0 0-.2-1.1l-.1-.1a1.7 1.7 0 0 1 1.2-2.9h.2a1 1 0 0 0 .9-.6l.1-.2a1.7 1.7 0 0 1 3.1 0l.1.2a1 1 0 0 0 .9.6h.2a1.7 1.7 0 0 1 1.2 2.9l-.1.1a1 1 0 0 0-.2 1.1l.1.2a1.7 1.7 0 0 1 0 1.6l-.1.2Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" />
+                </svg>
+              </span>
+              <span>Cài đặt</span>
+            </button>
+          </template>
         </nav>
       </aside>
 
-      <!-- Main Content -->
-      <main class="flex-1 p-8">
+      <div
+        class="employer-dashboard-main"
+        :class="{
+          'is-overview-layout': activeView === 'dashboard' && !isAdmin,
+          'is-company-layout': activeView === 'editProfile' && !isAdmin,
+          'is-manage-jobs-layout': activeView === 'manageJobs' && !isAdmin,
+          'is-candidates-layout': activeView === 'candidates' && !isAdmin,
+          'is-settings-layout': activeView === 'settings' && !isAdmin,
+        }"
+      >
+        <template v-if="activeView === 'dashboard' && !isAdmin">
+          <div class="employer-overview-scroll">
+            <header class="employer-dashboard-topbar">
+              <div class="employer-topbar-company">
+                <span
+                  class="employer-topbar-avatar"
+                  data-overview-company-avatar=""
+                >{{ companyInitial }}</span>
+                <div class="employer-topbar-company-copy">
+                  <strong data-overview-company-name="">
+                    {{ companyData?.name || 'CÔNG TY' }}
+                  </strong>
+                </div>
+              </div>
+              <button
+                type="button"
+                class="primary-btn employer-topbar-btn"
+                data-open-post-wizard=""
+                @click="handleCreateNewJob"
+              >
+                Đăng tin tuyển dụng
+              </button>
+            </header>
+
+            <DashboardCompanyOverview
+            :job-stats="jobStats"
+            :applications="paginatedRecentApplications"
+            :company-name="companyData?.name || ''"
+            :company-logo="companyData?.logo"
+            :page="recentPage"
+            :total-pages="totalRecentPages"
+            :total-count="recentApplications.length"
+            :per-page="recentPerPage"
+            @manage-candidates="setActiveView('candidates')"
+            @create-job="handleCreateNewJob"
+            @view-application="viewApplication"
+            @delete-application="deleteApplication"
+            @update:page="recentPage = $event"
+            />
+          </div>
+        </template>
+
+        <template v-else-if="activeView === 'editProfile' && !isAdmin">
+          <div class="employer-company-scroll employer-company-page">
+            <div class="employer-company-panel">
+              <header class="employer-dashboard-topbar employer-company-panel-topbar">
+                <div class="employer-topbar-company">
+                  <span
+                    class="employer-topbar-avatar"
+                    data-company-profile-company-avatar=""
+                  >{{ companyInitial }}</span>
+                  <div class="employer-topbar-company-copy">
+                    <strong data-company-profile-company-name="">
+                      {{ companyData?.name || 'CÔNG TY' }}
+                    </strong>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  class="primary-btn employer-topbar-btn"
+                  data-open-post-wizard=""
+                  @click="handleCreateNewJob"
+                >
+                  Đăng tin tuyển dụng
+                </button>
+              </header>
+
+              <DashboardEditProfile
+                :company-data="companyData"
+                @back="setActiveView('dashboard')"
+                @company-updated="handleCompanyUpdated"
+              />
+            </div>
+          </div>
+        </template>
+
+        <template v-else-if="activeView === 'manageJobs' && !isAdmin">
+          <DashboardManageJobs
+            ref="manageJobsRef"
+            :company-initial="companyInitial"
+            :company-name="companyData?.name || 'CÔNG TY'"
+            @create-new-job="handleCreateNewJob"
+            @edit-job="handleEditJob"
+          />
+        </template>
+
+        <template v-else-if="activeView === 'candidates' && !isAdmin">
+          <DashboardCandidates
+            :company-initial="companyInitial"
+            :company-name="companyData?.name || 'CÔNG TY'"
+            :company-logo="companyData?.logo"
+            @create-new-job="handleCreateNewJob"
+          />
+        </template>
+
+        <template v-else-if="activeView === 'settings' && !isAdmin">
+          <DashboardEmployerSettings
+            :company-initial="companyInitial"
+            :company-name="companyData?.name || 'CÔNG TY'"
+            @create-new-job="handleCreateNewJob"
+          />
+        </template>
+
+        <template v-else>
+          <header v-if="!isAdmin" class="employer-topbar">
+            <div class="employer-topbar-company">
+              <span class="employer-topbar-avatar">{{ companyInitial }}</span>
+              <h1 class="employer-topbar-name">
+                {{ companyData?.name || 'CÔNG TY' }}
+              </h1>
+            </div>
+            <div class="employer-topbar-actions">
+              <UButton
+                color="primary"
+                class="rounded-xl px-4 text-[12px] font-semibold shadow-sm"
+                @click="handleCreateNewJob"
+              >
+                Đăng tin tuyển dụng
+              </UButton>
+              <UButton
+                color="neutral"
+                variant="outline"
+                class="rounded-xl px-4 text-[12px] font-semibold"
+                @click="authStore.logout()"
+              >
+                {{ $t('common.logout') }}
+              </UButton>
+            </div>
+          </header>
+
+          <div class="employer-dashboard-content">
         <!-- Admin Dashboard View -->
         <div v-if="activeView === 'adminDashboard'">
           <div class="mb-8">
@@ -352,292 +412,59 @@
           </div>
         </div>
 
-        <!-- Dashboard View -->
-        <div v-else-if="activeView === 'dashboard'">
-        <!-- Page Title -->
-        <div class="mb-8">
-          <h1 class="text-3xl font-bold text-gray-900">
-            {{ $t('dashboard.main.title') }}
-          </h1>
-          <p class="text-gray-600 mt-2">
-            {{
-              $t('dashboard.main.welcome', {
-                name: authStore.user?.fullName || 'User',
-              })
-            }}
-          </p>
-        </div>
-
-        <!-- Summary Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8 items-stretch">
-          <!-- Công việc đăng tải -->
-          <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-200 flex flex-col">
-            <div class="flex items-start flex-1">
-              <div class="p-3 bg-blue-100 rounded-lg flex-shrink-0">
-                <UIcon
-                  name="i-lucide-file-text"
-                  class="w-6 h-6 text-blue-600"
-                />
-              </div>
-              <div class="ml-4 flex-1 min-w-0 flex flex-col justify-start">
-                <p class="text-sm font-medium text-gray-600 mb-2 leading-tight min-h-[2.5rem]">
-                  {{ $t('dashboard.main.metrics.postedJobs') }}
-                </p>
-                <p class="text-2xl font-bold text-gray-900 mt-auto">
-                  {{ jobStats.postedJobs }}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <!-- Tin đăng chờ duyệt -->
-          <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-200 flex flex-col">
-            <div class="flex items-start flex-1">
-              <div class="p-3 bg-yellow-100 rounded-lg flex-shrink-0">
-                <UIcon name="i-lucide-clock" class="w-6 h-6 text-yellow-600" />
-              </div>
-              <div class="ml-4 flex-1 min-w-0 flex flex-col justify-start">
-                <p class="text-sm font-medium text-gray-600 mb-2 leading-tight min-h-[2.5rem]">
-                  {{ $t('dashboard.main.metrics.pendingJobs') }}
-                </p>
-                <p class="text-2xl font-bold text-gray-900 mt-auto">
-                  {{ jobStats.pendingJobs }}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <!-- Tin hết hạn -->
-          <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-200 flex flex-col">
-            <div class="flex items-start flex-1">
-              <div class="p-3 bg-red-100 rounded-lg flex-shrink-0">
-                <UIcon name="i-lucide-x-circle" class="w-6 h-6 text-red-600" />
-              </div>
-              <div class="ml-4 flex-1 min-w-0 flex flex-col justify-start">
-                <p class="text-sm font-medium text-gray-600 mb-2 leading-tight min-h-[2.5rem]">
-                  {{ $t('dashboard.main.metrics.expiredJobs') }}
-                </p>
-                <p class="text-2xl font-bold text-gray-900 mt-auto">
-                  {{ jobStats.expiredJobs }}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <!-- Tin sắp hết hạn -->
-          <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-200 flex flex-col">
-            <div class="flex items-start flex-1">
-              <div class="p-3 bg-orange-100 rounded-lg flex-shrink-0">
-                <UIcon
-                  name="i-lucide-alert-triangle"
-                  class="w-6 h-6 text-orange-600"
-                />
-              </div>
-              <div class="ml-4 flex-1 min-w-0 flex flex-col justify-start">
-                <p class="text-sm font-medium text-gray-600 mb-2 leading-tight min-h-[2.5rem]">
-                  {{ $t('dashboard.main.metrics.expiringSoonJobs') }}
-                </p>
-                <p class="text-2xl font-bold text-gray-900 mt-auto">
-                  {{ jobStats.expiringSoonJobs }}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <!-- Tổng số lượng đơn ứng tuyển -->
-          <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-200 flex flex-col">
-            <div class="flex items-start flex-1">
-              <div class="p-3 bg-green-100 rounded-lg flex-shrink-0">
-                <UIcon
-                  name="i-lucide-user-check"
-                  class="w-6 h-6 text-green-600"
-                />
-              </div>
-              <div class="ml-4 flex-1 min-w-0 flex flex-col justify-start">
-                <p class="text-sm font-medium text-gray-600 mb-2 leading-tight min-h-[2.5rem]">
-                  Tổng số lượng đơn ứng tuyển
-                </p>
-                <p class="text-2xl font-bold text-gray-900 mt-auto">
-                  {{ jobStats.totalApplications }}
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-          <!-- Recent Applications Section -->
-          <div class="bg-white rounded-xl shadow-sm border border-gray-200">
-            <div class="p-6 border-b border-gray-200">
-              <h3 class="text-lg font-semibold text-gray-900">
-                {{ $t('dashboard.main.recentApplications') }}
-              </h3>
-            </div>
-
-            <!-- Applications Table -->
-            <div class="overflow-x-auto">
-              <table class="w-full">
-                <thead class="bg-blue-50 border-b border-gray-200">
-                  <tr>
-                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                      {{ $t('dashboard.main.applicationsTable.position') }}
-                    </th>
-                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                      {{ $t('dashboard.main.applicationsTable.applicant') }}
-                    </th>
-                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                      {{ $t('dashboard.main.applicationsTable.email') }}
-                    </th>
-                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                      {{ $t('dashboard.main.applicationsTable.cv') }}
-                    </th>
-                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                      {{ $t('dashboard.main.applicationsTable.applicationDate') }}
-                    </th>
-                    <th class="px-6 py-4 text-right text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                      {{ $t('dashboard.main.applicationsTable.actions') }}
-                    </th>
-                  </tr>
-                </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
-                  <tr
-                    v-for="application in recentApplications"
-                    :key="application.id"
-                    class="hover:bg-gray-50 transition-colors"
-                  >
-                    <!-- Position -->
-                    <td class="px-6 py-4 whitespace-nowrap">
-                      <div class="text-sm font-medium text-gray-900">
-                        {{ application.jobTitle }}
-                      </div>
-                    </td>
-
-                    <!-- Applicant -->
-                    <td class="px-6 py-4 whitespace-nowrap">
-                      <div class="flex items-center gap-3">
-                        <div
-                          class="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center text-white font-semibold"
-                        >
-                          {{ application.applicantName.charAt(0).toUpperCase() }}
-                        </div>
-                        <div>
-                          <div class="text-sm font-medium text-gray-900">
-                            {{ application.applicantName }}
-                          </div>
-                          <div class="flex items-center gap-1 text-sm text-gray-500 mt-1">
-                            <UIcon name="i-lucide-phone" class="w-4 h-4" />
-                            {{ application.phone }}
-              </div>
-            </div>
-          </div>
-                    </td>
-
-                    <!-- Email -->
-                    <td class="px-6 py-4 whitespace-nowrap">
-                      <div class="text-sm text-gray-900">
-                        {{ application.email }}
-                      </div>
-                    </td>
-
-                    <!-- CV -->
-                    <td class="px-6 py-4 whitespace-nowrap">
-                      <a
-                        v-if="application.cvUrl"
-                        :href="application.cvUrl"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-blue-100 text-blue-600 hover:bg-blue-200 transition-colors"
-                      >
-                        <UIcon name="i-lucide-file-text" class="w-5 h-5" />
-                      </a>
-                      <span v-else class="text-sm text-gray-400">-</span>
-                    </td>
-
-                    <!-- Application Date -->
-                    <td class="px-6 py-4 whitespace-nowrap">
-                      <div class="text-sm text-gray-900">
-                        {{ formatDate(application.applicationDate) }}
-              </div>
-                    </td>
-
-                    <!-- Actions -->
-                    <td class="px-6 py-4 whitespace-nowrap text-right">
-                      <div class="flex items-center justify-end gap-2">
-                        <button
-                          class="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-600 hover:text-gray-900 transition-colors"
-                          @click="viewApplication(application)"
-                        >
-                          <UIcon name="i-lucide-eye" class="w-4 h-4" />
-                        </button>
-                        <button
-                          class="w-8 h-8 rounded-full bg-gray-100 hover:bg-red-100 flex items-center justify-center text-gray-600 hover:text-red-600 transition-colors"
-                          @click="deleteApplication(application.id)"
-                        >
-                          <UIcon name="i-lucide-trash-2" class="w-4 h-4" />
-                        </button>
-            </div>
-                    </td>
-                  </tr>
-
-                  <!-- Empty State -->
-                  <tr v-if="recentApplications.length === 0">
-                    <td colspan="6" class="px-6 py-12 text-center">
-                      <UIcon
-                        name="i-lucide-inbox"
-                        class="w-12 h-12 text-gray-400 mx-auto mb-3"
-                      />
-                      <p class="text-gray-500 text-sm">
-                        {{ $t('dashboard.main.applicationsTable.noApplications') }}
-                      </p>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-
-        <!-- Edit Profile View -->
-        <div v-else-if="activeView === 'editProfile'">
-          <DashboardEditProfile
-            :company-data="companyData"
-            @back="setActiveView('dashboard')"
-            @company-updated="handleCompanyUpdated"
-          />
-        </div>
-
         <!-- New Job View -->
         <div v-else-if="activeView === 'newJob'">
-          <DashboardNewJob
-            :company-data="companyData"
-            :job-to-edit="jobToEdit"
-            @back="handleBackFromNewJob"
-            @job-created="handleJobCreated"
-          />
+          <div class="bg-white rounded-2xl shadow-sm p-8 text-center" style="border: 1px solid rgba(29, 36, 51, 0.10)">
+            <UIcon name="i-lucide-panel-right-open" class="w-10 h-10 text-[var(--blue)] mx-auto mb-3" />
+            <div class="text-sm text-[rgba(29,36,51,0.65)]">
+              Form tạo tin đã chuyển sang drawer bên phải. Vui lòng bấm “Đăng tin tuyển dụng”.
+            </div>
+          </div>
         </div>
 
-        <!-- Manage Jobs View -->
-        <div v-else-if="activeView === 'manageJobs'">
-          <DashboardManageJobs
-            ref="manageJobsRef"
-            @back="setActiveView('dashboard')"
-            @create-new-job="handleCreateNewJob"
-            @edit-job="handleEditJob"
-          />
         </div>
+        </template>
 
-        <!-- Candidates View -->
-        <div v-else-if="activeView === 'candidates'">
-          <DashboardCandidates @back="setActiveView('dashboard')" />
-        </div>
+        <!-- Backdrop blur when job drawer open (custom, avoid focus-trap issues with v-select append-to-body) -->
+        <div
+          v-if="jobDrawerOpen"
+          class="fixed inset-0 z-10 bg-[rgba(29,36,51,0.35)] backdrop-blur-sm"
+          @click="closeJobDrawer"
+        />
 
-        <!-- Settings View -->
-        <div v-else-if="activeView === 'settings'">
-          <DashboardSettings
-            @back="setActiveView('dashboard')"
-            @edit-profile="setActiveView('editProfile')"
-          />
-        </div>
-      </main>
+        <!-- Job Drawer (Add/Edit) -->
+        <UDrawer
+          v-model:open="jobDrawerOpen"
+          :title="jobDrawerTitle"
+          :description="jobDrawerSubtitle"
+          direction="right"
+          :modal="false"
+          :overlay="false"
+          :should-scale-background="false"
+          :no-body-styles="true"
+          handle-only
+          :ui="companyJobDrawerUi"
+        >
+          <template #header>
+            <AdminDrawerHeader
+              :kicker="jobDrawerKicker"
+              :title="jobDrawerTitle"
+              :subtitle="jobDrawerSubtitle"
+              @close="closeJobDrawer"
+            />
+          </template>
+          <template #body>
+            <div class="employer-job-drawer-body-inner">
+              <DashboardNewJob
+                :company-data="companyData"
+                :job-to-edit="jobToEdit"
+                embedded-in-drawer
+                @job-created="handleJobCreatedFromDrawer"
+              />
+            </div>
+          </template>
+        </UDrawer>
+      </div>
     </div>
   </div>
 </template>
@@ -647,11 +474,32 @@ import { useRouter } from 'vue-router'
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import type { CompanyEntity } from '~/entities/company'
 import { USER_ROLES } from '~/constants/roles'
+import DashboardCompanyOverview from '~/components/dashboard/DashboardCompanyOverview.vue'
+import AdminDrawerHeader from '~/components/AdminDrawerHeader.vue'
+
+definePageMeta({
+  layout: 'blank',
+})
+
+useHead({
+  title: 'Hồ sơ công ty',
+})
 
 // Composables
 const router = useRouter()
 const route = useRoute()
 const authStore = useAuthStore()
+
+/** Drawer đăng tin — layout flex row để [data-vaul-handle] căn giữa dọc (employer-dashboard.scss) */
+const companyJobDrawerUi = {
+  overlay: 'employer-admin-drawer-overlay',
+  content:
+    'z-[200] employer-company-job-drawer ui-drawer-scale-80 employer-admin-drawer-panel employer-drawer-bg w-full min-w-[360px] max-w-3xl',
+  container:
+    'employer-company-job-drawer-container employer-drawer-bg w-full min-h-0 flex flex-1 flex-col gap-0 self-stretch p-0 overflow-hidden',
+  body: 'employer-company-job-drawer-body employer-drawer-bg flex min-h-0 flex-1 flex-col overflow-auto p-0',
+  header: 'employer-admin-job-drawer-header employer-drawer-bg shrink-0 p-0',
+}
 
 // Dashboard view types
 type DashboardView =
@@ -676,6 +524,7 @@ const activeView = ref<DashboardView>('dashboard')
 // Reactive data
 const showUserDropdown = ref(false)
 const manageJobsRef = ref<any>(null)
+const jobDrawerOpen = ref(false)
 
 // Job statistics
 const jobStats = ref({
@@ -701,12 +550,32 @@ interface JobApplication {
 // Recent applications
 const recentApplications = ref<JobApplication[]>([])
 
+// Pagination for "Ứng viên mới nhất" (10 records/page)
+const recentPerPage = 10
+const recentPage = ref(1)
+const totalRecentPages = computed(() => Math.ceil(recentApplications.value.length / recentPerPage) || 1)
+const paginatedRecentApplications = computed(() => {
+  const start = (recentPage.value - 1) * recentPerPage
+  return recentApplications.value.slice(start, start + recentPerPage)
+})
+
 // Company data - loaded once and shared across all menu items
 const companyData = ref<CompanyEntity | null>(null)
 const loadingCompany = ref(false)
 
 // Job to edit - used when switching from manageJobs to newJob for editing
 const jobToEdit = ref<import('~/models/job').JobModel | null>(null)
+const jobDrawerTitle = computed(() =>
+  jobToEdit.value ? 'Chỉnh sửa tin tuyển dụng' : 'Đăng tin tuyển dụng',
+)
+const jobDrawerKicker = computed(() =>
+  jobToEdit.value ? 'Chỉnh sửa tin' : 'Đăng tin mới',
+)
+const jobDrawerSubtitle = computed(() =>
+  jobToEdit.value
+    ? 'Cập nhật nội dung tin tuyển dụng trên màn employer.'
+    : 'Tạo tin ngay trên màn hiện tại, không cần rời khỏi khu employer.',
+)
 
 // Methods
 const logout = () => {
@@ -766,7 +635,7 @@ const userMenuItems = [
     label: 'Đăng tin mới',
     icon: 'i-lucide-plus-circle',
     click: () => {
-      setActiveView('newJob')
+      handleCreateNewJob()
     },
   },
   {
@@ -795,6 +664,11 @@ const isAdmin = computed(() => {
   return authStore.user?.role === USER_ROLES.ADMIN
 })
 
+const companyInitial = computed(() => {
+  const name = companyData.value?.name?.trim() || 'C'
+  return name.charAt(0).toUpperCase()
+})
+
 const unreadNotifications = computed(() => {
   // This would come from your notification system
   return 0
@@ -815,6 +689,13 @@ const handleMenuItemClick = (item: any) => {
 // Set active view method
 const setActiveView = (view: DashboardView) => {
   activeView.value = view
+  // Sync view to URL so refresh/back keeps state
+  router.replace({
+    query: {
+      ...route.query,
+      view,
+    },
+  })
   // Scroll to top when changing view
   window.scrollTo({ top: 0, behavior: 'smooth' })
 }
@@ -833,28 +714,38 @@ const handleJobCreated = () => {
   }, 100)
 }
 
+const handleJobCreatedFromDrawer = () => {
+  closeJobDrawer()
+  handleJobCreated()
+}
+
 // Navigation methods (for external navigation only)
 const navigateToPostJob = () => {
   jobToEdit.value = null
-  setActiveView('newJob')
+  jobDrawerOpen.value = true
 }
 
-// Handle create new job from manage jobs
+// Mở drawer đăng tin — giữ nguyên menu/view hiện tại
 const handleCreateNewJob = () => {
   jobToEdit.value = null
-  setActiveView('newJob')
+  jobDrawerOpen.value = true
 }
 
 // Handle edit job from manage jobs
 const handleEditJob = (job: import('~/models/job').JobModel) => {
   jobToEdit.value = job
-  setActiveView('newJob')
+  jobDrawerOpen.value = true
 }
 
 // Handle back from new job view
 const handleBackFromNewJob = () => {
   jobToEdit.value = null
   setActiveView('dashboard')
+}
+
+const closeJobDrawer = () => {
+  jobDrawerOpen.value = false
+  jobToEdit.value = null
 }
 
 // API calls
@@ -929,16 +820,6 @@ const fetchJobStatistics = async () => {
   }
 }
 
-// Format date helper
-const formatDate = (date: Date | string): string => {
-  const d = typeof date === 'string' ? new Date(date) : date
-  const day = String(d.getDate()).padStart(2, '0')
-  const month = String(d.getMonth() + 1).padStart(2, '0')
-  const year = d.getFullYear()
-
-  return `${day}/${month}/${year}`
-}
-
 // Fetch recent applications
 const fetchRecentApplications = async () => {
   if (!authStore.user?.id) {
@@ -965,6 +846,9 @@ const fetchRecentApplications = async () => {
       
       // Update total applications count
       jobStats.value.totalApplications = response.length
+
+      // Reset page if out of range after reloading data
+      if (recentPage.value > totalRecentPages.value) recentPage.value = 1
     }
   } catch (error: any) {
     console.error('Failed to fetch applications:', error)
@@ -972,7 +856,7 @@ const fetchRecentApplications = async () => {
       message: error.message || 'Không thể tải danh sách ứng tuyển',
     })
   }
-  }
+}
 
 // View application details
 const viewApplication = (application: JobApplication) => {
@@ -1020,7 +904,17 @@ onMounted(async () => {
   // Admin: redirect to /admin/dashboard (correct URL)
   if (isAdmin.value) {
     const viewParam = route.query.view as string
-    const adminViews = ['adminDashboard', 'adminCompanies', 'adminManageJobs', 'adminCandidates', 'adminUsers', 'adminBlogs', 'adminSettings']
+    const adminViews = [
+      'adminDashboard',
+      'adminCompanies',
+      'adminCompanyManagement',
+      'adminManageJobs',
+      'adminCandidates',
+      'adminUsers',
+      'adminBlogs',
+      'adminSettings',
+      'adminImportExcel',
+    ]
     const view = viewParam && adminViews.includes(viewParam) ? viewParam : 'adminDashboard'
     await router.replace({
       path: ROUTE_PAGE.DASHBOARD.ADMIN,
@@ -1032,7 +926,14 @@ onMounted(async () => {
   // Check for view query parameter to set active view (company dashboard only)
   const viewParam = route.query.view as string
 
-  if (viewParam && ['editProfile', 'newJob', 'manageJobs', 'candidates', 'settings', 'dashboard'].includes(viewParam)) {
+  if (viewParam === 'newJob') {
+    activeView.value = 'dashboard'
+    jobToEdit.value = null
+    jobDrawerOpen.value = true
+  } else if (
+    viewParam &&
+    ['editProfile', 'manageJobs', 'candidates', 'settings', 'dashboard'].includes(viewParam)
+  ) {
     activeView.value = viewParam as DashboardView
   }
 
@@ -1062,3 +963,4 @@ const handleClickOutside = (event: Event) => {
   }
 }
 </script>
+

@@ -1,198 +1,255 @@
 <template>
-  <div class="space-y-6">
-    <!-- Account Information Section -->
-    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-      <h2 class="text-xl font-bold text-gray-900 mb-6" style="font-family: sans-serif;">
-        Account Information
-      </h2>
-
-      <!-- Email Display -->
-      <div>
-        <label class="block text-sm font-medium text-gray-700 mb-2">
-          Email:
-        </label>
-        <div class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg text-gray-900">
-          {{ authStore.user?.email || '–' }}
-        </div>
-        <div class="flex items-start gap-2 mt-2">
-          <UIcon name="i-lucide-alert-circle" class="w-4 h-4 text-gray-500 mt-0.5 flex-shrink-0" />
-          <p class="text-xs text-gray-500">
-            You cannot change your email account
+  <div class="employer-admin-settings-scale">
+    <div class="employer-admin-settings-panel">
+      <div class="employer-admin-settings-toolbar">
+        <div class="employer-admin-companies-head">
+          <h1 class="text-3xl font-bold text-gray-400">
+            {{ $t('dashboard.admin.settings.title') }}
+          </h1>
+          <p class="text-gray-500 text-sm">
+            {{ $t('dashboard.admin.settings.welcome') }}
           </p>
         </div>
       </div>
-    </div>
 
-    <!-- Change your password Section -->
-    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-      <h2 class="text-xl font-bold text-gray-900 mb-6" style="font-family: sans-serif;">
-        Change your password
-      </h2>
-
-      <form @submit.prevent="handleChangePassword" class="space-y-6">
-        <!-- Current Password -->
-        <div>
-          <label class="block text-sm font-semibold text-gray-900 mb-2">
-            Current Password <span class="text-red-500">*</span>
-          </label>
-          <div class="relative">
-            <input
-              v-model="passwordForm.currentPassword"
-              :type="showCurrentPassword ? 'text' : 'password'"
-              placeholder="Current password"
-              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
-              :class="{ 'border-red-500': formErrors.currentPassword }"
-              @blur="formErrors.currentPassword = ''"
-            />
-            <button
-              type="button"
-              class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-              @click="showCurrentPassword = !showCurrentPassword"
-            >
-              <UIcon
-                :name="showCurrentPassword ? 'i-lucide-eye-off' : 'i-lucide-eye'"
-                class="w-5 h-5"
-              />
-            </button>
+      <div class="employer-admin-settings-body">
+        <section class="employer-admin-settings-section">
+          <div class="employer-settings-card-head">
+            <h2>Thông tin tài khoản</h2>
           </div>
-          <p v-if="formErrors.currentPassword" class="mt-1 text-sm text-red-600">
-            {{ formErrors.currentPassword }}
-          </p>
-        </div>
 
-        <!-- New Password -->
-        <div>
-          <label class="block text-sm font-semibold text-gray-900 mb-2">
-            New Password <span class="text-red-500">*</span>
-          </label>
-          <div class="relative">
-            <input
-              v-model="passwordForm.newPassword"
-              :type="showNewPassword ? 'text' : 'password'"
-              placeholder="New password"
-              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
-              :class="{ 'border-red-500': formErrors.newPassword }"
-              @blur="formErrors.newPassword = ''"
-            />
-            <button
-              type="button"
-              class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-              @click="showNewPassword = !showNewPassword"
-            >
-              <UIcon
-                :name="showNewPassword ? 'i-lucide-eye-off' : 'i-lucide-eye'"
-                class="w-5 h-5"
-              />
-            </button>
-          </div>
-          <p v-if="formErrors.newPassword" class="mt-1 text-sm text-red-600">
-            {{ formErrors.newPassword }}
-          </p>
-        </div>
-
-        <!-- Confirm Password -->
-        <div>
-          <label class="block text-sm font-semibold text-gray-900 mb-2">
-            Confirm Password <span class="text-red-500">*</span>
-          </label>
-          <div class="relative">
-            <input
-              v-model="passwordForm.confirmPassword"
-              :type="showConfirmPassword ? 'text' : 'password'"
-              placeholder="Confirm password"
-              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
-              :class="{ 'border-red-500': formErrors.confirmPassword }"
-              @blur="formErrors.confirmPassword = ''"
-            />
-            <button
-              type="button"
-              class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-              @click="showConfirmPassword = !showConfirmPassword"
-            >
-              <UIcon
-                :name="showConfirmPassword ? 'i-lucide-eye-off' : 'i-lucide-eye'"
-                class="w-5 h-5"
-              />
-            </button>
-          </div>
-          <p v-if="formErrors.confirmPassword" class="mt-1 text-sm text-red-600">
-            {{ formErrors.confirmPassword }}
-          </p>
-        </div>
-
-        <!-- Change Password Button -->
-        <div class="flex justify-end">
-          <UButton
-            type="submit"
-            color="primary"
-            size="md"
-            :loading="changingPassword"
-            class="rounded-lg"
+          <form
+            class="employer-settings-form"
+            data-settings-account-form=""
+            @submit.prevent="handleSaveAccount"
           >
-            Change Password
-          </UButton>
-        </div>
-      </form>
+            <label class="employer-field employer-field-full">
+              <span>Email</span>
+              <input
+                type="email"
+                :value="accountForm.email"
+                data-settings-email=""
+                readonly
+              >
+            </label>
+
+            <div class="employer-settings-note">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2" />
+                <path
+                  d="M12 10v6M12 7.2h.01"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                />
+              </svg>
+              <span>Bạn không thể thay đổi tài khoản email của bạn</span>
+            </div>
+
+            <div class="employer-grid employer-grid-two">
+              <label class="employer-field">
+                <span>Họ và tên *</span>
+                <input
+                  v-model="accountForm.fullName"
+                  type="text"
+                  placeholder="Nhập họ và tên"
+                  data-settings-full-name=""
+                  required
+                >
+              </label>
+
+              <label class="employer-field">
+                <span>Tên đăng nhập *</span>
+                <input
+                  v-model="accountForm.username"
+                  type="text"
+                  placeholder="Nhập tên đăng nhập"
+                  data-settings-username=""
+                  required
+                >
+              </label>
+            </div>
+
+            <label class="employer-field employer-field-full">
+              <span>Số điện thoại</span>
+              <input
+                v-model="accountForm.phoneNumber"
+                type="tel"
+                placeholder="Nhập số điện thoại"
+                data-settings-phone=""
+              >
+            </label>
+
+            <div class="employer-settings-actions">
+              <button
+                type="submit"
+                class="employer-settings-primary"
+                :disabled="savingAccount"
+              >
+                {{ savingAccount ? 'Đang lưu...' : 'Lưu thông tin' }}
+              </button>
+            </div>
+          </form>
+        </section>
+
+        <section class="employer-admin-settings-section is-card">
+          <div class="employer-settings-card-head">
+            <h2>Thay đổi mật khẩu của bạn</h2>
+          </div>
+
+          <form
+            class="employer-settings-form"
+            data-settings-password-form=""
+            @submit.prevent="handleChangePassword"
+          >
+            <div class="employer-grid employer-grid-two">
+              <label class="employer-field">
+                <span>Mật khẩu cũ *</span>
+                <input
+                  v-model="passwordForm.currentPassword"
+                  type="password"
+                  placeholder="Mật khẩu cũ"
+                  data-settings-current-password=""
+                  required
+                  autocomplete="current-password"
+                >
+              </label>
+
+              <label class="employer-field">
+                <span>Mật khẩu mới *</span>
+                <input
+                  v-model="passwordForm.newPassword"
+                  type="password"
+                  placeholder="Mật khẩu mới"
+                  data-settings-new-password=""
+                  required
+                  autocomplete="new-password"
+                >
+              </label>
+            </div>
+
+            <label class="employer-field employer-field-full">
+              <span>Xác nhận mật khẩu mới *</span>
+              <input
+                v-model="passwordForm.confirmPassword"
+                type="password"
+                placeholder="Xác nhận mật khẩu mới"
+                data-settings-confirm-password=""
+                required
+                autocomplete="new-password"
+              >
+            </label>
+
+            <div class="employer-settings-actions">
+              <button
+                type="submit"
+                class="employer-settings-primary is-amber"
+                :disabled="changingPassword"
+              >
+                {{ changingPassword ? 'Đang đổi...' : 'Đổi mật khẩu' }}
+              </button>
+            </div>
+          </form>
+        </section>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-const authStore = useAuthStore()
 const { $api } = useNuxtApp()
-const { t } = useI18n()
+const authStore = useAuthStore()
 
-const changingPassword = ref(false)
-const showCurrentPassword = ref(false)
-const showNewPassword = ref(false)
-const showConfirmPassword = ref(false)
+const accountForm = ref({
+  email: '',
+  fullName: '',
+  username: '',
+  phoneNumber: '',
+})
+const savingAccount = ref(false)
 
 const passwordForm = ref({
   currentPassword: '',
   newPassword: '',
   confirmPassword: '',
 })
+const changingPassword = ref(false)
 
-const formErrors = ref({
-  currentPassword: '',
-  newPassword: '',
-  confirmPassword: '',
+const syncAccountForm = () => {
+  const user = authStore.user
+  if (!user) return
+
+  accountForm.value = {
+    email: user.email || '',
+    fullName: user.fullName || '',
+    username: user.username || '',
+    phoneNumber: user.phoneNumber || '',
+  }
+}
+
+onMounted(() => {
+  syncAccountForm()
 })
 
-const validateForm = (): boolean => {
-  let isValid = true
-  formErrors.value = {
-    currentPassword: '',
-    newPassword: '',
-    confirmPassword: '',
+watch(
+  () => authStore.user,
+  () => syncAccountForm(),
+)
+
+const handleSaveAccount = async () => {
+  if (!accountForm.value.fullName?.trim()) {
+    useNotify({ message: 'Vui lòng nhập họ và tên' })
+    return
   }
 
-  if (!passwordForm.value.currentPassword.trim()) {
-    formErrors.value.currentPassword = 'Current password is required'
-    isValid = false
+  if (!accountForm.value.username?.trim()) {
+    useNotify({ message: 'Vui lòng nhập tên đăng nhập' })
+    return
   }
 
-  if (!passwordForm.value.newPassword.trim()) {
-    formErrors.value.newPassword = 'New password is required'
-    isValid = false
-  } else if (passwordForm.value.newPassword.length < 6) {
-    formErrors.value.newPassword = 'Password must be at least 6 characters'
-    isValid = false
-  }
+  savingAccount.value = true
 
-  if (!passwordForm.value.confirmPassword.trim()) {
-    formErrors.value.confirmPassword = 'Please confirm your password'
-    isValid = false
-  } else if (passwordForm.value.newPassword !== passwordForm.value.confirmPassword) {
-    formErrors.value.confirmPassword = 'Passwords do not match'
-    isValid = false
-  }
+  try {
+    await $api.users.updateProfile({
+      fullName: accountForm.value.fullName.trim(),
+      username: accountForm.value.username.trim(),
+      phoneNumber: accountForm.value.phoneNumber?.trim() || null,
+    })
+    await authStore.getMe()
+    syncAccountForm()
 
-  return isValid
+    useNotify({
+      message: 'Lưu thông tin thành công',
+      type: 'success',
+    })
+  } catch (error: unknown) {
+    const err = error as { message?: string | string[] }
+    console.error('Update profile failed:', err)
+    useNotify({
+      message: Array.isArray(err.message)
+        ? err.message[0]
+        : err.message || 'Lưu thông tin thất bại',
+    })
+  } finally {
+    savingAccount.value = false
+  }
 }
 
 const handleChangePassword = async () => {
-  if (!validateForm()) return
+  if (!passwordForm.value.currentPassword) {
+    useNotify({ message: 'Vui lòng nhập mật khẩu hiện tại' })
+    return
+  }
+
+  if (!passwordForm.value.newPassword || passwordForm.value.newPassword.length < 6) {
+    useNotify({ message: 'Mật khẩu mới phải có ít nhất 6 ký tự' })
+    return
+  }
+
+  if (passwordForm.value.newPassword !== passwordForm.value.confirmPassword) {
+    useNotify({ message: 'Mật khẩu mới và xác nhận mật khẩu không khớp' })
+    return
+  }
 
   changingPassword.value = true
 
@@ -204,33 +261,23 @@ const handleChangePassword = async () => {
     })
 
     useNotify({
-      message: 'Password changed successfully',
+      message: 'Đổi mật khẩu thành công',
       type: 'success',
     })
 
-    // Reset form
     passwordForm.value = {
       currentPassword: '',
       newPassword: '',
       confirmPassword: '',
     }
-
-    showCurrentPassword.value = false
-    showNewPassword.value = false
-    showConfirmPassword.value = false
-  } catch (error: any) {
-    console.error('Failed to change password:', error)
-
-    if (error.message?.includes('Current password is incorrect')) {
-      formErrors.value.currentPassword = 'Current password is incorrect'
-    } else if (error.message?.includes('do not match')) {
-      formErrors.value.confirmPassword = 'Passwords do not match'
-    } else {
-      useNotify({
-        message: error.message || 'Failed to change password',
-        type: 'error',
-      })
-    }
+  } catch (error: unknown) {
+    const err = error as { message?: string | string[] }
+    console.error('Change password failed:', err)
+    useNotify({
+      message: Array.isArray(err.message)
+        ? err.message[0]
+        : err.message || 'Đổi mật khẩu thất bại',
+    })
   } finally {
     changingPassword.value = false
   }

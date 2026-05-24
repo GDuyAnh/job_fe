@@ -1,321 +1,382 @@
 <template>
-  <div>
-    <!-- Header: Title + Welcome + Search + Filters -->
-    <div class="mb-6">
-      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
-        <div>
-          <h1 class="text-2xl font-bold text-gray-900">
+  <div class="employer-admin-applications-wrap">
+    <div class="employer-admin-applications-panel">
+      <div class="employer-admin-applications-toolbar flex flex-col lg:flex-row lg:items-center lg:justify-between">
+        <div class="employer-admin-companies-head">
+          <h1 class="text-3xl font-bold text-gray-400">
             {{ $t('dashboard.admin.applications.title') }}
           </h1>
-          <p class="mt-1 text-sm text-gray-500">
+          <p class="text-gray-500 text-sm">
             {{ $t('dashboard.admin.applications.welcome') }}
           </p>
         </div>
-        <div class="w-full sm:w-96">
-          <UInput
-            v-model="searchQuery"
-            :placeholder="$t('dashboard.admin.applications.searchPlaceholder')"
-            icon="i-lucide-search"
-            class="w-full"
-            clearable
-          />
-        </div>
-      </div>
-      <!-- Filters: CANDIDATE EXPERTISE + LOCATION (multi-select) -->
-      <div class="flex flex-wrap items-center gap-3">
-        <div class="flex items-center gap-2 min-w-0 flex-1 sm:flex-initial">
-          <span class="text-sm font-medium text-gray-700 whitespace-nowrap">{{ $t('dashboard.admin.applications.filterExpertise') }}:</span>
-          <v-select
-            v-model="filterExpertiseForSelect"
-            :options="categoryItemsWithoutAll"
-            multiple
-            searchable
-            class="w-full sm:w-64 text-sm border border-gray-200 rounded-lg"
-            :placeholder="$t('dashboard.admin.applications.filterAll')"
-            label="label"
-          />
-        </div>
-        <div class="flex items-center gap-2 min-w-0 flex-1 sm:flex-initial">
-          <span class="text-sm font-medium text-gray-700 whitespace-nowrap">{{ $t('dashboard.admin.applications.filterLocation') }}:</span>
-          <v-select
-            v-model="filterLocationForSelect"
-            :options="locationItemsWithoutAll"
-            multiple
-            searchable
-            class="w-full sm:w-64 text-sm border border-gray-200 rounded-lg"
-            :placeholder="$t('dashboard.admin.applications.filterAll')"
-            label="label"
-          />
-        </div>
-      </div>
-    </div>
-
-    <!-- Table + Pagination -->
-    <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
-      <!-- Pagination: above table -->
-      <div class="flex items-center justify-end gap-2 px-4 py-3 border-b border-gray-200 bg-gray-50/50">
-        <UButton
-          variant="ghost"
-          size="xs"
-          icon="i-lucide-chevron-left"
-          :disabled="currentPage <= 1"
-          @click="currentPage = Math.max(1, currentPage - 1)"
-        />
-        <span class="text-sm text-gray-600">
-          {{ currentPage }} / {{ totalPages || 1 }}
-        </span>
-        <UButton
-          variant="ghost"
-          size="xs"
-          icon="i-lucide-chevron-right"
-          :disabled="currentPage >= totalPages"
-          @click="currentPage = Math.min(totalPages, currentPage + 1)"
-        />
-        <USelect
-          v-model="itemsPerPageStr"
-          :items="itemsPerPageOptions"
-          class="w-28"
+        <UInput
+          v-model="searchQuery"
+          :placeholder="$t('dashboard.admin.applications.searchPlaceholder')"
+          icon="i-lucide-search"
+          class="employer-admin-applications-search min-w-0 w-full max-w-[380px] shrink-0"
+          :ui="{ base: 'h-10 rounded-xl text-[13px]' }"
         />
       </div>
 
-      <div v-if="loading" class="py-12 text-center text-gray-500">
-        {{ $t('dashboard.admin.companies.loading') }}
-      </div>
-      <div v-else-if="paginatedApplications.length === 0" class="py-16 text-center">
-        <UIcon name="i-lucide-inbox" class="w-14 h-14 text-gray-400 mx-auto mb-3" />
-        <p class="text-gray-600">{{ $t('dashboard.main.applicationsTable.noApplications') }}</p>
-      </div>
-      <div v-else class="overflow-x-auto">
-        <table class="w-full">
-          <thead class="bg-white border-b border-gray-200">
-            <tr>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                {{ $t('dashboard.admin.applications.table.jobPosition') }}
-              </th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                {{ $t('dashboard.admin.applications.table.candidate') }}
-              </th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                {{ $t('dashboard.admin.applications.table.email') }}
-              </th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                {{ $t('dashboard.admin.applications.table.cv') }}
-              </th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider relative">
-                <button
-                  type="button"
-                  class="inline-flex items-center gap-1 hover:text-gray-700"
-                  @click="showExpertiseFilter = !showExpertiseFilter"
-                >
-                  {{ $t('dashboard.admin.applications.table.candidateExpertise') }}
-                  <UIcon
-                    v-if="filterExpertise.length > 0"
-                    name="i-lucide-filter"
-                    class="w-3.5 h-3.5 ml-0.5 text-blue-600"
+      <div class="employer-admin-applications-filters">
+            <div class="employer-admin-candidates-filters employer-admin-candidates-filters-grid">
+              <div class="space-y-1.5">
+                <label class="employer-input-label">
+                  {{ $t('dashboard.admin.applications.filterExpertise') }}
+                </label>
+                <div class="job-vselect w-full min-w-0">
+                  <v-select
+                    v-model="filterExpertiseForSelect"
+                    :options="categoryItemsWithoutAll"
+                    :append-to-body="true"
+                    multiple
+                    searchable
+                    class="w-full text-sm"
+                    :placeholder="$t('dashboard.admin.applications.filterAll')"
+                    label="label"
+                    @open="onMultiSelectOpen"
+                    @close="onMultiSelectClose"
                   />
-                  <UIcon
-                    v-else
-                    name="i-lucide-filter"
-                    class="inline-block w-3.5 h-3.5 ml-0.5 text-gray-400"
+                </div>
+              </div>
+              <div class="space-y-1.5">
+                <label class="employer-input-label">
+                  {{ $t('dashboard.admin.applications.filterLocation') }}
+                </label>
+                <div class="job-vselect w-full min-w-0">
+                  <v-select
+                    v-model="filterLocationForSelect"
+                    :options="locationItemsWithoutAll"
+                    :append-to-body="true"
+                    multiple
+                    searchable
+                    class="w-full text-sm"
+                    :placeholder="$t('dashboard.admin.applications.filterAll')"
+                    label="label"
+                    @open="onMultiSelectOpen"
+                    @close="onMultiSelectClose"
                   />
-                </button>
-                <div
-                  v-if="showExpertiseFilter"
-                  class="fixed z-[100] mt-1 bg-white rounded-lg shadow-lg border border-gray-200 p-2 expertise-filter-dropdown"
-                  style="min-width: 200px;"
-                >
-                  <div class="max-h-60 overflow-y-auto">
-                    <label
-                      v-for="item in categoryItemsWithoutAll"
-                      :key="item.value"
-                      class="flex items-center gap-2 cursor-pointer px-2 py-1.5 hover:bg-gray-50 rounded"
-                    >
-                      <input
-                        type="checkbox"
-                        :value="item.value"
-                        :checked="filterExpertise.includes(item.value)"
-                        class="w-4 h-4 text-blue-600 rounded"
-                        @change="toggleExpertiseFilter(item.value)"
+                </div>
+              </div>
+            </div>
+      </div>
+
+      <div class="employer-admin-applications-body employer-candidates-content">
+          <div v-if="loading" class="employer-candidates-loading">
+            <USkeleton class="h-64 w-full" />
+          </div>
+
+          <template v-else>
+            <div class="employer-admin-candidates-table-scale">
+            <div class="employer-candidates-table-wrap">
+              <table class="employer-candidates-table">
+                <thead>
+                  <tr>
+                    <th>{{ $t('dashboard.admin.applications.table.jobPosition') }}</th>
+                    <th>{{ $t('dashboard.admin.applications.table.candidate') }}</th>
+                    <th>{{ $t('dashboard.admin.applications.table.email') }}</th>
+                    <th>SĐT</th>
+                    <th>{{ $t('dashboard.admin.applications.table.cv') }}</th>
+                    <th>{{ $t('dashboard.admin.applications.table.candidateExpertise') }}</th>
+                    <th>{{ $t('dashboard.admin.applications.table.location') }}</th>
+                    <th>{{ $t('dashboard.admin.applications.table.createdAt') }}</th>
+                    <th class="is-action">{{ $t('dashboard.admin.applications.table.actions') }}</th>
+                  </tr>
+                </thead>
+                <tbody data-candidates-rows="">
+                  <tr v-if="paginatedApplications.length === 0">
+                    <td colspan="9" class="employer-candidates-empty-cell">
+                      {{ $t('dashboard.main.applicationsTable.noApplications') }}
+                    </td>
+                  </tr>
+                  <tr
+                    v-for="app in paginatedApplications"
+                    :key="app.id"
+                    data-candidate-row=""
+                  >
+                    <td>
+                      <div class="employer-candidate-role">
+                        <strong>{{ app.jobTitle || '–' }}</strong>
+                        <div v-if="app.companyName" class="employer-candidate-employer">
+                          <img
+                            v-if="app.companyLogo"
+                            :src="app.companyLogo"
+                            :alt="`${app.companyName} logo`"
+                            loading="lazy"
+                          >
+                          <span>{{ app.companyName }}</span>
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <div class="employer-candidate-person">
+                        <strong>{{ app.applicantName || '–' }}</strong>
+                      </div>
+                    </td>
+                    <td>{{ app.email || '–' }}</td>
+                    <td>{{ app.phone || '–' }}</td>
+                    <td>
+                      <a
+                        v-if="app.cvUrl"
+                        :href="app.cvUrl"
+                        class="employer-candidate-cv"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        :download="cvFileName(app)"
+                      >
+                        <span>Tải CV</span>
+                      </a>
+                      <span v-else class="employer-overview-table-muted">—</span>
+                    </td>
+                    <td>
+                      <div class="employer-admin-candidate-tags">
+                        <span
+                          v-for="label in getCategoryLabels(app.category)"
+                          :key="label"
+                          class="employer-admin-candidate-tag"
+                        >
+                          {{ label }}
+                        </span>
+                        <span
+                          v-if="getCategoryLabels(app.category).length === 0"
+                          class="employer-overview-table-muted"
+                        >—</span>
+                      </div>
+                    </td>
+                    <td>
+                      <div class="employer-admin-candidate-tags">
+                        <span
+                          v-for="label in getLocationLabels(app.location)"
+                          :key="label"
+                          class="employer-admin-candidate-tag"
+                        >
+                          {{ label }}
+                        </span>
+                        <span
+                          v-if="getLocationLabels(app.location).length === 0"
+                          class="employer-overview-table-muted"
+                        >—</span>
+                      </div>
+                    </td>
+                    <td>{{ formatDate(app.applicationDate) }}</td>
+                    <td class="is-action">
+                      <EmployerRowActions
+                        :show-edit="false"
+                        :delete-disabled="deletingId === app.id"
+                        @view="viewApplication(app)"
+                        @delete="deleteApplication(app)"
                       />
-                      <span class="text-sm">{{ item.label }}</span>
-                    </label>
-                  </div>
-                  <div v-if="filterExpertise.length > 0" class="border-t border-gray-200 mt-2 pt-2">
-                    <button
-                      type="button"
-                      class="w-full text-center text-sm text-blue-600 hover:text-blue-700 py-1"
-                      @click="filterExpertise = []"
-                    >
-                      Xóa bộ lọc
-                    </button>
-                  </div>
-                </div>
-              </th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                {{ $t('dashboard.admin.applications.table.location') }}
-              </th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                {{ $t('dashboard.admin.applications.table.createdAt') }}
-              </th>
-              <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                {{ $t('dashboard.admin.applications.table.actions') }}
-              </th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-gray-200">
-            <tr
-              v-for="app in paginatedApplications"
-              :key="app.id"
-              class="hover:bg-gray-50"
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <nav
+              v-if="filteredApplications.length > 0"
+              class="employer-dashboard-pagination employer-candidates-pagination"
+              aria-label="Phân trang ứng viên"
             >
-              <!-- JOB POSITION: logo + title + company -->
-              <td class="px-6 py-4">
-                <div class="flex items-center gap-3">
-                  <div
-                    class="w-10 h-10 rounded-lg bg-gray-100 flex-shrink-0 overflow-hidden flex items-center justify-center"
-                  >
-                    <img
-                      v-if="app.companyLogo"
-                      :src="app.companyLogo"
-                      :alt="app.companyName"
-                      class="w-full h-full object-cover"
-                    >
-                    <UIcon v-else name="i-lucide-briefcase" class="w-5 h-5 text-gray-400" />
-                  </div>
-                  <div class="min-w-0">
-                    <p class="text-sm font-medium text-gray-900 truncate">{{ app.jobTitle }}</p>
-                    <p class="text-xs text-gray-500 truncate">{{ app.companyName }}</p>
-                  </div>
-                </div>
-              </td>
-              <!-- CANDIDATE: avatar + name + phone -->
-              <td class="px-6 py-4">
-                <div class="flex items-center gap-3">
-                  <div
-                    class="w-10 h-10 rounded-full bg-gray-200 flex-shrink-0 flex items-center justify-center text-gray-600"
-                  >
-                    <UIcon name="i-lucide-user" class="w-5 h-5" />
-                  </div>
-                  <div>
-                    <p class="text-sm font-medium text-gray-900">{{ app.applicantName || '–' }}</p>
-                    <div class="flex items-center gap-1 text-xs text-gray-500 mt-0.5">
-                      <UIcon name="i-lucide-phone" class="w-3.5 h-3.5" />
-                      {{ app.phone || '–' }}
-                    </div>
-                  </div>
-                </div>
-              </td>
-              <!-- EMAIL -->
-              <td class="px-6 py-4 text-sm text-gray-900">{{ app.email || '–' }}</td>
-              <!-- CV -->
-              <td class="px-6 py-4">
-                <a
-                  v-if="app.cvUrl"
-                  :href="app.cvUrl"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  class="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-blue-100 text-blue-600 hover:bg-blue-200 transition-colors"
-                >
-                  <UIcon name="i-lucide-file-text" class="w-5 h-5" />
-                </a>
-                <span v-else class="text-sm text-gray-400">–</span>
-              </td>
-              <!-- CANDIDATE EXPERTISE (category tags) -->
-              <td class="px-6 py-4">
-                <div class="flex flex-wrap gap-1">
-                  <span
-                    v-for="label in getCategoryLabels(app.category)"
-                    :key="label"
-                    class="inline-flex px-2 py-0.5 text-xs font-medium rounded-md bg-gray-100 text-gray-700"
-                  >
-                    {{ label }}
-                  </span>
-                  <span v-if="getCategoryLabels(app.category).length === 0" class="text-sm text-gray-400">–</span>
-                </div>
-              </td>
-              <!-- LOCATION (tags) -->
-              <td class="px-6 py-4">
-                <div class="flex flex-wrap gap-1">
-                  <span
-                    v-for="label in getLocationLabels(app.location)"
-                    :key="label"
-                    class="inline-flex px-2 py-0.5 text-xs font-medium rounded-md bg-gray-100 text-gray-700"
-                  >
-                    {{ label }}
-                  </span>
-                  <span v-if="getLocationLabels(app.location).length === 0" class="text-sm text-gray-400">–</span>
-                </div>
-              </td>
-              <!-- CREATED AT -->
-              <td class="px-6 py-4 text-sm text-gray-600 whitespace-nowrap">
-                {{ formatDate(app.applicationDate) }}
-              </td>
-              <!-- ACTION: delete -->
-              <td class="px-6 py-4 text-right whitespace-nowrap">
+              <p class="employer-dashboard-pagination-meta">
+                Hiển thị {{ paginationFrom }}-{{ paginationTo }} trong
+                {{ filteredApplications.length }} ứng viên
+              </p>
+              <div class="employer-dashboard-pagination-pages">
                 <button
+                  v-if="currentPage > 1"
                   type="button"
-                  class="inline-flex items-center justify-center w-9 h-9 rounded-lg text-red-600 hover:bg-red-50 transition-colors disabled:opacity-50"
-                  :disabled="deletingId === app.id"
-                  @click="deleteApplication(app)"
+                  class="employer-dashboard-page-nav"
+                  aria-label="Trang trước"
+                  @click="currentPage--"
                 >
-                  <UIcon
-                    :name="deletingId === app.id ? 'i-lucide-loader-2' : 'i-lucide-trash-2'"
-                    class="w-5 h-5"
-                    :class="{ 'animate-spin': deletingId === app.id }"
-                  />
+                  ‹
                 </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+
+                <template v-for="(page, index) in paginationItems" :key="`${page}-${index}`">
+                  <span
+                    v-if="page === 'ellipsis'"
+                    class="employer-dashboard-page-ellipsis"
+                    aria-hidden="true"
+                  >…</span>
+                  <button
+                    v-else
+                    type="button"
+                    class="employer-dashboard-page-btn"
+                    :class="{ 'is-active': page === currentPage }"
+                    :aria-label="`Trang ${page}`"
+                    :aria-current="page === currentPage ? 'page' : undefined"
+                    @click="currentPage = page"
+                  >
+                    {{ page }}
+                  </button>
+                </template>
+
+                <button
+                  v-if="currentPage < totalPages"
+                  type="button"
+                  class="employer-dashboard-page-nav"
+                  aria-label="Trang sau"
+                  @click="currentPage++"
+                >
+                  ›
+                </button>
+              </div>
+            </nav>
+            </div>
+          </template>
       </div>
     </div>
+  </div>
 
-    <!-- Delete confirmation popup -->
-    <Teleport to="body">
+  <Teleport to="body">
+    <div
+      class="employer-candidate-dialog"
+      data-candidate-dialog=""
+      :hidden="!showCandidateDialog"
+    >
+      <button
+        type="button"
+        class="employer-candidate-dialog-backdrop"
+        data-candidate-dialog-close=""
+        aria-label="Đóng chi tiết ứng viên"
+        @click="closeCandidateDialog"
+      />
       <div
-        v-if="showDeleteModal"
-        class="fixed inset-0 z-[200] flex items-center justify-center bg-black/40"
-        @click.self="cancelDelete"
+        v-if="candidateDetail"
+        class="employer-candidate-dialog-panel"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Chi tiết ứng viên"
+        @click.stop
       >
-        <div
-          class="bg-white rounded-xl shadow-2xl w-full max-w-md p-6 space-y-4"
-          @click.stop
-        >
-          <h3 class="text-lg font-semibold text-gray-900">
-            Xóa đơn ứng tuyển?
-          </h3>
-          <p class="text-sm text-gray-600">
-            Bạn có chắc chắn muốn xóa đơn ứng tuyển của
-            <span class="font-semibold">
-              "{{ applicationPendingDelete?.fullName || '' }}"
-            </span>
-            cho vị trí
-            <span class="font-semibold">
-              "{{ applicationPendingDelete?.jobTitle || '' }}"
-            </span>
-            ? Hành động này không thể hoàn tác.
-          </p>
-          <div class="flex justify-end gap-3 pt-2">
-            <UButton
-              variant="ghost"
-              color="neutral"
-              @click="cancelDelete"
-            >
-              Hủy
-            </UButton>
-            <UButton
-              color="error"
-              :loading="deletingId !== null"
-              @click="confirmDelete"
-            >
-              Xóa
-            </UButton>
+        <div class="employer-candidate-dialog-head">
+          <div class="employer-candidate-dialog-copy">
+            <h2 data-candidate-detail-name="">{{ candidateDetail.name }}</h2>
+          </div>
+
+          <button
+            type="button"
+            class="employer-edit-drawer-close"
+            data-candidate-dialog-close=""
+            aria-label="Đóng chi tiết ứng viên"
+            @click="closeCandidateDialog"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path
+                d="M6 6 18 18M18 6 6 18"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+              />
+            </svg>
+          </button>
+        </div>
+
+        <div class="employer-candidate-dialog-body">
+          <div class="employer-candidate-detail-grid">
+            <div class="employer-candidate-detail-item">
+              <span>Tên ứng viên</span>
+              <strong>{{ candidateDetail.name }}</strong>
+            </div>
+            <div class="employer-candidate-detail-item">
+              <span>Email</span>
+              <strong>{{ candidateDetail.email }}</strong>
+            </div>
+            <div class="employer-candidate-detail-item">
+              <span>Số điện thoại</span>
+              <strong>{{ candidateDetail.phone || '—' }}</strong>
+            </div>
+            <div class="employer-candidate-detail-item">
+              <span>CV</span>
+              <a
+                v-if="candidateDetail.cvUrl"
+                :href="candidateDetail.cvUrl"
+                class="employer-candidate-cv"
+                target="_blank"
+                rel="noopener noreferrer"
+                :download="candidateDetail.cvDownloadName"
+              >
+                Tải CV
+              </a>
+              <strong v-else>—</strong>
+            </div>
+          </div>
+
+          <div class="employer-candidate-detail-section">
+            <h3>Các công việc đã ứng tuyển</h3>
+            <ul class="employer-candidate-job-list">
+              <li
+                v-for="job in candidateDetail.jobs"
+                :key="`${job.jobTitle}-${job.applicationDate}`"
+                class="employer-candidate-job-item"
+              >
+                <strong class="employer-candidate-job-title">{{ job.jobTitle }}</strong>
+                <div class="employer-candidate-job-meta">
+                  <div v-if="job.companyName" class="employer-candidate-job-employer">
+                    <img
+                      v-if="job.companyLogo"
+                      :src="job.companyLogo"
+                      :alt="`${job.companyName} logo`"
+                      loading="lazy"
+                    >
+                    <span>{{ job.companyName }}</span>
+                  </div>
+                  <span class="employer-candidate-job-date">
+                    Ngày ứng tuyển: {{ formatDate(job.applicationDate) }}
+                  </span>
+                </div>
+              </li>
+            </ul>
           </div>
         </div>
       </div>
-    </Teleport>
-  </div>
+    </div>
+  </Teleport>
+
+  <Teleport to="body">
+    <div
+      v-if="showDeleteModal"
+      class="fixed inset-0 z-[200] flex items-center justify-center bg-black/40"
+      @click.self="cancelDelete"
+    >
+      <div
+        class="bg-white rounded-xl shadow-2xl w-full max-w-md p-6 space-y-4"
+        @click.stop
+      >
+        <h3 class="text-lg font-semibold text-gray-900">
+          Xóa đơn ứng tuyển?
+        </h3>
+        <p class="text-sm text-gray-600">
+          Bạn có chắc chắn muốn xóa đơn ứng tuyển của
+          <span class="font-semibold">
+            "{{ applicationPendingDelete?.applicantName || '' }}"
+          </span>
+          cho vị trí
+          <span class="font-semibold">
+            "{{ applicationPendingDelete?.jobTitle || '' }}"
+          </span>
+          ? Hành động này không thể hoàn tác.
+        </p>
+        <div class="flex justify-end gap-3 pt-2">
+          <UButton
+            variant="ghost"
+            color="neutral"
+            @click="cancelDelete"
+          >
+            Hủy
+          </UButton>
+          <UButton
+            color="error"
+            :loading="deletingId !== null"
+            @click="confirmDelete"
+          >
+            Xóa
+          </UButton>
+        </div>
+      </div>
+    </div>
+  </Teleport>
 </template>
 
 <script setup lang="ts">
@@ -323,6 +384,7 @@ import type { AdminApplication } from '~/services/modules/admin'
 import { useJobFilters } from '~/composables/useMasterdataOptions'
 
 const { $api } = useNuxtApp()
+const { t } = useI18n()
 const { locationEnumLabel, categoryEnumLabel, categoryItemsWithoutAll, locationItemsWithoutAll } = useJobFilters()
 
 const loading = ref(false)
@@ -332,15 +394,48 @@ const searchQuery = ref('')
 const filterExpertise = ref<string[]>([])
 const filterLocation = ref<string[]>([])
 const currentPage = ref(1)
+const itemsPerPage = 10
+const showCandidateDialog = ref(false)
+const selectedApplicantEmail = ref<string | null>(null)
 
-// Column filter states
-const showExpertiseFilter = ref(false)
-
-// Delete confirmation modal
 const showDeleteModal = ref(false)
 const applicationPendingDelete = ref<AdminApplication | null>(null)
 
-// v-select multiple: bind to array of option objects, sync with filterExpertise (values)
+const vSelectOpenCount = ref(0)
+
+const preventScrollOutsideVSelect = (e: Event) => {
+  const target = e.target as HTMLElement | null
+  if (target?.closest?.('.vs__dropdown-menu')) return
+  e.preventDefault()
+}
+
+const setVSelectScrollLock = (locked: boolean) => {
+  if (typeof document === 'undefined') return
+  document.body.classList.toggle('vselect-scroll-lock', locked)
+  if (locked) {
+    window.addEventListener('wheel', preventScrollOutsideVSelect, { passive: false })
+    window.addEventListener('touchmove', preventScrollOutsideVSelect, { passive: false })
+  } else {
+    window.removeEventListener('wheel', preventScrollOutsideVSelect as EventListener)
+    window.removeEventListener('touchmove', preventScrollOutsideVSelect as EventListener)
+  }
+}
+
+const onMultiSelectOpen = () => {
+  vSelectOpenCount.value += 1
+  if (vSelectOpenCount.value === 1) setVSelectScrollLock(true)
+}
+
+const onMultiSelectClose = () => {
+  vSelectOpenCount.value = Math.max(0, vSelectOpenCount.value - 1)
+  if (vSelectOpenCount.value === 0) setVSelectScrollLock(false)
+}
+
+onUnmounted(() => {
+  setVSelectScrollLock(false)
+  vSelectOpenCount.value = 0
+})
+
 const filterExpertiseForSelect = computed({
   get: () => {
     const opts = categoryItemsWithoutAll.value || []
@@ -363,30 +458,63 @@ const filterLocationForSelect = computed({
     filterLocation.value = (val || []).map((o: { value: string }) => o?.value ?? '').filter(Boolean)
   },
 })
-const itemsPerPage = ref(10)
-const itemsPerPageStr = ref('10')
-const itemsPerPageOptions = [
-  { value: '10', label: '10 / page' },
-  { value: '20', label: '20 / page' },
-  { value: '50', label: '50 / page' },
-]
 
-watch(itemsPerPageStr, (v) => {
-  const raw = typeof v === 'object' && v !== null && 'value' in v ? (v as { value: string }).value : v
-  const n = Number(raw) || 10
-  itemsPerPage.value = n
-  currentPage.value = 1
+interface CandidateAppliedJob {
+  jobTitle: string
+  applicationDate: string
+  companyName: string
+  companyLogo?: string
+}
+
+interface CandidateDetail {
+  name: string
+  email: string
+  phone: string
+  cvUrl?: string
+  cvDownloadName: string
+  jobs: CandidateAppliedJob[]
+}
+
+const applicantApplications = computed(() => {
+  if (!selectedApplicantEmail.value) return []
+
+  const email = selectedApplicantEmail.value.toLowerCase()
+
+  return applications.value
+    .filter((app) => app.email?.toLowerCase() === email)
+    .sort((a, b) => {
+      const dateA = a.applicationDate ? new Date(a.applicationDate).getTime() : 0
+      const dateB = b.applicationDate ? new Date(b.applicationDate).getTime() : 0
+      return dateB - dateA
+    })
 })
 
-watch([filterExpertise, filterLocation], () => {
-  currentPage.value = 1
-}, { deep: true })
+const candidateDetail = computed((): CandidateDetail | null => {
+  const apps = applicantApplications.value
+  if (!apps.length) return null
+
+  const first = apps[0]
+  const cvUrl = apps.find((app) => app.cvUrl)?.cvUrl
+
+  return {
+    name: first.applicantName,
+    email: first.email,
+    phone: first.phone,
+    cvUrl,
+    cvDownloadName: cvFileName(first),
+    jobs: apps.map((app) => ({
+      jobTitle: app.jobTitle,
+      applicationDate: app.applicationDate,
+      companyName: app.companyName,
+      companyLogo: app.companyLogo,
+    })),
+  }
+})
 
 function getCategoryLabel(categoryValue: string): string {
   if (!categoryValue) return ''
   const label = (categoryEnumLabel as Record<string, string>)?.[categoryValue]
     ?? (categoryEnumLabel as Record<string, string>)?.[Number(categoryValue)]
-
   return label ?? categoryValue
 }
 
@@ -401,7 +529,6 @@ function getLocationLabel(locValue: string): string {
   if (locValue === '0') return 'Toàn Quốc'
   const label = (locationEnumLabel as Record<string, string>)?.[locValue]
     ?? (locationEnumLabel as Record<string, string>)?.[Number(locValue)]
-
   return label ?? locValue
 }
 
@@ -411,25 +538,8 @@ function getLocationLabels(location: string | null | undefined): string[] {
   return arr.map(l => getLocationLabel(l)).filter(Boolean)
 }
 
-function toggleExpertiseFilter(value: string) {
-  const index = filterExpertise.value.indexOf(value)
-  if (index === -1) {
-    filterExpertise.value.push(value)
-  } else {
-    filterExpertise.value.splice(index, 1)
-  }
-}
-
-function formatDate(date: string | Date | undefined): string {
-  if (!date) return '–'
-  const d = typeof date === 'string' ? new Date(date) : date
-  if (Number.isNaN(d.getTime())) return '–'
-  return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' })
-}
-
 const filteredApplications = computed(() => {
   let list = applications.value
-  // Search: tên, vị trí ứng tuyển (job title), công ty, email, số điện thoại
   const q = searchQuery.value?.trim().toLowerCase()
   if (q) {
     list = list.filter(app =>
@@ -440,7 +550,6 @@ const filteredApplications = computed(() => {
       (app.phone ?? '').replace(/\s/g, '').toLowerCase().includes(q.replace(/\s/g, '')),
     )
   }
-  // Filter: CANDIDATE EXPERTISE (category) - multi: match any selected
   if (filterExpertise.value.length > 0) {
     const selectedCats = new Set(filterExpertise.value.map(c => String(c)))
     list = list.filter(app => {
@@ -448,7 +557,6 @@ const filteredApplications = computed(() => {
       return cats.some(c => selectedCats.has(c))
     })
   }
-  // Filter: LOCATION (tỉnh thành) - multi: match any selected
   if (filterLocation.value.length > 0) {
     const selectedLocs = new Set(filterLocation.value.map(l => String(l)))
     list = list.filter(app => {
@@ -460,12 +568,76 @@ const filteredApplications = computed(() => {
 })
 
 const totalPages = computed(() =>
-  Math.max(1, Math.ceil(filteredApplications.value.length / itemsPerPage.value)),
+  Math.max(1, Math.ceil(filteredApplications.value.length / itemsPerPage)),
 )
 
 const paginatedApplications = computed(() => {
-  const start = (currentPage.value - 1) * itemsPerPage.value
-  return filteredApplications.value.slice(start, start + itemsPerPage.value)
+  const start = (currentPage.value - 1) * itemsPerPage
+  return filteredApplications.value.slice(start, start + itemsPerPage)
+})
+
+const paginationFrom = computed(() => {
+  if (filteredApplications.value.length === 0) return 0
+  return (currentPage.value - 1) * itemsPerPage + 1
+})
+
+const paginationTo = computed(() =>
+  Math.min(currentPage.value * itemsPerPage, filteredApplications.value.length),
+)
+
+type PaginationItem = number | 'ellipsis'
+
+const paginationItems = computed((): PaginationItem[] => {
+  const total = totalPages.value
+  const current = currentPage.value
+  const items: PaginationItem[] = []
+
+  if (total <= 7) {
+    for (let i = 1; i <= total; i++) items.push(i)
+    return items
+  }
+
+  items.push(1)
+  if (current > 3) items.push('ellipsis')
+
+  const start = Math.max(2, current - 1)
+  const end = Math.min(total - 1, current + 1)
+  for (let i = start; i <= end; i++) items.push(i)
+
+  if (current < total - 2) items.push('ellipsis')
+  items.push(total)
+  return items
+})
+
+function formatDate(date: string | Date | undefined): string {
+  if (!date) return '–'
+  const d = typeof date === 'string' ? new Date(date) : date
+  if (Number.isNaN(d.getTime())) return '–'
+  const day = String(d.getDate()).padStart(2, '0')
+  const month = String(d.getMonth() + 1).padStart(2, '0')
+  const year = d.getFullYear()
+  return `${day}/${month}/${year}`
+}
+
+function cvFileName(app: AdminApplication) {
+  const base = (app.applicantName || '')
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, '-')
+    .replace(/[^a-z0-9-]/gi, '')
+  return base ? `cv-${base}.pdf` : 'cv.pdf'
+}
+
+watch(searchQuery, () => {
+  currentPage.value = 1
+})
+
+watch([filterExpertise, filterLocation], () => {
+  currentPage.value = 1
+}, { deep: true })
+
+watch(totalPages, (total) => {
+  if (currentPage.value > total) currentPage.value = total
 })
 
 async function fetchApplications() {
@@ -473,16 +645,47 @@ async function fetchApplications() {
   try {
     const res = await $api.admin.getApplications()
     applications.value = Array.isArray(res) ? res : []
-  } catch (e: any) {
+  } catch (e: unknown) {
+    const err = e as { message?: string }
     console.error(e)
-    useNotify({ message: e?.message || 'Không tải được danh sách ứng tuyển', type: 'error' })
+    useNotify({ message: err?.message || 'Không tải được danh sách ứng tuyển', type: 'error' })
     applications.value = []
   } finally {
     loading.value = false
   }
 }
 
-/** Gọi từ template (nút Xóa). */
+function viewApplication(application: AdminApplication) {
+  selectedApplicantEmail.value = application.email
+  showCandidateDialog.value = true
+}
+
+function closeCandidateDialog() {
+  showCandidateDialog.value = false
+  selectedApplicantEmail.value = null
+}
+
+function onDialogKeydown(event: KeyboardEvent) {
+  if (event.key === 'Escape') closeCandidateDialog()
+}
+
+watch(showCandidateDialog, (open) => {
+  if (!import.meta.client) return
+  if (open) {
+    document.body.style.overflow = 'hidden'
+    window.addEventListener('keydown', onDialogKeydown)
+  } else {
+    document.body.style.overflow = ''
+    window.removeEventListener('keydown', onDialogKeydown)
+  }
+})
+
+onUnmounted(() => {
+  if (!import.meta.client) return
+  document.body.style.overflow = ''
+  window.removeEventListener('keydown', onDialogKeydown)
+})
+
 function deleteApplication(application: AdminApplication) {
   applicationPendingDelete.value = application
   showDeleteModal.value = true
@@ -493,10 +696,21 @@ async function confirmDelete() {
   deletingId.value = applicationPendingDelete.value.id
   try {
     await $api.admin.deleteApplication(applicationPendingDelete.value.id)
-    applications.value = applications.value.filter(app => app.id !== applicationPendingDelete.value!.id)
-    useNotify({ message: $t('dashboard.admin.applications.deleteSuccess'), type: 'success' })
-  } catch (e: any) {
-    useNotify({ message: e?.message || 'Xóa thất bại', type: 'error' })
+    applications.value = applications.value.filter(
+      app => app.id !== applicationPendingDelete.value!.id,
+    )
+    useNotify({ message: t('dashboard.admin.applications.deleteSuccess'), type: 'success' })
+    if (
+      selectedApplicantEmail.value
+      && !applications.value.some(
+        app => app.email?.toLowerCase() === selectedApplicantEmail.value?.toLowerCase(),
+      )
+    ) {
+      closeCandidateDialog()
+    }
+  } catch (e: unknown) {
+    const err = e as { message?: string }
+    useNotify({ message: err?.message || 'Xóa thất bại', type: 'error' })
   } finally {
     deletingId.value = null
     showDeleteModal.value = false
@@ -511,12 +725,5 @@ function cancelDelete() {
 
 onMounted(() => {
   fetchApplications()
-  document.addEventListener('click', (e) => {
-    const target = e.target as HTMLElement
-    const filterDropdown = document.querySelector('.expertise-filter-dropdown')
-    if (filterDropdown && !(filterDropdown as HTMLElement).contains(target) && !target.closest('th')) {
-      showExpertiseFilter.value = false
-    }
-  })
 })
 </script>

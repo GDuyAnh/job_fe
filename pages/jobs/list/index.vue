@@ -219,6 +219,10 @@ const router = useRouter()
 const { $api } = useNuxtApp()
 const authStore = useAuthStore()
 
+useHead({
+  title: 'Việc làm của tôi',
+})
+
 // Reactive data
 const loading = ref(false)
 const jobs = ref<JobModel[]>([])

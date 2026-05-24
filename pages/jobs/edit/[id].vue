@@ -772,6 +772,13 @@ const router = useRouter()
 const { $api } = useNuxtApp()
 const isComplete = ref(false)
 const job = ref<JobModelAddUpdate>({} as JobModelAddUpdate)
+
+useHead({
+  title: computed(() => {
+    const t = job.value?.title?.trim()
+    return t && t.length > 0 ? `Sửa: ${t}` : 'Sửa tin tuyển dụng'
+  }),
+})
 const currentCompanies = ref<CompanyEntity[]>([])
 
 const searchCompany = ref('')

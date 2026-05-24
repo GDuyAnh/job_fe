@@ -2,39 +2,40 @@
   <header v-if="!headerStore.hideHeader" class="app-header">
     <div class="app-header__container">
       <div class="app-header__inner">
-        <!-- Brand -->
-        <NuxtLink to="/" class="app-header__brand" aria-label="Home">
-          <span class="app-header__brandText">TuyenGiaoVien<span class="app-header__dot">.vn</span></span>
-        </NuxtLink>
+        <!-- Cụm trái: Logo -->
+        <div class="app-header__cluster app-header__cluster--start">
+          <NuxtLink to="/" class="wordmark" aria-label="Home">
+            <span class="wordmark-main">TuyenGiaoVien</span>
+            <span class="wordmark-dot">.vn</span>
+          </NuxtLink>
+        </div>
 
-        <!-- Menu -->
-        <nav class="app-header__nav" aria-label="Primary">
+        <!-- Cụm giữa: Nav -->
+        <nav class="site-nav" data-mobile-nav aria-label="Primary">
           <NuxtLink
             v-for="item in menuItems"
             :key="item.to"
             :to="item.to"
-            class="app-header__navItem"
             :class="{ 'is-active': isActive(item) }"
           >
             {{ item.label }}
           </NuxtLink>
         </nav>
 
-        <!-- Actions -->
-        <div class="app-header__actions">
+        <!-- Cụm phải: Buttons -->
+        <div class="topbar-actions app-header__cluster app-header__cluster--end">
           <template v-if="authStore.isLoggedIn">
             <UDropdownMenu
               :items="userDropdownItems"
               :content="{ align: 'end', side: 'bottom', sideOffset: 8 }"
               :ui="{ content: 'z-[70] w-56' }"
             >
-              <UButton
-                variant="ghost"
-                color="neutral"
-                class="app-header__userBtn"
-                :label="authStore.user?.fullName || authStore.user?.email || 'User'"
-                trailing-icon="i-lucide-chevron-down"
-              />
+              <button type="button" class="primary-btn small-btn topbar-actions__user">
+                <span class="topbar-actions__userLabel">
+                  {{ authStore.user?.fullName || authStore.user?.email || 'User' }}
+                </span>
+                <UIcon name="i-lucide-chevron-down" class="size-4 shrink-0" />
+              </button>
             </UDropdownMenu>
           </template>
           <template v-else>
@@ -43,24 +44,26 @@
               :initial-view="authModalView"
               @closed="onAuthModalClosed"
             >
-              <UButton
-                label="Đăng ký / Đăng nhập"
-                color="primary"
-                variant="solid"
-                class="app-header__authBtn"
+              <button
+                type="button"
+                class="primary-btn small-btn"
+                data-auth-open
+                data-auth-view-target="login"
                 @click="openAuthModal('login')"
-              />
+              >
+                Đăng ký / Đăng nhập
+              </button>
             </AuthModal>
           </template>
 
-          <UButton
+          <button
             v-if="showPostButton"
-            :to="ROUTE_PAGE.PAGE"
-            label="Đăng tin miễn phí"
-            color="primary"
-            variant="outline"
-            class="app-header__postBtn"
-          />
+            type="button"
+            class="white-btn small-btn"
+            @click="handlePostJobFree"
+          >
+            Đăng tin miễn phí
+          </button>
         </div>
       </div>
     </div>
@@ -109,120 +112,38 @@ const userRole = computed(() => authStore.user?.role)
 const isAdmin = computed(() => userRole.value === USER_ROLES.ADMIN)
 const isCompany = computed(() => userRole.value === USER_ROLES.COMPANY)
 
-// Hide "Đăng tin miễn phí" for ADMIN/COMPANY
-const showPostButton = computed(() => {
-  if (!authStore.isLoggedIn) return true
-  return !(isAdmin.value || isCompany.value)
-})
+// Chỉ hiển thị khi chưa đăng nhập
+const showPostButton = computed(() => !authStore.isLoggedIn)
+
+const handlePostJobFree = () => {
+  router.push(ROUTE_PAGE.PAGE)
+}
 
 const goDashboard = (path: string, query?: Record<string, any>) => {
   router.push({ path, query: query ?? {} })
 }
 
+const overviewDashboardTarget = computed(() => {
+  if (isAdmin.value) {
+    return { path: ROUTE_PAGE.DASHBOARD.ADMIN, query: { view: 'adminDashboard' } }
+  }
+  if (isCompany.value) {
+    return { path: ROUTE_PAGE.DASHBOARD.COMPANY, query: { view: 'dashboard' } }
+  }
+  return { path: ROUTE_PAGE.DASHBOARD.USER, query: { view: 'dashboard' } }
+})
+
 const userDropdownItems = computed(() => {
   const items: any[] = []
 
-  if (isAdmin.value) {
-    items.push(
-      [
-        {
-          label: 'Dashboard',
-          icon: 'i-lucide-layout-dashboard',
-          onSelect: () => goDashboard(ROUTE_PAGE.DASHBOARD.ADMIN, { view: 'adminDashboard' }),
-        },
-        {
-          label: 'Công ty',
-          icon: 'i-lucide-building',
-          onSelect: () => goDashboard(ROUTE_PAGE.DASHBOARD.ADMIN, { view: 'adminCompanies' }),
-        },
-        {
-          label: 'Quản lý công việc',
-          icon: 'i-lucide-briefcase',
-          onSelect: () => goDashboard(ROUTE_PAGE.DASHBOARD.ADMIN, { view: 'adminManageJobs' }),
-        },
-        {
-          label: 'Ứng viên',
-          icon: 'i-lucide-users',
-          onSelect: () => goDashboard(ROUTE_PAGE.DASHBOARD.ADMIN, { view: 'adminCandidates' }),
-        },
-        {
-          label: 'Users',
-          icon: 'i-lucide-users-round',
-          onSelect: () => goDashboard(ROUTE_PAGE.DASHBOARD.ADMIN, { view: 'adminUsers' }),
-        },
-        {
-          label: 'Blogs',
-          icon: 'i-lucide-file-text',
-          onSelect: () => goDashboard(ROUTE_PAGE.DASHBOARD.ADMIN, { view: 'adminBlogs' }),
-        },
-        {
-          label: 'Cài đặt',
-          icon: 'i-lucide-settings',
-          onSelect: () => goDashboard(ROUTE_PAGE.DASHBOARD.ADMIN, { view: 'adminSettings' }),
-        },
-      ],
-    )
-  } else if (isCompany.value) {
-    items.push(
-      [
-        {
-          label: 'Dashboard',
-          icon: 'i-lucide-layout-dashboard',
-          onSelect: () => goDashboard(ROUTE_PAGE.DASHBOARD.COMPANY),
-        },
-        {
-          label: 'Hồ sơ công ty',
-          icon: 'i-lucide-building',
-          onSelect: () => goDashboard(ROUTE_PAGE.DASHBOARD.COMPANY, { view: 'editProfile' }),
-        },
-        {
-          label: 'Quản lý tin đăng',
-          icon: 'i-lucide-briefcase',
-          onSelect: () => goDashboard(ROUTE_PAGE.DASHBOARD.COMPANY, { view: 'manageJobs' }),
-        },
-        {
-          label: 'Quản lý ứng viên',
-          icon: 'i-lucide-users',
-          onSelect: () => goDashboard(ROUTE_PAGE.DASHBOARD.COMPANY, { view: 'candidates' }),
-        },
-      ],
-    )
-  } else {
-    items.push(
-      [
-        {
-          label: 'Tổng quan',
-          icon: 'i-lucide-layout-dashboard',
-          onSelect: () => goDashboard(ROUTE_PAGE.DASHBOARD.USER, { view: 'dashboard' }),
-        },
-        {
-          label: 'Thông tin tài khoản',
-          icon: 'i-lucide-user',
-          onSelect: () => goDashboard(ROUTE_PAGE.DASHBOARD.USER, { view: 'editProfile' }),
-        },
-        {
-          label: 'Hồ sơ ứng tuyển',
-          icon: 'i-lucide-file-text',
-          onSelect: () => goDashboard(ROUTE_PAGE.DASHBOARD.USER, { view: 'resume' }),
-        },
-        {
-          label: 'Công việc đã ứng tuyển',
-          icon: 'i-lucide-briefcase',
-          onSelect: () => goDashboard(ROUTE_PAGE.DASHBOARD.USER, { view: 'applications' }),
-        },
-        {
-          label: 'Đăng tin mới',
-          icon: 'i-lucide-plus-circle',
-          onSelect: () => router.push('/jobs/upload'),
-        },
-        {
-          label: 'Thay đổi mật khẩu',
-          icon: 'i-lucide-lock',
-          onSelect: () => goDashboard(ROUTE_PAGE.DASHBOARD.USER, { view: 'changePassword' }),
-        },
-      ],
-    )
-  }
+  items.push([
+    {
+      label: 'Tổng quan',
+      icon: 'i-lucide-layout-dashboard',
+      onSelect: () =>
+        goDashboard(overviewDashboardTarget.value.path, overviewDashboardTarget.value.query),
+    },
+  ])
 
   items.push([
     {

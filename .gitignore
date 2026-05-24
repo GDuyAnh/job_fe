@@ -15,6 +15,11 @@ logs
 
 # Misc
 .DS_Store
+# Windows reserved device names (accidental shell redirects)
+nul
+nul.*
+NUL
+NUL.*
 .fleet
 .idea
 

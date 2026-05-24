@@ -403,6 +403,13 @@ const form = reactive({
   bannerImage: null as string | null,
 })
 
+useHead({
+  title: computed(() => {
+    const n = form.name?.trim()
+    return n && n.length > 0 ? `Sửa: ${n}` : 'Sửa hồ sơ công ty'
+  }),
+})
+
 // Store original image URLs for deletion when editing
 const originalImageUrls = ref<string[]>([])
 
@@ -697,7 +704,7 @@ async function save() {
     useNotify({
       message: Array.isArray(e?.message)
         ? e.message[0]
-        : e?.message || 'Update failed',
+        : e?.message || 'Cập nhật thất bại',
     })
   } finally {
     saving.value = false
