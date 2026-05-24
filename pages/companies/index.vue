@@ -1,110 +1,87 @@
 <template>
-  <div class="min-h-screen" style="background: #f7faff">
-    <!-- Header -->
-    <div
-      class="top-0 z-40"
-      style="background: #f7faff"
-    >
-      <UContainer>
-        <div style="padding: 16px 0 10px; overflow: hidden">
-          <div class="flex items-center">
-            <!-- Search bar -->
-            <div class="w-full">
-              <div
-                class="companies-searchbar flex items-stretch bg-white rounded-2xl shadow-sm border"
-                style="
-                  border-color: rgba(29, 36, 51, 0.12);
-                  border-bottom-color: rgba(29, 36, 51, 0.18);
-                "
+  <div class="min-h-screen companies-directory-page" style="background: #f7faff">
+    <section class="school-directory-hero">
+      <div class="container school-directory-shell">
+        <form
+          class="search-card school-directory-search-card"
+          @submit.prevent="performSearch"
+        >
+          <div class="search-row search-row-directory">
+            <div class="search-item search-item-directory">
+              <span class="search-item-icon" aria-hidden="true">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                  <path d="M21 21L16.65 16.65M19 11C19 15.4183 15.4183 19 11 19C6.58172 19 3 15.4183 3 11C3 6.58172 6.58172 3 11 3C15.4183 3 19 6.58172 19 11Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+              </span>
+              <input
+                v-model="searchParams.keyword"
+                type="text"
+                name="keyword"
+                :placeholder="$t('companies.search.placeholder')"
               >
-                <!-- Company Name/Keyword Search -->
-                <div class="flex items-center flex-1 min-w-0 px-4 h-14">
-                  <UIcon
-                    name="i-heroicons-magnifying-glass"
-                    class="w-5 h-5 text-[rgba(29,36,51,0.55)] mr-3 flex-shrink-0"
-                  />
-                  <input
-                    v-model="searchParams.keyword"
-                    :placeholder="$t('companies.search.placeholder')"
-                    class="flex-1 min-w-0 bg-transparent border-none outline-none text-[14px] text-[#1d2433] placeholder-[rgba(29,36,51,0.45)] font-medium"
-                    @keyup.enter="performSearch"
-                  />
-                </div>
-
-                <!-- Divider -->
-                <div class="w-px my-3" style="background: rgba(29, 36, 51, 0.12)"></div>
-
-                <!-- Organization Type Dropdown (Loại hình) -->
-                <div class="flex items-center flex-1 min-w-0 px-4 h-14">
-                  <UIcon
-                    name="i-heroicons-building-office-2"
-                    class="w-5 h-5 text-[rgba(29,36,51,0.55)] mr-3 flex-shrink-0"
-                  />
-                  <USelect
-                    v-model="searchParams.organizationType"
-                    :items="organizationTypeItems"
-                    class="flex-1 min-w-0"
-                    variant="none"
-                    size="lg"
-                    :placeholder="$t('home.search.placeholderOrganizationType')"
-                  />
-                </div>
-
-                <!-- Divider -->
-                <div class="w-px my-3" style="background: rgba(29, 36, 51, 0.12)"></div>
-
-                <!-- Location Dropdown (Địa điểm) -->
-                <div class="flex items-center flex-1 min-w-0 px-4 h-14">
-                  <UIcon
-                    name="i-heroicons-map-pin"
-                    class="w-5 h-5 text-[rgba(29,36,51,0.55)] mr-3 flex-shrink-0"
-                  />
-                  <USelect
-                    v-model="searchParams.location"
-                    :items="locationItems"
-                    class="flex-1 min-w-0"
-                    variant="none"
-                    size="lg"
-                    :placeholder="$t('home.search.placeholderLocation')"
-                  />
-                </div>
-
-                <!-- Search Button (inset like design) -->
-                <div class="flex items-center px-2">
-                  <UButton
-                    icon="i-heroicons-magnifying-glass"
-                    variant="solid"
-                    class="ml-0 h-11 w-14 !p-0 rounded-2xl bg-[var(--blue)] hover:bg-[var(--blue-dark)] text-white shadow-sm"
-                    @click="performSearch"
-                  />
-                </div>
-              </div>
             </div>
+
+            <div class="search-item search-item-directory">
+              <span class="search-item-icon" aria-hidden="true">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                  <path d="M4 7H20M7 4V7M17 4V7M6 11H18V18H6V11Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+              </span>
+              <USelect
+                v-model="searchParams.organizationType"
+                :items="companyOrganizationTypeItems"
+                variant="none"
+                class="school-directory-select"
+                :placeholder="$t('companies.search.organizationType')"
+              />
+              <span class="arr">▾</span>
+            </div>
+
+            <div class="search-item search-item-directory">
+              <span class="search-item-icon" aria-hidden="true">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                  <path d="M12 21C15.5 17.2 18 14.1 18 10.5C18 6.91015 15.3137 4 12 4C8.68629 4 6 6.91015 6 10.5C6 14.1 8.5 17.2 12 21Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+                  <path d="M12 12.5C13.1046 12.5 14 11.6046 14 10.5C14 9.39543 13.1046 8.5 12 8.5C10.8954 8.5 10 9.39543 10 10.5C10 11.6046 10.8954 12.5 12 12.5Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+              </span>
+              <USelect
+                v-model="searchParams.location"
+                :items="locationItems"
+                variant="none"
+                class="school-directory-select"
+                :placeholder="$t('home.search.placeholderLocation')"
+              />
+              <span class="arr">▾</span>
+            </div>
+
+            <button
+              type="submit"
+              class="primary-btn school-directory-submit"
+              aria-label="Tìm công ty"
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M21 21L16.65 16.65M19 11C19 15.4183 15.4183 19 11 19C6.58172 19 3 15.4183 3 11C3 6.58172 6.58172 3 11 3C15.4183 3 19 6.58172 19 11Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+            </button>
           </div>
-        </div>
-      </UContainer>
-    </div>
+        </form>
+      </div>
+    </section>
 
     <!-- Main content -->
     <div style="background: #f7faff">
-      <UContainer>
+      <div class="container">
         <div class="py-8">
         <!-- Results Grid - Full width, no filters sidebar -->
         <div class="w-full">
           <!-- Total count -->
           <div
             v-if="!loading && filteredCompanies.length > 0"
-            class="mb-5 flex items-end gap-2"
+            class="company-results-count"
           >
-            <div class="text-[24px] leading-none font-extrabold text-[#1d2433]">
-              {{ filteredCompanies.length }}
-            </div>
+            <span class="company-results-count__number">{{ filteredCompanies.length }}</span>
             <!-- eslint-disable @intlify/vue-i18n/no-raw-text -->
-            <div
-              class="pb-[2px] text-[18px] leading-none font-semibold text-[rgba(29,36,51,0.55)]"
-            >
-              công ty
-            </div>
+            <span class="company-results-count__label">công ty</span>
             <!-- eslint-enable @intlify/vue-i18n/no-raw-text -->
           </div>
 
@@ -118,71 +95,62 @@
 
           <!-- Has results -->
           <div v-else-if="filteredCompanies.length > 0">
-            <!-- Result grid -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <div
+            <div class="school-company-grid">
+              <article
                 v-for="company in paginatedCompanies"
                 :key="company.id"
-                class="company-card group cursor-pointer"
+                class="school-company-card"
                 @click="viewCompany(company)"
               >
-                <!-- Top accent -->
-                <div class="company-card__accent" />
-
-                <!-- Header row -->
-                <div class="company-card__head">
-                  <div class="company-card__logo">
+                <div class="school-company-card-top">
+                  <div
+                    class="school-company-logo"
+                    :class="{ 'logo-has-image': !!company.logo }"
+                  >
                     <img
                       v-if="company.logo"
                       :src="company.logo"
-                      :alt="company.name"
-                      class="company-card__logoImg"
-                    />
-                    <span v-else class="company-card__logoFallback">
-                      {{ company.name.charAt(0).toUpperCase() }}
-                    </span>
+                      :alt="`${company.name} logo`"
+                      loading="lazy"
+                    >
+                    <template v-else>
+                      {{ getCompanyLogoInitials(company.name) }}
+                    </template>
                   </div>
-
-                  <div class="company-card__jobsBadge">
+                  <div class="school-company-jobs">
                     <!-- eslint-disable-next-line @intlify/vue-i18n/no-raw-text -->
                     {{ company.openPositions || 0 }} việc làm
                   </div>
                 </div>
 
-                <!-- Title -->
-                <div class="company-card__title">
-                  {{ company.name }}
-                </div>
-
-                <!-- Subtitle -->
-                <div class="company-card__subtitle">
-                  {{
-                    company.organizationType
-                      ? getOrganizationTypeLabel(company.organizationType)
-                      : (company.description || company.overview || '')
-                  }}
-                </div>
-
-                <!-- Location pill -->
-                <div v-if="getCompanyLocationLabel(company)" class="company-card__meta">
-                  <span class="company-card__pill">{{ getCompanyLocationLabel(company) }}</span>
-                </div>
-
-                <!-- Footer -->
-                <div class="company-card__footer">
-                  <!-- eslint-disable-next-line @intlify/vue-i18n/no-raw-text -->
-                  <div class="company-card__footerAction">
-                    <div class="company-card__footerLink">Xem hồ sơ</div>
-                    <UIcon name="i-heroicons-arrow-up-right" class="company-card__footerIcon" />
+                <div class="school-company-card-body">
+                  <h3>{{ company.name }}</h3>
+                  <p>{{ getCompanySubtitle(company) }}</p>
+                  <div
+                    v-if="getCompanyLocationLabel(company)"
+                    class="school-company-meta"
+                  >
+                    <span>{{ getCompanyLocationLabel(company) }}</span>
                   </div>
                 </div>
-              </div>
+
+                <div class="school-company-card-footer">
+                  <NuxtLink
+                    :to="`/companies/${company.id}`"
+                    @click.stop
+                  >
+                    <!-- eslint-disable-next-line @intlify/vue-i18n/no-raw-text -->
+                    <span>Xem hồ sơ</span>
+                    <span aria-hidden="true">↗</span>
+                  </NuxtLink>
+                </div>
+              </article>
             </div>
 
             <!-- Pagination -->
             <div
               v-if="totalPages > 1"
-              class="mt-8 flex justify-end"
+              class="school-company-pagination-wrap"
             >
               <div class="company-pagination">
                 <button
@@ -232,7 +200,7 @@
           </div>
         </div>
         </div>
-      </UContainer>
+      </div>
     </div>
   </div>
 </template>
@@ -261,7 +229,16 @@ interface CompanyEntity {
 }
 
 // Use the working composable from home page
+const { t } = useI18n()
 const { locationItems, organizationTypeItems } = useJobFilters()
+
+const companyOrganizationTypeItems = computed(() => {
+  const defaultLabel = t('companies.search.organizationType')
+
+  return organizationTypeItems.value.map((item, index) =>
+    index === 0 ? { ...item, label: defaultLabel } : item,
+  )
+})
 
 const router = useRouter()
 const route = useRoute()
@@ -371,6 +348,23 @@ const getCompanyLocationLabel = (company: CompanyEntity): string => {
   return (match?.label as string) ?? val
 }
 
+const getCompanySubtitle = (company: CompanyEntity): string => {
+  if (company.organizationType) {
+    return getOrganizationTypeLabel(company.organizationType)
+  }
+
+  const raw = company.description || company.overview || ''
+  return raw.replace(/<[^>]*>/g, '').trim()
+}
+
+const getCompanyLogoInitials = (name: string): string => {
+  const words = name.trim().split(/\s+/).filter(Boolean)
+  if (words.length >= 2) {
+    return `${words[0].charAt(0)}${words[1].charAt(0)}`.toUpperCase()
+  }
+  return (words[0] || 'C').slice(0, 2).toUpperCase()
+}
+
 onMounted(() => {
   const query = route.query
 
@@ -398,18 +392,6 @@ watch(
 </script>
 
 <style scoped>
-.companies-searchbar {
-  transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
-  will-change: transform, box-shadow;
-}
-
-.companies-searchbar:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 14px 26px rgba(29, 36, 51, 0.08);
-  border-color: rgba(53, 99, 255, 0.18);
-  border-bottom-color: rgba(53, 99, 255, 0.24);
-}
-
 .company-pagination {
   display: inline-flex;
   align-items: center;
@@ -454,156 +436,6 @@ watch(
 .company-pagination__icon {
   width: 18px;
   height: 18px;
-}
-
-.company-card {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  background: rgba(248, 250, 255, 0.85);
-  border: 1px solid rgba(29, 36, 51, 0.08);
-  border-radius: 16px;
-  box-shadow: 0 10px 22px rgba(29, 36, 51, 0.06);
-  padding: 16px 16px 14px;
-  min-height: 252px;
-  transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
-  overflow: hidden;
-}
-
-.company-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 14px 30px rgba(29, 36, 51, 0.08);
-  border-color: rgba(53, 99, 255, 0.18);
-}
-
-.company-card__accent {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 4px;
-  background: rgba(53, 99, 255, 0.95);
-}
-
-.company-card__head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding-top: 10px;
-}
-
-.company-card__logo {
-  width: 56px;
-  height: 56px;
-  border-radius: 14px;
-  background: #fff;
-  border: 1px solid rgba(29, 36, 51, 0.10);
-  box-shadow: 0 8px 18px rgba(29, 36, 51, 0.06);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-}
-
-.company-card__logoImg {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-}
-
-.company-card__logoFallback {
-  font-weight: 900;
-  color: rgba(29, 36, 51, 0.75);
-}
-
-.company-card__jobsBadge {
-  height: 28px;
-  padding: 0 10px;
-  border-radius: 9999px;
-  background: rgba(255, 255, 255, 0.9);
-  border: 1px solid rgba(29, 36, 51, 0.10);
-  color: rgba(29, 36, 51, 0.65);
-  font-size: 12px;
-  font-weight: 700;
-  display: inline-flex;
-  align-items: center;
-  white-space: nowrap;
-}
-
-.company-card__title {
-  margin-top: 12px;
-  font-size: 18px;
-  font-weight: 900;
-  color: rgba(29, 36, 51, 0.95);
-  line-height: 1.25;
-}
-
-.company-card__subtitle {
-  margin-top: 6px;
-  font-size: 13px;
-  color: rgba(29, 36, 51, 0.55);
-  line-height: 1.4;
-  display: -webkit-box;
-  line-clamp: 2;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.company-card__meta {
-  margin-top: 10px;
-}
-
-.company-card__pill {
-  display: inline-flex;
-  align-items: center;
-  height: 28px;
-  padding: 0 12px;
-  border-radius: 9999px;
-  background: rgba(53, 99, 255, 0.10);
-  color: rgba(53, 99, 255, 1);
-  font-size: 12px;
-  font-weight: 800;
-}
-
-.company-card__footer {
-  margin-top: auto;
-  margin-bottom: 2px;
-  padding-bottom: 2px;
-  padding-top: 14px;
-  border-top: 1px solid rgba(29, 36, 51, 0.10);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  color: rgba(29, 36, 51, 0.45);
-  font-size: 12px;
-}
-
-.company-card__footerAction {
-  display: inline-flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  width: 100%;
-}
-
-.company-card__footerLink {
-  font-weight: 700;
-}
-
-.company-card__footerIcon {
-  width: 16px;
-  height: 16px;
-  color: rgba(29, 36, 51, 0.35);
-}
-
-.company-card__footerAction:hover .company-card__footerLink {
-  color: rgba(53, 99, 255, 1);
-}
-
-.company-card__footerAction:hover .company-card__footerIcon {
-  color: rgba(53, 99, 255, 1);
 }
 
 /* Style for HTML content in description */

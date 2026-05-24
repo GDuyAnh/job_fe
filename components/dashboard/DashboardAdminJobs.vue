@@ -1,64 +1,57 @@
 <template>
-  <div class="space-y-6">
-    <!-- Header: Jobs + Welcome (trái) | Search + Filter + Bulk + New Job (phải) -->
-    <div class="bg-white rounded-xl border border-gray-200 p-4 sm:p-6">
-      <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
-        <div>
-          <h1 class="text-2xl font-semibold text-gray-400">
-            Jobs
-          </h1>
-          <p class="text-gray-500 mt-1 text-sm">
-            Welcome, {{ welcomeName }}
-          </p>
-        </div>
-        <div class="flex flex-wrap items-center gap-2 sm:gap-3">
+  <div>
+    <div class="employer-admin-jobs-scale">
+    <div class="employer-admin-jobs-panel">
+    <!-- Header: Jobs + Welcome | Search + actions -->
+    <div class="employer-admin-jobs-toolbar flex flex-col sm:flex-row sm:items-start sm:justify-between">
+      <div class="employer-admin-companies-head">
+        <h1 class="text-3xl font-bold text-gray-400">
+          Jobs
+        </h1>
+        <p class="text-gray-500 text-sm">
+          {{ $t('dashboard.admin.jobs.welcome') }}
+        </p>
+      </div>
+      <div
+        class="employer-admin-jobs-search flex w-full min-w-0 flex-nowrap items-center overflow-x-auto lg:flex-1 lg:justify-end"
+      >
           <UInput
             v-model="jobSearch"
             placeholder="Search..."
             icon="i-lucide-search"
-            class="w-[180px] sm:w-[200px] h-10 rounded-lg"
+            class="min-w-0 max-w-[380px] flex-1"
+            :ui="{ base: 'h-10 w-full rounded-xl text-[13px]' }"
           />
-          <UButton
-            variant="outline"
-            color="neutral"
-            class="h-10 gap-1.5"
-            @click="onBulkActionsClick"
-          >
-            <UIcon name="i-lucide-trash-2" class="w-4 h-4" />
-            All Jobs
-            <UIcon name="i-lucide-chevron-down" class="w-4 h-4" />
-          </UButton>
           <UButton
             color="primary"
             icon="i-lucide-plus"
-            class="h-10"
+            class="h-10 shrink-0 whitespace-nowrap rounded-xl px-4 text-[13px] font-semibold shadow-sm"
             @click="openNewJob"
           >
             New Job
           </UButton>
         </div>
-      </div>
     </div>
 
     <!-- Status cards: All Jobs, Reviewing, Pending, Approved, Expired, Trash -->
-    <div class="bg-white rounded-xl border border-gray-200 p-4">
-      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+    <div class="employer-admin-jobs-stats">
+      <div class="employer-admin-jobs-stats-grid grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6">
         <button
           v-for="card in jobStatusCards"
           :key="card.key"
           type="button"
-          class="rounded-lg border-2 p-3 text-left transition-colors bg-white"
-          :class="jobStatusFilter === card.key ? 'border-blue-600 bg-blue-50' : 'border-gray-300 hover:bg-gray-50'"
+          class="employer-admin-jobs-stat"
+          :class="{ 'is-active': jobStatusFilter === card.key }"
           @click="jobStatusFilter = card.key"
         >
-          <p class="text-xs font-medium text-gray-500">{{ card.label }}</p>
-          <p class="text-lg font-semibold text-gray-900">{{ card.count }}</p>
+          <span class="employer-admin-jobs-stat-label">{{ card.label }}</span>
+          <strong>{{ card.count }}</strong>
         </button>
       </div>
     </div>
 
     <!-- Table + Pagination -->
-    <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
+    <div class="employer-admin-jobs-body">
       <div v-if="loading" class="py-12 text-center text-gray-500">
         Đang tải...
       </div>
@@ -151,7 +144,7 @@
               </th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase relative post-type-filter-th">Posted On</th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase relative post-type-filter-th">Expired Date</th>
-              <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Action</th>
+              <th class="is-action px-6 py-3 text-xs font-medium text-gray-500 uppercase">Action</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-gray-200">
@@ -200,22 +193,39 @@
               <td class="px-6 py-4">
                 <span :class="expiredDateClass(job.deadline)" class="text-sm">{{ formatDate(job.deadline) }}</span>
               </td>
-              <td class="px-6 py-4 text-right">
-                <div class="flex items-center justify-end gap-1">
-                <UButton
-                  v-if="!isJobApproved(job)"
-                    variant="ghost"
-                    size="xs"
-                    color="primary"
-                    :disabled="!canApproveJob"
-                    @click="approveJob(job)"
-                  >
-                    <UIcon name="i-lucide-check-circle" class="w-4 h-4" />
-                  </UButton>
-                  <UButton variant="ghost" size="xs" icon="i-lucide-eye" @click="viewJob(job)" />
-                  <UButton variant="ghost" size="xs" icon="i-lucide-pencil" @click="openEditJob(job)" />
-                  <UButton variant="ghost" size="xs" color="error" icon="i-lucide-trash-2" @click="deleteJob(job)" />
-                </div>
+              <td class="is-action px-6 py-4">
+                <EmployerRowActions
+                  @view="viewJob(job)"
+                  @edit="openEditJob(job)"
+                  @delete="deleteJob(job)"
+                >
+                  <template v-if="!isJobApproved(job)" #prepend>
+                    <button
+                      type="button"
+                      class="employer-row-action"
+                      aria-label="Approve"
+                      :disabled="!canApproveJob"
+                      @click="approveJob(job)"
+                    >
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                        <path
+                          d="M22 11.08V12a10 10 0 1 1-5.93-9.14"
+                          stroke="currentColor"
+                          stroke-width="2"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        />
+                        <path
+                          d="m9 11 3 3L22 4"
+                          stroke="currentColor"
+                          stroke-width="2"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        />
+                      </svg>
+                    </button>
+                  </template>
+                </EmployerRowActions>
               </td>
             </tr>
           </tbody>
@@ -254,32 +264,53 @@
         </div>
       </div>
     </div>
+    </div>
+    </div>
+
+    <!-- Backdrop (modal=false để vue-select / USelectMenu append-to-body không đóng drawer) -->
+    <Teleport to="body">
+      <div
+        v-if="jobSlideOpen"
+        class="employer-admin-job-drawer-backdrop fixed inset-0 z-10 bg-[rgba(15,23,42,0.42)] backdrop-blur-sm"
+        aria-hidden="true"
+        @click="closeJobSlide"
+      />
+    </Teleport>
 
     <!-- Drawer Add/Edit Job -->
     <UDrawer
       v-model:open="jobSlideOpen"
       :title="jobSlideTitle"
+      :description="jobSlideSubtitle"
       direction="right"
       :modal="false"
+      :overlay="false"
+      :should-scale-background="false"
+      :no-body-styles="true"
       handle-only
-      :ui="{ content: 'w-full min-w-[400px] max-w-4xl' }"
+      :ui="jobDrawerUi"
     >
       <template #header>
-        <div class="flex items-center w-full gap-2">
-          <span class="flex-1 font-semibold">{{ jobSlideTitle }}</span>
-          <UButton color="neutral" variant="ghost" icon="i-lucide-x" @click="closeJobSlide" />
-        </div>
+        <AdminDrawerHeader
+          :kicker="jobSlideKicker"
+          :title="jobSlideTitle"
+          :subtitle="jobSlideSubtitle"
+          @close="closeJobSlide"
+        />
       </template>
       <template #body>
-        <div class="p-6 overflow-y-auto max-h-[85vh] space-y-4">
+        <div class="employer-job-drawer-body-inner ui-drawer-body-vh">
           <!-- Công ty: add = chọn được, edit = chỉ xem (disabled) -->
-          <div class="space-y-2">
-            <label class="block text-sm font-medium text-gray-700">Công ty</label>
+          <div class="employer-admin-job-drawer-company">
+            <label class="employer-admin-job-drawer-company-label">
+              {{ editingJob ? 'Công ty' : 'Chọn công ty' }}
+            </label>
             <template v-if="editingJob">
               <USelect
                 :items="editCompanySelectItem"
                 :model-value="editingJob.companyId?.toString() ?? ''"
-                class="w-full"
+                class="w-full employer-admin-job-drawer-company-select"
+                :ui="companySelectControlUi"
                 disabled
               />
             </template>
@@ -288,18 +319,22 @@
                 v-if="companySelectItems.length > 0"
                 v-model="selectedCompanyId"
                 :items="companySelectItems"
-                placeholder="Chọn công ty"
+                placeholder="Chọn công ty..."
                 searchable
-                class="w-full"
+                :ui="companySelectMenuUi"
+                class="w-full employer-admin-job-drawer-company-select"
                 @update:model-value="onSelectCompany"
               />
-              <p v-else class="text-sm text-gray-500">Đang tải danh sách công ty...</p>
+              <p v-else class="employer-admin-job-drawer-company-loading">
+                Đang tải danh sách công ty...
+              </p>
             </template>
           </div>
           <DashboardNewJob
             :company-data="companyDataForJob"
             :job-to-edit="editingJobForForm ?? undefined"
             :require-company-selection="!editingJob"
+            embedded-in-drawer
             @job-created="onJobSlideSuccess"
           />
         </div>
@@ -392,18 +427,23 @@
 import type { JobModel } from '~/models/job'
 import type { CompanyEntity } from '~/entities/company'
 import { USER_ROLES } from '~/constants/roles'
+import { postTypeAdminChipClass } from '~/constants/post-type'
+import AdminDrawerHeader from '~/components/AdminDrawerHeader.vue'
 
 const { $api } = useNuxtApp()
 const { t } = useI18n()
 const authStore = useAuthStore()
-
-const welcomeName = computed(() => authStore.user?.fullName || 'System Admin')
 
   // Check if current user is admin
 const isAdmin = computed(() => authStore.user?.role === USER_ROLES.ADMIN)
 
 // Check if user can approve: admin OR host company
 const canApproveJob = computed(() => isAdmin.value)
+
+const companySelectControlUi = adminJobDrawerCompanySelectControlUi
+const companySelectMenuUi = adminJobDrawerCompanySelectMenuUi
+
+const jobDrawerUi = adminJobFormDrawerUi()
 
 const loading = ref(false)
 const allJobs = ref<any[]>([])
@@ -576,7 +616,19 @@ const editingJobForForm = computed<JobModel | null>(() => {
 })
 
 
-const jobSlideTitle = computed(() => (editingJob.value ? 'Edit Job' : 'New Job'))
+const jobSlideTitle = computed(() =>
+  editingJob.value ? 'Chỉnh sửa tin tuyển dụng' : 'Đăng tin tuyển dụng',
+)
+
+const jobSlideKicker = computed(() =>
+  editingJob.value ? 'Chỉnh sửa tin' : 'Đăng tin mới',
+)
+
+const jobSlideSubtitle = computed(() =>
+  editingJob.value
+    ? 'Cập nhật nội dung tin tuyển dụng cho công ty đã chọn.'
+    : 'Tạo tin mới cho công ty — chọn công ty và điền thông tin bên dưới.',
+)
 
 function jobToListJobModel(j: any): JobModel | null {
   if (!j?.id) return null
@@ -673,11 +725,7 @@ function postTypeLabel(postType: string | undefined): string {
 }
 
 function postTypeChipClass(postType: string | undefined): string {
-  const t = (postType || 'Basic').toLowerCase()
-  if (t === 'basic') return 'bg-blue-100 text-blue-800'
-  if (t === 'hot') return 'bg-amber-100 text-amber-800'
-  if (t === 'urgent') return 'bg-red-100 text-red-800'
-  return 'bg-blue-100 text-blue-800'
+  return postTypeAdminChipClass(postType)
 }
 
 async function fetchJobs() {
@@ -808,22 +856,31 @@ function cancelApproveJob() {
   jobPendingApprove.value = null
 }
 
-function onBulkActionsClick() {
-  useNotify({ message: 'Chức năng Bulk Actions có thể thêm sau.', type: 'success' })
-}
-
 watch([() => filteredJobs.value.length, totalPages], () => {
   if (currentPage.value > totalPages.value) currentPage.value = Math.max(1, totalPages.value)
+})
+
+watch(jobSlideOpen, (open) => {
+  if (open) {
+    showPostTypeFilter.value = false
+    showStatusFilter.value = false
+  }
 })
 
 onMounted(() => {
   fetchJobs()
   document.addEventListener('click', (e) => {
     const target = e.target as HTMLElement
-    if (!target.closest('[class*="post-type-filter-th"]') && !target.closest('[class*="status-filter-th"]')) {
-      showPostTypeFilter.value = false
-      showStatusFilter.value = false
+    if (
+      target.closest('.employer-admin-job-drawer')
+      || target.closest('.employer-company-job-drawer')
+      || target.closest('[class*="post-type-filter-th"]')
+      || target.closest('[class*="status-filter-th"]')
+    ) {
+      return
     }
+    showPostTypeFilter.value = false
+    showStatusFilter.value = false
   })
 })
 </script>

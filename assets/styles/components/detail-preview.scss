@@ -1,0 +1,82 @@
+/* Lớp phủ + badge preview (công ty / tin tuyển dụng) */
+
+.detail-preview-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.detail-preview-overlay-backdrop {
+  position: absolute;
+  inset: 0;
+  background: #0000009c;
+  pointer-events: none;
+}
+
+.detail-preview-overlay-dialog {
+  position: relative;
+  z-index: 1;
+  width: min(100%, 480px);
+  padding: 0 8px;
+  text-align: center;
+}
+
+.detail-preview-overlay-dialog h2 {
+  margin: 0;
+  color: #ffffff;
+  font-size: clamp(20px, 2.4vw, 24px);
+  line-height: 1.25;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.detail-preview-overlay-dialog p {
+  margin: 12px 0 0;
+  color: rgba(255, 255, 255, 0.88);
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.detail-preview-overlay-action {
+  margin-top: 24px;
+}
+
+.detail-preview-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 26px;
+  padding: 0 10px;
+  border-radius: 999px;
+  background: rgba(255, 237, 213, 0.95);
+  color: #b45309;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+
+.company-single-copy-top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 12px;
+}
+
+.job-single-preview-chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
+  padding: 0 16px;
+  border-radius: 999px;
+  border: 1px dashed rgba(53, 99, 255, 0.45);
+  background: rgba(239, 246, 255, 0.9);
+  color: #3563ff;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+}

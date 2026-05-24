@@ -1,0 +1,5088 @@
+/* Dashboard nhà tuyển dụng — layout + sidebar */
+
+.employer-dashboard-page {
+  min-height: 100vh;
+  min-height: 100dvh;
+  background: transparent;
+}
+
+.employer-dashboard-page :deep([data-app-main]),
+.employer-dashboard-page :deep(main) {
+  background: transparent;
+}
+
+.employer-dashboard.employer-dashboard-simple {
+  position: relative;
+  isolation: isolate;
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: grid;
+  grid-template-columns: 232px minmax(0, 1fr);
+  background:
+    radial-gradient(circle at top left, rgba(53, 99, 255, 0.12) 0%, rgba(53, 99, 255, 0.035) 28%, transparent 46%),
+    radial-gradient(circle at 88% 12%, rgba(120, 181, 255, 0.1) 0%, rgba(120, 181, 255, 0.025) 24%, transparent 42%),
+    linear-gradient(180deg, #f6f9ff 0%, #eef4ff 52%, #f7faff 100%);
+}
+
+.employer-sidebar {
+  position: sticky;
+  top: 0;
+  align-self: stretch;
+  width: 232px;
+  min-width: 232px;
+  max-width: 232px;
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding: 24px 18px;
+  box-sizing: border-box;
+  overflow-x: hidden;
+  overflow-y: auto;
+  background: linear-gradient(180deg, rgba(247, 250, 255, 0.98), rgba(237, 243, 252, 0.96));
+  border-right: 1px solid rgba(216, 224, 238, 0.92);
+  backdrop-filter: blur(16px);
+}
+
+.employer-dashboard-simple .employer-sidebar {
+  padding: 22px 16px;
+  background: linear-gradient(180deg, rgba(243, 247, 255, 0.92), rgba(238, 244, 255, 0.88));
+  border-right: 0;
+  box-shadow: none;
+  backdrop-filter: blur(10px);
+}
+
+.employer-sidebar-brand-wrap {
+  margin-bottom: 22px;
+}
+
+.employer-sidebar-brand {
+  display: inline-flex;
+  align-items: center;
+  min-height: 42px;
+  color: #2443a1;
+  font-size: 18px;
+  font-weight: bold;
+  letter-spacing: -0.04em;
+  text-decoration: none;
+}
+
+.employer-sidebar-brand.wordmark {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.employer-sidebar-brand .wordmark-main {
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.055em;
+  color: var(--text);
+  text-transform: none;
+}
+
+.employer-sidebar-brand .wordmark-dot {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  color: var(--blue);
+}
+
+.employer-sidebar-nav {
+  display: grid;
+  gap: 8px;
+}
+
+.employer-dashboard-simple .employer-sidebar-nav {
+  gap: 6px;
+}
+
+.employer-sidebar-link {
+  min-height: 50px;
+  height: 50px;
+  max-height: 50px;
+  padding: 0 14px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  flex-shrink: 0;
+  border: 1px solid transparent;
+  background: transparent;
+  color: #5f6f88;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  text-decoration: none;
+  cursor: pointer;
+  font-family: inherit;
+  text-align: left;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.employer-dashboard-simple .employer-sidebar-link {
+  min-height: 46px;
+  height: 46px;
+  max-height: 46px;
+  border-radius: 14px;
+  padding: 0 12px;
+  font-size: 14px;
+  color: #64748b;
+  box-shadow: none;
+}
+
+.employer-sidebar-link > span:not(.employer-sidebar-link-icon) {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  line-height: 1.25;
+}
+
+.employer-sidebar-link:hover {
+  background: rgba(255, 255, 255, 0.72);
+  border-color: rgba(219, 227, 240, 0.92);
+  color: #475569;
+}
+
+.employer-sidebar-link.is-active {
+  color: #ffffff;
+  border-color: transparent;
+  background: linear-gradient(135deg, #3563ff 0%, #2e57ef 100%);
+  box-shadow: 0 12px 24px rgba(53, 99, 255, 0.16);
+}
+
+.employer-sidebar-link.is-active:hover {
+  color: #ffffff;
+}
+
+.employer-sidebar-link-icon {
+  width: 24px;
+  height: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: currentColor;
+  flex-shrink: 0;
+}
+
+.employer-sidebar-section-title {
+  margin: 12px 0 6px;
+  padding: 0 12px;
+  color: #94a3b8;
+  font-size: 11px;
+  font-weight: bold;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.employer-dashboard-main {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  min-width: 0;
+  min-height: 0;
+}
+
+.employer-dashboard-simple .employer-dashboard-main {
+  display: grid;
+  padding: 18px;
+  min-height: 100vh;
+  min-height: 100dvh;
+  box-sizing: border-box;
+}
+
+.employer-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px;
+  padding: 14px 18px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.88);
+  border: 1px solid rgba(226, 234, 248, 0.96);
+  box-shadow: 0 4px 18px rgba(18, 22, 60, 0.04);
+}
+
+.employer-topbar-company {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.employer-topbar-avatar {
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  background: var(--blue);
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: bold;
+}
+
+.employer-topbar-name {
+  margin: 0;
+  color: #0f172a;
+  font-size: 18px;
+  font-weight: bold;
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.employer-topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.employer-dashboard-content {
+  min-height: 0;
+  min-width: 0;
+  overflow: auto;
+}
+
+.employer-dashboard-simple .employer-dashboard-content {
+  border-radius: 16px;
+}
+
+/* ——— Tổng quan (?view=dashboard) ——— */
+
+.employer-dashboard-simple .employer-dashboard-main.is-overview-layout {
+  display: block;
+  overflow-y: auto;
+  overflow-x: hidden;
+  min-height: 0;
+  align-content: unset;
+}
+
+.employer-overview-scroll,
+.employer-company-scroll {
+  display: grid;
+  gap: 14px;
+  min-width: 0;
+}
+
+.employer-dashboard-simple .employer-dashboard-main.is-company-layout {
+  display: block;
+  overflow-y: auto;
+  overflow-x: hidden;
+  min-height: 0;
+}
+
+.employer-dashboard-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 16px 20px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.78);
+  border: 1px solid rgba(216, 224, 238, 0.9);
+  box-shadow: 0 12px 32px rgba(31, 49, 93, 0.06);
+  backdrop-filter: blur(18px);
+}
+
+.employer-dashboard-simple .employer-dashboard-topbar {
+  justify-content: space-between;
+  gap: 14px;
+  padding: 10px 16px;
+  border-radius: 14px;
+  border: 0;
+  background: rgba(255, 255, 255, 0.82);
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.04);
+  backdrop-filter: blur(12px);
+}
+
+.employer-topbar-company-copy {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.employer-dashboard-simple .employer-topbar-company {
+  gap: 8px;
+  min-width: 0;
+}
+
+.employer-dashboard-topbar .employer-topbar-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #3563ff 0%, #507cff 100%);
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: bold;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.24);
+  flex-shrink: 0;
+}
+
+.employer-dashboard-simple .employer-dashboard-topbar .employer-topbar-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  font-size: 12px;
+}
+
+.employer-dashboard-simple .employer-topbar-company-copy {
+  gap: 0;
+}
+
+.employer-topbar-company-copy strong {
+  display: block;
+  max-width: 100%;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.35;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--text);
+  letter-spacing: -0.02em;
+}
+
+.employer-dashboard-simple .employer-topbar-btn {
+  min-height: 36px;
+  width: auto;
+  height: 36px;
+  padding: 0 14px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: bold;
+  line-height: 1;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.employer-dashboard-simple .employer-topbar-btn-outline {
+  border: 1px solid rgba(203, 213, 225, 0.95);
+  background: rgba(255, 255, 255, 0.88);
+  color: #475569;
+  box-shadow: none;
+  transition:
+    border-color 0.18s ease,
+    background 0.18s ease,
+    color 0.18s ease;
+}
+
+.employer-dashboard-simple .employer-topbar-btn-outline:hover {
+  border-color: rgba(53, 99, 255, 0.35);
+  color: #3563ff;
+  background: #ffffff;
+}
+
+.employer-dashboard-simple .employer-dashboard-topbar .employer-topbar-actions {
+  flex-shrink: 0;
+}
+
+.employer-topbar-btn.primary-btn {
+  min-height: 42px;
+  height: 42px;
+  padding: 0 18px;
+  border-radius: 12px;
+  font-size: 14px;
+}
+
+.employer-dashboard-simple .employer-dashboard-content.employer-overview-content {
+  padding: 0;
+  overflow: visible;
+}
+
+.employer-overview-content {
+  display: grid;
+  gap: 14px;
+}
+
+.employer-overview-stats {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.employer-overview-stat-card,
+.employer-overview-panel {
+  border: 1px solid rgba(224, 231, 243, 0.92);
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: none;
+}
+
+.employer-overview-stat-card {
+  display: grid;
+  gap: 16px;
+  align-content: start;
+  min-height: 0;
+  padding: 18px;
+  border-radius: 16px;
+}
+
+.employer-overview-stat-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.employer-overview-stat-icon.is-blue {
+  background: #dbeafe;
+  color: #2563eb;
+}
+
+.employer-overview-stat-icon.is-yellow {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+.employer-overview-stat-icon.is-red {
+  background: #fee2e2;
+  color: #ef4444;
+}
+
+.employer-overview-stat-icon.is-orange {
+  background: #ffedd5;
+  color: #f97316;
+}
+
+.employer-overview-stat-icon.is-green {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+.employer-overview-stat-content {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+}
+
+.employer-overview-stat-content h2 {
+  margin: 0;
+  color: #667085;
+  font-size: 13px;
+  font-weight: bold;
+  line-height: 1.35;
+}
+
+.employer-overview-stat-content strong {
+  color: #0f172a;
+  font-size: 34px;
+  line-height: 1;
+  letter-spacing: -0.05em;
+  font-weight: bold;
+}
+
+.employer-overview-stat-content p {
+  margin: 0;
+  color: #8a94a8;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.employer-overview-workspace {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  align-items: stretch;
+}
+
+.employer-overview-panel {
+  overflow: hidden;
+  border-radius: 18px;
+}
+
+.employer-overview-panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 76px;
+  padding: 20px 22px;
+  border-bottom: 1px solid rgba(232, 237, 247, 0.96);
+}
+
+.employer-overview-panel-copy {
+  display: grid;
+  gap: 4px;
+}
+
+.employer-overview-panel-head h2 {
+  margin: 0;
+  color: #0f172a;
+  font-size: 20px;
+  line-height: 1.2;
+  letter-spacing: -0.04em;
+  font-weight: bold;
+}
+
+.employer-overview-panel-link {
+  min-height: 36px;
+  padding: 0 12px;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(53, 99, 255, 0.18);
+  background: rgba(53, 99, 255, 0.06);
+  color: #2f59f5;
+  font-size: 13px;
+  font-weight: bold;
+  white-space: nowrap;
+  cursor: pointer;
+  font-family: inherit;
+  transition:
+    background 0.18s ease,
+    border-color 0.18s ease;
+}
+
+.employer-overview-panel-link:hover {
+  background: rgba(53, 99, 255, 0.1);
+  border-color: rgba(53, 99, 255, 0.28);
+}
+
+.employer-overview-table-shell {
+  overflow-x: auto;
+  border-bottom: 1px solid rgba(232, 237, 247, 0.96);
+}
+
+.employer-overview-table {
+  width: 100%;
+  min-width: 1040px;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.employer-overview-table thead th {
+  padding: 16px 22px;
+  color: #64748b;
+  font-size: 11.5px;
+  font-weight: bold;
+  text-align: left;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+  background: rgba(255, 255, 255, 0.96);
+}
+
+.employer-overview-table thead th.is-action {
+  text-align: right;
+}
+
+.employer-candidates-table tbody td {
+  padding: 18px 20px;
+  text-align: left;
+  vertical-align: middle;
+  border-bottom: 1px solid rgba(241, 245, 249, 0.98);
+  color: #334155;
+  font-size: 14px;
+}
+
+.employer-candidates-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.employer-overview-table-muted {
+  color: #94a3b8;
+}
+
+.employer-candidate-role {
+  display: grid;
+  gap: 8px;
+  min-width: 220px;
+}
+
+.employer-candidate-role > strong {
+  display: block;
+  color: #334155;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.45;
+}
+
+.employer-candidate-employer {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.employer-candidate-employer img {
+  width: 24px;
+  height: 24px;
+  border-radius: 8px;
+  object-fit: cover;
+  flex-shrink: 0;
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  background: #ffffff;
+}
+
+.employer-candidate-employer span {
+  color: #64748b;
+  font-size: 12px;
+  line-height: 1.4;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.employer-candidate-person {
+  display: block;
+  min-width: 140px;
+}
+
+.employer-candidate-person strong {
+  display: block;
+  color: #0f172a;
+  font-size: 14px;
+  font-weight: bold;
+  line-height: 1.35;
+}
+
+.employer-candidate-cv {
+  display: inline;
+  color: #1d4ed8;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 0.16em;
+  white-space: nowrap;
+  transition: color 0.18s ease;
+}
+
+.employer-candidate-cv:hover {
+  color: #1e40af;
+}
+
+.employer-overview-table .is-action {
+  text-align: right;
+}
+
+.employer-row-actions {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+.employer-row-action {
+  width: 30px;
+  height: 30px;
+  border: 1px solid rgba(226, 232, 240, 0.96);
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #ffffff;
+  color: #8b6b3f;
+  cursor: pointer;
+  transition:
+    border-color 0.18s ease,
+    background 0.18s ease,
+    color 0.18s ease;
+}
+
+.employer-row-action:hover {
+  border-color: rgba(203, 213, 225, 0.96);
+  background: #f8fafc;
+}
+
+.employer-row-action.is-delete {
+  color: #dc2626;
+}
+
+.employer-row-action.is-delete:hover {
+  background: #fef2f2;
+  border-color: rgba(252, 165, 165, 0.8);
+}
+
+.employer-overview-empty-state {
+  display: grid;
+  place-items: center;
+  gap: 12px;
+  min-height: 276px;
+  padding: 40px 24px;
+  color: #98a2b3;
+  text-align: center;
+}
+
+.employer-overview-empty-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 16px;
+  background: rgba(53, 99, 255, 0.08);
+  color: #2f59f5;
+}
+
+.employer-overview-empty-state strong {
+  color: #344054;
+  font-size: 15px;
+  line-height: 1.4;
+  font-weight: bold;
+}
+
+.employer-overview-empty-state p {
+  margin: 0;
+  max-width: 360px;
+  color: #8a94a8;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.employer-overview-empty-action {
+  min-height: 38px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #3563ff;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: bold;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.18s ease;
+}
+
+.employer-overview-empty-action:hover {
+  background: #2e57ef;
+}
+
+.employer-overview-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 22px;
+  border-top: 1px solid rgba(232, 237, 247, 0.96);
+}
+
+.employer-overview-pagination-copy {
+  margin: 0;
+  color: #8a94a8;
+  font-size: 13px;
+}
+
+.employer-overview-pagination-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.employer-overview-pagination-btn {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 1px solid rgba(226, 232, 240, 0.96);
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #ffffff;
+  color: #64748b;
+  cursor: pointer;
+  transition:
+    border-color 0.18s ease,
+    background 0.18s ease;
+}
+
+.employer-overview-pagination-btn:hover:not(:disabled) {
+  background: #f8fafc;
+}
+
+.employer-overview-pagination-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.employer-overview-pagination-current {
+  min-width: 36px;
+  height: 36px;
+  padding: 0 10px;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #3563ff;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: bold;
+}
+
+/* ——— Hồ sơ công ty (?view=editProfile) ——— */
+
+.employer-company-page.employer-company-scroll {
+  gap: 0;
+}
+
+.employer-company-page .employer-company-panel {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  border-radius: 18px;
+  border: 1px solid rgba(220, 227, 239, 0.96);
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 14px 34px rgba(15, 23, 42, 0.05);
+  backdrop-filter: blur(12px);
+  overflow: hidden;
+}
+
+.employer-company-page .employer-company-panel-topbar {
+  flex-shrink: 0;
+  border-radius: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+}
+
+.employer-company-content {
+  display: grid;
+  gap: 18px;
+}
+
+.employer-company-page .employer-company-panel .employer-company-content {
+  gap: 0;
+}
+
+.employer-dashboard-simple .employer-company-page .employer-company-panel .employer-dashboard-content {
+  border-radius: 0;
+  overflow: visible;
+}
+
+.employer-company-page .employer-company-panel .employer-company-card {
+  padding: 28px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+}
+
+.employer-company-card {
+  padding: 28px;
+  border-radius: 24px;
+  border: 1px solid rgba(220, 227, 239, 0.96);
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 14px 34px rgba(15, 23, 42, 0.05);
+}
+
+.employer-company-form {
+  display: grid;
+  gap: 22px;
+}
+
+.employer-company-section {
+  display: grid;
+  gap: 18px;
+}
+
+.employer-company-section + .employer-company-section {
+  padding-top: 22px;
+  border-top: 1px solid rgba(226, 232, 240, 0.8);
+}
+
+.employer-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px 18px;
+}
+
+.employer-grid-two {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.employer-field {
+  display: grid;
+  gap: 7px;
+  min-width: 0;
+}
+
+/* Label → control: 7px (drawer admin / hồ sơ công ty) */
+.employer-admin-company-drawer-form .employer-field,
+.employer-admin-blog-drawer-form .employer-field,
+.employer-admin-user-drawer-form .employer-field,
+.employer-company-page .employer-field,
+.employer-label-control-stack {
+  gap: 7px;
+}
+
+.employer-field-full {
+  grid-column: 1 / -1;
+}
+
+.employer-field > span {
+  color: #3d4f6c;
+  font-size: 13px;
+  font-weight: bold;
+  letter-spacing: -0.01em;
+}
+
+.employer-field-error {
+  margin: 0;
+  color: #ef4444;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* Input thường trong employer-field (native + Nuxt UI) */
+.employer-dashboard-simple .employer-field input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]):not([type="file"]),
+.employer-dashboard-simple .employer-field select,
+.employer-dashboard-simple .employer-field textarea {
+  width: 100%;
+  min-height: 44px;
+  padding: 0 14px;
+  border-radius: 10px;
+  border: 1.5px solid rgba(200, 214, 236, 0.9);
+  background: #fafbfe;
+  color: #2d3750;
+  font-size: 14px;
+  font-weight: 500;
+  font-family: "Manrope", sans-serif;
+  box-sizing: border-box;
+  outline: none;
+  box-shadow: none;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
+}
+
+.employer-dashboard-simple .employer-field textarea {
+  min-height: 100px;
+  padding: 12px 14px;
+  resize: vertical;
+  line-height: 1.6;
+}
+
+.employer-dashboard-simple .employer-field select {
+  appearance: none;
+  padding-right: 36px;
+  cursor: pointer;
+  background-image:
+    linear-gradient(45deg, transparent 50%, rgba(152, 166, 191, 0.72) 50%),
+    linear-gradient(135deg, rgba(152, 166, 191, 0.72) 50%, transparent 50%);
+  background-position:
+    calc(100% - 18px) calc(50% - 2px),
+    calc(100% - 13px) calc(50% - 2px);
+  background-size: 5px 5px, 5px 5px;
+  background-repeat: no-repeat;
+}
+
+.employer-dashboard-simple .employer-field input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]):not([type="file"]):focus,
+.employer-dashboard-simple .employer-field select:focus,
+.employer-dashboard-simple .employer-field textarea:focus {
+  border-color: rgba(53, 99, 255, 0.55);
+  box-shadow: 0 0 0 3px rgba(53, 99, 255, 0.12);
+  background: #ffffff;
+}
+
+.employer-dashboard-simple .employer-field :deep([data-slot="base"]) {
+  width: 100%;
+  min-height: 44px;
+  padding: 0 14px;
+  border-radius: 10px;
+  border: 1.5px solid rgba(200, 214, 236, 0.9);
+  background: #fafbfe;
+  color: #2d3750;
+  font-size: 14px;
+  font-weight: 500;
+  font-family: "Manrope", sans-serif;
+  box-shadow: none;
+  --tw-ring-shadow: 0 0 #0000;
+  --tw-ring-offset-shadow: 0 0 #0000;
+  outline: none;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
+}
+
+.employer-dashboard-simple .employer-field :deep([data-slot="base"]:focus-within) {
+  border-color: rgba(53, 99, 255, 0.55);
+  box-shadow: 0 0 0 3px rgba(53, 99, 255, 0.12);
+  background: #ffffff;
+}
+
+.employer-dashboard-simple .employer-field :deep([data-slot="base"] input),
+.employer-dashboard-simple .employer-field :deep([data-slot="base"] textarea) {
+  width: 100%;
+  min-height: 42px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  font-family: "Manrope", sans-serif;
+  box-shadow: none;
+  outline: none;
+}
+
+.employer-dashboard-simple .employer-field :deep(button[role="combobox"]),
+.employer-dashboard-simple .employer-field-select :deep([data-slot="base"]) {
+  width: 100%;
+  min-height: 44px;
+  height: auto;
+  padding: 0 36px 0 14px;
+  border-radius: 10px;
+  border: 1.5px solid rgba(200, 214, 236, 0.9);
+  background-color: #fafbfe;
+  color: #2d3750;
+  font-size: 14px;
+  font-weight: 500;
+  font-family: "Manrope", sans-serif;
+  box-shadow: none;
+  --tw-ring-shadow: 0 0 #0000;
+  --tw-ring-offset-shadow: 0 0 #0000;
+  outline: none;
+  appearance: none;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background-color 0.2s ease;
+  background-image:
+    linear-gradient(45deg, transparent 50%, rgba(152, 166, 191, 0.72) 50%),
+    linear-gradient(135deg, rgba(152, 166, 191, 0.72) 50%, transparent 50%);
+  background-position:
+    calc(100% - 18px) calc(50% - 2px),
+    calc(100% - 13px) calc(50% - 2px);
+  background-size: 5px 5px, 5px 5px;
+  background-repeat: no-repeat;
+}
+
+.employer-dashboard-simple .employer-field :deep(button[role="combobox"]:focus),
+.employer-dashboard-simple .employer-field :deep(button[role="combobox"]:focus-visible),
+.employer-dashboard-simple .employer-field-select :deep([data-slot="base"]:focus),
+.employer-dashboard-simple .employer-field-select :deep([data-slot="base"]:focus-visible) {
+  border-color: rgba(53, 99, 255, 0.55);
+  box-shadow: 0 0 0 3px rgba(53, 99, 255, 0.12);
+  background-color: #ffffff;
+}
+
+.employer-dashboard-simple .employer-field-select--placeholder :deep([data-slot="base"]) {
+  color: #98a6bf;
+}
+
+.employer-dashboard-simple .employer-field-select :deep([data-slot="trailingIcon"]) {
+  display: none;
+}
+
+.employer-dashboard-simple .employer-field :deep([data-slot="base"][class*="ring-red"]),
+.employer-dashboard-simple .employer-field :deep(button[role="combobox"][class*="ring-red"]),
+.employer-dashboard-simple .employer-field-select.employer-field-select--error :deep([data-slot="base"]) {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 1px rgba(239, 68, 68, 0.35);
+}
+
+.employer-field-editor .employer-editor {
+  border: 1.5px solid rgba(200, 214, 236, 0.9);
+  border-radius: 10px;
+  overflow: hidden;
+  background: #fafbfe;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.employer-field-editor .employer-editor:focus-within {
+  border-color: rgba(53, 99, 255, 0.45);
+  box-shadow: 0 0 0 3px rgba(53, 99, 255, 0.12);
+}
+
+.employer-field-editor :deep(.rich-text-editor) {
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.employer-field-editor :deep(.editor-toolbar) {
+  min-height: 44px;
+  padding: 8px 10px;
+  background: #f3f6fb;
+  border-bottom: 1px solid rgba(214, 223, 239, 0.8);
+}
+
+.employer-field-editor :deep(.ProseMirror) {
+  min-height: 120px;
+  padding: 12px 14px;
+  line-height: 1.6;
+}
+
+.employer-company-form .employer-field-editor:first-of-type :deep(.ProseMirror) {
+  min-height: 220px;
+}
+
+.employer-company-media-stack {
+  display: grid;
+  gap: 16px;
+}
+
+.employer-company-media-field {
+  display: grid;
+  gap: 12px;
+}
+
+.employer-company-media-label {
+  display: grid;
+  gap: 4px;
+}
+
+.employer-company-media-label strong {
+  color: #334155;
+  font-size: 15px;
+  line-height: 1.4;
+  font-weight: bold;
+}
+
+.employer-company-media-shell {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  min-height: 92px;
+  padding: 18px;
+  border-radius: 14px;
+  border: 1.5px dashed rgba(184, 198, 222, 0.9);
+  background: #fbfdff;
+  color: #3563ff;
+  transition:
+    border-color 0.18s ease,
+    background 0.18s ease,
+    color 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+.employer-company-page .employer-company-media-shell {
+  min-height: 70px;
+  padding: 12px;
+  border-radius: 12px;
+  border-width: 1px;
+  border-color: rgba(197, 210, 231, 0.72);
+  background: rgba(251, 253, 255, 0.72);
+  color: #4f75ff;
+}
+
+.employer-company-upload-zone.is-clickable {
+  cursor: pointer;
+}
+
+.employer-company-upload-zone.is-disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.employer-company-upload-zone.is-dragging {
+  border-color: rgba(53, 99, 255, 0.45);
+  background: rgba(53, 99, 255, 0.06);
+  box-shadow: 0 0 0 3px rgba(53, 99, 255, 0.12);
+}
+
+.employer-company-upload-zone:has(img) {
+  min-height: auto;
+  place-items: stretch;
+}
+
+.employer-company-upload-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(53, 99, 255, 0.1);
+  color: currentColor;
+}
+
+.employer-company-page .employer-company-upload-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: rgba(53, 99, 255, 0.07);
+}
+
+.employer-company-upload-empty {
+  display: grid;
+  place-items: center;
+}
+
+.employer-company-permission-note {
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid rgba(251, 191, 36, 0.35);
+  background: rgba(255, 251, 235, 0.9);
+  color: #b45309;
+  font-size: 13px;
+}
+
+.employer-settings-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 6px;
+}
+
+.employer-company-actions {
+  margin-top: 2px;
+}
+
+.employer-settings-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 54px;
+  padding: 0 28px;
+  border: 0;
+  border-radius: 16px;
+  font-size: 15px;
+  font-weight: bold;
+  line-height: 1.2;
+  cursor: pointer;
+  font-family: inherit;
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease,
+    border-color 0.18s ease,
+    background 0.18s ease;
+}
+
+.employer-company-page .employer-company-actions .employer-settings-primary {
+  min-height: 42px;
+  padding: 0 18px;
+  border-radius: 12px;
+  background: rgba(53, 99, 255, 0.08);
+  border: 1px solid rgba(53, 99, 255, 0.22);
+  color: #2f59f5;
+  box-shadow: none;
+}
+
+.employer-company-page .employer-company-actions .employer-settings-primary:hover:not(:disabled) {
+  background: rgba(53, 99, 255, 0.12);
+  border-color: rgba(53, 99, 255, 0.32);
+}
+
+.employer-settings-primary:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* ——— Quản lý ứng viên (?view=candidates) ——— */
+
+.employer-dashboard-simple .employer-dashboard-main.is-candidates-layout {
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  overflow-x: hidden;
+  min-height: 0;
+}
+
+.employer-candidates-layout {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  width: 100%;
+}
+
+.employer-candidates-scroll {
+  display: grid;
+  gap: 0;
+  min-width: 0;
+  width: 100%;
+}
+
+.employer-candidates-page .employer-candidates-panel {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+  overflow: visible;
+}
+
+.employer-candidates-page .employer-candidates-panel-topbar {
+  width: 100%;
+  flex-shrink: 0;
+  border-radius: 18px 18px 0 0;
+  border: 0;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: none;
+  backdrop-filter: none;
+}
+
+.employer-candidates-content {
+  display: grid;
+  gap: 0;
+  padding: 0;
+  min-width: 0;
+  width: 100%;
+  border-radius: 0 0 18px 18px;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: none;
+}
+
+.employer-candidates-page .employer-candidates-panel .employer-candidates-content,
+.employer-dashboard-simple .employer-candidates-page .employer-candidates-panel .employer-dashboard-content {
+  border-radius: 0 0 18px 18px;
+  overflow: hidden;
+}
+
+.employer-candidates-panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 28px 36px;
+  border-bottom: 1px solid rgba(224, 230, 239, 0.98);
+}
+
+.employer-candidates-search {
+  width: min(820px, 100%);
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 14px;
+  border-radius: 10px;
+  border: 1px solid rgba(195, 208, 229, 0.96);
+  background: #ffffff;
+  color: #94a3b8;
+}
+
+.employer-candidates-search svg {
+  flex-shrink: 0;
+}
+
+.employer-candidates-search input {
+  width: 100%;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: #334155;
+  font-size: 14px;
+  font-family: "Manrope", sans-serif;
+}
+
+.employer-candidates-search input::placeholder {
+  color: #94a3b8;
+}
+
+.employer-candidates-search input:focus {
+  outline: none;
+}
+
+.employer-candidates-loading {
+  padding: 28px 36px;
+}
+
+.employer-candidates-table-wrap {
+  overflow-x: auto;
+}
+
+.employer-candidates-page .employer-candidates-table {
+  width: 100%;
+  min-width: 980px;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.employer-candidates-page .employer-candidates-table thead th {
+  padding: 18px 20px;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.95);
+  color: #64748b;
+  font-size: 11.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+  text-align: left;
+  vertical-align: middle;
+  background: rgba(255, 255, 255, 0.96);
+}
+
+.employer-candidates-page .employer-candidates-table thead th.is-action {
+  text-align: center;
+}
+
+.employer-candidates-page .employer-candidates-table tbody td.is-action {
+  text-align: center;
+}
+
+.employer-candidates-page .employer-candidates-table tbody td.is-action .employer-row-actions {
+  justify-content: center;
+  width: 100%;
+}
+
+.employer-candidates-empty-cell {
+  padding: 56px 20px !important;
+  text-align: center;
+  color: #6b7e9a;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.employer-candidates-pagination {
+  border-top: 1px solid rgba(226, 232, 240, 0.95);
+}
+
+/* Xóa: đồng bộ icon thùng rác với list admin khác (#8b6b3f, đỏ khi hover) */
+.employer-candidates-page .employer-row-action.is-delete:hover:not(:disabled),
+.employer-candidates-page .employer-row-action.is-danger:hover:not(:disabled) {
+  border-color: rgba(239, 68, 68, 0.35);
+  color: #dc2626;
+}
+
+/* Admin — Quản lý ứng viên (giống company candidates) */
+.employer-admin-candidates-panel-head:not(.employer-admin-applications-filters) {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 20px;
+}
+
+.employer-candidates-page {
+  --employer-control-min-height: 44px;
+  --employer-input-border: 1px solid rgba(200, 214, 236, 0.9);
+  --employer-input-bg: #ffffff;
+  --employer-input-color: #2d3750;
+}
+
+body:has(.employer-candidates-page) {
+  --vs-dropdown-z-index: 10050;
+  --vs-dropdown-max-height: 200px;
+  --vs-dropdown-box-shadow: 0 8px 24px rgba(31, 49, 93, 0.1);
+  --vs-dropdown-option--active-bg: #f7f9fc;
+  --vs-dropdown-option--active-color: #1f2937;
+  --vs-dropdown-option-padding: 6px 8px;
+}
+
+.employer-candidates-page .job-vselect {
+  --vs-border-radius: 10px;
+  --vs-border-color: rgba(200, 214, 236, 0.9);
+  --vs-dropdown-option--active-bg: #f7f9fc;
+  --vs-dropdown-option--active-color: #1f2937;
+}
+
+.employer-admin-candidates-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px 24px;
+  width: 100%;
+}
+
+.employer-admin-candidates-filters-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  width: 100%;
+}
+
+.employer-candidates-page .employer-admin-applications-filters .employer-input-label {
+  display: block;
+  color: #3d4f6c;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  font-family: "Manrope", sans-serif;
+}
+
+.employer-candidates-page .job-vselect {
+  position: relative;
+  z-index: 1;
+}
+
+.employer-candidates-page .job-vselect:has(.vs--open) {
+  z-index: 401;
+}
+
+.employer-candidates-page .job-vselect .v-select.vs--open {
+  z-index: 401;
+}
+
+.employer-candidates-page .job-vselect .v-select .vs__dropdown-toggle {
+  display: flex !important;
+  align-items: center !important;
+  min-height: var(--employer-control-min-height) !important;
+  height: auto !important;
+  border-radius: 10px !important;
+  border: var(--employer-input-border) !important;
+  padding: 4px 10px !important;
+  background-color: var(--employer-input-bg) !important;
+  font-family: "Manrope", sans-serif !important;
+}
+
+.employer-candidates-page .job-vselect .v-select .vs__selected-options {
+  align-items: center;
+  min-height: calc(var(--employer-control-min-height) - 10px);
+}
+
+.employer-candidates-page .job-vselect .v-select.vs--open .vs__dropdown-toggle,
+.employer-candidates-page .job-vselect .v-select .vs__dropdown-toggle:focus,
+.employer-candidates-page .job-vselect .v-select .vs__dropdown-toggle:focus-within {
+  border-color: rgba(53, 99, 255, 0.55) !important;
+  box-shadow: 0 0 0 3px rgba(53, 99, 255, 0.12) !important;
+  outline: none !important;
+}
+
+.employer-candidates-page .job-vselect .v-select .vs__selected {
+  border-radius: 9999px;
+  background: rgba(239, 246, 255, 0.9);
+  border: 1px solid rgba(147, 197, 253, 0.85);
+  color: #2d3750;
+  font-size: 14px;
+  font-weight: 500;
+  font-family: "Manrope", sans-serif;
+  line-height: 1.25;
+  padding: 4px 10px;
+  margin: 3px 6px 3px 0;
+}
+
+.employer-candidates-page .job-vselect .v-select .vs__selected span,
+.employer-candidates-page .job-vselect .v-select .vs__selected button {
+  font-size: 14px;
+  font-weight: 500;
+  font-family: "Manrope", sans-serif;
+  color: #2d3750;
+}
+
+.employer-candidates-page .job-vselect .v-select .vs__search {
+  margin: 3px 0;
+  min-height: 24px;
+  line-height: 24px;
+  font-size: 14px;
+  font-weight: 500;
+  font-family: "Manrope", sans-serif;
+  color: var(--employer-input-color);
+}
+
+.employer-candidates-page .job-vselect .v-select .vs__search:focus {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.employer-candidates-page .job-vselect .vs__search::placeholder,
+.employer-candidates-page .job-vselect .vs__placeholder {
+  font-size: 14px;
+  font-weight: 500;
+  font-family: "Manrope", sans-serif;
+  color: #94a3b8;
+}
+
+.employer-candidates-page .job-vselect .v-select .vs__actions {
+  padding-left: 6px;
+}
+
+.employer-candidates-page .job-vselect .v-select .vs__clear {
+  margin-right: 2px;
+}
+
+html body .employer-candidates-page .job-vselect .v-select .vs__open-indicator {
+  display: none !important;
+  visibility: hidden !important;
+  width: 0 !important;
+  height: 0 !important;
+  overflow: hidden !important;
+}
+
+html body .employer-candidates-page .job-vselect .v-select .vs__dropdown-toggle {
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  padding-right: 36px !important;
+  background-image:
+    linear-gradient(45deg, transparent 50%, rgba(152, 166, 191, 0.72) 50%),
+    linear-gradient(135deg, rgba(152, 166, 191, 0.72) 50%, transparent 50%),
+    linear-gradient(to right, var(--employer-input-bg), var(--employer-input-bg)) !important;
+  background-position:
+    calc(100% - 18px) calc(50% - 2px),
+    calc(100% - 13px) calc(50% - 2px),
+    0 0 !important;
+  background-size: 5px 5px, 5px 5px, 100% 100% !important;
+  background-repeat: no-repeat !important;
+}
+
+/* Menu trong panel (fallback) */
+.employer-candidates-page .job-vselect .v-select .vs__dropdown-menu {
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 9999 !important;
+  border: 1px solid rgba(200, 214, 236, 0.9) !important;
+  border-radius: 10px !important;
+  background: #ffffff !important;
+  box-shadow: 0 8px 24px rgba(31, 49, 93, 0.1) !important;
+  padding: 4px 0 !important;
+  margin-top: 6px !important;
+  font-family: "Manrope", sans-serif;
+}
+
+.employer-candidates-page .job-vselect .vs__dropdown-option {
+  margin: 2px 6px;
+  padding: 6px 8px;
+  border-radius: 0.75rem;
+  font-size: 0.75rem;
+  color: #1f2937;
+  cursor: pointer;
+}
+
+.employer-candidates-page .job-vselect .vs__dropdown-option:hover,
+.employer-candidates-page .job-vselect .vs__dropdown-option--highlight {
+  background-color: #f7f9fc;
+}
+
+.employer-candidates-page .job-vselect .vs__dropdown-option--selected {
+  background-color: #e0f2fe;
+  color: #1f2937;
+}
+
+.employer-candidates-page .job-vselect .vs__no-options {
+  margin: 2px 6px;
+  padding: 8px 10px;
+  font-size: 0.75rem;
+  color: #64748b;
+}
+
+/* Menu append-to-body (portal ra body) */
+body.vselect-scroll-lock {
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
+body:has(.employer-candidates-page) .vs__dropdown-menu,
+body:has(.employer-admin-applications-filters) .vs__dropdown-menu {
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 10050 !important;
+  border: 1px solid rgba(200, 214, 236, 0.9) !important;
+  border-radius: 10px !important;
+  background: #ffffff !important;
+  box-shadow: 0 8px 24px rgba(31, 49, 93, 0.1) !important;
+  padding: 4px 0 !important;
+  margin-top: 6px !important;
+  font-family: "Manrope", sans-serif;
+}
+
+body:has(.employer-candidates-page) .vs__dropdown-option,
+body:has(.employer-admin-applications-filters) .vs__dropdown-option {
+  margin: 2px 6px;
+  padding: 6px 8px;
+  border-radius: 0.75rem;
+  font-size: 0.75rem;
+  line-height: 1.35;
+  color: #1f2937;
+  cursor: pointer;
+}
+
+body:has(.employer-candidates-page) .vs__dropdown-option:hover,
+body:has(.employer-candidates-page) .vs__dropdown-option--highlight,
+body:has(.employer-admin-applications-filters) .vs__dropdown-option:hover,
+body:has(.employer-admin-applications-filters) .vs__dropdown-option--highlight {
+  background-color: #f7f9fc !important;
+  color: #1f2937 !important;
+}
+
+body:has(.employer-candidates-page) .vs__dropdown-option--selected,
+body:has(.employer-admin-applications-filters) .vs__dropdown-option--selected {
+  background-color: #e0f2fe !important;
+  color: #1f2937 !important;
+}
+
+body:has(.employer-candidates-page) .vs__no-options,
+body:has(.employer-admin-applications-filters) .vs__no-options {
+  margin: 2px 6px;
+  padding: 8px 10px;
+  font-size: 0.75rem;
+  color: #64748b;
+}
+
+@media (max-width: 768px) {
+  .employer-admin-candidates-filters-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.employer-admin-candidate-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  max-width: 200px;
+}
+
+.employer-admin-candidate-tag {
+  display: inline-flex;
+  padding: 4px 8px;
+  border-radius: 8px;
+  background: rgba(241, 245, 249, 0.96);
+  color: #475569;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.3;
+}
+
+.employer-candidates-page .employer-topbar-btn-outline {
+  min-height: 42px;
+  padding: 0 18px;
+  border-radius: 12px;
+  border: 1px solid rgba(203, 213, 225, 0.95);
+  background: rgba(255, 255, 255, 0.88);
+  color: #334155;
+  font-size: 14px;
+  font-weight: bold;
+  font-family: inherit;
+  cursor: pointer;
+  transition:
+    border-color 0.18s ease,
+    background 0.18s ease;
+}
+
+.employer-candidates-page .employer-topbar-btn-outline:hover {
+  border-color: rgba(53, 99, 255, 0.35);
+  background: rgba(255, 255, 255, 1);
+}
+
+.employer-admin-candidates-table-scale {
+  zoom: 0.9;
+  width: 100%;
+}
+
+@supports not (zoom: 1) {
+  .employer-admin-candidates-table-scale {
+    transform: scale(0.9);
+    transform-origin: top left;
+    width: calc(100% / 0.9);
+  }
+}
+
+/* ——— Modal chi tiết ứng viên ——— */
+
+.employer-candidate-dialog[hidden] {
+  display: none;
+}
+
+.employer-candidate-dialog:not([hidden]) {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 24px 16px;
+  overflow-y: auto;
+}
+
+.employer-candidate-dialog {
+  position: fixed;
+  inset: 0;
+  z-index: 190;
+}
+
+.employer-candidate-dialog-backdrop {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  background: rgba(15, 23, 42, 0.42);
+  backdrop-filter: blur(8px);
+}
+
+.employer-candidate-dialog-panel {
+  position: relative;
+  z-index: 1;
+  width: min(720px, calc(100% - 32px));
+  max-height: calc(100vh - 48px);
+  margin: 0 auto;
+  padding: 22px;
+  border-radius: 24px;
+  border: 1px solid rgba(220, 227, 239, 0.96);
+  background: linear-gradient(180deg, #f7faff 0%, #ffffff 22%);
+  box-shadow: 0 30px 80px rgba(15, 23, 42, 0.18);
+  overflow: auto;
+}
+
+.employer-candidate-dialog-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.employer-candidate-dialog-copy {
+  min-width: 0;
+}
+
+.employer-candidate-dialog-copy h2 {
+  margin: 0;
+  color: #0f172a;
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.04em;
+}
+
+.employer-edit-drawer-close {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  border-radius: 14px;
+  border: 1px solid rgba(223, 228, 239, 0.98);
+  background: rgba(255, 255, 255, 0.88);
+  color: #64748b;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-family: inherit;
+  transition:
+    background 0.18s ease,
+    color 0.18s ease,
+    transform 0.18s ease;
+}
+
+.employer-edit-drawer-close:hover {
+  background: #ffffff;
+  color: #0f172a;
+}
+
+.employer-candidate-dialog-body {
+  display: grid;
+  gap: 16px;
+}
+
+.employer-candidate-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.employer-candidate-detail-item,
+.employer-candidate-detail-section {
+  padding: 14px 16px;
+  border-radius: 18px;
+  border: 1px solid rgba(226, 232, 240, 0.94);
+  background: rgba(255, 255, 255, 0.92);
+}
+
+.employer-candidate-detail-item span,
+.employer-candidate-detail-section h3 {
+  display: block;
+  margin: 0 0 6px;
+  color: #64748b;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.employer-candidate-detail-section h3 {
+  margin-bottom: 12px;
+}
+
+.employer-candidate-detail-item strong {
+  color: #0f172a;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.employer-candidate-detail-item .employer-candidate-cv {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.employer-candidate-detail-section p {
+  margin: 0;
+  color: #334155;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.employer-candidate-detail-empty {
+  color: #94a3b8;
+  font-style: italic;
+}
+
+.employer-candidate-job-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 12px;
+}
+
+.employer-candidate-job-item {
+  display: grid;
+  gap: 10px;
+  padding: 16px 18px;
+  border-radius: 18px;
+  border: 1px solid rgba(226, 232, 240, 0.94);
+  background: rgba(248, 250, 252, 0.92);
+}
+
+.employer-candidate-job-title {
+  color: #0f172a;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.employer-candidate-job-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px 16px;
+}
+
+.employer-candidate-job-employer {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.employer-candidate-job-employer img {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  object-fit: cover;
+  flex-shrink: 0;
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  background: #ffffff;
+}
+
+.employer-candidate-job-employer span,
+.employer-candidate-job-date {
+  color: #64748b;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+@media (max-width: 900px) {
+  .employer-candidate-detail-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 560px) {
+  .employer-candidate-detail-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .employer-candidate-dialog-panel {
+    width: calc(100% - 24px);
+    padding: 18px;
+  }
+}
+
+/* ——— Quản lý tin đăng (?view=manageJobs) ——— */
+
+.employer-dashboard-simple .employer-dashboard-main.is-manage-jobs-layout {
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  overflow-x: hidden;
+  min-height: 0;
+}
+
+.employer-manage-jobs-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  min-width: 0;
+  min-height: 0;
+}
+
+.employer-dashboard-page.employer-dashboard-simple .employer-dashboard-sticky-panel {
+  position: static;
+  align-self: start;
+  z-index: auto;
+  margin: -6px -6px 10px;
+  padding: 6px 6px 10px;
+  background: transparent;
+  backdrop-filter: none;
+  border-radius: 0;
+}
+
+.employer-dashboard-content-head {
+  display: grid;
+  gap: 14px;
+  padding-top: 10px;
+}
+
+.employer-dashboard-summary {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 14px;
+}
+
+.employer-dashboard-page .employer-dashboard-title h1 {
+  margin: 0 0 4px;
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.04em;
+  color: #1e293b;
+}
+
+.employer-dashboard-simple .employer-dashboard-search {
+  position: relative;
+  display: block;
+  width: min(100%, 340px);
+  flex-shrink: 0;
+}
+
+.employer-dashboard-simple .employer-dashboard-search svg {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #94a3b8;
+  pointer-events: none;
+}
+
+.employer-dashboard-simple .employer-dashboard-search input {
+  width: 100%;
+  min-height: 44px;
+  padding: 0 14px 0 42px;
+  border-radius: 12px;
+  border: 1px solid rgba(203, 213, 225, 0.95);
+  background: rgba(255, 255, 255, 0.88);
+  color: #334155;
+  font-size: 14px;
+  font-family: "Manrope", sans-serif;
+  box-shadow: none;
+  outline: none;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.employer-dashboard-simple .employer-dashboard-search input:focus {
+  border-color: rgba(53, 99, 255, 0.55);
+  box-shadow: 0 0 0 3px rgba(53, 99, 255, 0.12);
+}
+
+.employer-dashboard-stats {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.employer-dashboard-stat {
+  min-height: 74px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(203, 213, 225, 0.95);
+  background: rgba(255, 255, 255, 0.82);
+  display: grid;
+  align-content: center;
+  justify-items: start;
+  gap: 4px;
+  text-align: left;
+  color: #334155;
+  cursor: pointer;
+  font-family: inherit;
+  transition:
+    border-color 0.18s ease,
+    box-shadow 0.18s ease,
+    transform 0.18s ease;
+}
+
+.employer-dashboard-stat:hover {
+  border-color: rgba(53, 99, 255, 0.35);
+}
+
+.employer-dashboard-stat.is-active {
+  border-color: rgba(53, 99, 255, 0.92);
+  box-shadow: inset 0 0 0 1px rgba(53, 99, 255, 0.14);
+}
+
+.employer-dashboard-page .employer-dashboard-stat-label {
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.employer-dashboard-page .employer-dashboard-stat strong {
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  color: #0f172a;
+}
+
+.employer-manage-jobs-layout .employer-dashboard-content {
+  padding: 0;
+  min-width: 0;
+}
+
+.employer-manage-jobs-loading {
+  margin-top: 8px;
+}
+
+.employer-dashboard-simple .employer-dashboard-empty {
+  margin-top: 8px;
+  padding: 56px 20px;
+  border-radius: 16px;
+  border: 1px dashed rgba(203, 213, 225, 0.96);
+  background: rgba(255, 255, 255, 0.82);
+}
+
+.employer-dashboard-empty[hidden] {
+  display: none;
+}
+
+.employer-dashboard-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 68px 20px;
+  border-radius: 24px;
+  border: 2px dashed rgba(216, 224, 238, 0.96);
+  background: rgba(255, 255, 255, 0.74);
+  color: #8798b5;
+  text-align: center;
+}
+
+.employer-dashboard-empty p {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: #6b7e9a;
+}
+
+.employer-dashboard-table-shell {
+  position: relative;
+  overflow-x: auto;
+  overflow-y: visible;
+  border-radius: 16px;
+  border: 1px solid rgba(220, 227, 239, 0.96);
+  background: rgba(255, 255, 255, 0.88);
+  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.04);
+  backdrop-filter: blur(10px);
+}
+
+.employer-dashboard-table-shell[hidden] {
+  display: none;
+}
+
+.employer-dashboard-table {
+  width: 100%;
+  min-width: 980px;
+  table-layout: fixed;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.employer-dashboard-page .employer-dashboard-col-position {
+  width: 26%;
+}
+
+.employer-dashboard-page .employer-dashboard-col-applications {
+  width: 12%;
+}
+
+.employer-dashboard-page .employer-dashboard-col-post-type {
+  width: 10%;
+}
+
+.employer-dashboard-page .employer-dashboard-col-status {
+  width: 14%;
+}
+
+.employer-dashboard-page .employer-dashboard-col-created {
+  width: 12%;
+}
+
+.employer-dashboard-page .employer-dashboard-col-deadline {
+  width: 12%;
+}
+
+.employer-dashboard-page .employer-dashboard-col-actions {
+  width: 136px;
+}
+
+.employer-dashboard-page .employer-dashboard-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 8;
+  padding: 16px 18px;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.95);
+  background: #edf4ff;
+  color: #475467;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  text-align: left;
+  white-space: nowrap;
+  box-shadow: 0 1px 0 rgba(226, 232, 240, 0.92);
+}
+
+.employer-dashboard-table tbody td {
+  padding: 18px;
+  border-bottom: 1px solid rgba(241, 245, 249, 0.98);
+  vertical-align: middle;
+}
+
+.employer-dashboard-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.employer-row-title-wrap,
+.employer-row-position {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.employer-row-title-wrap strong,
+.employer-row-position strong {
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.35;
+  color: #0f172a;
+  overflow-wrap: anywhere;
+}
+
+.employer-row-title-wrap span,
+.employer-row-position span,
+.employer-row-company,
+.employer-row-muted {
+  display: block;
+  color: #64748b;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.employer-dashboard-page .employer-dashboard-table tbody td.is-applications,
+.employer-dashboard-page .employer-dashboard-table tbody td.is-created,
+.employer-dashboard-page .employer-dashboard-table tbody td.is-deadline {
+  color: #64748b;
+  font-weight: 500;
+}
+
+.employer-dashboard-page .employer-dashboard-table tbody td:nth-child(2),
+.employer-dashboard-page .employer-dashboard-table tbody td:nth-child(5),
+.employer-dashboard-page .employer-dashboard-table tbody td:nth-child(6) {
+  white-space: nowrap;
+}
+
+.employer-dashboard-page .employer-dashboard-table tbody td.is-applications .employer-row-muted,
+.employer-dashboard-page .employer-dashboard-table tbody td.is-created .employer-row-muted,
+.employer-dashboard-page .employer-dashboard-table tbody td.is-deadline .employer-row-muted {
+  display: inline-block;
+}
+
+.employer-row-muted.is-expired {
+  background: transparent;
+  color: #dc2626;
+}
+
+.employer-dashboard-page .employer-dashboard-table tbody td.is-post-type,
+.employer-dashboard-page .employer-dashboard-table tbody td.is-status,
+.employer-dashboard-page .employer-dashboard-table tbody td.is-action {
+  white-space: nowrap;
+}
+
+.employer-row-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  padding: 0 10px;
+  border-radius: 999px;
+  background: #e8f0ff;
+  color: #2f59f5;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* Loại tin: Cơ bản — blue-100 / blue-800 */
+.employer-row-badge.is-post-type.is-basic {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+/* Loại tin: Mới nhất — amber-100 / amber-800 */
+.employer-row-badge.is-post-type.is-hot {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+/* Loại tin: Tuyển gấp — đồng bộ homepage */
+.employer-row-badge.is-post-type.is-urgent {
+  background: rgba(255, 120, 84, 0.1);
+  color: #ef6a49;
+}
+
+.employer-row-badge.is-expired {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.employer-row-badge.is-pending {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.employer-row-badge.is-reviewing {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.employer-row-badge.is-approved {
+  background: #e8f0ff;
+  color: #2f59f5;
+}
+
+.employer-row-badge.is-rejected {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.employer-dashboard-page .employer-dashboard-table tbody td.is-post-type .employer-row-badge,
+.employer-dashboard-page .employer-dashboard-table tbody td.is-status .employer-row-badge {
+  justify-content: center;
+}
+
+.employer-dashboard-table th.is-action,
+.employer-dashboard-table td.is-action {
+  text-align: center;
+  padding-left: 12px;
+  padding-right: 12px;
+}
+
+.employer-dashboard-page .employer-dashboard-table tbody td.is-action .employer-row-actions {
+  display: flex;
+  width: 100%;
+  justify-content: center;
+}
+
+.employer-row-actions {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+.employer-row-action {
+  width: 30px;
+  height: 30px;
+  border: 1px solid rgba(226, 232, 240, 0.96);
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #ffffff;
+  color: #8b6b3f;
+  cursor: pointer;
+  transition:
+    border-color 0.18s ease,
+    background 0.18s ease,
+    color 0.18s ease;
+}
+
+.employer-row-action:hover:not(:disabled) {
+  border-color: rgba(53, 99, 255, 0.35);
+  color: #3563ff;
+}
+
+.employer-row-action.is-danger:hover:not(:disabled) {
+  border-color: rgba(239, 68, 68, 0.35);
+  color: #dc2626;
+}
+
+.employer-row-action:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.employer-dashboard-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 14px 18px;
+  border-top: 1px solid rgba(226, 232, 240, 0.95);
+  background: rgba(255, 255, 255, 0.96);
+  flex-wrap: wrap;
+}
+
+.employer-dashboard-pagination-meta {
+  margin: 0;
+  color: #64748b;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.employer-dashboard-pagination-pages {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-left: auto;
+}
+
+.employer-dashboard-page-btn,
+.employer-dashboard-page-nav,
+.employer-dashboard-page-ellipsis {
+  min-width: 38px;
+  min-height: 38px;
+  padding: 0 14px;
+  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(203, 213, 225, 0.92);
+  background: rgba(255, 255, 255, 0.88);
+  color: #475569;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: inherit;
+}
+
+.employer-dashboard-page-btn,
+.employer-dashboard-page-nav {
+  cursor: pointer;
+  transition:
+    border-color 0.18s ease,
+    background 0.18s ease,
+    color 0.18s ease,
+    transform 0.18s ease;
+}
+
+.employer-dashboard-page-btn:hover,
+.employer-dashboard-page-nav:hover {
+  border-color: rgba(53, 99, 255, 0.35);
+  color: #3563ff;
+}
+
+.employer-dashboard-page-btn.is-active {
+  border-color: transparent;
+  background: linear-gradient(135deg, #3563ff 0%, #2e57ef 100%);
+  color: #ffffff;
+  box-shadow: 0 12px 24px rgba(53, 99, 255, 0.16);
+}
+
+.employer-dashboard-page-ellipsis {
+  border: 0;
+  background: transparent;
+  cursor: default;
+}
+
+@media (max-width: 900px) {
+  .employer-grid,
+  .employer-grid-two {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 1280px) {
+  .employer-overview-stats {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 900px) {
+  .employer-overview-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 1280px) {
+  .employer-dashboard-stats {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+/* ——— Cài đặt tài khoản (?view=settings) ——— */
+
+.employer-dashboard-simple .employer-dashboard-main.is-settings-layout {
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  overflow-x: hidden;
+  min-height: 0;
+}
+
+.employer-settings-layout {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  width: 100%;
+}
+
+.employer-settings-scroll {
+  display: grid;
+  gap: 18px;
+  min-width: 0;
+  width: 100%;
+}
+
+.employer-settings-page .employer-settings-panel {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-width: 0;
+  border: 1px solid rgba(255, 255, 255, 0.96);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: none;
+  backdrop-filter: blur(12px);
+  overflow: hidden;
+}
+
+.employer-settings-page .employer-settings-panel-topbar,
+.employer-settings-page .employer-dashboard-topbar.employer-settings-panel-topbar {
+  width: 100%;
+  flex-shrink: 0;
+  border-radius: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+}
+
+.employer-settings-panel-body {
+  padding: 28px;
+  min-width: 0;
+}
+
+.employer-settings-stack {
+  display: grid;
+  gap: 18px;
+}
+
+.employer-settings-page .employer-settings-stack .employer-settings-card {
+  padding: 28px;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.96);
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: none;
+  backdrop-filter: blur(12px);
+}
+
+.employer-settings-card.is-danger {
+  background: rgba(255, 255, 255, 0.92);
+}
+
+.employer-settings-card-head {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 22px;
+}
+
+.employer-settings-card-head h2 {
+  margin: 0;
+  font-size: 24px;
+  line-height: 1.12;
+  letter-spacing: -0.04em;
+  color: #0f172a;
+}
+
+.employer-admin-settings-desc {
+  margin: 0;
+  color: #64748b;
+  font-size: 14px;
+  line-height: 1.55;
+  font-weight: 500;
+}
+
+.employer-settings-form {
+  display: grid;
+  gap: 18px;
+}
+
+.employer-settings-card .employer-field input[readonly] {
+  background: #f6f8fc;
+  color: #4b5563;
+  cursor: default;
+}
+
+.employer-settings-note {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: #718198;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.employer-settings-note svg {
+  flex-shrink: 0;
+  color: #94a3b8;
+}
+
+.employer-settings-warning {
+  display: grid;
+  grid-template-columns: 20px minmax(0, 1fr);
+  gap: 14px;
+  align-items: start;
+  padding: 18px 20px;
+  border-radius: 18px;
+  background: #f7f8fb;
+  border: 1px solid rgba(226, 232, 240, 0.96);
+  color: #475569;
+}
+
+.employer-settings-warning svg {
+  margin-top: 1px;
+  color: #7c8799;
+}
+
+.employer-settings-warning strong {
+  display: block;
+  margin-bottom: 6px;
+  color: #334155;
+  font-size: 15px;
+  line-height: 1.4;
+}
+
+.employer-settings-warning p {
+  margin: 0;
+  color: #64748b;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.employer-settings-page .employer-topbar-btn,
+.employer-settings-page .employer-settings-primary,
+.employer-settings-page .employer-settings-danger {
+  width: auto;
+  height: 42px;
+  min-height: 42px;
+  padding: 0 18px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: bold;
+  line-height: 1;
+}
+
+.employer-settings-page .employer-settings-primary,
+.employer-settings-page .employer-settings-danger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: none;
+  cursor: pointer;
+  font-family: inherit;
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease,
+    border-color 0.18s ease,
+    background 0.18s ease;
+}
+
+.employer-settings-page .employer-settings-primary {
+  border: 0;
+  background: linear-gradient(135deg, #3563ff 0%, #2e57ef 100%);
+  color: #ffffff;
+}
+
+.employer-settings-page .employer-settings-primary.is-amber {
+  background: linear-gradient(135deg, #b08a56 0%, #9a7b4b 100%);
+}
+
+.employer-settings-page .employer-settings-primary:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.employer-settings-page .employer-settings-primary:disabled,
+.employer-settings-page .employer-settings-danger:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.employer-settings-page .employer-settings-danger {
+  border: 1px solid rgba(248, 113, 113, 0.65);
+  background: #ffffff;
+  color: #ef4444;
+}
+
+.employer-settings-page .employer-settings-danger:hover:not(:disabled) {
+  background: #fef2f2;
+  border-color: rgba(239, 68, 68, 0.85);
+}
+
+@media (max-width: 900px) {
+  .employer-settings-page .employer-grid-two {
+    grid-template-columns: 1fr;
+  }
+
+  .employer-settings-page .employer-settings-card {
+    padding: 22px 20px;
+  }
+
+  .employer-settings-page .employer-settings-panel-topbar {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+}
+
+@media (max-width: 1024px) {
+  .employer-dashboard.employer-dashboard-simple {
+    grid-template-columns: 1fr;
+  }
+
+  .employer-sidebar {
+    position: relative;
+    width: 100%;
+    min-width: 0;
+    max-width: none;
+    min-height: auto;
+    border-right: 0;
+    border-bottom: 1px solid rgba(216, 224, 238, 0.92);
+  }
+
+  .employer-sidebar-with-footer {
+    height: auto;
+    max-height: none;
+    overflow: visible;
+  }
+
+  .employer-dashboard-simple .employer-dashboard-main {
+    padding: 14px;
+  }
+
+  .employer-dashboard-summary {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .employer-dashboard-simple .employer-dashboard-search {
+    width: 100%;
+  }
+
+  .employer-candidates-panel-head {
+    padding: 20px;
+  }
+
+  .employer-candidates-search {
+    width: 100%;
+  }
+}
+
+@media (max-width: 900px) {
+  .employer-dashboard-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* ——— Admin dashboard (/admin/dashboard) ——— */
+
+.employer-sidebar-with-footer {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  height: 100dvh;
+  max-height: 100vh;
+  max-height: 100dvh;
+  overflow: hidden;
+}
+
+.employer-sidebar-with-footer .employer-sidebar-brand-wrap {
+  flex-shrink: 0;
+}
+
+.employer-sidebar-with-footer .employer-sidebar-nav {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  align-content: start;
+}
+
+.employer-sidebar-bottom {
+  flex-shrink: 0;
+  margin-top: auto;
+  padding-top: 14px;
+  border-top: 1px solid rgba(216, 224, 238, 0.92);
+}
+
+.employer-admin-dashboard-page .employer-admin-scroll {
+  display: grid;
+  gap: 14px;
+  min-width: 0;
+}
+
+.employer-admin-dashboard-page .employer-dashboard-main.is-admin-layout {
+  display: block;
+  overflow-y: auto;
+  overflow-x: hidden;
+  min-height: 0;
+}
+
+.employer-admin-dashboard-page .employer-dashboard-content.employer-admin-content {
+  padding: 0;
+  display: grid;
+  gap: 14px;
+  min-width: 0;
+}
+
+/* Admin Overview (Dashboard) — một panel */
+.employer-admin-overview-scale {
+  zoom: 0.9;
+  width: 100%;
+}
+
+@supports not (zoom: 1) {
+  .employer-admin-overview-scale {
+    transform: scale(0.9);
+    transform-origin: top left;
+    width: calc(100% / 0.9);
+  }
+}
+
+.employer-admin-overview-panel {
+  overflow: hidden;
+  border: 1px solid rgba(224, 231, 243, 0.92);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: none;
+}
+
+.employer-admin-overview-toolbar {
+  padding: 28px 28px 28px;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.96);
+}
+
+.employer-admin-overview-stats-wrap {
+  padding: 24px 28px;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.96);
+}
+
+.employer-admin-overview-panel .employer-overview-stats {
+  gap: 12px;
+}
+
+.employer-admin-overview-panel .employer-overview-stat-card {
+  border-radius: 12px;
+  border: 1px solid rgba(203, 213, 225, 0.95);
+  background: rgba(255, 255, 255, 0.82);
+  box-shadow: none;
+}
+
+.employer-admin-overview-charts.employer-admin-charts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0;
+  align-items: stretch;
+}
+
+.employer-admin-overview-chart {
+  min-width: 0;
+  border-right: 1px solid rgba(226, 232, 240, 0.96);
+}
+
+.employer-admin-overview-chart:last-child {
+  border-right: 0;
+}
+
+.employer-admin-overview-chart-head {
+  padding: 16px 20px 0;
+}
+
+.employer-admin-overview-chart-head h2 {
+  margin: 0;
+  color: #0f172a;
+  font-size: 16px;
+  font-weight: bold;
+  line-height: 1.2;
+  letter-spacing: -0.03em;
+}
+
+.employer-admin-overview-panel .employer-admin-chart-body {
+  height: 330px;
+  min-height: 330px;
+  max-height: 330px;
+  padding: 8px 16px 16px;
+}
+
+.employer-admin-overview-panel .employer-admin-chart-body > div {
+  height: 100%;
+  min-height: 0;
+}
+
+.employer-admin-overview-panel .employer-admin-chart-skeleton {
+  min-height: 330px;
+  height: 330px;
+}
+
+.employer-overview-stats.is-admin-stats {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.employer-admin-charts {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.employer-admin-chart-body {
+  min-height: 208px;
+  padding: 0 18px 18px;
+}
+
+.employer-admin-chart-skeleton {
+  min-height: 208px;
+  border-radius: 12px;
+  background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+  background-size: 200% 100%;
+  animation: employer-admin-shimmer 1.2s ease-in-out infinite;
+}
+
+@keyframes employer-admin-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+.employer-admin-empty-panel {
+  padding: 48px 24px;
+  border-radius: 18px;
+  border: 1px dashed rgba(203, 213, 225, 0.96);
+  background: rgba(255, 255, 255, 0.88);
+  color: #64748b;
+  text-align: center;
+  font-size: 15px;
+}
+
+.employer-admin-empty-link {
+  margin-left: 6px;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: #3563ff;
+  font-size: inherit;
+  font-weight: bold;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+/* Admin Companies — search + list ~90%, một khối */
+.employer-admin-companies-scale {
+  zoom: 0.9;
+  width: 100%;
+}
+
+@supports not (zoom: 1) {
+  .employer-admin-companies-scale {
+    transform: scale(0.9);
+    transform-origin: top left;
+    width: calc(100% / 0.9);
+  }
+}
+
+.employer-admin-companies-panel {
+  overflow: hidden;
+  border: 1px solid rgba(224, 231, 243, 0.92);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: none;
+}
+
+.employer-admin-companies-toolbar {
+  gap: 24px;
+  padding: 28px 28px 28px;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.96);
+}
+
+.employer-admin-companies-head {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+}
+
+.employer-admin-companies-head h1 {
+  margin: 0;
+  line-height: 1.15;
+}
+
+.employer-admin-companies-head p {
+  margin: 0;
+  line-height: 1.5;
+}
+
+.employer-admin-companies-filters {
+  margin-top: 4px;
+}
+
+.employer-admin-companies-search {
+  gap: 12px;
+}
+
+.employer-admin-companies-body {
+  margin-top: 0;
+}
+
+/* Admin Jobs — spacing + 90%, một khối */
+.employer-admin-jobs-scale {
+  zoom: 0.9;
+  width: 100%;
+}
+
+@supports not (zoom: 1) {
+  .employer-admin-jobs-scale {
+    transform: scale(0.9);
+    transform-origin: top left;
+    width: calc(100% / 0.9);
+  }
+}
+
+.employer-admin-jobs-panel {
+  overflow: hidden;
+  border: 1px solid rgba(224, 231, 243, 0.92);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: none;
+}
+
+.employer-admin-jobs-toolbar {
+  gap: 24px;
+  padding: 28px 28px 28px;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.96);
+}
+
+.employer-admin-jobs-head {
+  display: grid;
+  gap: 12px;
+}
+
+.employer-admin-jobs-head h1 {
+  margin: 0;
+  line-height: 1.15;
+}
+
+.employer-admin-jobs-head p {
+  margin: 0;
+  line-height: 1.5;
+}
+
+.employer-admin-jobs-search {
+  gap: 12px;
+}
+
+.employer-admin-jobs-stats {
+  padding: 24px 28px;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.96);
+}
+
+.employer-admin-jobs-stats-grid {
+  gap: 12px;
+}
+
+.employer-admin-jobs-stat {
+  min-height: 74px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(203, 213, 225, 0.95);
+  background: rgba(255, 255, 255, 0.82);
+  display: grid;
+  align-content: center;
+  justify-items: start;
+  gap: 4px;
+  text-align: left;
+  color: #334155;
+  cursor: pointer;
+  font-family: inherit;
+  transition:
+    border-color 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+.employer-admin-jobs-stat:hover {
+  border-color: rgba(53, 99, 255, 0.35);
+}
+
+.employer-admin-jobs-stat.is-active {
+  border-color: rgba(53, 99, 255, 0.92);
+  background: rgba(239, 246, 255, 0.95);
+  box-shadow: inset 0 0 0 1px rgba(53, 99, 255, 0.14);
+}
+
+.employer-admin-jobs-stat-label {
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.3;
+}
+
+.employer-admin-jobs-stat strong {
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  color: #0f172a;
+}
+
+.employer-admin-jobs-body {
+  margin-top: 0;
+}
+
+/* Overlay blur phía sau drawer admin */
+.employer-admin-drawer-overlay {
+  background: rgba(15, 23, 42, 0.42) !important;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+/* Admin drawer (phải): full height, scale 0.9 đồng bộ dashboard admin */
+.ui-drawer-scale-80.employer-admin-drawer-panel,
+.ui-drawer-scale-80.employer-admin-job-drawer,
+.ui-drawer-scale-80.employer-company-job-drawer,
+.ui-drawer-scale-80.employer-admin-company-drawer,
+.ui-drawer-scale-80.employer-admin-blog-drawer,
+.ui-drawer-scale-80.employer-admin-user-drawer {
+  --drawer-scale: 0.9;
+  zoom: 0.9;
+  z-index: 200 !important;
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: stretch !important;
+  align-content: stretch !important;
+  justify-content: flex-start !important;
+  top: 0 !important;
+  bottom: 0 !important;
+  right: 0 !important;
+  height: calc(100dvh / var(--drawer-scale, 0.9)) !important;
+  max-height: calc(100dvh / var(--drawer-scale, 0.9)) !important;
+  min-height: calc(100dvh / var(--drawer-scale, 0.9)) !important;
+  overflow: hidden !important;
+}
+
+@supports not (zoom: 1) {
+  .ui-drawer-scale-80.employer-admin-drawer-panel,
+  .ui-drawer-scale-80.employer-admin-job-drawer,
+  .ui-drawer-scale-80.employer-admin-company-drawer,
+  .ui-drawer-scale-80.employer-admin-blog-drawer,
+  .ui-drawer-scale-80.employer-admin-user-drawer {
+    transform: scale(0.9);
+    transform-origin: right center;
+    height: calc(100dvh / 0.9) !important;
+    max-height: calc(100dvh / 0.9) !important;
+    min-height: calc(100dvh / 0.9) !important;
+  }
+}
+
+/* Thanh kéo Vaul (cạnh trái drawer phải) — căn giữa dọc */
+.ui-drawer-scale-80.employer-admin-drawer-panel > [data-vaul-handle],
+.ui-drawer-scale-80.employer-admin-job-drawer > [data-vaul-handle],
+.ui-drawer-scale-80.employer-admin-company-drawer > [data-vaul-handle],
+.ui-drawer-scale-80.employer-admin-blog-drawer > [data-vaul-handle],
+.ui-drawer-scale-80.employer-admin-user-drawer > [data-vaul-handle] {
+  flex: 0 0 auto;
+  align-self: center;
+  width: 6px !important;
+  min-width: 6px !important;
+  height: 48px !important;
+  min-height: 48px !important;
+  margin-top: auto !important;
+  margin-bottom: auto !important;
+  margin-left: 16px !important;
+  margin-right: 0 !important;
+  padding: 0 !important;
+  border-radius: 999px;
+  background: rgba(203, 213, 225, 0.95) !important;
+  opacity: 1 !important;
+  cursor: grab;
+  transition: background 0.18s ease, opacity 0.18s ease;
+}
+
+.ui-drawer-scale-80.employer-admin-drawer-panel > [data-vaul-handle]:hover,
+.ui-drawer-scale-80.employer-admin-job-drawer > [data-vaul-handle]:hover,
+.ui-drawer-scale-80.employer-admin-company-drawer > [data-vaul-handle]:hover,
+.ui-drawer-scale-80.employer-admin-blog-drawer > [data-vaul-handle]:hover,
+.ui-drawer-scale-80.employer-admin-user-drawer > [data-vaul-handle]:hover {
+  background: rgba(148, 163, 184, 0.95) !important;
+}
+
+.ui-drawer-scale-80.employer-admin-drawer-panel > div:not([data-vaul-handle]),
+.ui-drawer-scale-80.employer-admin-job-drawer > div:not([data-vaul-handle]),
+.ui-drawer-scale-80.employer-admin-company-drawer > div:not([data-vaul-handle]),
+.ui-drawer-scale-80.employer-admin-blog-drawer > div:not([data-vaul-handle]),
+.ui-drawer-scale-80.employer-admin-user-drawer > div:not([data-vaul-handle]) {
+  flex: 1 1 auto;
+  align-self: stretch;
+  min-width: 0;
+  min-height: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* Drawer đăng tin — nền đồng bộ toàn panel */
+.employer-drawer-bg {
+  background-color: #f7faff !important;
+}
+
+.ui-drawer-scale-80.employer-admin-job-drawer.employer-drawer-bg,
+.employer-company-job-drawer.employer-drawer-bg {
+  background-color: #f7faff !important;
+}
+
+.employer-admin-job-drawer .ui-drawer-body-vh,
+.employer-company-job-drawer-body .employer-job-drawer-body-inner,
+.employer-admin-job-drawer-body .ui-drawer-body-vh,
+.employer-job-drawer-body-inner {
+  background-color: #f7faff;
+}
+
+/* Admin job drawer — form DashboardNewJob: ghi đè .page-job-upload (#f5f7fb) → #f7faff (không ảnh hưởng /jobs/upload) */
+.employer-admin-job-drawer .employer-admin-job-drawer-body .ui-drawer-body-vh,
+.employer-admin-job-drawer .employer-admin-job-drawer-body > .employer-job-drawer-body-inner {
+  background-color: #f7faff !important;
+}
+
+/* Drawer job form — 44px layout (zoom 0.9 → ~39.6px hiển thị), đồng bộ toàn drawer */
+.ui-drawer-scale-80.employer-admin-job-drawer,
+.ui-drawer-scale-80.employer-company-job-drawer,
+.ui-drawer-scale-80.employer-admin-job-drawer .ui-drawer-body-vh,
+.ui-drawer-scale-80.employer-company-job-drawer .ui-drawer-body-vh,
+.ui-drawer-scale-80.employer-admin-job-drawer .page-dashboard-newjob.page-job-upload,
+.ui-drawer-scale-80.employer-company-job-drawer .page-dashboard-newjob.page-job-upload {
+  --employer-control-min-height: 44px;
+}
+
+.employer-admin-job-drawer .page-dashboard-newjob.page-job-upload,
+.employer-company-job-drawer .page-dashboard-newjob.page-job-upload {
+  min-height: 0;
+  background-color: #f7faff !important;
+  background: #f7faff !important;
+}
+
+/* Drawer job form — multi-select / accordion (tránh cắt menu, z-index trên overlay) */
+.employer-admin-job-drawer .page-dashboard-newjob.page-job-upload .employer-accordion [data-slot="content"],
+.employer-company-job-drawer .page-dashboard-newjob.page-job-upload .employer-accordion [data-slot="content"],
+.employer-admin-job-drawer .page-dashboard-newjob.page-job-upload .employer-step-panel,
+.employer-company-job-drawer .page-dashboard-newjob.page-job-upload .employer-step-panel {
+  overflow: visible !important;
+}
+
+.employer-admin-job-drawer .page-dashboard-newjob [data-job-field],
+.employer-admin-job-drawer .page-dashboard-newjob [data-job-field-row],
+.employer-company-job-drawer .page-dashboard-newjob [data-job-field],
+.employer-company-job-drawer .page-dashboard-newjob [data-job-field-row] {
+  scroll-margin-top: 112px;
+}
+
+.employer-admin-job-drawer .page-dashboard-newjob .employer-accordion:has(.vs--open),
+.employer-company-job-drawer .page-dashboard-newjob .employer-accordion:has(.vs--open) {
+  position: relative;
+  z-index: 400;
+}
+
+.employer-admin-job-drawer .page-dashboard-newjob .job-vselect:has(.vs--open),
+.employer-company-job-drawer .page-dashboard-newjob .job-vselect:has(.vs--open) {
+  z-index: 401;
+}
+
+body:has(.employer-admin-job-drawer) .vs__dropdown-menu,
+body:has(.employer-company-job-drawer) .vs__dropdown-menu {
+  z-index: 10050 !important;
+  pointer-events: auto !important;
+  border-radius: 0.75rem !important; /* rounded-xl */
+}
+
+/* Drawer đăng tin — multi-select (vue-select) rounded-xl đồng bộ USelect */
+.employer-admin-job-drawer .page-dashboard-newjob.page-job-upload .job-vselect .v-select .vs__dropdown-toggle,
+.employer-company-job-drawer .page-dashboard-newjob.page-job-upload .job-vselect .v-select .vs__dropdown-toggle,
+html body .employer-admin-job-drawer .page-dashboard-newjob.page-job-upload .job-vselect .v-select .vs__dropdown-toggle,
+html body .employer-company-job-drawer .page-dashboard-newjob.page-job-upload .job-vselect .v-select .vs__dropdown-toggle {
+  border-radius: 0.75rem !important;
+}
+
+/* USelect / popover portal — drawer company & blog admin */
+body:has(.employer-admin-company-drawer) [data-reka-popper-content-wrapper],
+body:has(.employer-admin-company-drawer) [role="listbox"],
+body:has(.employer-admin-company-drawer) [data-reka-popover-content],
+body:has(.employer-admin-company-drawer) [data-reka-combobox-content],
+body:has(.employer-admin-blog-drawer) [data-reka-popper-content-wrapper],
+body:has(.employer-admin-blog-drawer) [role="listbox"],
+body:has(.employer-admin-blog-drawer) [data-reka-popover-content],
+body:has(.employer-admin-blog-drawer) [data-reka-combobox-content],
+body:has(.employer-company-page) [data-reka-popper-content-wrapper],
+body:has(.employer-company-page) [role="listbox"],
+body:has(.employer-company-page) [data-reka-popover-content],
+body:has(.employer-company-page) [data-reka-combobox-content] {
+  z-index: 10050 !important;
+  pointer-events: auto !important;
+}
+
+/* Company dashboard — drawer đăng tin (phải): scale 0.9 qua .ui-drawer-scale-80 */
+.employer-company-job-drawer.ui-drawer-scale-80 {
+  background-color: #f7faff !important;
+}
+
+.employer-company-job-drawer > [data-vaul-handle] {
+  flex: 0 0 auto;
+  align-self: center;
+  width: 6px !important;
+  min-width: 6px !important;
+  height: 48px !important;
+  min-height: 48px !important;
+  margin-top: auto !important;
+  margin-bottom: auto !important;
+  margin-left: 16px !important;
+  margin-right: 0 !important;
+  padding: 0 !important;
+  border-radius: 999px;
+  background: rgba(203, 213, 225, 0.95) !important;
+  opacity: 1 !important;
+  cursor: grab;
+  transition: background 0.18s ease, opacity 0.18s ease;
+}
+
+.employer-company-job-drawer > [data-vaul-handle]:hover {
+  background: rgba(148, 163, 184, 0.95) !important;
+}
+
+.employer-company-job-drawer > div:not([data-vaul-handle]) {
+  flex: 1 1 auto;
+  align-self: stretch;
+  min-width: 0;
+  min-height: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.employer-company-job-drawer-container {
+  flex: 1 1 auto;
+  min-height: 0;
+  width: 100%;
+}
+
+.employer-company-job-drawer-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+/* Drawer đăng tin — padding dưới để nút submit không sát mép drawer */
+.employer-job-drawer-body-inner {
+  box-sizing: border-box;
+  padding: 24px;
+  padding-bottom: 14px !important;
+}
+
+.employer-company-job-drawer .page-dashboard-newjob.page-job-upload .employer-actions,
+.employer-admin-job-drawer .page-dashboard-newjob.page-job-upload .employer-actions {
+  margin-bottom: 8px;
+}
+
+/* Admin Jobs — drawer add/edit job (chỉ scroll form body, không scroll drawer container) */
+.employer-admin-job-drawer-container {
+  flex: 1 1 auto;
+  min-height: 0;
+  height: 100%;
+  overflow: hidden !important;
+}
+
+.employer-admin-job-drawer-body {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden !important;
+}
+
+.employer-admin-drawer-panel .ui-drawer-body-vh,
+.employer-admin-job-drawer .ui-drawer-body-vh,
+.employer-admin-company-drawer .ui-drawer-body-vh,
+.employer-admin-blog-drawer .ui-drawer-body-vh,
+.employer-admin-user-drawer .ui-drawer-body-vh {
+  flex: 1 1 auto;
+  min-height: 0;
+  max-height: none;
+  height: auto;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.employer-admin-job-drawer-header {
+  padding-top: 20px !important;
+  padding-bottom: 20px !important;
+  padding-right: 24px !important;
+  padding-left: 0 !important;
+  border-bottom: 1px solid rgba(29, 36, 51, 0.1) !important;
+  background-color: #f7faff !important;
+}
+
+.employer-admin-job-drawer-header > * {
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  padding-left: 0 !important;
+}
+
+.employer-admin-job-drawer-head {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-height: 100%;
+  padding-right: 56px;
+  background-color: #f7faff;
+}
+
+.employer-admin-job-drawer-head-copy {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+  flex: 1;
+}
+
+.employer-admin-job-drawer-kicker {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  margin: 0;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: rgba(53, 99, 255, 0.12);
+  color: var(--blue);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  line-height: 1.2;
+}
+
+.employer-admin-job-drawer-title {
+  margin: 8px 0 0;
+  color: #0f172a;
+  font-size: 28px;
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+}
+
+.employer-admin-job-drawer-subtitle {
+  margin: 4px 0 0;
+  color: rgba(29, 36, 51, 0.6);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.45;
+}
+
+.employer-admin-job-drawer-close {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  border: 1px solid rgba(29, 36, 51, 0.12);
+  background: #fff;
+  color: rgba(29, 36, 51, 0.7);
+  transition: background-color 0.18s ease;
+}
+
+.employer-admin-job-drawer-close:hover {
+  background: #f9fafb;
+}
+
+.employer-admin-drawer-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  width: 100%;
+  min-height: 100%;
+}
+
+.employer-admin-drawer-head-copy {
+  min-width: 0;
+  flex: 1;
+}
+
+.employer-admin-drawer-head-copy h2 {
+  margin: 0;
+  color: #0f172a;
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.04em;
+}
+
+.employer-admin-drawer-head-sub {
+  margin: 6px 0 0;
+  color: #64748b;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.4;
+  letter-spacing: -0.01em;
+}
+
+.employer-admin-job-drawer-company {
+  --employer-control-min-height: 44px;
+  display: grid;
+  gap: 14px;
+  margin-bottom: 28px;
+  padding-bottom: 28px;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.96);
+}
+
+.employer-admin-job-drawer-company-label {
+  display: block;
+  margin: 0;
+  color: #0f172a;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: -0.02em;
+}
+
+.employer-admin-job-drawer-company-loading {
+  margin: 0;
+  color: #64748b;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* Chọn công ty drawer admin (USelectMenu / USelect) — không dùng :deep (SCSS global) */
+.employer-admin-job-drawer-company .employer-admin-job-drawer-company-select,
+.employer-admin-job-drawer-company .employer-admin-job-drawer-company-select.employer-field-control,
+.employer-admin-job-drawer-company .employer-admin-job-drawer-company-select [data-slot="base"],
+.employer-admin-job-drawer-company .employer-admin-job-drawer-company-select button[role="combobox"],
+.employer-admin-job-drawer-company .employer-admin-job-drawer-company-select .employer-field-control {
+  width: 100%;
+  box-sizing: border-box !important;
+  min-height: var(--employer-control-min-height, 44px) !important;
+  height: var(--employer-control-min-height, 44px) !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  padding-left: 14px !important;
+  padding-right: 36px !important;
+  border-radius: 12px !important;
+  border: 1.5px solid rgba(200, 214, 236, 0.9) !important;
+  background-color: #fafbfe !important;
+  color: #2d3750 !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  font-family: "Manrope", sans-serif;
+  box-shadow: none !important;
+  justify-content: flex-start !important;
+  text-align: left !important;
+}
+
+.employer-admin-job-drawer-company .employer-admin-job-drawer-company-select [data-slot="value"],
+.employer-admin-job-drawer-company .employer-admin-job-drawer-company-select [data-slot="label"],
+.employer-admin-job-drawer-company .employer-admin-job-drawer-company-select [data-slot="placeholder"] {
+  flex: 1 1 0% !important;
+  min-width: 0 !important;
+  width: 100% !important;
+  text-align: left !important;
+  display: block !important;
+}
+
+.employer-admin-job-drawer-company .employer-admin-job-drawer-company-select [data-slot="trailingIcon"] {
+  display: none !important;
+}
+
+.employer-admin-job-drawer-company .employer-admin-job-drawer-company-select [data-slot="base"]:disabled,
+.employer-admin-job-drawer-company .employer-admin-job-drawer-company-select button[role="combobox"]:disabled,
+.employer-admin-job-drawer-company .employer-admin-job-drawer-company-select [data-slot="base"][aria-disabled="true"],
+.employer-admin-job-drawer-company .employer-admin-job-drawer-company-select button[role="combobox"][aria-disabled="true"] {
+  opacity: 1 !important;
+  cursor: not-allowed !important;
+  background-color: #f1f5f9 !important;
+  color: #475569 !important;
+}
+
+.employer-field-hint {
+  margin: 0;
+  color: #3563ff;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.45;
+}
+
+.employer-field-success {
+  margin: 0;
+  color: #16a34a;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.45;
+}
+
+.employer-admin-company-drawer-form,
+.employer-admin-blog-drawer-form,
+.employer-admin-user-drawer-form {
+  padding-bottom: 8px;
+}
+
+.employer-admin-company-drawer-form .employer-field-editor .employer-editor,
+.employer-admin-blog-drawer-form .employer-field-editor .employer-editor {
+  border: 1.5px solid rgba(200, 214, 236, 0.9);
+  border-radius: 12px;
+  overflow: hidden;
+  background: #fafbfe;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.employer-admin-company-drawer-form .employer-field-editor .employer-editor:focus-within,
+.employer-admin-blog-drawer-form .employer-field-editor .employer-editor:focus-within {
+  border-color: rgba(53, 99, 255, 0.55);
+  box-shadow: 0 0 0 3px rgba(53, 99, 255, 0.12);
+  background: #ffffff;
+}
+
+.employer-admin-company-drawer-form .employer-field-editor :deep(.rich-text-editor),
+.employer-admin-blog-drawer-form .employer-field-editor :deep(.rich-text-editor) {
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.employer-admin-company-drawer-form .employer-field-editor :deep(.ProseMirror),
+.employer-admin-blog-drawer-form .employer-field-editor :deep(.ProseMirror) {
+  min-height: 140px;
+  padding: 12px 14px;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.employer-dashboard-simple .employer-admin-company-drawer-form .employer-field input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]):not([type="file"]),
+.employer-dashboard-simple .employer-admin-company-drawer-form .employer-field select,
+.employer-dashboard-simple .employer-admin-blog-drawer-form .employer-field input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]):not([type="file"]),
+.employer-dashboard-simple .employer-admin-blog-drawer-form .employer-field select,
+.employer-admin-company-drawer-form .employer-field input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]):not([type="file"]),
+.employer-admin-company-drawer-form .employer-field select,
+.employer-admin-blog-drawer-form .employer-field input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]):not([type="file"]),
+.employer-admin-blog-drawer-form .employer-field select {
+  min-height: 44px;
+  border-radius: 12px;
+}
+
+.employer-dashboard-simple .employer-admin-company-drawer-form .employer-field textarea,
+.employer-dashboard-simple .employer-admin-blog-drawer-form .employer-field textarea,
+.employer-admin-company-drawer-form .employer-field textarea,
+.employer-admin-blog-drawer-form .employer-field textarea,
+.employer-admin-blog-drawer-form .employer-admin-blog-textarea-counter textarea {
+  min-height: 100px;
+  border-radius: 12px;
+}
+
+.employer-dashboard-simple .employer-admin-company-drawer-form .employer-field :deep([data-slot="base"]),
+.employer-dashboard-simple .employer-admin-blog-drawer-form .employer-field :deep([data-slot="base"]),
+.employer-admin-company-drawer-form .employer-field :deep([data-slot="base"]),
+.employer-admin-blog-drawer-form .employer-field :deep([data-slot="base"]) {
+  min-height: 44px;
+  border-radius: 12px;
+}
+
+.employer-dashboard-simple .employer-admin-company-drawer-form .employer-field :deep([data-slot="base"]:has(textarea)),
+.employer-dashboard-simple .employer-admin-blog-drawer-form .employer-field :deep([data-slot="base"]:has(textarea)),
+.employer-admin-company-drawer-form .employer-field :deep([data-slot="base"]:has(textarea)),
+.employer-admin-blog-drawer-form .employer-field :deep([data-slot="base"]:has(textarea)) {
+  min-height: 100px;
+  height: auto;
+  align-items: flex-start;
+  padding-top: 12px;
+  padding-bottom: 12px;
+}
+
+.employer-dashboard-simple .employer-admin-company-drawer-form .employer-field :deep(button[role="combobox"]),
+.employer-dashboard-simple .employer-admin-company-drawer-form .employer-field-select :deep([data-slot="base"]),
+.employer-dashboard-simple .employer-admin-blog-drawer-form .employer-field :deep(button[role="combobox"]),
+.employer-dashboard-simple .employer-admin-blog-drawer-form .employer-field-select :deep([data-slot="base"]),
+.employer-admin-company-drawer-form .employer-field :deep(button[role="combobox"]),
+.employer-admin-company-drawer-form .employer-field-select :deep([data-slot="base"]),
+.employer-admin-blog-drawer-form .employer-field :deep(button[role="combobox"]),
+.employer-admin-blog-drawer-form .employer-field-select :deep([data-slot="base"]) {
+  min-height: 44px;
+  border-radius: 12px;
+}
+
+/* Loại hình tổ chức — drawer admin + hồ sơ công ty ?view=editProfile (USelect, không :deep) */
+.employer-admin-company-drawer-form,
+.employer-company-page {
+  --employer-control-min-height: 44px;
+}
+
+.employer-org-type-select,
+.employer-org-type-select.employer-field-control,
+.employer-org-type-select [data-slot="base"],
+.employer-org-type-select button[role="combobox"],
+.employer-org-type-select .employer-field-control {
+  width: 100%;
+  box-sizing: border-box !important;
+  min-height: var(--employer-control-min-height, 44px) !important;
+  height: var(--employer-control-min-height, 44px) !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  padding-left: 14px !important;
+  padding-right: 36px !important;
+  border-radius: 12px !important;
+  border: 1.5px solid rgba(200, 214, 236, 0.9) !important;
+  background-color: #fafbfe !important;
+  color: #2d3750 !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  font-family: "Manrope", sans-serif;
+  box-shadow: none !important;
+  justify-content: flex-start !important;
+  text-align: left !important;
+  appearance: none;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background-color 0.2s ease;
+  background-image:
+    linear-gradient(45deg, transparent 50%, rgba(152, 166, 191, 0.72) 50%),
+    linear-gradient(135deg, rgba(152, 166, 191, 0.72) 50%, transparent 50%);
+  background-position:
+    calc(100% - 18px) calc(50% - 2px),
+    calc(100% - 13px) calc(50% - 2px);
+  background-size: 5px 5px, 5px 5px;
+  background-repeat: no-repeat;
+}
+
+.employer-org-type-select [data-slot="value"],
+.employer-org-type-select [data-slot="label"],
+.employer-org-type-select [data-slot="placeholder"] {
+  flex: 1 1 0% !important;
+  min-width: 0 !important;
+  width: 100% !important;
+  text-align: left !important;
+  display: block !important;
+}
+
+.employer-org-type-select [data-slot="trailingIcon"],
+.employer-org-type-select [data-slot="trailing"],
+.employer-org-type-select button[role="combobox"] svg,
+.employer-org-type-select button[role="combobox"] .icon,
+.employer-org-type-select [data-slot="base"] svg,
+.employer-org-type-select button[role="combobox"] > span[class*="end-0"],
+.employer-org-type-select [class*="i-lucide-chevron"],
+.employer-org-type-select [class*="i-lucide:chevron"] {
+  display: none !important;
+  visibility: hidden !important;
+  width: 0 !important;
+  height: 0 !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  pointer-events: none !important;
+  opacity: 0 !important;
+}
+
+.employer-org-type-select [data-slot="base"]:focus,
+.employer-org-type-select [data-slot="base"]:focus-visible,
+.employer-org-type-select button[role="combobox"]:focus,
+.employer-org-type-select button[role="combobox"]:focus-visible {
+  border-color: rgba(53, 99, 255, 0.55) !important;
+  box-shadow: 0 0 0 3px rgba(53, 99, 255, 0.12) !important;
+  background-color: #ffffff !important;
+  background-image:
+    linear-gradient(45deg, transparent 50%, rgba(152, 166, 191, 0.72) 50%),
+    linear-gradient(135deg, rgba(152, 166, 191, 0.72) 50%, transparent 50%) !important;
+  background-position:
+    calc(100% - 18px) calc(50% - 2px),
+    calc(100% - 13px) calc(50% - 2px) !important;
+  background-size: 5px 5px, 5px 5px !important;
+  background-repeat: no-repeat !important;
+}
+
+.employer-org-type-select.employer-field-select--placeholder [data-slot="base"],
+.employer-org-type-select.employer-field-select--placeholder button[role="combobox"] {
+  color: #98a6bf !important;
+}
+
+.employer-org-type-select.employer-field-select--error [data-slot="base"],
+.employer-org-type-select.employer-field-select--error button[role="combobox"] {
+  border-color: #ef4444 !important;
+  box-shadow: 0 0 0 1px rgba(239, 68, 68, 0.35) !important;
+}
+
+.employer-org-type-select [data-slot="base"]:disabled,
+.employer-org-type-select button[role="combobox"]:disabled,
+.employer-org-type-select [data-slot="base"][aria-disabled="true"],
+.employer-org-type-select button[role="combobox"][aria-disabled="true"] {
+  opacity: 1 !important;
+  cursor: not-allowed !important;
+  background-color: #f1f5f9 !important;
+  color: #475569 !important;
+}
+
+.employer-admin-company-mst-row {
+  display: flex;
+  align-items: stretch;
+  gap: 10px;
+}
+
+.employer-admin-company-mst-btn {
+  min-height: 44px;
+  border-radius: 12px;
+  padding-left: 16px;
+  padding-right: 16px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.employer-admin-company-upload-zone {
+  border: 1.5px dashed rgba(200, 214, 236, 0.95);
+  border-radius: 12px;
+  padding: 16px;
+  text-align: center;
+  cursor: pointer;
+  background: #fafbfe;
+  transition:
+    border-color 0.18s ease,
+    background 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+.employer-admin-company-upload-zone.is-dragging {
+  border-color: rgba(53, 99, 255, 0.55);
+  background: rgba(239, 246, 255, 0.95);
+  box-shadow: 0 0 0 3px rgba(53, 99, 255, 0.12);
+}
+
+.employer-admin-company-upload-zone.is-disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.employer-admin-company-upload-hint {
+  margin: 0;
+  color: #64748b;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.45;
+}
+
+.employer-admin-company-drawer-admin {
+  margin-top: 4px;
+}
+
+.employer-admin-company-drawer-section-title {
+  margin: 0;
+  color: #0f172a;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: -0.02em;
+}
+
+.employer-admin-company-featured {
+  display: grid;
+  gap: 10px;
+}
+
+.employer-admin-company-featured-label {
+  color: #64748b;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.45;
+}
+
+.employer-admin-company-featured-control {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: #2d3750;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.employer-admin-company-status-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.employer-admin-company-status-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 16px;
+  border-radius: 12px;
+  border: 1.5px solid rgba(200, 214, 236, 0.95);
+  background: #ffffff;
+  color: #64748b;
+  font-size: 13px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  transition:
+    border-color 0.18s ease,
+    background 0.18s ease,
+    color 0.18s ease;
+}
+
+.employer-admin-company-status-btn:hover {
+  border-color: rgba(53, 99, 255, 0.35);
+  color: #3563ff;
+}
+
+.employer-admin-company-status-btn.is-active.is-approved {
+  border-color: rgba(34, 197, 94, 0.55);
+  background: rgba(240, 253, 244, 0.95);
+  color: #15803d;
+}
+
+.employer-admin-company-status-btn.is-active.is-pending {
+  border-color: rgba(245, 158, 11, 0.55);
+  background: rgba(255, 251, 235, 0.95);
+  color: #b45309;
+}
+
+.employer-admin-company-status-btn.is-active.is-draft {
+  border-color: rgba(100, 116, 139, 0.55);
+  background: rgba(248, 250, 252, 0.95);
+  color: #334155;
+}
+
+.employer-admin-company-status-btn.is-active.is-published {
+  border-color: rgba(53, 99, 255, 0.55);
+  background: rgba(239, 246, 255, 0.95);
+  color: #1d4ed8;
+}
+
+.employer-admin-blog-cover-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: start;
+  gap: 16px;
+  width: 100%;
+}
+
+.employer-admin-blog-cover-field,
+.employer-admin-blog-category-field {
+  min-width: 0;
+}
+
+.employer-admin-blog-category-field.employer-field-select :deep([data-slot="base"]),
+.employer-admin-blog-category-field.employer-field-select :deep(button[role="combobox"]),
+.employer-admin-blog-category-select :deep([data-slot="base"]),
+.employer-admin-blog-category-select :deep(button[role="combobox"]) {
+  min-height: 44px !important;
+  height: 44px;
+  border-radius: 12px !important;
+}
+
+.employer-admin-blog-category-field.employer-field-select--error :deep([data-slot="base"]),
+.employer-admin-blog-category-field.employer-field-select--error :deep(button[role="combobox"]) {
+  border-color: #ef4444 !important;
+  box-shadow: 0 0 0 1px #ef4444;
+}
+
+.employer-admin-blog-cover-upload {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 180px;
+  aspect-ratio: 1;
+}
+
+.employer-admin-blog-cover-preview {
+  aspect-ratio: 1;
+  overflow: hidden;
+  border: 1.5px solid rgba(200, 214, 236, 0.95);
+  border-radius: 12px;
+  cursor: pointer;
+  background: #fafbfe;
+  transition:
+    border-color 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+.employer-admin-blog-cover-preview:hover {
+  border-color: rgba(53, 99, 255, 0.45);
+  box-shadow: 0 0 0 3px rgba(53, 99, 255, 0.1);
+}
+
+.employer-admin-blog-cover-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.employer-admin-blog-textarea-counter {
+  position: relative;
+}
+
+.employer-admin-blog-textarea-counter textarea {
+  width: 100%;
+  padding: 12px 14px 28px;
+  border: 1.5px solid rgba(200, 214, 236, 0.9);
+  background: #fafbfe;
+  color: #0f172a;
+  font-size: 14px;
+  line-height: 1.55;
+  resize: vertical;
+  outline: none;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
+}
+
+.employer-admin-blog-textarea-counter textarea:focus {
+  border-color: rgba(53, 99, 255, 0.55);
+  box-shadow: 0 0 0 3px rgba(53, 99, 255, 0.12);
+  background: #ffffff;
+}
+
+.employer-admin-blog-char-count {
+  position: absolute;
+  right: 12px;
+  bottom: 10px;
+  color: #64748b;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1;
+  pointer-events: none;
+}
+
+.employer-admin-drawer-form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(226, 232, 240, 0.96);
+}
+
+.employer-admin-drawer-form-actions :deep(button) {
+  min-height: 44px;
+  border-radius: 12px;
+  padding-left: 18px;
+  padding-right: 18px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.employer-dashboard-simple .employer-admin-user-drawer-form .employer-field input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]):not([type="file"]),
+.employer-dashboard-simple .employer-admin-user-drawer-form .employer-field select,
+.employer-admin-user-drawer-form .employer-field input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]):not([type="file"]),
+.employer-admin-user-drawer-form .employer-field select {
+  min-height: 44px;
+  border-radius: 12px;
+}
+
+.employer-dashboard-simple .employer-admin-user-drawer-form .employer-field :deep([data-slot="base"]),
+.employer-admin-user-drawer-form .employer-field :deep([data-slot="base"]) {
+  min-height: 44px;
+  border-radius: 12px;
+}
+
+.employer-dashboard-simple .employer-admin-user-drawer-form .employer-field :deep(button[role="combobox"]),
+.employer-dashboard-simple .employer-admin-user-drawer-form .employer-field-select :deep([data-slot="base"]),
+.employer-admin-user-drawer-form .employer-field :deep(button[role="combobox"]),
+.employer-admin-user-drawer-form .employer-field-select :deep([data-slot="base"]) {
+  min-height: 44px;
+  border-radius: 12px;
+}
+
+.employer-field-hint--warning {
+  color: #b45309;
+}
+
+.employer-admin-user-type-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.employer-admin-user-type-btn {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 14px;
+  border-radius: 12px;
+  border: 1.5px solid rgba(200, 214, 236, 0.95);
+  background: #ffffff;
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  font-family: inherit;
+  cursor: pointer;
+  transition:
+    border-color 0.18s ease,
+    background 0.18s ease,
+    color 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+.employer-admin-user-type-btn:hover {
+  border-color: rgba(53, 99, 255, 0.35);
+  color: #3563ff;
+}
+
+.employer-admin-user-type-btn.is-active.is-candidate {
+  border-color: rgba(53, 99, 255, 0.55);
+  background: rgba(239, 246, 255, 0.95);
+  color: #1d4ed8;
+}
+
+.employer-admin-user-type-btn.is-active.is-system-admin {
+  border-color: rgba(100, 116, 139, 0.55);
+  background: rgba(248, 250, 252, 0.95);
+  color: #334155;
+}
+
+.employer-admin-user-type-btn.is-active.is-employer {
+  border-color: rgba(34, 197, 94, 0.55);
+  background: rgba(240, 253, 244, 0.95);
+  color: #15803d;
+}
+
+.employer-admin-user-type-btn.is-active.is-host-company {
+  border-color: rgba(245, 158, 11, 0.55);
+  background: rgba(255, 251, 235, 0.95);
+  color: #b45309;
+}
+
+.employer-admin-user-password-wrap {
+  position: relative;
+}
+
+.employer-admin-user-password-wrap :deep([data-slot="base"]) {
+  padding-right: 44px;
+}
+
+.employer-admin-user-password-toggle {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #94a3b8;
+  transform: translateY(-50%);
+  cursor: pointer;
+  transition: color 0.18s ease;
+}
+
+.employer-admin-user-password-toggle:hover {
+  color: #3563ff;
+}
+
+/* Khi crop mở: tắt pointer-events overlay/drawer Vaul để modal crop nhận click */
+html.employer-admin-crop-modal-open [data-vaul-overlay],
+html.employer-admin-crop-modal-open .employer-admin-drawer-overlay {
+  pointer-events: none !important;
+}
+
+html.employer-admin-crop-modal-open [data-vaul-drawer] {
+  pointer-events: none !important;
+}
+
+.employer-admin-crop-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(15, 23, 42, 0.6);
+  pointer-events: auto;
+}
+
+.employer-admin-crop-modal-dialog {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 56rem;
+  max-height: 90vh;
+  overflow: hidden;
+  border-radius: 16px;
+  background: #ffffff;
+  box-shadow: 0 24px 48px rgba(15, 23, 42, 0.2);
+  pointer-events: auto;
+}
+
+.employer-admin-crop-modal-dialog .absolute.cursor-move {
+  pointer-events: auto;
+  touch-action: none;
+}
+
+/* Admin Blogs — spacing + 90%, một khối */
+.employer-admin-blogs-scale {
+  zoom: 0.9;
+  width: 100%;
+}
+
+@supports not (zoom: 1) {
+  .employer-admin-blogs-scale {
+    transform: scale(0.9);
+    transform-origin: top left;
+    width: calc(100% / 0.9);
+  }
+}
+
+.employer-admin-blogs-panel {
+  overflow: hidden;
+  border: 1px solid rgba(224, 231, 243, 0.92);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: none;
+}
+
+.employer-admin-blogs-toolbar {
+  gap: 24px;
+  padding: 28px 28px 28px;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.96);
+}
+
+.employer-admin-blogs-head {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+}
+
+.employer-admin-blogs-head h1 {
+  margin: 0;
+  line-height: 1.15;
+}
+
+.employer-admin-blogs-head p {
+  margin: 0;
+  line-height: 1.5;
+}
+
+.employer-admin-blogs-search {
+  gap: 12px;
+  flex-wrap: nowrap;
+}
+
+.employer-admin-blogs-pagination {
+  padding: 20px 28px;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.96);
+}
+
+.employer-admin-blogs-body {
+  margin-top: 0;
+}
+
+/* Admin Users — spacing + 90%, một khối */
+.employer-admin-users-scale {
+  zoom: 0.9;
+  width: 100%;
+}
+
+@supports not (zoom: 1) {
+  .employer-admin-users-scale {
+    transform: scale(0.9);
+    transform-origin: top left;
+    width: calc(100% / 0.9);
+  }
+}
+
+.employer-admin-users-panel {
+  overflow: hidden;
+  border: 1px solid rgba(224, 231, 243, 0.92);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: none;
+}
+
+.employer-admin-users-toolbar {
+  gap: 24px;
+  padding: 28px 28px 28px;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.96);
+}
+
+.employer-admin-users-head {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+}
+
+.employer-admin-users-head h1 {
+  margin: 0;
+  line-height: 1.15;
+}
+
+.employer-admin-users-head p {
+  margin: 0;
+  line-height: 1.5;
+}
+
+.employer-admin-users-summary {
+  margin: 0;
+  color: #64748b;
+  font-size: 14px;
+}
+
+.employer-admin-users-summary strong {
+  color: #3563ff;
+  font-weight: bold;
+}
+
+.employer-admin-users-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.employer-admin-users-filters-label {
+  color: #64748b;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.employer-admin-users-filter-pill {
+  min-height: 32px;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(203, 213, 225, 0.95);
+  background: rgba(255, 255, 255, 0.88);
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition:
+    border-color 0.18s ease,
+    background 0.18s ease,
+    color 0.18s ease;
+}
+
+.employer-admin-users-filter-pill:hover {
+  border-color: rgba(53, 99, 255, 0.35);
+  color: #475569;
+}
+
+.employer-admin-users-filter-pill.is-active {
+  border-color: rgba(53, 99, 255, 0.92);
+  background: rgba(239, 246, 255, 0.95);
+  color: #3563ff;
+  box-shadow: inset 0 0 0 1px rgba(53, 99, 255, 0.14);
+}
+
+.employer-admin-users-search {
+  gap: 12px;
+}
+
+.employer-admin-users-pagination {
+  padding: 20px 28px;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.96);
+}
+
+.employer-admin-users-body {
+  margin-top: 0;
+}
+
+.employer-admin-users-loading {
+  padding: 28px 36px;
+}
+
+.employer-admin-users-empty {
+  padding: 56px 20px;
+  text-align: center;
+  color: #6b7e9a;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.employer-admin-users-table-wrap {
+  overflow-x: auto;
+}
+
+.employer-admin-users-table {
+  width: 100%;
+  min-width: 980px;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.employer-admin-users-table thead th {
+  padding: 18px 20px;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.95);
+  color: #64748b;
+  font-size: 11.5px;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+  text-align: left;
+  vertical-align: middle;
+  background: rgba(255, 255, 255, 0.96);
+}
+
+.employer-admin-users-table thead th.is-action {
+  text-align: center;
+}
+
+.employer-admin-users-table tbody td {
+  padding: 18px 20px;
+  text-align: left;
+  vertical-align: middle;
+  border-bottom: 1px solid rgba(241, 245, 249, 0.98);
+  color: #334155;
+  font-size: 14px;
+}
+
+.employer-admin-users-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.employer-admin-users-table tbody td.is-action {
+  text-align: center;
+  width: 120px;
+  min-width: 120px;
+  white-space: nowrap;
+}
+
+.employer-admin-users-table tbody td.is-action .employer-row-actions {
+  justify-content: center;
+  width: 100%;
+}
+
+.employer-admin-user-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  display: inline-grid;
+  place-items: center;
+  background: rgba(241, 245, 249, 0.96);
+  color: #64748b;
+  border: 1px solid rgba(226, 232, 240, 0.95);
+}
+
+.employer-admin-user-name {
+  color: #334155;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.employer-admin-user-types {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+.employer-admin-user-type {
+  display: inline-flex;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: bold;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  line-height: 1.2;
+}
+
+.employer-admin-user-type.is-candidate {
+  background: rgba(219, 234, 254, 0.95);
+  color: #1d4ed8;
+}
+
+.employer-admin-user-type.is-employer {
+  background: rgba(220, 252, 231, 0.95);
+  color: #15803d;
+}
+
+.employer-admin-user-type.is-host {
+  background: rgba(255, 237, 213, 0.95);
+  color: #c2410c;
+}
+
+.employer-admin-user-type.is-default {
+  background: rgba(241, 245, 249, 0.96);
+  color: #64748b;
+}
+
+/* Admin Applications (Candidates) — panel + header; không zoom vùng filter (append-to-body) */
+.employer-admin-applications-wrap {
+  width: 100%;
+}
+
+.employer-admin-applications-panel {
+  overflow: hidden;
+  border: 1px solid rgba(224, 231, 243, 0.92);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: none;
+}
+
+.employer-admin-applications-toolbar {
+  display: flex;
+  gap: 24px;
+  padding: 28px 28px 28px;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.96);
+}
+
+.employer-admin-applications-toolbar .employer-admin-applications-search {
+  width: 100%;
+  max-width: 380px;
+}
+
+@media (min-width: 1024px) {
+  .employer-admin-applications-toolbar .employer-admin-applications-search {
+    margin-left: auto;
+  }
+}
+
+.employer-admin-applications-filters {
+  padding: 20px 28px;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.96);
+}
+
+.employer-admin-applications-body.employer-candidates-content {
+  display: grid;
+  gap: 0;
+  padding: 0;
+  min-width: 0;
+  width: 100%;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.employer-candidates-page .employer-admin-applications-body .employer-candidates-loading {
+  padding: 28px;
+}
+
+/* Admin Settings — panel + header giống Companies/Jobs */
+.employer-admin-settings-scale {
+  zoom: 0.9;
+  width: 100%;
+}
+
+@supports not (zoom: 1) {
+  .employer-admin-settings-scale {
+    transform: scale(0.9);
+    transform-origin: top left;
+    width: calc(100% / 0.9);
+  }
+}
+
+.employer-admin-settings-panel {
+  overflow: hidden;
+  border: 1px solid rgba(224, 231, 243, 0.92);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: none;
+}
+
+.employer-admin-settings-toolbar {
+  padding: 28px 28px 28px;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.96);
+}
+
+.employer-admin-settings-body {
+  display: grid;
+  gap: 28px;
+  padding: 28px;
+  min-width: 0;
+}
+
+.employer-admin-settings-body > .employer-admin-settings-section:first-of-type {
+  padding-bottom: 28px;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.96);
+}
+
+.employer-admin-settings-section.is-card {
+  padding: 28px;
+  border-radius: 18px;
+  border: 1px solid rgba(226, 232, 240, 0.96);
+  background: rgba(248, 250, 252, 0.65);
+}
+
+.employer-settings-page .employer-admin-settings-section .employer-settings-card-head h2 {
+  font-size: 24px;
+  line-height: 1.12;
+  letter-spacing: -0.04em;
+  color: #0f172a;
+}
+
+.employer-admin-company-mgmt {
+  display: flex;
+  flex-direction: column;
+}
+
+.employer-admin-company-mgmt-header {
+  margin-bottom: 14px;
+}
+
+.employer-admin-dashboard-page {
+  .employer-admin-companies-body,
+  .employer-admin-jobs-body,
+  .employer-admin-blogs-body,
+  .employer-admin-users-table-wrap,
+  .employer-candidates-table-wrap,
+  .overflow-x-auto {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .employer-admin-companies-body,
+  .employer-admin-jobs-body,
+  .employer-admin-blogs-body,
+  .employer-admin-users-table-wrap,
+  .employer-candidates-table-wrap {
+    table thead th.is-action,
+    table tbody td.is-action {
+      text-align: center;
+      padding-left: 12px;
+      padding-right: 12px;
+      width: 120px;
+      min-width: 120px;
+      white-space: nowrap;
+      vertical-align: middle;
+    }
+
+    table tbody td.is-action .employer-row-actions {
+      display: inline-flex;
+      width: auto;
+      justify-content: center;
+      margin: 0 auto;
+    }
+  }
+
+  .employer-row-actions {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+
+  .employer-row-action {
+    box-sizing: border-box;
+    flex-shrink: 0;
+    width: 30px;
+    height: 30px;
+    min-width: 30px;
+    min-height: 30px;
+    margin: 0;
+    padding: 0;
+    border: 1px solid rgba(226, 232, 240, 0.96);
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: #ffffff;
+    color: #8b6b3f;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    line-height: 1;
+  }
+
+  .employer-row-action svg {
+    display: block;
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+  }
+}
+
+.employer-admin-company-host-btn {
+  min-height: 32px;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(203, 213, 225, 0.95);
+  background: rgba(255, 255, 255, 0.88);
+  color: #475569;
+  font-size: 12px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition:
+    border-color 0.18s ease,
+    background 0.18s ease,
+    color 0.18s ease;
+}
+
+.employer-admin-company-host-btn:hover:not(:disabled) {
+  border-color: rgba(53, 99, 255, 0.35);
+  color: #3563ff;
+}
+
+.employer-admin-company-host-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.employer-admin-dashboard-page .employer-admin-content :deep(.space-y-6) {
+  display: grid;
+  gap: 14px;
+}
+
+.employer-admin-dashboard-page .employer-admin-content :deep(.mb-6.bg-white),
+.employer-admin-dashboard-page .employer-admin-content :deep(.bg-white.rounded-xl),
+.employer-admin-dashboard-page .employer-admin-content :deep(.bg-white.rounded-2xl) {
+  border: 1px solid rgba(224, 231, 243, 0.92) !important;
+  border-radius: 18px !important;
+  background: rgba(255, 255, 255, 0.94) !important;
+  box-shadow: none !important;
+}
+
+.employer-admin-dashboard-page .employer-admin-content :deep(h1.text-3xl),
+.employer-admin-dashboard-page .employer-admin-content :deep(h1.text-2xl) {
+  font-size: 28px !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.04em !important;
+  color: #1e293b !important;
+}
+
+.employer-admin-dashboard-page .employer-admin-content :deep(h1.text-3xl + p),
+.employer-admin-dashboard-page .employer-admin-content :deep(h1.text-2xl + p) {
+  color: #64748b !important;
+  font-size: 14px !important;
+}
+
+.employer-admin-dashboard-page .employer-admin-content :deep(.grid button.rounded-lg.border-2) {
+  border-radius: 12px !important;
+  border: 1px solid rgba(203, 213, 225, 0.95) !important;
+  background: rgba(255, 255, 255, 0.82) !important;
+  box-shadow: none !important;
+}
+
+.employer-admin-dashboard-page .employer-admin-content :deep(.grid button.rounded-lg.border-2.border-blue-600) {
+  border-color: rgba(53, 99, 255, 0.92) !important;
+  background: rgba(239, 246, 255, 0.95) !important;
+  box-shadow: inset 0 0 0 1px rgba(53, 99, 255, 0.14) !important;
+}
+
+.employer-admin-dashboard-page .employer-admin-content :deep(table.w-full) {
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.employer-admin-dashboard-page .employer-admin-content :deep(table.w-full thead) {
+  background: rgba(248, 250, 252, 0.96);
+}
+
+.employer-admin-dashboard-page .employer-admin-content :deep(table.w-full thead th) {
+  padding: 14px 18px;
+  color: #64748b;
+  font-size: 12px;
+  font-weight: bold;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.96);
+}
+
+.employer-admin-dashboard-page .employer-admin-content :deep(table.w-full tbody td) {
+  padding: 14px 18px;
+  color: #334155;
+  font-size: 14px;
+  border-bottom: 1px solid rgba(241, 245, 249, 0.96);
+  vertical-align: middle;
+}
+
+.employer-admin-dashboard-page .employer-admin-content :deep(table.w-full tbody tr:last-child td) {
+  border-bottom: 0;
+}
+
+@media (max-width: 1200px) {
+  .employer-overview-stats.is-admin-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .employer-admin-charts,
+  .employer-admin-overview-charts.employer-admin-charts {
+    grid-template-columns: 1fr;
+  }
+
+  .employer-admin-overview-chart {
+    border-right: 0;
+    border-bottom: 1px solid rgba(226, 232, 240, 0.96);
+  }
+
+  .employer-admin-overview-chart:last-child {
+    border-bottom: 0;
+  }
+}
+
+/* Admin — Import Excel */
+.employer-admin-import-scale {
+  zoom: 0.9;
+  width: 100%;
+}
+
+@supports not (zoom: 1) {
+  .employer-admin-import-scale {
+    transform: scale(0.9);
+    transform-origin: top left;
+    width: calc(100% / 0.9);
+  }
+}
+
+.employer-admin-import-panel {
+  overflow: hidden;
+  border: 1px solid rgba(224, 231, 243, 0.92);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: none;
+}
+
+.employer-admin-import-toolbar {
+  padding: 24px 28px 0;
+}
+
+.employer-admin-import-body {
+  display: grid;
+  gap: 20px;
+  padding: 20px 28px 28px;
+}
+
+.employer-admin-import-alert {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 16px 18px;
+  border-radius: 12px;
+  border: 1.5px solid transparent;
+}
+
+.employer-admin-import-alert--danger {
+  border-color: rgba(239, 68, 68, 0.35);
+  background: rgba(254, 242, 242, 0.95);
+}
+
+.employer-admin-import-alert-icon {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  color: #dc2626;
+  margin-top: 2px;
+}
+
+.employer-admin-import-alert-copy strong {
+  display: block;
+  color: #991b1b;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.35;
+  letter-spacing: -0.02em;
+}
+
+.employer-admin-import-alert-copy p {
+  margin: 6px 0 0;
+  color: #7f1d1d;
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.employer-admin-import-alert-copy b {
+  font-weight: 700;
+}
+
+.employer-admin-import-card {
+  padding: 22px 24px;
+  border: 1px solid rgba(226, 231, 242, 0.96);
+  border-radius: 14px;
+  background: #ffffff;
+}
+
+.employer-admin-import-card-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.employer-admin-import-card-head h2 {
+  margin: 0;
+  color: #0f172a;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: -0.02em;
+}
+
+.employer-admin-import-card-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: rgba(239, 246, 255, 0.95);
+  color: #3563ff;
+  flex-shrink: 0;
+}
+
+.employer-admin-import-card-icon.is-success {
+  background: rgba(240, 253, 244, 0.95);
+  color: #15803d;
+}
+
+.employer-admin-import-guide {
+  margin: 0;
+  padding-left: 1.35rem;
+  color: #435269;
+  font-size: 13px;
+  line-height: 1.65;
+}
+
+.employer-admin-import-guide > li + li {
+  margin-top: 10px;
+}
+
+.employer-admin-import-guide ul {
+  margin: 8px 0 0;
+  padding-left: 1.25rem;
+  list-style: disc;
+}
+
+.employer-admin-import-guide ul li + li {
+  margin-top: 6px;
+}
+
+.employer-admin-import-guide b {
+  color: #1e293b;
+  font-weight: 700;
+}
+
+.employer-admin-import-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.employer-admin-import-file {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 16px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1.5px solid rgba(200, 214, 236, 0.9);
+  background: #fafbfe;
+  color: #334155;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.45;
+}
+
+.employer-admin-import-file-label {
+  color: #64748b;
+  font-weight: 600;
+}
+
+.employer-admin-import-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 12px;
+}
+
+.employer-admin-import-stat {
+  display: grid;
+  gap: 4px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: 1.5px solid rgba(226, 231, 242, 0.96);
+  background: #fafbfe;
+}
+
+.employer-admin-import-stat span {
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.employer-admin-import-stat strong {
+  color: #0f172a;
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+}
+
+.employer-admin-import-errors {
+  margin-top: 18px;
+  padding-top: 18px;
+  border-top: 1px solid rgba(226, 232, 240, 0.96);
+}
+
+.employer-admin-import-errors-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 10px;
+  color: #b45309;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.employer-admin-import-errors-list {
+  margin: 0;
+  max-height: 200px;
+  padding-left: 1.25rem;
+  overflow-y: auto;
+  color: #92400e;
+  font-size: 13px;
+  line-height: 1.55;
+  list-style: disc;
+}
+
+.employer-admin-import-errors-list li + li {
+  margin-top: 6px;
+}
+
+@media (max-width: 640px) {
+  .employer-admin-import-toolbar,
+  .employer-admin-import-body {
+    padding-left: 18px;
+    padding-right: 18px;
+  }
+
+  .employer-admin-import-card {
+    padding: 18px 16px;
+  }
+
+  .employer-admin-import-actions :deep(button) {
+    width: 100%;
+    justify-content: center;
+  }
+}

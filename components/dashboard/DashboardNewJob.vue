@@ -1,7 +1,7 @@
 <template>
-  <div>
-    <!-- Trang standalone: title + description (drawer add/edit không hiển thị header) -->
-    <div v-if="!companyData" class="mb-6">
+  <div ref="jobFormRootRef" class="page-dashboard-newjob page-job-upload">
+    <!-- Trang standalone: title + description (drawer admin/company có header riêng) -->
+    <div v-if="!isAdminJobContext" class="mb-6">
       <h1 class="text-3xl font-bold text-gray-900">
         {{ $t('dashboard.sidebar.newJob') }}
       </h1>
@@ -9,712 +9,630 @@
         {{ $t('dashboard.newJob.description') }}
       </p>
     </div>
-      <!-- Form Content -->
-      <div class="py-2">
-        <!-- Job title -->
-        <div
-          class="flex flex-col gap-1 w-full"
-          style="padding: 30px 0 !important"
-        >
-          <!-- Label -->
-          <label for="job-title" class="font-medium text-sm text-gray-700">
-            {{ $t('job.uploadJob.nameJobLabel') }}
-            <span class="text-black">{{
-              $t('job.uploadJob.mandatoryChar')
-            }}</span>
-          </label>
-
-          <!-- Input -->
-          <UInput
-            id="job-title"
-            v-model="job.title"
-            class="w-full text-base"
-            :class="{ 'border-red-500': jobErrors.title }"
-            :placeholder="$t('job.uploadJob.nameJobPlaceHolder')"
-            :disabled="isFormDisabled"
-            @input="jobErrors.title = ''"
-          />
-          <p v-if="jobErrors.title" class="!text-red-500 text-sm mt-1">
-            {{ jobErrors.title }}
-          </p>
-        </div>
-
-        <!-- Job description -->
-        <div
-          class="flex flex-col gap-1 w-full rich-text-output"
-          style="padding: 0 0 30px 0 !important"
-        >
-          <label class="font-medium text-sm text-gray-700">
-            {{ $t('job.uploadJob.detailJobLabel') }}
-            <span class="text-black">{{
-              $t('job.uploadJob.mandatoryChar')
-            }}</span>
-          </label>
-          <!-- Text Editor -->
-          <RichTextEditor
-            id="job-description"
-            v-model="job.description"
-            class="w-full rich-text-content"
-            :class="{ 'border-red-500': jobErrors.description }"
-            :disabled="isFormDisabled"
-            :readonly="isFormDisabled"
-            @update:model-value="jobErrors.description = ''"
-          />
-          <p v-if="jobErrors.description" class="!text-red-500 text-sm mt-1">
-            {{ jobErrors.description }}
-          </p>
-        </div>
-
-        <!-- Job category -->
-        <div
-          class="grid grid-cols-3 gap-4"
-          style="padding: 0 0 30px 0 !important"
-        >
-          <div>
-            <!-- Label -->
-            <label
-              for="job-title"
-              class="font-medium text-sm text-gray-700"
-            >
-              {{ $t('job.uploadJob.deadlineLabel') }}
-              <span class="text-black">{{
-                $t('job.uploadJob.mandatoryChar')
-              }}</span>
-            </label>
-
-            <!-- Input deadline date -->
-            <UPopover :disabled="isFormDisabled">
-              <UButton
-                id="job-deadline"
-                class="w-full justify-start bg-white text-sm"
-                :class="{ 'border-red-500': jobErrors.deadline }"
-                color="neutral"
-                variant="outline"
-                icon="i-lucide-calendar"
+    <!-- Form Content — đồng bộ upload step 2 (employer-step-detail-wrap) -->
+    <section class="employer-step-panel employer-step-detail-wrap">
+      <UCollapsible
+        v-model:open="sectionBasicOpen"
+        :unmount-on-hide="false"
+        class="employer-accordion w-full"
+        :class="{ 'is-open': sectionBasicOpen }"
+        :ui="{
+          content:
+            'data-[state=open]:animate-[collapsible-down_200ms_ease-out] data-[state=closed]:animate-[collapsible-up_200ms_ease-out] overflow-visible',
+        }"
+      >
+        <template #default="{ open }">
+          <button
+            type="button"
+            class="employer-accordion-head"
+            :aria-expanded="open"
+            data-accordion-toggle
+          >
+            <span class="employer-accordion-num">1</span>
+            <span class="employer-accordion-label">Thông tin cơ bản</span>
+            <svg class="employer-accordion-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </button>
+        </template>
+        <template #content>
+          <div class="employer-accordion-body">
+            <div data-job-field="title" class="space-y-1.5">
+              <label for="job-title" class="employer-input-label">
+                {{ $t('job.uploadJob.nameJobLabel') }}
+                <span class="text-red-500">{{ $t('job.uploadJob.mandatoryChar') }}</span>
+              </label>
+              <UInput
+                id="job-title"
+                v-model="job.title"
+                :placeholder="$t('job.uploadJob.nameJobPlaceHolder')"
                 :disabled="isFormDisabled"
-              >
-                <template v-if="job.deadline">
-                  {{ formatDateDeadline(job.deadline) }}
-                </template>
-                <template v-else>
-                  {{ $t('job.uploadJob.chooseDate') }}
-                </template>
-              </UButton>
-              <template #content>
-                <UCalendar
-                  v-model="deadlineCalendarDate"
-                  class="p-2"
-                  :min-value="minDeadlineDate"
-                  :max-value="maxDeadlineDate"
-                  :is-hidden="isDeadlineDateHidden"
+                :ui="{
+                  root: 'w-full',
+                  base: jobControlUiBase + fieldErrorRingClass(jobErrors.title),
+                }"
+                class="w-full text-sm"
+                @input="jobErrors.title = ''"
+              />
+              <p v-if="jobErrors.title" class="mt-1 text-sm !text-red-500">{{ jobErrors.title }}</p>
+            </div>
+
+            <div data-job-field="description" class="mt-4 space-y-1.5 rich-text-output">
+              <label class="employer-input-label">
+                {{ $t('job.uploadJob.detailJobLabel') }}
+                <span class="text-red-500">{{ $t('job.uploadJob.mandatoryChar') }}</span>
+              </label>
+              <RichTextEditor
+                id="job-description"
+                v-model="job.description"
+                class="w-full rich-text-content"
+                :class="{ 'ring-1 ring-red-300': jobErrors.description }"
+                placeholder="Nhập mô tả công việc"
+                :disabled="isFormDisabled"
+                :readonly="isFormDisabled"
+                @update:model-value="jobErrors.description = ''"
+              />
+              <p v-if="jobErrors.description" class="mt-1 text-sm !text-red-500">{{ jobErrors.description }}</p>
+            </div>
+
+            <div
+              class="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2"
+              data-job-field-row="category-type"
+            >
+              <div data-job-field="category" class="space-y-1.5">
+                <label class="employer-input-label">
+                  {{ $t('job.uploadJob.categoryLabel') }}
+                  <span class="text-red-500">{{ $t('job.uploadJob.mandatoryChar') }}</span>
+                </label>
+                <div
+                  class="job-vselect w-full min-w-0"
+                  :class="{ 'job-vselect--error': jobErrors.category }"
+                >
+                  <v-select
+                    v-model="categoryForSelect"
+                    :options="categoryItemsWithoutAll"
+                    :append-to-body="true"
+                    multiple
+                    class="w-full text-sm"
+                    :placeholder="$t('job.uploadJob.chooseCategory')"
+                    label="label"
+                    :disabled="isFormDisabled"
+                    @open="onMultiSelectOpen"
+                    @close="onMultiSelectClose"
+                    @update:model-value="jobErrors.category = ''"
+                  />
+                </div>
+                <p v-if="jobErrors.category" class="mt-1 text-sm !text-red-500">
+                  {{ jobErrors.category }}
+                </p>
+              </div>
+
+              <div data-job-field="typeOfEmployment" class="space-y-1.5">
+                <label class="employer-input-label">
+                  {{ $t('job.uploadJob.typeJobLabel') }}
+                  <span class="text-red-500">{{ $t('job.uploadJob.mandatoryChar') }}</span>
+                </label>
+                <USelect
+                  :items="employmentTypeItems"
+                  :model-value="job.typeOfEmployment?.toString()"
+                  :placeholder="$t('job.uploadJob.chooseTypeOfEmployment')"
+                  :ui="{
+                    base: jobControlUiBase + fieldErrorRingClass(jobErrors.typeOfEmployment),
+                    content: 'z-[9999]',
+                  }"
+                  class="w-full text-sm"
+                  :content="{ side: 'bottom' }"
                   :disabled="isFormDisabled"
-                  @update:model-value="jobErrors.deadline = ''"
+                  @update:model-value="
+                    (val) => {
+                      job.typeOfEmployment = Number(val ?? 0)
+                      jobErrors.typeOfEmployment = ''
+                    }
+                  "
                 />
-              </template>
-            </UPopover>
-            <p v-if="jobErrors.deadline" class="!text-red-500 text-sm mt-1">
-              {{ jobErrors.deadline }}
-            </p>
-          </div>
-          <div>
-            <!-- Label -->
-            <label
-              for="job-title"
-              class="font-medium text-sm text-gray-700"
-            >
-              {{ $t('job.uploadJob.categoryLabel') }}
-              <span class="text-black">{{
-                $t('job.uploadJob.mandatoryChar')
-              }}</span>
-            </label>
-
-            <v-select
-              v-model="categoryForSelect"
-              :options="categoryItemsWithoutAll"
-              multiple
-              searchable
-              class="w-full text-sm"
-              :class="{ 'border-red-500': jobErrors.category }"
-              :placeholder="$t('job.uploadJob.chooseCategory')"
-              label="label"
-              :disabled="isFormDisabled"
-              @update:model-value="jobErrors.category = ''"
-            />
-            <p v-if="jobErrors.category" class="!text-red-500 text-sm mt-1">
-              {{ jobErrors.category }}
-            </p>
-          </div>
-          <div>
-            <!-- Label -->
-            <label
-              for="job-title"
-              class="font-medium text-sm text-gray-700"
-            >
-              {{ $t('job.uploadJob.typeJobLabel') }}
-              <span class="text-black">{{
-                $t('job.uploadJob.mandatoryChar')
-              }}</span>
-            </label>
-
-            <!-- Input job type -->
-            <USelect
-              :items="employmentTypeItems"
-              :model-value="job.typeOfEmployment?.toString()"
-              :placeholder="$t('job.uploadJob.chooseTypeOfEmployment')"
-              class="w-full text-sm"
-              :class="{ 'border-red-500': jobErrors.typeOfEmployment }"
-              :content="{ side: 'bottom' }"
-              :disabled="isFormDisabled"
-              @update:model-value="
-                (val) => {
-                  job.typeOfEmployment = Number(val ?? 0)
-                  jobErrors.typeOfEmployment = ''
-                }
-              "
-            />
-            <p v-if="jobErrors.typeOfEmployment" class="!text-red-500 text-sm mt-1">
-              {{ jobErrors.typeOfEmployment }}
-            </p>
-          </div>
-        </div>
-
-        <!-- Job salary -->
-        <div
-          class="grid grid-cols-3 gap-4"
-          style="padding: 0 0 30px 0 !important"
-        >
-          <!-- Salary Type -->
-          <div>
-            <label
-              for="job-salary-type"
-              class="font-medium text-sm text-gray-700"
-            >
-              {{ $t('job.uploadJob.currentSalaryLabel') }}
-              <span class="text-black">{{
-                $t('job.uploadJob.mandatoryChar')
-              }}</span>
-            </label>
-            <USelect
-              id="job-salary-type"
-              :items="salaryTypeItems"
-              :model-value="job.salaryType?.toString()"
-              class="w-full text-sm mt-1"
-              :class="{ 'border-red-500': jobErrors.salaryType }"
-              :content="{ side: 'bottom' }"
-              :placeholder="$t('job.uploadJob.chooseSalaryType')"
-              :disabled="isFormDisabled"
-              @update:model-value="
-                (val) => {
-                  job.salaryType = Number(val ?? 0)
-                  jobErrors.salaryType = ''
-                }
-              "
-            />
-            <p v-if="jobErrors.salaryType" class="!text-red-500 text-sm mt-1">
-              {{ jobErrors.salaryType }}
-            </p>
-          </div>
-
-          <!-- Min Salary -->
-          <div v-if="job.salaryType != 5">
-            <label
-              for="job-salary-min"
-              class="font-medium text-sm text-gray-700"
-            >
-              {{ $t('job.uploadJob.minSalaryLabel') }}
-              <span class="text-black">{{
-                $t('job.uploadJob.mandatoryChar')
-              }}</span>
-            </label>
-            <UInput
-              id="job-salary-min"
-              :model-value="formatCurrency(job.salaryMin)"
-              class="w-full text-sm mt-1"
-              :class="{ 'border-red-500': jobErrors.salaryMin }"
-              type="text"
-              :placeholder="$t('job.uploadJob.minSalary')"
-              :disabled="isFormDisabled"
-              @update:model-value="(val) => {
-                job.salaryMin = unformatCurrency(val)
-                jobErrors.salaryMin = ''
-              }"
-            />
-            <p v-if="jobErrors.salaryMin" class="!text-red-500 text-sm mt-1">
-              {{ jobErrors.salaryMin }}
-            </p>
-          </div>
-
-          <!-- Max Salary -->
-          <div v-if="job.salaryType != 5">
-            <label
-              for="job-salary-max"
-              class="font-medium text-sm text-gray-700"
-            >
-              {{ $t('job.uploadJob.maxSalaryLabel') }}
-              <span class="text-black">{{
-                $t('job.uploadJob.mandatoryChar')
-              }}</span>
-            </label>
-            <UInput
-              id="job-salary-max"
-              :model-value="formatCurrency(job.salaryMax)"
-              class="w-full text-sm mt-1"
-              :class="{ 'border-red-500': jobErrors.salaryMax }"
-              type="text"
-              :placeholder="$t('job.uploadJob.maxSalary')"
-              :disabled="isFormDisabled"
-              @update:model-value="(val) => {
-                job.salaryMax = unformatCurrency(val)
-                jobErrors.salaryMax = ''
-              }"
-            />
-            <p v-if="jobErrors.salaryMax" class="!text-red-500 text-sm mt-1">
-              {{ jobErrors.salaryMax }}
-            </p>
-          </div>
-        </div>
-
-        <!-- Job address -->
-        <div
-          class="flex flex-col gap-1 w-full"
-          style="padding: 0 0 30px 0 !important"
-        >
-          <!-- Label -->
-          <label for="job-title" class="font-medium text-sm text-gray-700">
-              {{ $t('job.uploadJob.addressJobLabel') }}
-              <span class="text-black">{{
-                $t('job.uploadJob.mandatoryChar')
-              }}</span
-              >&nbsp;&nbsp;&nbsp;&nbsp;{{
-                $t('job.uploadJob.subAddressJobLabel')
-              }}
-          </label>
-
-          <!-- Text Editor -->
-          <RichTextEditor
-            id="job-address"
-            v-model="job.address"
-            class="w-full rich-text-content"
-            :class="{ 'border-red-500': jobErrors.address }"
-            :placeholder="$t('job.uploadJob.addressJobPlaceholder')"
-            :disabled="isFormDisabled"
-            :readonly="isFormDisabled"
-            @update:model-value="jobErrors.address = ''"
-          />
-          <p v-if="jobErrors.address" class="!text-red-500 text-sm mt-1">
-            {{ jobErrors.address }}
-          </p>
-        </div>
-
-        <!-- Job location address -->
-        <div
-          class="flex flex-col gap-1 w-full"
-          style="padding: 0 0 38px 0 !important"
-        >
-          <!-- Label -->
-          <label for="job-title" class="font-medium text-sm text-gray-700">
-            {{ $t('job.uploadJob.locationJobLabel') }}
-            <span class="text-black">{{
-              $t('job.uploadJob.mandatoryChar')
-            }}</span>
-          </label>
-
-          <!-- Input locations -->
-          <v-select
-            v-model="locationForSelect"
-            :options="locationItemsWithoutAll"
-            multiple
-            class="w-full text-sm"
-            :class="{ 'border-red-500': jobErrors.location }"
-            :placeholder="$t('job.uploadJob.chooseLocation')"
-            label="label"
-            :disabled="isFormDisabled"
-            @update:model-value="jobErrors.location = ''"
-          />
-          <p v-if="jobErrors.location" class="!text-red-500 text-sm mt-1">
-            {{ jobErrors.location }}
-          </p>
-        </div>
-
-        <!-- More information -->
-        <div>
-          <div
-            class="flex items-center py-4 border-gray-300 border-b mb-10"
-          >
-            <span class="text-[#378ecc] text-3xl ml-5">{{
-              $t('job.uploadJob.moreInformation')
-            }}</span>
-          </div>
-          <!-- Job email/phone/required qualification -->
-          <div
-            class="grid grid-cols-1 md:grid-cols-3 gap-4"
-            style="padding: 0 0 30px 0 !important"
-          >
-            <!-- Job email -->
-            <div>
-              <!-- Label -->
-              <label
-                for="job-title"
-                class="font-medium text-sm text-gray-700"
-              >
-                {{ $t('job.uploadJob.emailJobLabel') }}
-                <span v-if="!isAdminJobContext" class="text-black">{{
-                  $t('job.uploadJob.mandatoryChar')
-                }}</span>
-              </label>
-
-              <!-- Input email -->
-              <UInput
-                id="job-email"
-                v-model.trim="job.email"
-                class="w-full text-sm"
-                :class="{ 'border-red-500': jobErrors.email }"
-                type="email"
-                :placeholder="$t('job.uploadJob.emailJobPlaceholder')"
-                :disabled="isFormDisabled"
-                @input="jobErrors.email = ''"
-              />
-              <p v-if="jobErrors.email" class="!text-red-500 text-sm mt-1">
-                {{ jobErrors.email }}
-              </p>
+                <p v-if="jobErrors.typeOfEmployment" class="mt-1 text-sm !text-red-500">{{ jobErrors.typeOfEmployment }}</p>
+              </div>
             </div>
 
-            <!-- Job phone number -->
-            <div>
-              <!-- Label -->
-              <label
-                for="job-phone"
-                class="font-medium text-sm text-gray-700"
-              >
-                {{ $t('job.uploadJob.phoneJobLabel') }}
-                <span v-if="!isAdminJobContext" class="text-black">{{
-                  $t('job.uploadJob.mandatoryChar')
-                }}</span>
-              </label>
-
-              <!-- Input phone -->
-              <UInput
-                id="job-phone"
-                v-model.trim="job.phoneNumber"
-                class="w-full text-sm"
-                :class="{ 'border-red-500': jobErrors.phoneNumber }"
-                type="tel"
-                :placeholder="$t('job.uploadJob.phoneJobPlaceholder')"
-                :disabled="isFormDisabled"
-                @input="jobErrors.phoneNumber = ''"
-              />
-              <p v-if="jobErrors.phoneNumber" class="!text-red-500 text-sm mt-1">
-                {{ jobErrors.phoneNumber }}
-              </p>
-            </div>
-
-            <!-- Job required qualification Level -->
-            <div>
-              <label
-                for="job-title"
-                class="font-medium text-sm text-gray-700"
-              >
-                {{ $t('job.uploadJob.requiredQualificationLabel') }}
-                <span class="text-black">{{
-                  $t('job.uploadJob.mandatoryChar')
-                }}</span>
-              </label>
-              <USelect
-                :items="requiredQualificationItems"
-                :model-value="job.requiredQualification?.toString() || ''"
-                class="w-full text-sm"
-                :class="{ 'border-red-500': jobErrors.requiredQualification }"
-                searchable
-                :placeholder="
-                  $t('job.uploadJob.requiredQualificationLabel')
-                "
-                :content="{ side: 'bottom' }"
-                :disabled="isFormDisabled"
-                @update:model-value="
-                  (val) => {
-                    job.requiredQualification = Number(val ?? 0)
-                    jobErrors.requiredQualification = ''
-                  }
-                "
-              />
-              <p v-if="jobErrors.requiredQualification" class="!text-red-500 text-sm mt-1">
-                {{ jobErrors.requiredQualification }}
-              </p>
-            </div>
-          </div>
-
-          <!-- Job experience/benefit Level -->
-          <div
-            class="grid grid-cols-1 md:grid-cols-2 gap-4"
-            style="padding: 0 0 30px 0 !important"
-          >
-            <!-- Job experience Level -->
-            <div>
-              <!-- Label -->
-              <label
-                for="job-title"
-                class="font-medium text-sm text-gray-700"
-              >
-                {{ $t('job.uploadJob.experienceLabel') }}
-                <span class="text-black">{{
-                  $t('job.uploadJob.mandatoryChar')
-                }}</span>
-              </label>
-              <!-- Input Experience Level -->
-              <USelect
-                :items="experienceLevelItems"
-                :model-value="job.experienceLevel?.toString()"
-                class="w-full text-sm"
-                :class="{ 'border-red-500': jobErrors.experienceLevel }"
-                :content="{ side: 'bottom' }"
-                :placeholder="$t('job.uploadJob.chooseExperienceLevel')"
-                :disabled="isFormDisabled"
-                @update:model-value="
-                  (val) => {
-                    job.experienceLevel = Number(val ?? 0)
-                    jobErrors.experienceLevel = ''
-                  }
-                "
-              />
-              <p v-if="jobErrors.experienceLevel" class="!text-red-500 text-sm mt-1">
-                {{ jobErrors.experienceLevel }}
-              </p>
-            </div>
-
-            <!-- Job benefit Level -->
-            <div>
-              <!-- Label -->
-              <label
-                for="job-title"
-                class="font-medium text-sm text-gray-700"
-              >
-                {{ $t('job.uploadJob.benefitLabel') }}
-                <span class="text-black">{{
-                  $t('job.uploadJob.mandatoryChar')
-                }}</span>
-              </label>
-
-              <!-- Input Benefit -->
-              <v-select
-                v-model="benefitsForSelect"
-                :options="jobBenefitsItems"
-                multiple
-                class="w-full text-sm"
-                :class="{ 'border-red-500': jobErrors.benefits }"
-                :placeholder="$t('job.uploadJob.chooseBenefitLevel')"
-                label="label"
-                :disabled="isFormDisabled"
-                @update:model-value="jobErrors.benefits = ''"
-              />
-              <p v-if="jobErrors.benefits" class="!text-red-500 text-sm mt-1">
-                {{ jobErrors.benefits }}
-              </p>
-            </div>
-          </div>
-
-          <!-- Job gender/grade Level -->
-          <div
-            class="grid grid-cols-1 md:grid-cols-2 gap-4"
-            style="padding: 0 !important"
-          >
-            <!-- Job gender Level -->
-            <div>
-              <!-- Label -->
-              <label
-                for="job-title"
-                class="font-medium text-sm text-gray-700"
-              >
-                {{ $t('job.uploadJob.genderLabel') }}
-                <span class="text-black">{{
-                  $t('job.uploadJob.mandatoryChar')
-                }}</span>
-              </label>
-              <v-select
-                v-model="genderForSelect"
-                :options="genderItems"
-                multiple
-                class="w-full text-sm"
-                :class="{ 'border-red-500': jobErrors.gender }"
-                :placeholder="$t('job.uploadJob.chooseGender')"
-                label="label"
-                :disabled="isFormDisabled"
-                @update:model-value="jobErrors.gender = ''"
-              />
-              <p v-if="jobErrors.gender" class="!text-red-500 text-sm mt-1">
-                {{ jobErrors.gender }}
-              </p>
-            </div>
-
-            <!-- Job grade Level -->
-            <div>
-              <!-- Label -->
-              <label
-                for="job-title"
-                class="font-medium text-sm text-gray-700"
-              >
-                {{ $t('job.uploadJob.gradeLabel') }}
-                <span class="text-black">{{
-                  $t('job.uploadJob.mandatoryChar')
-                }}</span>
-              </label>
-              <USelect
-                :items="gradeItems"
-                :model-value="job.grade?.toString() || ''"
-                class="w-full text-sm"
-                :class="{ 'border-red-500': jobErrors.grade }"
-                :content="{ side: 'bottom' }"
-                :placeholder="$t('job.uploadJob.chooseGradeLevel')"
-                :disabled="isFormDisabled"
-                @update:model-value="
-                  (val) => {
-                    job.grade = Number(val ?? 0)
-                    jobErrors.grade = ''
-                  }
-                "
-              />
-              <p v-if="jobErrors.grade" class="!text-red-500 text-sm mt-1">
-                {{ jobErrors.grade }}
-              </p>
-            </div>
-          </div>
-
-          <div
-            class="flex items-center py-4 border-gray-300 border-b mb-10"
-          ></div>
-        </div>
-
-        <!-- Action by admin (chỉ khi drawer / company-management hoặc Quản lý công việc) -->
-        <template v-if="isAdminJobContext">
-          <h2 class="text-xl font-bold text-gray-900 mb-4 pt-2">Action by admin</h2>
-
-          <!-- Status: chỉ hiện khi edit job -->
-          <div
-            v-if="isEditMode"
-            class="flex flex-col gap-2 w-full mb-6"
-            style="padding: 0 0 24px 0 !important"
-          >
-            <label class="font-medium text-sm text-gray-900">
-              Status <span class="text-black">*</span>
-            </label>
-            <div class="flex flex-wrap gap-4 items-center">
-              <label
-                v-for="opt in jobStatusOptions"
-                :key="opt.value"
-                class="inline-flex items-center gap-2 cursor-pointer"
-              >
-                <input
-                  v-model="jobStatusOption"
-                  type="radio"
-                  :value="opt.value"
-                  class="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
-                >
-                <span
-                  class="px-4 py-2 rounded-lg text-sm font-medium transition-colors"
-                  :class="[
-                    opt.pillClass,
-                    jobStatusOption === opt.value ? 'ring-2 ring-offset-1 ring-gray-400' : '',
-                  ]"
-                >
-                  {{ opt.label }}
-                </span>
-              </label>
-            </div>
-          </div>
-
-          <div
-            class="flex flex-col gap-1 w-full"
-            style="padding: 0 0 30px 0 !important"
-          >
-            <label class="font-medium text-sm text-gray-700">
-              Post Type <span class="text-black">*</span>
-            </label>
-            <div class="flex flex-wrap gap-3 items-center">
-              <label
-                v-for="opt in postTypeOptions"
-                :key="opt.value"
-                class="inline-flex items-center gap-2 cursor-pointer"
-                :class="{ 'opacity-50': isFormDisabled }"
-              >
-                <input
-                  type="radio"
-                  :value="opt.value"
-                  :checked="(job.postType || 'Basic') === opt.value"
-                  class="w-4 h-4 text-primary border-gray-300 focus:ring-primary"
+            <div class="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
+              <div data-job-field="grade" class="space-y-1.5">
+                <label class="employer-input-label">
+                  {{ $t('job.uploadJob.gradeLabel') }}
+                  <span class="text-red-500">{{ $t('job.uploadJob.mandatoryChar') }}</span>
+                </label>
+                <USelect
+                  :items="gradeItems"
+                  :model-value="job.grade?.toString() || ''"
+                  :content="{ side: 'bottom' }"
+                  :placeholder="$t('job.uploadJob.chooseGradeLevel')"
+                  :ui="{
+                    base: jobControlUiBase + fieldErrorRingClass(jobErrors.grade),
+                    content: 'z-[9999]',
+                  }"
+                  class="w-full text-sm"
                   :disabled="isFormDisabled"
-                  @change="job.postType = opt.value"
+                  @update:model-value="
+                    (val) => {
+                      job.grade = Number(val ?? 0)
+                      jobErrors.grade = ''
+                    }
+                  "
+                />
+                <p v-if="jobErrors.grade" class="mt-1 text-sm !text-red-500">{{ jobErrors.grade }}</p>
+              </div>
+              <div id="job-deadline-field" data-job-field="deadline" class="space-y-1.5">
+                <label class="employer-input-label">
+                  {{ $t('job.uploadJob.deadlineLabel') }}
+                  <span class="text-red-500">{{ $t('job.uploadJob.mandatoryChar') }}</span>
+                </label>
+                <UPopover
+                  :disabled="isFormDisabled"
+                  :content="{
+                    side: 'bottom',
+                    align: 'start',
+                    sideOffset: 8,
+                    avoidCollisions: false,
+                  }"
+                  :ui="{ content: 'z-[9999]' }"
                 >
-                <span
-                  class="px-4 py-2 rounded-full text-sm font-medium border-2 transition-colors"
-                  :class="[opt.chipClass, (job.postType || 'Basic') === opt.value ? 'ring-2 ring-offset-1 ring-gray-400' : '']"
+                  <UButton
+                    :ui="{
+                      base:
+                        jobDeadlineButtonUiBase + fieldErrorRingClass(jobErrors.deadline),
+                    }"
+                    color="neutral"
+                    variant="outline"
+                    class="w-full"
+                    :disabled="isFormDisabled"
+                  >
+                    <span class="flex w-full items-center justify-between gap-3">
+                      <span class="min-w-0 truncate font-medium">
+                        <template v-if="job.deadline">
+                          {{ formatDateDeadline(job.deadline) }}
+                        </template>
+                        <template v-else>
+                          {{ $t('job.uploadJob.chooseDate') }}
+                        </template>
+                      </span>
+                      <UIcon
+                        name="i-lucide-calendar"
+                        class="h-4 w-4 shrink-0 text-slate-500"
+                        aria-hidden="true"
+                      />
+                    </span>
+                  </UButton>
+                  <template #content>
+                    <UCalendar
+                      v-model="deadlineCalendarDate"
+                      class="p-2"
+                      :min-value="minDeadlineDate"
+                      :max-value="maxDeadlineDate"
+                      :is-hidden="isDeadlineDateHidden"
+                      :disabled="isFormDisabled"
+                      @update:model-value="jobErrors.deadline = ''"
+                    />
+                  </template>
+                </UPopover>
+                <p v-if="jobErrors.deadline" class="mt-1 text-sm !text-red-500">{{ jobErrors.deadline }}</p>
+              </div>
+            </div>
+
+            <div class="mt-4 grid grid-cols-1 gap-4 md:grid-cols-3">
+              <div data-job-field="salaryType" class="space-y-1.5">
+                <label class="employer-input-label">
+                  {{ $t('job.uploadJob.currentSalaryLabel') }}
+                  <span class="text-red-500">{{ $t('job.uploadJob.mandatoryChar') }}</span>
+                </label>
+                <USelect
+                  id="job-salary-type"
+                  :items="salaryTypeItems"
+                  :model-value="job.salaryType?.toString()"
+                  :content="{ side: 'bottom' }"
+                  :placeholder="$t('job.uploadJob.chooseSalaryType')"
+                  :ui="{
+                    base: jobControlUiBase + fieldErrorRingClass(jobErrors.salaryType),
+                    content: 'z-[9999]',
+                  }"
+                  class="w-full text-sm"
+                  :disabled="isFormDisabled"
+                  @update:model-value="
+                    (val) => {
+                      job.salaryType = Number(val ?? 0)
+                      jobErrors.salaryType = ''
+                    }
+                  "
+                />
+                <p v-if="jobErrors.salaryType" class="mt-1 text-sm !text-red-500">{{ jobErrors.salaryType }}</p>
+              </div>
+              <div v-if="job.salaryType != 5" data-job-field="salaryMin" class="space-y-1.5">
+                <label class="employer-input-label">
+                  {{ $t('job.uploadJob.minSalaryLabel') }}
+                  <span class="text-red-500">{{ $t('job.uploadJob.mandatoryChar') }}</span>
+                </label>
+                <UInput
+                  id="job-salary-min"
+                  :model-value="formatCurrency(job.salaryMin)"
+                  type="text"
+                  :placeholder="salaryMinPlaceholder"
+                  :ui="{
+                    root: 'w-full',
+                    base: jobControlUiBase + fieldErrorRingClass(jobErrors.salaryMin),
+                  }"
+                  class="w-full text-sm"
+                  :disabled="isFormDisabled"
+                  @update:model-value="(val) => {
+                    job.salaryMin = unformatCurrency(val)
+                    jobErrors.salaryMin = ''
+                  }"
+                />
+                <p v-if="jobErrors.salaryMin" class="mt-1 text-sm !text-red-500">{{ jobErrors.salaryMin }}</p>
+              </div>
+              <div v-if="job.salaryType != 5" data-job-field="salaryMax" class="space-y-1.5">
+                <label class="employer-input-label">
+                  {{ $t('job.uploadJob.maxSalaryLabel') }}
+                  <span class="text-red-500">{{ $t('job.uploadJob.mandatoryChar') }}</span>
+                </label>
+                <UInput
+                  id="job-salary-max"
+                  :model-value="formatCurrency(job.salaryMax)"
+                  type="text"
+                  :placeholder="salaryMaxPlaceholder"
+                  :ui="{
+                    root: 'w-full',
+                    base: jobControlUiBase + fieldErrorRingClass(jobErrors.salaryMax),
+                  }"
+                  class="w-full text-sm"
+                  :disabled="isFormDisabled"
+                  @update:model-value="(val) => {
+                    job.salaryMax = unformatCurrency(val)
+                    jobErrors.salaryMax = ''
+                  }"
+                />
+                <p v-if="jobErrors.salaryMax" class="mt-1 text-sm !text-red-500">{{ jobErrors.salaryMax }}</p>
+              </div>
+            </div>
+
+            <div class="job-address-location-fields">
+              <div data-job-field="address" class="space-y-1.5 rich-text-output">
+                <label class="employer-input-label">
+                  {{ $t('job.uploadJob.addressJobLabel') }}
+                  <span class="text-red-500">{{ $t('job.uploadJob.mandatoryChar') }}</span>
+                </label>
+                <RichTextEditor
+                  id="job-address"
+                  v-model="job.address"
+                  class="w-full rich-text-content"
+                  :class="{ 'ring-1 ring-red-300': jobErrors.address }"
+                  :placeholder="$t('job.uploadJob.addressJobPlaceholder')"
+                  :disabled="isFormDisabled"
+                  :readonly="isFormDisabled"
+                  @update:model-value="jobErrors.address = ''"
+                />
+                <p v-if="jobErrors.address" class="mt-1 text-sm !text-red-500">{{ jobErrors.address }}</p>
+              </div>
+              <div data-job-field="location" class="space-y-1.5">
+                <label class="employer-input-label">
+                  {{ $t('job.uploadJob.locationJobLabel') }}
+                  <span class="text-red-500">{{ $t('job.uploadJob.mandatoryChar') }}</span>
+                </label>
+                <div
+                  class="job-vselect w-full min-w-0"
+                  :class="{ 'job-vselect--error': jobErrors.location }"
                 >
-                  {{ opt.label }}
-                </span>
-              </label>
+                  <v-select
+                    id="job-location"
+                    v-model="locationForSelect"
+                    :options="locationItemsWithoutAll"
+                    :append-to-body="true"
+                    multiple
+                    class="w-full text-sm"
+                    :placeholder="$t('job.uploadJob.chooseLocation')"
+                    label="label"
+                    :disabled="isFormDisabled"
+                    @open="onMultiSelectOpen"
+                    @close="onMultiSelectClose"
+                    @update:model-value="jobErrors.location = ''"
+                  />
+                </div>
+                <p v-if="jobErrors.location" class="mt-1 text-sm !text-red-500">{{ jobErrors.location }}</p>
+              </div>
             </div>
           </div>
         </template>
+      </UCollapsible>
 
-        <!-- Checkbox agree terms (ẩn khi admin add/edit) -->
-        <div
-          v-if="!isAdminJobContext"
-          class="flex items-center"
-          style="
-            padding: 0 0 20px 0 !important;
-            height: 30px !important;
-          "
-        >
-          <UCheckbox
-            v-model="agreeChecked"
-            class="text-primary mr-3"
-            :disabled="isFormDisabled"
-          ></UCheckbox>
-          <span>
-            {{ $t('job.uploadJob.agreeUploadJobLabel') }}
-            <a
-              href="#"
-              style="
-                color: #0284c7 !important;
-                text-decoration: none !important;
-              "
-            >
-              {{ $t('job.uploadJob.agreePolicy') }}
-            </a>
-            {{ $t('job.uploadJob.and') }}
-            <a
-              href="#"
-              style="
-                color: #0284c7 !important;
-                text-decoration: none !important;
-              "
-            >
-              {{ $t('job.uploadJob.agreePrivacy') }}
-            </a>
-          </span>
+      <UCollapsible
+        v-model:open="sectionCandidateOpen"
+        :unmount-on-hide="false"
+        class="employer-accordion w-full"
+        :class="{ 'is-open': sectionCandidateOpen }"
+        :ui="{
+          content:
+            'data-[state=open]:animate-[collapsible-down_200ms_ease-out] data-[state=closed]:animate-[collapsible-up_200ms_ease-out] overflow-visible',
+        }"
+      >
+        <template #default="{ open }">
+          <button type="button" class="employer-accordion-head" :aria-expanded="open" data-accordion-toggle>
+            <span class="employer-accordion-num">2</span>
+            <span class="employer-accordion-label">Yêu cầu ứng viên</span>
+            <svg class="employer-accordion-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </button>
+        </template>
+        <template #content>
+          <div class="employer-accordion-body">
+            <div class="employer-grid">
+              <div data-job-field="requiredQualification" class="space-y-1.5">
+                <label class="employer-input-label">
+                  {{ $t('job.uploadJob.requiredQualificationLabel') }}
+                  <span class="text-red-500">{{ $t('job.uploadJob.mandatoryChar') }}</span>
+                </label>
+                <USelect
+                  :items="requiredQualificationItems"
+                  :model-value="job.requiredQualification?.toString() || ''"
+                  searchable
+                  :placeholder="$t('job.uploadJob.requiredQualificationLabel')"
+                  :content="{ side: 'bottom' }"
+                  :ui="{
+                    base: jobControlUiBase + fieldErrorRingClass(jobErrors.requiredQualification),
+                    content: 'z-[9999]',
+                  }"
+                  class="w-full text-sm"
+                  :disabled="isFormDisabled"
+                  @update:model-value="
+                    (val) => {
+                      job.requiredQualification = Number(val ?? 0)
+                      jobErrors.requiredQualification = ''
+                    }
+                  "
+                />
+                <p v-if="jobErrors.requiredQualification" class="mt-1 text-sm !text-red-500">{{ jobErrors.requiredQualification }}</p>
+              </div>
+              <div data-job-field="experienceLevel" class="space-y-1.5">
+                <label class="employer-input-label">
+                  {{ $t('job.uploadJob.experienceLabel') }}
+                  <span class="text-red-500">{{ $t('job.uploadJob.mandatoryChar') }}</span>
+                </label>
+                <USelect
+                  :items="experienceLevelItems"
+                  :model-value="job.experienceLevel?.toString()"
+                  :content="{ side: 'bottom' }"
+                  :placeholder="$t('job.uploadJob.chooseExperienceLevel')"
+                  :ui="{
+                    base: jobControlUiBase + fieldErrorRingClass(jobErrors.experienceLevel),
+                    content: 'z-[9999]',
+                  }"
+                  class="w-full text-sm"
+                  :disabled="isFormDisabled"
+                  @update:model-value="
+                    (val) => {
+                      job.experienceLevel = Number(val ?? 0)
+                      jobErrors.experienceLevel = ''
+                    }
+                  "
+                />
+                <p v-if="jobErrors.experienceLevel" class="mt-1 text-sm !text-red-500">{{ jobErrors.experienceLevel }}</p>
+              </div>
+              <div data-job-field="gender" class="space-y-1.5">
+                <label class="employer-input-label">
+                  {{ $t('job.uploadJob.genderLabel') }}
+                  <span class="text-red-500">{{ $t('job.uploadJob.mandatoryChar') }}</span>
+                </label>
+                <div
+                  class="job-vselect w-full min-w-0"
+                  :class="{ 'job-vselect--error': jobErrors.gender }"
+                >
+                  <v-select
+                    id="job-gender"
+                    v-model="genderForSelect"
+                    :options="genderItems"
+                    :append-to-body="true"
+                    multiple
+                    class="w-full text-sm"
+                    :placeholder="$t('job.uploadJob.chooseGender')"
+                    label="label"
+                    :disabled="isFormDisabled"
+                    @open="onMultiSelectOpen"
+                    @close="onMultiSelectClose"
+                    @update:model-value="jobErrors.gender = ''"
+                  />
+                </div>
+                <p v-if="jobErrors.gender" class="mt-1 text-sm !text-red-500">{{ jobErrors.gender }}</p>
+              </div>
+              <div data-job-field="benefits" class="space-y-1.5">
+                <label class="employer-input-label">
+                  {{ $t('job.uploadJob.benefitLabel') }}
+                  <span class="text-red-500">{{ $t('job.uploadJob.mandatoryChar') }}</span>
+                </label>
+                <div
+                  class="job-vselect w-full min-w-0"
+                  :class="{ 'job-vselect--error': jobErrors.benefits }"
+                >
+                  <v-select
+                    id="job-benefit"
+                    v-model="benefitsForSelect"
+                    :options="jobBenefitsItems"
+                    :append-to-body="true"
+                    multiple
+                    class="w-full text-sm"
+                    :placeholder="$t('job.uploadJob.chooseBenefitLevel')"
+                    label="label"
+                    :disabled="isFormDisabled"
+                    @open="onMultiSelectOpen"
+                    @close="onMultiSelectClose"
+                    @update:model-value="jobErrors.benefits = ''"
+                  />
+                </div>
+                <p v-if="jobErrors.benefits" class="mt-1 text-sm !text-red-500">{{ jobErrors.benefits }}</p>
+              </div>
+            </div>
+          </div>
+        </template>
+      </UCollapsible>
+
+      <UCollapsible
+        v-model:open="sectionContactOpen"
+        :unmount-on-hide="false"
+        class="employer-accordion w-full"
+        :class="{ 'is-open': sectionContactOpen }"
+        :ui="{
+          content:
+            'data-[state=open]:animate-[collapsible-down_200ms_ease-out] data-[state=closed]:animate-[collapsible-up_200ms_ease-out] overflow-visible',
+        }"
+      >
+        <template #default="{ open }">
+          <button type="button" class="employer-accordion-head" :aria-expanded="open" data-accordion-toggle>
+            <span class="employer-accordion-num">3</span>
+            <span class="employer-accordion-label">Thông tin liên hệ</span>
+            <svg class="employer-accordion-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </button>
+        </template>
+        <template #content>
+          <div class="employer-accordion-body">
+            <div class="employer-grid">
+              <div data-job-field="email" class="space-y-1.5">
+                <label for="job-email" class="employer-input-label">
+                  {{ $t('job.uploadJob.emailJobLabel') }}
+                  <span v-if="!isAdminJobContext" class="text-red-500">{{ $t('job.uploadJob.mandatoryChar') }}</span>
+                </label>
+                <UInput
+                  id="job-email"
+                  v-model.trim="job.email"
+                  type="email"
+                  :placeholder="$t('job.uploadJob.emailJobPlaceholder')"
+                  :disabled="isFormDisabled"
+                  :ui="{
+                    root: 'w-full',
+                    base: jobControlUiBase + fieldErrorRingClass(jobErrors.email),
+                  }"
+                  class="w-full text-sm"
+                  @input="jobErrors.email = ''"
+                />
+                <p v-if="jobErrors.email" class="mt-1 text-sm !text-red-500">{{ jobErrors.email }}</p>
+              </div>
+              <div data-job-field="phoneNumber" class="space-y-1.5">
+                <label for="job-phone" class="employer-input-label">
+                  {{ $t('job.uploadJob.phoneJobLabel') }}
+                  <span v-if="!isAdminJobContext" class="text-red-500">{{ $t('job.uploadJob.mandatoryChar') }}</span>
+                </label>
+                <UInput
+                  id="job-phone"
+                  v-model.trim="job.phoneNumber"
+                  type="tel"
+                  :placeholder="$t('job.uploadJob.phoneJobPlaceholder')"
+                  :disabled="isFormDisabled"
+                  :ui="{
+                    root: 'w-full',
+                    base: jobControlUiBase + fieldErrorRingClass(jobErrors.phoneNumber),
+                  }"
+                  class="w-full text-sm"
+                  @input="jobErrors.phoneNumber = ''"
+                />
+                <p v-if="jobErrors.phoneNumber" class="mt-1 text-sm !text-red-500">{{ jobErrors.phoneNumber }}</p>
+              </div>
+            </div>
+          </div>
+        </template>
+      </UCollapsible>
+
+      <!-- Drawer: không dùng UCollapsible (animation đo chiều cao gây màn trắng khi đổi loại tin) -->
+      <div
+        v-if="isAdminJobContext && embeddedInDrawer"
+        class="employer-accordion w-full is-open"
+      >
+        <div class="employer-accordion-head" aria-expanded="true">
+          <span class="employer-accordion-num">4</span>
+          <span class="employer-accordion-label">Action by admin</span>
+          <svg class="employer-accordion-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
         </div>
-
-        <!-- Action btn -->
-        <div
-          class="flex flex-row gap-1 w-full justify-end"
-          style="padding: 0 0 38px 0 !important"
-        >
-          <!-- Buton Submit -->
-          <UButton
-            class="bg-[#4f8ef7] text-white hover:bg-[#4568a1ad]"
-            style="
-              margin-top: 15px;
-              padding: 8px 16px;
-              border: none;
-              border-radius: 6px;
-              cursor: pointer;
-            "
-            :loading="loading"
-            :disabled="isFormDisabled"
-            @click="addJob()"
-          >
-            {{ isEditMode ? $t('job.uploadJob.updateJobContent') : $t('job.uploadJob.uploadJobContent') }}
-          </UButton>
+        <div class="employer-accordion-body employer-admin-action-body">
+          <AdminJobActionFields
+            v-model:job-status-option="jobStatusOption"
+            v-model:post-type-option="postTypeOption"
+            :is-edit-mode="isEditMode"
+            :is-form-disabled="isFormDisabled"
+            :job-status-options="jobStatusOptions"
+            :post-type-options="postTypeOptions"
+          />
         </div>
       </div>
+
+      <UCollapsible
+        v-else-if="isAdminJobContext"
+        v-model:open="sectionAdminActionOpen"
+        :unmount-on-hide="false"
+        class="employer-accordion w-full"
+        :class="{ 'is-open': sectionAdminActionOpen }"
+        :ui="{
+          content:
+            'data-[state=open]:animate-[collapsible-down_200ms_ease-out] data-[state=closed]:animate-[collapsible-up_200ms_ease-out] overflow-visible',
+        }"
+      >
+        <template #default="{ open }">
+          <button type="button" class="employer-accordion-head" :aria-expanded="open" data-accordion-toggle>
+            <span class="employer-accordion-num">4</span>
+            <span class="employer-accordion-label">Action by admin</span>
+            <svg class="employer-accordion-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </button>
+        </template>
+        <template #content>
+          <div class="employer-accordion-body employer-admin-action-body">
+            <AdminJobActionFields
+              v-model:job-status-option="jobStatusOption"
+              v-model:post-type-option="postTypeOption"
+              :is-edit-mode="isEditMode"
+              :is-form-disabled="isFormDisabled"
+              :job-status-options="jobStatusOptions"
+              :post-type-options="postTypeOptions"
+            />
+          </div>
+        </template>
+      </UCollapsible>
+
+      <label v-if="!isAdminJobContext" class="auth-check auth-check-terms employer-terms">
+        <input v-model="agreeChecked" type="checkbox" :disabled="isFormDisabled" />
+        <span>
+          {{ $t('job.uploadJob.agreeUploadJobLabel') }}
+          <NuxtLink to="/policy#terms">{{ $t('job.uploadJob.agreePolicy') }}</NuxtLink>
+          {{ $t('job.uploadJob.and') }}
+          <NuxtLink to="/policy#privacy">{{ $t('job.uploadJob.agreePrivacy') }}</NuxtLink>
+        </span>
+      </label>
+
+      <div class="employer-actions employer-actions-end">
+        <button
+          v-if="isAdminJobContext"
+          type="button"
+          class="employer-primary-btn employer-submit-btn"
+          :disabled="loading || isFormDisabled"
+          data-job-submit
+          @click="addJob()"
+        >
+          {{ loading ? '...' : (isEditMode ? $t('job.uploadJob.updateJobContent') : $t('job.uploadJob.uploadJobContent')) }}
+        </button>
+        <button
+          v-else
+          type="button"
+          class="employer-primary-btn employer-submit-btn"
+          :disabled="!agreeChecked || loading || isFormDisabled"
+          data-job-submit
+          @click="addJob()"
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="margin-right: 6px" aria-hidden="true">
+            <path d="M22 2 11 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+            <path d="m22 2-7 20-4-9-9-4Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round" />
+          </svg>
+          <span data-job-submit-label>{{ loading ? '...' : (isEditMode ? $t('job.uploadJob.updateJobContent') : $t('job.uploadJob.uploadJobContent')) }}</span>
+        </button>
+      </div>
+    </section>
   </div>
 </template>
 
@@ -723,6 +641,8 @@ import type { JobModelAddUpdate } from '~/models/job'
 import type { CompanyEntity } from '~/entities/company'
 import { CalendarDate, type DateValue } from '@internationalized/date'
 import RichTextEditor from '~/components/RichTextEditor.vue'
+import AdminJobActionFields from '~/components/dashboard/AdminJobActionFields.vue'
+import { onUnmounted } from 'vue'
 
 // Props
 const props = defineProps<{
@@ -730,6 +650,8 @@ const props = defineProps<{
   jobToEdit?: import('~/models/job').JobModel | null
   /** Khi true (drawer admin add): bắt buộc chọn công ty trước khi gửi */
   requireCompanySelection?: boolean
+  /** Form trong drawer — không khóa scroll body (tránh màn trắng + dropdown bị chặn) */
+  embeddedInDrawer?: boolean
 }>()
 
 // Emits
@@ -744,6 +666,162 @@ const router = useRouter()
 const loading = ref(false)
 const agreeChecked = ref(false)
 const jobErrors = ref<Record<string, string>>({})
+const jobFormRootRef = ref<HTMLElement | null>(null)
+const sectionBasicOpen = ref(true)
+const sectionCandidateOpen = ref(true)
+const sectionContactOpen = ref(true)
+const sectionAdminActionOpen = ref(true)
+
+// Scroll lock for vue-select (multi select) to match USelect behavior
+const vSelectOpenCount = ref(0)
+let lockedDrawerScrollEl: HTMLElement | null = null
+
+const preventScrollOutsideVSelect = (e: Event) => {
+  const target = e.target as HTMLElement | null
+  if (target?.closest?.('.vs__dropdown-menu')) return
+  e.preventDefault()
+}
+
+const bindScrollLockListeners = (locked: boolean) => {
+  const targets: HTMLElement[] = []
+  if (lockedDrawerScrollEl) targets.push(lockedDrawerScrollEl)
+  if (!props.embeddedInDrawer) targets.push(document.body)
+
+  for (const el of targets) {
+    if (locked) {
+      el.addEventListener('wheel', preventScrollOutsideVSelect, { passive: false })
+      el.addEventListener('touchmove', preventScrollOutsideVSelect, { passive: false })
+    } else {
+      el.removeEventListener('wheel', preventScrollOutsideVSelect as EventListener)
+      el.removeEventListener('touchmove', preventScrollOutsideVSelect as EventListener)
+    }
+  }
+
+  if (locked) {
+    window.addEventListener('wheel', preventScrollOutsideVSelect, { passive: false })
+    window.addEventListener('touchmove', preventScrollOutsideVSelect, { passive: false })
+  } else {
+    window.removeEventListener('wheel', preventScrollOutsideVSelect as EventListener)
+    window.removeEventListener('touchmove', preventScrollOutsideVSelect as EventListener)
+  }
+}
+
+function isScrollableElement(node: HTMLElement) {
+  const { overflowY } = window.getComputedStyle(node)
+  return (
+    (overflowY === 'auto' || overflowY === 'scroll' || overflowY === 'overlay')
+    && node.scrollHeight > node.clientHeight + 1
+  )
+}
+
+function findScrollableParent(element: HTMLElement): HTMLElement | null {
+  let node: HTMLElement | null = element.parentElement
+  while (node) {
+    if (isScrollableElement(node)) return node
+    node = node.parentElement
+  }
+  return null
+}
+
+function getDrawerScrollContainer(fromElement?: HTMLElement | null): HTMLElement | null {
+  if (!props.embeddedInDrawer || typeof document === 'undefined') return null
+
+  if (fromElement) {
+    const scrollable = findScrollableParent(fromElement)
+    if (scrollable) return scrollable
+  }
+
+  const formRoot = jobFormRootRef.value
+  if (!formRoot) return null
+
+  const candidates = [
+    formRoot.closest<HTMLElement>('.employer-company-job-drawer-body'),
+    formRoot.closest<HTMLElement>('.ui-drawer-body-vh'),
+    formRoot.closest<HTMLElement>('.employer-admin-job-drawer-body'),
+    formRoot.closest<HTMLElement>('.employer-job-drawer-body-inner'),
+  ].filter(Boolean) as HTMLElement[]
+
+  return candidates.find((node) => isScrollableElement(node)) ?? candidates[0] ?? null
+}
+
+const setVSelectScrollLock = (locked: boolean) => {
+  if (typeof document === 'undefined') return
+
+  const drawerScroll = getDrawerScrollContainer()
+
+  if (locked) {
+    lockedDrawerScrollEl = drawerScroll
+    if (props.embeddedInDrawer && drawerScroll) {
+      drawerScroll.classList.add('vselect-scroll-lock')
+      document.body.classList.remove('vselect-scroll-lock')
+    } else {
+      document.body.classList.add('vselect-scroll-lock')
+      drawerScroll?.classList.remove('vselect-scroll-lock')
+      lockedDrawerScrollEl = null
+    }
+    bindScrollLockListeners(true)
+    return
+  }
+
+  bindScrollLockListeners(false)
+  lockedDrawerScrollEl?.classList.remove('vselect-scroll-lock')
+  lockedDrawerScrollEl = null
+  getDrawerScrollContainer()?.classList.remove('vselect-scroll-lock')
+  document.body.classList.remove('vselect-scroll-lock')
+}
+
+const onMultiSelectOpen = () => {
+  vSelectOpenCount.value += 1
+  if (vSelectOpenCount.value === 1) setVSelectScrollLock(true)
+}
+
+const onMultiSelectClose = () => {
+  vSelectOpenCount.value = Math.max(0, vSelectOpenCount.value - 1)
+  if (vSelectOpenCount.value === 0) setVSelectScrollLock(false)
+}
+
+const salaryMinPlaceholder = 'VD: 8,000,000'
+const salaryMaxPlaceholder = 'VD: 15,000,000'
+
+/** UInput / USelect / UButton: viền đỏ khi lỗi (ring nằm ở `ui.base`, không ăn từ `class` bên ngoài). */
+function fieldErrorRingClass(errorMsg: string | undefined | null) {
+  return errorMsg ? ' !ring-1 !ring-inset !ring-red-500' : ''
+}
+
+/** Chiều cao 44px qua SCSS (.employer-field-control + --employer-control-min-height) */
+const jobControlUiBase = 'employer-field-control w-full rounded-xl'
+const jobDeadlineButtonUiBase =
+  'employer-field-control w-full justify-start rounded-xl bg-white text-sm font-medium'
+
+function calculateFixedDropdownPosition(dropdownList: HTMLElement, component: any) {
+  const update = () => {
+    const toggleEl: HTMLElement | null =
+      component?.$el?.querySelector?.('.vs__dropdown-toggle') || component?.$el || null
+
+    if (!toggleEl) return
+
+    const rect = toggleEl.getBoundingClientRect()
+
+    dropdownList.style.position = 'fixed'
+    dropdownList.style.top = `${rect.bottom}px`
+    dropdownList.style.left = `${rect.left}px`
+    dropdownList.style.width = `${rect.width}px`
+    dropdownList.style.zIndex = '9999'
+  }
+
+  update()
+
+  const onScroll = () => update()
+  const onResize = () => update()
+
+  window.addEventListener('scroll', onScroll, true)
+  window.addEventListener('resize', onResize, true)
+
+  return () => {
+    window.removeEventListener('scroll', onScroll, true)
+    window.removeEventListener('resize', onResize, true)
+  }
+}
 
 // Enum
 const {
@@ -763,31 +841,36 @@ const isEditMode = computed(() => !!props.jobToEdit)
 /** Add/edit từ admin (company-management Tab Jobs hoặc Quản lý công việc): bỏ auto-fill, optional email/phone, note = admin */
 const isAdminJobContext = computed(() => !!props.companyData || !!props.requireCompanySelection)
 /** Disable all form fields when requireCompanySelection is true and no company is selected */
-const isFormDisabled = computed(() => {
-  const disabled = props.requireCompanySelection && !props.companyData?.id
-
-  console.log('--- DashboardNewJob Debug ---')
-  console.log('requireCompanySelection:', props.requireCompanySelection)
-  console.log('companyData:', props.companyData)
-  console.log('companyData?.id:', props.companyData?.id)
-  console.log('isFormDisabled:', disabled)
-  console.log('---------------------------')
-
-  return disabled
-})
+const isFormDisabled = computed(
+  () => props.requireCompanySelection && !props.companyData?.id,
+)
 
 const postTypeOptions = [
-  { value: 'Basic', label: 'Cơ bản', chipClass: 'bg-blue-100 border-blue-300 text-blue-800' },
-  { value: 'Hot', label: 'Mới nhất', chipClass: 'bg-amber-100 border-amber-300 text-amber-800' },
-  { value: 'Urgent', label: 'Tuyển gấp', chipClass: 'bg-red-100 border-red-300 text-red-800' },
-]
+  { value: 'Basic', label: 'Cơ bản' },
+  { value: 'Hot', label: 'Mới nhất' },
+  { value: 'Urgent', label: 'Tuyển gấp' },
+] as const
+
+type PostTypeOption = (typeof postTypeOptions)[number]['value']
+const postTypeOption = computed<PostTypeOption>({
+  get() {
+    const raw = (job.value.postType || 'Basic').trim()
+    if (raw === 'Hot' || raw === 'Urgent' || raw === 'Basic') return raw
+    if (raw.toLowerCase() === 'free') return 'Basic'
+
+    return 'Basic'
+  },
+  set(value) {
+    job.value.postType = value
+  },
+})
 
 type JobStatusOption = 'ADMIN_REVIEW' | 'PENDING' | 'APPROVED' | 'REJECTED'
-const jobStatusOptions: { value: JobStatusOption; label: string; pillClass: string }[] = [
-  { value: 'ADMIN_REVIEW', label: 'ADMIN_REVIEW', pillClass: 'bg-amber-100 text-amber-800' },
-  { value: 'PENDING', label: 'PENDING', pillClass: 'bg-orange-100 text-orange-800' },
-  { value: 'APPROVED', label: 'APPROVED', pillClass: 'bg-blue-600 text-white' },
-  { value: 'REJECTED', label: 'REJECTED', pillClass: 'bg-red-100 text-red-700' },
+const jobStatusOptions: { value: JobStatusOption; label: string }[] = [
+  { value: 'ADMIN_REVIEW', label: 'ADMIN_REVIEW' },
+  { value: 'PENDING', label: 'PENDING' },
+  { value: 'APPROVED', label: 'APPROVED' },
+  { value: 'REJECTED', label: 'REJECTED' },
 ]
 const jobStatusOption = ref<JobStatusOption>('ADMIN_REVIEW')
 
@@ -1047,6 +1130,12 @@ onMounted(() => {
   autoFillEmail()
 })
 
+onUnmounted(() => {
+  // Safety: ensure scroll lock is released if component unmounts while a menu is open
+  setVSelectScrollLock(false)
+  vSelectOpenCount.value = 0
+})
+
 const addJob = async () => {
   // Validate job fields
   const isValid = validateJobFields()
@@ -1204,115 +1293,132 @@ const addJob = async () => {
   }
 }
 
-// Function to scroll to first error field
+const JOB_FIELD_ERROR_ORDER = [
+  'title',
+  'description',
+  'deadline',
+  'category',
+  'typeOfEmployment',
+  'grade',
+  'salaryType',
+  'salaryMin',
+  'salaryMax',
+  'address',
+  'location',
+  'requiredQualification',
+  'experienceLevel',
+  'benefits',
+  'gender',
+  'email',
+  'phoneNumber',
+] as const
+
+const JOB_FIELD_SECTION: Record<string, 'basic' | 'candidate' | 'contact'> = {
+  title: 'basic',
+  description: 'basic',
+  deadline: 'basic',
+  category: 'basic',
+  typeOfEmployment: 'basic',
+  grade: 'basic',
+  salaryType: 'basic',
+  salaryMin: 'basic',
+  salaryMax: 'basic',
+  address: 'basic',
+  location: 'basic',
+  requiredQualification: 'candidate',
+  experienceLevel: 'candidate',
+  benefits: 'candidate',
+  gender: 'candidate',
+  email: 'contact',
+  phoneNumber: 'contact',
+}
+
+const openSectionForField = (field: string) => {
+  const section = JOB_FIELD_SECTION[field]
+  if (section === 'basic') sectionBasicOpen.value = true
+  if (section === 'candidate') sectionCandidateOpen.value = true
+  if (section === 'contact') sectionContactOpen.value = true
+}
+
+const JOB_FIELD_SCROLL_ROW: Partial<Record<string, string>> = {
+  category: 'category-type',
+  typeOfEmployment: 'category-type',
+}
+
+const getDrawerScrollTopOffset = (scrollRoot: HTMLElement) => {
+  const rootRect = scrollRoot.getBoundingClientRect()
+  let offset = 112 // offset tối thiểu tránh bị header drawer che
+
+  const drawer = scrollRoot.closest<HTMLElement>(
+    '.employer-admin-job-drawer, .employer-company-job-drawer',
+  )
+  const header = drawer?.querySelector<HTMLElement>('.employer-admin-job-drawer-header')
+  if (header) {
+    const headerRect = header.getBoundingClientRect()
+    if (headerRect.bottom > rootRect.top) {
+      offset = Math.max(offset, headerRect.bottom - rootRect.top + 16)
+    }
+  }
+
+  return offset
+}
+
+const scrollElementIntoFormView = (element: HTMLElement) => {
+  const scrollRoot = getDrawerScrollContainer(element)
+  if (!scrollRoot) {
+    element.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    return
+  }
+
+  const rootRect = scrollRoot.getBoundingClientRect()
+  const elRect = element.getBoundingClientRect()
+  const topPadding = getDrawerScrollTopOffset(scrollRoot)
+  const nextTop = scrollRoot.scrollTop + (elRect.top - rootRect.top) - topPadding
+
+  scrollRoot.scrollTo({
+    top: Math.max(0, nextTop),
+    behavior: 'smooth',
+  })
+}
+
+const findJobFieldAnchor = (field: string): HTMLElement | null => {
+  const searchRoots: HTMLElement[] = []
+  if (jobFormRootRef.value) searchRoots.push(jobFormRootRef.value)
+  const drawerScroll = getDrawerScrollContainer()
+  if (drawerScroll && !searchRoots.includes(drawerScroll)) searchRoots.push(drawerScroll)
+
+  const rowKey = JOB_FIELD_SCROLL_ROW[field]
+  if (rowKey) {
+    for (const root of searchRoots) {
+      const row = root.querySelector<HTMLElement>(`[data-job-field-row="${rowKey}"]`)
+      if (row) return row
+    }
+  }
+
+  const selector = `[data-job-field="${field}"]`
+  for (const root of searchRoots) {
+    const match = root.querySelector<HTMLElement>(selector)
+    if (match) return match
+  }
+
+  return document.querySelector<HTMLElement>(selector)
+}
+
 const scrollToFirstError = () => {
+  const firstErrorField = JOB_FIELD_ERROR_ORDER.find((field) => jobErrors.value[field])
+  if (!firstErrorField) return
+
+  openSectionForField(firstErrorField)
+
+  const runScroll = () => {
+    const element = findJobFieldAnchor(firstErrorField)
+    if (element) scrollElementIntoFormView(element)
+  }
+
   nextTick(() => {
-    // Find first error field by checking jobErrors in order
-    const errorOrder = [
-      'title',
-      'description',
-      'deadline',
-      'category',
-      'typeOfEmployment',
-      'salaryType',
-      'salaryMin',
-      'salaryMax',
-      'address',
-      'location',
-      'email',
-      'phoneNumber',
-      'requiredQualification',
-      'experienceLevel',
-      'benefits',
-      'gender',
-      'grade',
-    ]
-
-    // Find first error field
-    let firstErrorField = null
-
-    for (const field of errorOrder) {
-      if (jobErrors.value[field]) {
-        firstErrorField = field
-
-        break
-      }
-    }
-
-    if (!firstErrorField) return
-
-    // Map field names to element IDs
-    const fieldIds: Record<string, string> = {
-      title: 'job-title',
-      description: 'job-description',
-      deadline: 'job-deadline',
-      email: 'job-email',
-      phoneNumber: 'job-phone',
-      address: 'job-address',
-      salaryType: 'job-salary-type',
-      salaryMin: 'job-salary-min',
-      salaryMax: 'job-salary-max',
-    }
-
-    let element: HTMLElement | null = null
-
-    // Try to find element by ID first
-    const elementId = fieldIds[firstErrorField]
-
-    if (elementId) {
-      element = document.getElementById(elementId)
-
-      // For deadline, find the parent container div
-      if (firstErrorField === 'deadline' && element) {
-        const container = element.closest('div[style*="padding"]') as HTMLElement
-
-        if (container) {
-          element = container
-        }
-      }
-    }
-
-    // If not found by ID, find by error message and get its parent container
-    if (!element) {
-      const errorMessages = document.querySelectorAll('p.text-red-500')
-
-      for (const errorMsg of errorMessages) {
-        const errorText = errorMsg.textContent || ''
-
-        // Check if this error message matches our first error field
-        const errorValue = jobErrors.value[firstErrorField]
-
-        if (errorText.includes(errorValue) || errorText.trim() === errorValue) {
-          // Find the parent container div with padding style
-          const container = errorMsg.closest('div[style*="padding"]') as HTMLElement
-
-          if (container) {
-            element = container
-
-            break
-          }
-        }
-      }
-    }
-
-    // Fallback: scroll to first error message if still not found
-    if (!element) {
-      const firstErrorMsg = document.querySelector('p.text-red-500')
-
-      if (firstErrorMsg) {
-        const container = firstErrorMsg.closest('div[style*="padding"]') as HTMLElement
-
-        element = container || (firstErrorMsg as HTMLElement)
-      }
-    }
-
-    // Scroll to element
-    if (element) {
-      element.scrollIntoView({
-        behavior: 'smooth',
-        block: 'center',
-      })
-    }
+    requestAnimationFrame(runScroll)
+    window.setTimeout(runScroll, 120)
+    window.setTimeout(runScroll, 280)
   })
 }
 
@@ -1459,47 +1565,15 @@ function validateJobFields(): boolean {
 }
 </script>
 
-<style scoped>
-:deep(.vs__dropdown-menu) {
-  max-height: 200px;
-  overflow-y: auto;
-  border: 1px solid #e5e7eb;
-  border-radius: 4px;
-  background: white;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-  padding: 4px 0;
-  margin-top: 4px;
-}
-
-:deep(.vs__dropdown-option) {
-  padding: 8px 12px;
-  font-size: 0.75rem;
-  color: #1f2937;
-  cursor: pointer;
-}
-
-:deep(.vs__dropdown-option:hover) {
-  background-color: #f3f4f6;
-}
-
-:deep(.vs__dropdown-option--selected) {
-  background-color: #e0f2fe;
-  color: #1f2937;
-}
-
-:deep(.vs__dropdown-option--highlight) {
-  background-color: #f3f4f6;
-}
-
-:deep(.vs__search::placeholder),
-:deep(.vs__placeholder) {
-  font-size: 0.875rem;
-  color: var(--ui-text-dimmed);
-}
-</style>
 
 <style scoped>
-::deep(.vs__dropdown-menu) {
-  z-index: 60;
+:global(body.vselect-scroll-lock) {
+  overflow: hidden !important;
+}
+
+:global(.ui-drawer-body-vh.vselect-scroll-lock),
+:global(.employer-company-job-drawer-body.vselect-scroll-lock) {
+  overflow: hidden !important;
+  overscroll-behavior: contain;
 }
 </style>

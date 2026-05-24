@@ -1,64 +1,246 @@
 <template>
   <div>
-    <!-- Header: title + subtitle left, search + New User right -->
-    <div
-      class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white rounded-xl shadow-sm border border-gray-200 px-4 py-4"
-    >
-      <div>
-        <h1 class="text-3xl font-bold text-gray-900">
+    <div class="employer-admin-users-scale">
+    <div class="employer-admin-users-panel">
+    <div class="employer-admin-users-toolbar flex flex-col lg:flex-row lg:items-start lg:justify-between">
+      <div class="employer-admin-users-head">
+        <h1 class="text-3xl font-bold text-gray-400">
           {{ $t('dashboard.admin.users.title') }}
         </h1>
-        <p class="text-gray-500 mt-1 text-sm">
+        <p class="text-gray-500 text-sm">
           {{ $t('dashboard.admin.users.welcome') }}
         </p>
+        <p class="employer-admin-users-summary">
+          {{ $t('dashboard.admin.users.total') }}:
+          <strong>{{ filteredUsers.length }}</strong>
+        </p>
+        <div class="employer-admin-users-filters">
+          <span class="employer-admin-users-filters-label">
+            {{ $t('dashboard.admin.users.table.userType') }}:
+          </span>
+          <button
+            v-for="item in userTypeFilterOptions"
+            :key="item.value"
+            type="button"
+            class="employer-admin-users-filter-pill"
+            :class="{ 'is-active': filterUserType.includes(item.value) }"
+            @click="toggleUserTypeFilter(item.value)"
+          >
+            {{ item.label }}
+          </button>
+        </div>
       </div>
-      <div class="flex items-center gap-3 flex-1 sm:flex-initial sm:max-w-md justify-end">
+      <div class="employer-admin-users-search flex w-full min-w-0 flex-col gap-3 sm:w-auto sm:max-w-none sm:flex-row sm:items-center sm:justify-end">
         <UInput
           v-model="searchQuery"
           :placeholder="$t('dashboard.admin.users.searchPlaceholder')"
           icon="i-lucide-search"
-          class="flex-1 min-w-0 rounded-full"
-          size="md"
-          :ui="{ rounded: 'rounded-full' }"
+          class="min-w-0 w-full max-w-[380px] sm:flex-1"
+          :ui="{ base: 'h-10 rounded-xl text-[13px]' }"
         />
-        <UButton
-          color="primary"
-          size="md"
-          icon="i-lucide-plus"
-          class="rounded-full shrink-0"
-          :ui="{ rounded: 'rounded-full' }"
-          @click="showCreateUserDrawer = true"
-        >
-          {{ $t('dashboard.admin.users.newUser') }}
-        </UButton>
+        <div class="w-full sm:w-auto shrink-0 min-w-0 sm:min-w-[10rem]">
+          <UDrawer
+            v-model:open="showCreateUserDrawer"
+            :title="userDrawerTitle"
+            :description="userDrawerSubtitle"
+            direction="right"
+            :modal="true"
+            handle-only
+            :ui="userDrawerUi"
+          >
+            <template #header>
+              <AdminDrawerHeader
+                :kicker="userDrawerKicker"
+                :title="userDrawerTitle"
+                :subtitle="userDrawerSubtitle"
+                @close="closeCreateUserDrawer"
+              />
+            </template>
+            <UButton
+              color="primary"
+              icon="i-lucide-plus"
+              class="h-10 w-full justify-center sm:w-auto whitespace-nowrap rounded-xl px-4 text-[13px] font-semibold shadow-sm"
+            >
+              {{ $t('dashboard.admin.users.newUser') }}
+            </UButton>
+            <template #body>
+              <div class="p-6 ui-drawer-body-vh">
+                <form
+                  class="employer-company-form employer-admin-user-drawer-form"
+                  @submit.prevent="handleCreateUser"
+                >
+                  <label class="employer-field employer-field-full">
+                    <span>{{ $t('dashboard.admin.users.table.userType') }}</span>
+                    <div class="employer-admin-user-type-row">
+                      <button
+                        v-for="type in userTypeOptions"
+                        :key="type.value"
+                        type="button"
+                        class="employer-admin-user-type-btn"
+                        :class="[
+                          type.classKey,
+                          { 'is-active': selectedUserTypes.includes(type.value) },
+                        ]"
+                        @click="handleUserTypeChange(type.value)"
+                      >
+                        {{ type.label }}
+                      </button>
+                    </div>
+                    <p v-if="formErrors.userType" class="employer-field-error">
+                      {{ formErrors.userType }}
+                    </p>
+                  </label>
+
+                  <label
+                    v-if="selectedUserTypes.includes('employer') || selectedUserTypes.includes('host_company')"
+                    class="employer-field employer-field-full employer-field-select"
+                  >
+                    <span>
+                      {{ $t('dashboard.admin.users.selectCompany') }}
+                      <span class="text-red-500">*</span>
+                    </span>
+                    <USelect
+                      :model-value="selectedCompanyIdForCreate != null ? String(selectedCompanyIdForCreate) : undefined"
+                      :items="companySelectItems"
+                      placeholder="Select company..."
+                      class="employer-field-select w-full"
+                      :class="{ 'employer-field-select--error': !!formErrors.company }"
+                      :ui="{
+                        base: 'min-h-[44px] rounded-[12px] text-[14px]',
+                        popper: {
+                          strategy: 'fixed',
+                          placement: 'bottom-start',
+                          z: 'z-[200]',
+                        },
+                      }"
+                      @update:model-value="(val) => { selectedCompanyIdForCreate = val ? Number(val) : null; formErrors.company = '' }"
+                    />
+                    <p v-if="formErrors.company" class="employer-field-error">
+                      {{ formErrors.company }}
+                    </p>
+                    <p v-if="companies.length === 0" class="employer-field-hint employer-field-hint--warning">
+                      Chưa có công ty đã duyệt. Vui lòng duyệt công ty trước.
+                    </p>
+                  </label>
+
+                  <label class="employer-field employer-field-full">
+                    <span>
+                      {{ $t('dashboard.admin.users.table.name') }}
+                      <span class="text-red-500">*</span>
+                    </span>
+                    <UInput
+                      v-model="createUserForm.fullName"
+                      placeholder="Full name"
+                      class="w-full"
+                      :class="{ 'ring-red-500': formErrors.fullName }"
+                      @blur="formErrors.fullName = ''"
+                    />
+                    <p v-if="formErrors.fullName" class="employer-field-error">
+                      {{ formErrors.fullName }}
+                    </p>
+                  </label>
+
+                  <label class="employer-field employer-field-full">
+                    <span>
+                      {{ $t('dashboard.admin.users.table.email') }}
+                      <span class="text-red-500">*</span>
+                    </span>
+                    <UInput
+                      v-model="createUserForm.email"
+                      type="email"
+                      placeholder="Email address"
+                      icon="i-lucide-mail"
+                      class="w-full"
+                      :class="{ 'ring-red-500': formErrors.email }"
+                      @blur="formErrors.email = ''"
+                    />
+                    <p v-if="formErrors.email" class="employer-field-error">
+                      {{ formErrors.email }}
+                    </p>
+                  </label>
+
+                  <label class="employer-field employer-field-full">
+                    <span>
+                      Password
+                      <span class="text-red-500">*</span>
+                    </span>
+                    <div class="employer-admin-user-password-wrap">
+                      <UInput
+                        v-model="createUserForm.password"
+                        :type="showPassword ? 'text' : 'password'"
+                        placeholder="Password"
+                        class="w-full"
+                        :class="{ 'ring-red-500': formErrors.password }"
+                        @blur="formErrors.password = ''"
+                      />
+                      <button
+                        type="button"
+                        class="employer-admin-user-password-toggle"
+                        :aria-label="showPassword ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'"
+                        @click="showPassword = !showPassword"
+                      >
+                        <UIcon :name="showPassword ? 'i-lucide-eye-off' : 'i-lucide-eye'" class="h-5 w-5" />
+                      </button>
+                    </div>
+                    <p v-if="formErrors.password" class="employer-field-error">
+                      {{ formErrors.password }}
+                    </p>
+                  </label>
+
+                  <label class="employer-field employer-field-full">
+                    <span>
+                      Confirm Password
+                      <span class="text-red-500">*</span>
+                    </span>
+                    <div class="employer-admin-user-password-wrap">
+                      <UInput
+                        v-model="createUserForm.confirmPassword"
+                        :type="showConfirmPassword ? 'text' : 'password'"
+                        placeholder="Confirm password"
+                        class="w-full"
+                        :class="{ 'ring-red-500': formErrors.confirmPassword }"
+                        @blur="formErrors.confirmPassword = ''"
+                      />
+                      <button
+                        type="button"
+                        class="employer-admin-user-password-toggle"
+                        :aria-label="showConfirmPassword ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'"
+                        @click="showConfirmPassword = !showConfirmPassword"
+                      >
+                        <UIcon :name="showConfirmPassword ? 'i-lucide-eye-off' : 'i-lucide-eye'" class="h-5 w-5" />
+                      </button>
+                    </div>
+                    <p v-if="formErrors.confirmPassword" class="employer-field-error">
+                      {{ formErrors.confirmPassword }}
+                    </p>
+                  </label>
+
+                  <div class="employer-admin-drawer-form-actions">
+                    <UButton type="submit" color="primary" :loading="creatingUser">
+                      Create
+                    </UButton>
+                    <UButton
+                      type="button"
+                      variant="outline"
+                      color="neutral"
+                      :disabled="creatingUser"
+                      @click="closeCreateUserDrawer"
+                    >
+                      Hủy
+                    </UButton>
+                  </div>
+                </form>
+              </div>
+            </template>
+          </UDrawer>
+        </div>
       </div>
     </div>
 
-    <!-- Stats (optional) -->
-    <div class="mb-4 text-sm text-gray-600">
-      {{ $t('dashboard.admin.users.total') }}: <span class="font-semibold">{{ totalUsers }}</span>
-    </div>
-
-    <!-- Users Table -->
-    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-      <!-- Loading State -->
-      <div v-if="loading" class="text-center py-12">
-        <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-        <p class="mt-2 text-gray-600">{{ $t('dashboard.admin.users.loading') }}</p>
-      </div>
-
-      <!-- Empty State -->
-      <div v-else-if="filteredUsers.length === 0" class="text-center py-12">
-        <UIcon name="i-lucide-users" class="w-12 h-12 text-gray-400 mx-auto mb-2" />
-        <p class="text-gray-600">{{ $t('dashboard.admin.users.noUsers') }}</p>
-      </div>
-
-      <!-- Pagination and Table -->
-      <template v-else>
-        <!-- Pagination (above table) -->
-        <div
-          class="px-6 py-4 border-b border-gray-200 flex items-center justify-end gap-4"
-        >
+    <div
+      v-if="!loading && filteredUsers.length > 0"
+      class="employer-admin-users-pagination flex items-center justify-end gap-4"
+    >
           <div class="flex items-center gap-2">
             <!-- Previous Arrow -->
             <button
@@ -127,356 +309,76 @@
               </div>
             </div>
           </div>
-        </div>
+    </div>
 
-        <!-- Table -->
-        <div class="overflow-x-auto">
-        <table class="w-full">
-          <thead class="bg-white border-b border-gray-200">
+    <div class="employer-admin-users-body">
+      <div v-if="loading" class="employer-admin-users-loading">
+        <USkeleton class="h-64 w-full" />
+      </div>
+
+      <div v-else-if="filteredUsers.length === 0" class="employer-admin-users-empty">
+        <UIcon name="i-lucide-users" class="w-12 h-12 text-gray-400 mx-auto mb-2" />
+        <p>{{ $t('dashboard.admin.users.noUsers') }}</p>
+      </div>
+
+      <div v-else class="employer-admin-users-table-wrap">
+        <table class="employer-admin-users-table">
+          <thead>
             <tr>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                {{ $t('dashboard.admin.users.table.avatar') }}
-              </th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                {{ $t('dashboard.admin.users.table.name') }}
-              </th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                {{ $t('dashboard.admin.users.table.email') }}
-              </th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                {{ $t('dashboard.admin.users.table.phoneNumber') }}
-              </th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider relative">
-                <button
-                  type="button"
-                  class="inline-flex items-center gap-1 hover:text-gray-700"
-                  @click="showUserTypeFilter = !showUserTypeFilter"
-                >
-                  {{ $t('dashboard.admin.users.table.userType') }}
-                  <UIcon
-                    v-if="filterUserType.length > 0"
-                    name="i-lucide-filter"
-                    class="w-3.5 h-3.5 ml-0.5 text-blue-600"
-                  />
-                  <UIcon
-                    v-else
-                    name="i-lucide-filter"
-                    class="inline-block w-3.5 h-3.5 ml-0.5 text-gray-400"
-                  />
-                </button>
-                <div
-                  v-if="showUserTypeFilter"
-                  class="fixed z-[100] mt-1 bg-white rounded-lg shadow-lg border border-gray-200 p-2 user-type-filter-dropdown"
-                >
-                  <div class="max-h-60 overflow-y-auto">
-                    <label
-                      v-for="item in userTypeFilterOptions"
-                      :key="item.value"
-                      class="flex items-center gap-2 cursor-pointer px-2 py-1.5 hover:bg-gray-50 rounded"
-                    >
-                      <input
-                        type="checkbox"
-                        :value="item.value"
-                        :checked="filterUserType.includes(item.value)"
-                        class="w-4 h-4 text-blue-600 rounded"
-                        @change="toggleUserTypeFilter(item.value)"
-                      />
-                      <span class="text-sm">{{ item.label }}</span>
-                    </label>
-                  </div>
-                  <div v-if="filterUserType.length > 0" class="border-t border-gray-200 mt-2 pt-2">
-                    <button
-                      type="button"
-                      class="w-full text-center text-sm text-blue-600 hover:text-blue-700 py-1"
-                      @click="filterUserType = []"
-                    >
-                      Xóa bộ lọc
-                    </button>
-                  </div>
-                </div>
-              </th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                {{ $t('dashboard.admin.users.table.createdDate') }}
-              </th>
-              <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                {{ $t('dashboard.admin.users.table.action') }}
-              </th>
+              <th>{{ $t('dashboard.admin.users.table.avatar') }}</th>
+              <th>{{ $t('dashboard.admin.users.table.name') }}</th>
+              <th>{{ $t('dashboard.admin.users.table.email') }}</th>
+              <th>{{ $t('dashboard.admin.users.table.phoneNumber') }}</th>
+              <th>{{ $t('dashboard.admin.users.table.userType') }}</th>
+              <th>{{ $t('dashboard.admin.users.table.createdDate') }}</th>
+              <th class="is-action">{{ $t('dashboard.admin.users.table.action') }}</th>
             </tr>
           </thead>
-          <tbody class="bg-white divide-y divide-gray-200">
+          <tbody>
             <tr
               v-for="user in paginatedUsers"
               :key="user.id"
-              class="hover:bg-gray-50"
             >
-              <!-- Avatar -->
-              <td class="px-6 py-4 whitespace-nowrap">
-                <div class="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center flex-shrink-0">
-                  <UIcon name="i-lucide-user" class="w-5 h-5 text-gray-600" />
-                </div>
+              <td>
+                <span class="employer-admin-user-avatar" aria-hidden="true">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                    <circle cx="12" cy="8" r="3.5" stroke="currentColor" stroke-width="2" />
+                    <path d="M5 20a7 7 0 0 1 14 0" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                  </svg>
+                </span>
               </td>
-
-              <!-- Name -->
-              <td class="px-6 py-4 whitespace-nowrap">
-                <div class="text-sm font-medium text-gray-900">
-                  {{ user.fullName || user.username }}
-                </div>
+              <td>
+                <strong class="employer-admin-user-name">{{ user.fullName || user.username }}</strong>
               </td>
-
-              <!-- Email -->
-              <td class="px-6 py-4 whitespace-nowrap">
-                <div class="text-sm text-gray-900">
-                  {{ user.email }}
-                </div>
-              </td>
-
-              <!-- Phone Number -->
-              <td class="px-6 py-4 whitespace-nowrap">
-                <div class="text-sm text-gray-900">
-                  {{ user.phoneNumber || '–' }}
-                </div>
-              </td>
-
-              <!-- User Type -->
-              <td class="px-6 py-4 whitespace-nowrap">
-                <div class="flex flex-col gap-1">
+              <td>{{ user.email }}</td>
+              <td>{{ user.phoneNumber || '–' }}</td>
+              <td>
+                <div class="employer-admin-user-types">
                   <span
                     v-for="(type, idx) in getUserTypes(user)"
                     :key="idx"
-                    :class="[
-                      'inline-flex px-2 py-1 text-xs font-semibold rounded-full w-fit',
-                      getUserTypeClass(type),
-                    ]"
+                    class="employer-admin-user-type"
+                    :class="getUserTypeClass(type)"
                   >
                     {{ getUserTypeText(type) }}
                   </span>
                 </div>
               </td>
-
-              <!-- Created Date -->
-              <td class="px-6 py-4 whitespace-nowrap">
-                <div class="text-sm text-gray-900">
-                  {{ formatCreatedDate(user.createdAt) }}
-                </div>
-              </td>
-
-              <!-- Actions -->
-              <td class="px-6 py-4 whitespace-nowrap text-right">
-                <button
-                  type="button"
-                  class="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors"
-                  title="Delete"
-                  @click="deleteUser(user)"
-                >
-                  <UIcon name="i-lucide-trash-2" class="w-4 h-4 text-gray-600" />
-                </button>
+              <td>{{ formatCreatedDate(user.createdAt) }}</td>
+              <td class="is-action">
+                <EmployerRowActions
+                  :show-view="false"
+                  :show-edit="false"
+                  @delete="deleteUser(user)"
+                />
               </td>
             </tr>
           </tbody>
         </table>
-        </div>
-      </template>
-    </div>
-
-    <!-- Create User Drawer -->
-    <Teleport to="body">
-      <div
-        v-if="showCreateUserDrawer"
-        class="fixed inset-0 z-50 overflow-hidden"
-        @click.self="showCreateUserDrawer = false"
-      >
-        <!-- Backdrop -->
-        <div class="absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity" />
-        
-        <!-- Drawer Panel -->
-        <div class="absolute right-0 top-0 h-full w-full max-w-3xl bg-white shadow-2xl transform transition-transform">
-          <div class="h-full flex flex-col">
-            <!-- Header -->
-            <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200">
-              <h2 class="text-2xl font-bold text-gray-900">Create User</h2>
-              <button
-                type="button"
-                class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 transition-colors"
-                @click="showCreateUserDrawer = false"
-              >
-                <UIcon name="i-lucide-x" class="w-5 h-5 text-gray-500" />
-              </button>
-            </div>
-
-            <!-- Form Content -->
-            <div class="flex-1 overflow-y-auto px-6 py-6">
-              <form @submit.prevent="handleCreateUser" class="space-y-6">
-                <!-- User Type -->
-                <div>
-                  <label class="block text-sm font-semibold text-gray-900 mb-3">
-                    User Type
-                  </label>
-                  <div class="flex flex-wrap gap-3">
-                    <label
-                      v-for="type in userTypeOptions"
-                      :key="type.value"
-                      class="flex items-center gap-2 cursor-pointer"
-                    >
-                      <input
-                        type="checkbox"
-                        :value="type.value"
-                        :checked="selectedUserTypes.includes(type.value)"
-                        class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
-                        @change="handleUserTypeChange(type.value)"
-                      />
-                      <span
-                        :class="[
-                          'px-4 py-2 rounded-full text-sm font-medium uppercase',
-                          selectedUserTypes.includes(type.value)
-                            ? type.activeClass
-                            : type.inactiveClass
-                        ]"
-                      >
-                        {{ type.label }}
-                      </span>
-                    </label>
-                  </div>
-                  <p v-if="formErrors.userType" class="mt-2 text-sm text-red-600">
-                    {{ formErrors.userType }}
-                  </p>
-                </div>
-
-                <!-- Company Selection (only for Employer/HostCompany) -->
-                <div v-if="selectedUserTypes.includes('employer') || selectedUserTypes.includes('host_company')">
-                  <label class="block text-sm font-semibold text-gray-900 mb-2">
-                    Company <span class="text-red-500">*</span>
-                  </label>
-                  <select
-                    v-model="selectedCompanyIdForCreate"
-                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
-                    :class="{ 'border-red-500': formErrors.company }"
-                    @change="formErrors.company = ''"
-                  >
-                    <option :value="null">Select company...</option>
-                    <option
-                      v-for="company in companies"
-                      :key="company.id"
-                      :value="company.id"
-                    >
-                      {{ company.name }}
-                    </option>
-                  </select>
-                  <p v-if="formErrors.company" class="mt-1 text-sm text-red-600">
-                    {{ formErrors.company }}
-                  </p>
-                  <p v-if="companies.length === 0" class="mt-2 text-sm text-amber-600">
-                    ⚠️ No approved companies available. Please approve a company first.
-                  </p>
-                </div>
-
-                <!-- Full Name -->
-                <div>
-                  <label class="block text-sm font-semibold text-gray-900 mb-2">
-                    Full Name <span class="text-red-500">*</span>
-                  </label>
-                  <UInput
-                    v-model="createUserForm.fullName"
-                    placeholder="Full name"
-                    class="w-full"
-                    :class="{ 'border-red-500': formErrors.fullName }"
-                    @blur="formErrors.fullName = ''"
-                  />
-                  <p v-if="formErrors.fullName" class="mt-1 text-sm text-red-600">
-                    {{ formErrors.fullName }}
-                  </p>
-                </div>
-
-                <!-- Email -->
-                <div>
-                  <label class="block text-sm font-semibold text-gray-900 mb-2">
-                    Email <span class="text-red-500">*</span>
-                  </label>
-                  <UInput
-                    v-model="createUserForm.email"
-                    type="email"
-                    placeholder="Email address"
-                    icon="i-lucide-mail"
-                    class="w-full"
-                    :class="{ 'border-red-500': formErrors.email }"
-                    @blur="formErrors.email = ''"
-                  />
-                  <p v-if="formErrors.email" class="mt-1 text-sm text-red-600">
-                    {{ formErrors.email }}
-                  </p>
-                </div>
-
-                <!-- Password -->
-                <div>
-                  <label class="block text-sm font-semibold text-gray-900 mb-2">
-                    Password <span class="text-red-500">*</span>
-                  </label>
-                  <div class="relative">
-                    <UInput
-                      v-model="createUserForm.password"
-                      :type="showPassword ? 'text' : 'password'"
-                      placeholder="Password"
-                      class="w-full pr-10"
-                      :class="{ 'border-red-500': formErrors.password }"
-                      @blur="formErrors.password = ''"
-                    />
-                    <button
-                      type="button"
-                      class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                      @click="showPassword = !showPassword"
-                    >
-                      <UIcon :name="showPassword ? 'i-lucide-eye-off' : 'i-lucide-eye'" class="w-5 h-5" />
-                    </button>
-                  </div>
-                  <p v-if="formErrors.password" class="mt-1 text-sm text-red-600">
-                    {{ formErrors.password }}
-                  </p>
-                </div>
-
-                <!-- Confirm Password -->
-                <div>
-                  <label class="block text-sm font-semibold text-gray-900 mb-2">
-                    Confirm Password <span class="text-red-500">*</span>
-                  </label>
-                  <div class="relative">
-                    <UInput
-                      v-model="createUserForm.confirmPassword"
-                      :type="showConfirmPassword ? 'text' : 'password'"
-                      placeholder="Confirm password"
-                      class="w-full pr-10"
-                      :class="{ 'border-red-500': formErrors.confirmPassword }"
-                      @blur="formErrors.confirmPassword = ''"
-                    />
-                    <button
-                      type="button"
-                      class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                      @click="showConfirmPassword = !showConfirmPassword"
-                    >
-                      <UIcon :name="showConfirmPassword ? 'i-lucide-eye-off' : 'i-lucide-eye'" class="w-5 h-5" />
-                    </button>
-                  </div>
-                  <p v-if="formErrors.confirmPassword" class="mt-1 text-sm text-red-600">
-                    {{ formErrors.confirmPassword }}
-                  </p>
-                </div>
-              </form>
-            </div>
-
-            <!-- Footer -->
-            <div class="px-6 py-4 border-t border-gray-200 flex justify-end">
-              <UButton
-                type="button"
-                color="primary"
-                size="md"
-                :loading="creatingUser"
-                @click="handleCreateUser"
-              >
-                Create
-              </UButton>
-            </div>
-          </div>
-        </div>
       </div>
-    </Teleport>
+    </div>
+    </div>
+    </div>
 
     <!-- Upgrade to Company Modal -->
     <Teleport to="body">
@@ -602,6 +504,7 @@
 <script setup lang="ts">
 import { watch } from 'vue'
 import { USER_ROLES } from '~/constants/roles'
+import AdminDrawerHeader from '~/components/AdminDrawerHeader.vue'
 
 const { $api } = useNuxtApp()
 const { t } = useI18n()
@@ -615,7 +518,6 @@ const itemsPerPage = ref(10)
 
 // User type filter
 const filterUserType = ref<string[]>([])
-const showUserTypeFilter = ref(false)
 
 const userTypeFilterOptions = computed(() => [
   { value: 'candidate', label: t('dashboard.admin.users.userTypes.candidate') },
@@ -655,34 +557,55 @@ const formErrors = ref({
   confirmPassword: '',
 })
 
-const userTypeOptions = [
+const userDrawerKicker = computed(() => 'Tạo người dùng')
+
+const userDrawerTitle = computed(() => 'Thêm người dùng mới')
+
+const userDrawerSubtitle = computed(
+  () => 'Tạo tài khoản ứng viên, nhà tuyển dụng hoặc host company trên hệ thống.',
+)
+
+const userDrawerUi = {
+  ...adminDrawerUi('max-w-3xl', 'employer-admin-user-drawer'),
+  header: 'employer-admin-job-drawer-header employer-drawer-bg shrink-0 p-0',
+  container:
+    'employer-admin-job-drawer-container employer-drawer-bg w-full min-h-0 flex flex-1 flex-col gap-0 self-stretch p-0 overflow-hidden',
+  body: 'employer-admin-job-drawer-body employer-drawer-bg flex min-h-0 flex-1 flex-col overflow-hidden p-0',
+}
+
+const userTypeOptions = computed(() => [
   {
     value: 'candidate',
-    label: 'CANDIDATE',
-    activeClass: 'bg-blue-100 text-blue-600',
-    inactiveClass: 'bg-blue-100 text-blue-600', // Luôn có màu xanh dương
+    label: t('dashboard.admin.users.userTypes.candidate').toUpperCase(),
+    classKey: 'is-candidate',
   },
   {
     value: 'system_admin',
     label: 'SYSTEM_ADMIN',
-    activeClass: 'bg-gray-100 text-gray-700',
-    inactiveClass: 'bg-gray-100 text-gray-700',
+    classKey: 'is-system-admin',
   },
   {
     value: 'employer',
-    label: 'EMPLOYER',
-    activeClass: 'bg-green-100 text-green-700',
-    inactiveClass: 'bg-green-100 text-green-700',
+    label: t('dashboard.admin.users.userTypes.employer').toUpperCase(),
+    classKey: 'is-employer',
   },
   {
     value: 'host_company',
-    label: 'HOST_COMPANY',
-    activeClass: 'bg-orange-100 text-orange-700',
-    inactiveClass: 'bg-orange-100 text-orange-700',
+    label: t('dashboard.admin.users.userTypes.hostCompany').toUpperCase(),
+    classKey: 'is-host-company',
   },
-]
+])
 
-const totalUsers = computed(() => users.value.length)
+const companySelectItems = computed(() =>
+  companies.value.map((company) => ({
+    label: company.name,
+    value: String(company.id),
+  })),
+)
+
+function closeCreateUserDrawer() {
+  showCreateUserDrawer.value = false
+}
 
 const filteredUsers = computed(() => {
   let list = users.value
@@ -723,7 +646,14 @@ const totalPages = computed(() => {
   return pages > 0 ? pages : 1 // Ít nhất hiển thị trang 1
 })
 
-// Reset to page 1 when itemsPerPage changes
+watch(searchQuery, () => {
+  currentPage.value = 1
+})
+
+watch(filterUserType, () => {
+  currentPage.value = 1
+}, { deep: true })
+
 watch(itemsPerPage, () => {
   currentPage.value = 1
 })
@@ -759,11 +689,10 @@ function toggleUserTypeFilter(value: string) {
 }
 
 const getUserTypeClass = (type: string): string => {
-  if (type === 'candidate') return 'bg-blue-500 text-white'
-  if (type === 'employer') return 'bg-green-100 text-green-800'
-  if (type === 'hostCompany') return 'bg-orange-100 text-orange-800'
-  
-  return 'bg-gray-100 text-gray-800'
+  if (type === 'candidate') return 'is-candidate'
+  if (type === 'employer') return 'is-employer'
+  if (type === 'hostCompany') return 'is-host'
+  return 'is-default'
 }
 
 const getUserTypeText = (type: string): string => {
@@ -772,18 +701,12 @@ const getUserTypeText = (type: string): string => {
 
 const formatCreatedDate = (date: string | Date | undefined): string => {
   if (!date) return '–'
-  
   const d = new Date(date)
-  const months = [
-    'January', 'February', 'March', 'April', 'May', 'June',
-    'July', 'August', 'September', 'October', 'November', 'December'
-  ]
-  
-  const day = d.getDate()
-  const month = months[d.getMonth()]
+  if (Number.isNaN(d.getTime())) return '–'
+  const day = String(d.getDate()).padStart(2, '0')
+  const month = String(d.getMonth() + 1).padStart(2, '0')
   const year = d.getFullYear()
-  
-  return `${day} ${month}, ${year}`
+  return `${day}/${month}/${year}`
 }
 
 const fetchUsers = async () => {
@@ -986,44 +909,44 @@ const validateCreateUserForm = (): boolean => {
   }
 
   if (selectedUserTypes.value.length === 0) {
-    formErrors.value.userType = 'Please select a user type!'
+    formErrors.value.userType = 'Vui lòng chọn loại người dùng!'
     isValid = false
   }
 
   // Validate company selection for Employer/HostCompany
   if (selectedUserTypes.value.includes('employer') || selectedUserTypes.value.includes('host_company')) {
     if (!selectedCompanyIdForCreate.value) {
-      formErrors.value.company = 'Please select a company!'
+      formErrors.value.company = 'Vui lòng chọn công ty!'
       isValid = false
     }
   }
 
   if (!createUserForm.value.fullName.trim()) {
-    formErrors.value.fullName = 'Full name is required'
+    formErrors.value.fullName = 'Họ và tên không được để trống'
     isValid = false
   }
 
   if (!createUserForm.value.email.trim()) {
-    formErrors.value.email = 'Email is required'
+    formErrors.value.email = 'Email không được để trống'
     isValid = false
   } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(createUserForm.value.email)) {
-    formErrors.value.email = 'Invalid email format'
+    formErrors.value.email = 'Email không hợp lệ'
     isValid = false
   }
 
   if (!createUserForm.value.password) {
-    formErrors.value.password = 'Password is required'
+    formErrors.value.password = 'Mật khẩu không được để trống'
     isValid = false
   } else if (createUserForm.value.password.length < 6) {
-    formErrors.value.password = 'Password must be at least 6 characters'
+    formErrors.value.password = 'Mật khẩu phải có ít nhất 6 ký tự'
     isValid = false
   }
 
   if (!createUserForm.value.confirmPassword) {
-    formErrors.value.confirmPassword = 'Please confirm your password'
+    formErrors.value.confirmPassword = 'Vui lòng xác nhận mật khẩu'
     isValid = false
   } else if (createUserForm.value.password !== createUserForm.value.confirmPassword) {
-    formErrors.value.confirmPassword = 'Passwords do not match'
+    formErrors.value.confirmPassword = 'Mật khẩu xác nhận không khớp'
     isValid = false
   }
 
@@ -1070,17 +993,17 @@ const handleCreateUser = async () => {
     }
 
     useNotify({
-      message: 'User created successfully',
+      message: 'Tạo người dùng thành công',
       type: 'success',
     })
 
-    showCreateUserDrawer.value = false
+    closeCreateUserDrawer()
     resetCreateUserForm()
     await fetchUsers()
   } catch (error: any) {
     console.error('Failed to create user:', error)
     useNotify({
-      message: error.message || 'Failed to create user',
+      message: error.message || 'Không thể tạo người dùng',
       type: 'error',
     })
   } finally {
@@ -1088,12 +1011,8 @@ const handleCreateUser = async () => {
   }
 }
 
-// Close drawer when clicking outside
 watch(showCreateUserDrawer, (isOpen) => {
-  if (isOpen) {
-    document.body.style.overflow = 'hidden'
-  } else {
-    document.body.style.overflow = ''
+  if (!isOpen) {
     resetCreateUserForm()
   }
 })
@@ -1102,19 +1021,10 @@ onMounted(() => {
   fetchUsers()
   fetchCompanies()
 
-  // Close dropdown when clicking outside
   document.addEventListener('click', (e) => {
     const target = e.target as HTMLElement
-
-    // Close items per page dropdown
     if (!target.closest('.items-per-page-dropdown')) {
       showItemsPerPageDropdown.value = false
-    }
-
-    // Close user type filter dropdown
-    const userTypeFilterDropdown = document.querySelector('.user-type-filter-dropdown')
-    if (userTypeFilterDropdown && !(userTypeFilterDropdown as HTMLElement).contains(target) && !target.closest('th')) {
-      showUserTypeFilter.value = false
     }
   })
 })

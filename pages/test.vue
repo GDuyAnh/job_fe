@@ -167,6 +167,9 @@
 </template>
 
 <script setup lang="ts">
+useHead({
+  title: 'Test',
+})
 // const { $api } = useNuxtApp()
 
 // Using $api to handle action POST, PUT, DELETE

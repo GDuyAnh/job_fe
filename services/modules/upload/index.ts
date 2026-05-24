@@ -42,7 +42,7 @@ export default class UploadService {
     oldUrl?: string,
   ): Promise<{ url: string; originalName: string }> {
     if (!this.apiService) {
-      throw new Error('API service not initialized')
+      throw new Error('Dịch vụ API chưa được khởi tạo')
     }
 
     try {
@@ -78,7 +78,7 @@ export default class UploadService {
     oldUrl?: string,
   ): Promise<{ url: string; originalName: string }> {
     if (!this.apiService) {
-      throw new Error('API service not initialized')
+      throw new Error('Dịch vụ API chưa được khởi tạo')
     }
 
     try {
@@ -114,7 +114,7 @@ export default class UploadService {
     oldUrl?: string,
   ): Promise<{ url: string; originalName: string }> {
     if (!this.apiService) {
-      throw new Error('API service not initialized')
+      throw new Error('Dịch vụ API chưa được khởi tạo')
     }
 
     try {
@@ -155,7 +155,7 @@ export default class UploadService {
       const apiKey = config.public.imgbbApiKey
 
       if (!apiKey) {
-        throw new Error('ImgBB API key is not configured')
+        throw new Error('Chưa cấu hình khóa API ImgBB')
       }
 
       // Prepare FormData
@@ -176,7 +176,7 @@ export default class UploadService {
         }
       } else {
         throw new Error(
-          'Invalid image format. Expected File, base64 string, or URL',
+          'Định dạng ảnh không hợp lệ. Cần File, chuỗi base64 hoặc URL',
         )
       }
 
@@ -200,14 +200,14 @@ export default class UploadService {
 
       // Validate response
       if (!response) {
-        throw new Error('No response received from ImgBB API')
+        throw new Error('Không nhận được phản hồi từ API ImgBB')
       }
 
       // Check response status and success
       if (response.status === 200 && response.success === true) {
         // Validate required fields
         if (!response.data?.image?.url) {
-          throw new Error('Invalid response: missing image URL')
+          throw new Error('Phản hồi không hợp lệ: thiếu URL ảnh')
         }
 
         return response
@@ -216,7 +216,7 @@ export default class UploadService {
         const errorMessage =
           response.data?.error?.message ||
           response.error?.message ||
-          'Upload failed'
+          'Tải lên thất bại'
 
         throw new Error(`ImgBB API Error: ${errorMessage}`)
       }
@@ -230,7 +230,7 @@ export default class UploadService {
         throw error
       } else {
         // Network or other errors
-        throw new Error(`Upload failed: ${error.message || 'Unknown error'}`)
+        throw new Error(`Tải lên thất bại: ${error.message || 'Lỗi không xác định'}`)
       }
     }
   }
@@ -311,7 +311,7 @@ export default class UploadService {
     oldUrl?: string,
   ): Promise<string> {
     if (!this.apiService) {
-      throw new Error('API service not initialized')
+      throw new Error('Dịch vụ API chưa được khởi tạo')
     }
 
     try {
@@ -335,12 +335,32 @@ export default class UploadService {
   }
 
   /**
+   * Load image from R2 via backend (tránh CORS khi crop ảnh đã upload)
+   */
+  async fetchImageDataUrl(imageUrl: string): Promise<string> {
+    if (!this.apiService) {
+      throw new Error('Dịch vụ API chưa được khởi tạo')
+    }
+
+    const response = await this.apiService.get<{ dataUrl: string }>(
+      '/upload/image-data',
+      { query: { url: imageUrl } },
+    )
+
+    if (!response?.dataUrl) {
+      throw new Error('Không tải được ảnh')
+    }
+
+    return response.dataUrl
+  }
+
+  /**
    * Delete multiple images from R2 (batch async operation)
    * @param urls - Array of image URLs to delete
    */
   async deleteBatchR2(urls: string[]): Promise<void> {
     if (!this.apiService) {
-      throw new Error('API service not initialized')
+      throw new Error('Dịch vụ API chưa được khởi tạo')
     }
 
     try {

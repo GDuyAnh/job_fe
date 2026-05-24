@@ -3,6 +3,7 @@ export interface UserModel {
   email: string
   username: string
   fullName: string
+  gender?: 'male' | 'female' | 'both' | null
   phoneNumber?: string | null
   location?: string | null
   expertise?: string | null

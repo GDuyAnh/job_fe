@@ -1,10 +1,14 @@
 export interface CompanyJobSummary {
   id: number
   title: string
-  location: number
+  location: number | string
   typeOfEmployment: number
   imageLogo: string | null
-  postedDate: Date
+  postedDate?: Date | string
+  salaryMin?: number | string | null
+  salaryMax?: number | string | null
+  salaryType?: number | null
+  experienceLevel?: number | string | null
 }
 
 export interface CompanyImage {

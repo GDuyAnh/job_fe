@@ -1,20 +1,14 @@
 <template>
-  <div>
-    <div class="mb-6">
-      <h1 class="text-3xl font-bold text-gray-900">
-        {{ $t('dashboard.sidebar.editProfile') }}
-      </h1>
-    </div>
-
+  <main class="employer-dashboard-content employer-company-content">
     <!-- Loading state -->
-    <div v-if="loading" class="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+    <section v-if="loading" class="employer-company-card">
       <div class="text-center py-8 text-gray-500">
         {{ $t('jobs.results.loading') }}
       </div>
-    </div>
+    </section>
 
     <!-- Error state -->
-    <div v-else-if="error" class="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+    <section v-else-if="error" class="employer-company-card">
       <div class="text-center py-8">
         <UIcon name="i-heroicons-exclamation-triangle" class="w-12 h-12 text-red-500 mx-auto mb-4" />
         <p class="text-gray-600 mb-4">{{ error }}</p>
@@ -22,63 +16,57 @@
           {{ $t('common.error.retry') }}
         </UButton>
       </div>
-    </div>
+    </section>
 
     <!-- Form -->
-    <div class="bg-white rounded-xl shadow-sm p-8 border border-gray-200">
-      <div class="flex flex-col gap-6">
-        <!-- Name -->
-        <div>
-          <label class="font-medium text-sm text-gray-700">
-            {{ $t('company.name') }}
-            <span aria-hidden="true" class="text-black">{{
-              $t('common.requiredMark')
-            }}</span>
+    <section v-else class="employer-company-card">
+      <form
+        class="employer-company-form"
+        data-company-profile-form=""
+        @submit.prevent="saveCompany"
+      >
+        <div class="employer-company-section">
+          <div class="employer-grid employer-grid-two">
+          <label class="employer-field">
+            <span>{{ $t('company.name') }} {{ $t('common.requiredMark') }}</span>
+            <UInput
+              id="company-name"
+              v-model.trim="companyForm.name"
+              class="w-full"
+              :ui="{ base: 'h-10 rounded-xl text-[13px]' }"
+              :disabled="formDisabled"
+              :placeholder="$t('company.form.placeholderName')"
+              @input="companyErrors.name = ''"
+            />
+            <p v-if="companyErrors.name" class="employer-field-error">{{ companyErrors.name }}</p>
           </label>
-          <UInput
-            id="company-name"
-            v-model.trim="companyForm.name"
-            class="w-full"
-            :class="{ 'border-red-500': companyErrors.name }"
-            :placeholder="$t('company.form.placeholderName')"
-            :disabled="formDisabled"
-            @input="companyErrors.name = ''"
-          />
-          <p v-if="companyErrors.name" class="text-red-500 text-sm mt-1">{{ companyErrors.name }}</p>
+
+          <label class="employer-field">
+            <span>{{ $t('company.mst') }}</span>
+            <UInput
+              :model-value="companyForm.mst || ''"
+              class="w-full"
+              disabled
+              :ui="{ base: 'h-10 rounded-xl text-[13px] bg-[#f3f6fb]' }"
+              :placeholder="$t('company.mst')"
+            />
+          </label>
         </div>
 
-        <!-- Mã số thuế (MST) -->
-        <div>
-          <label class="font-medium text-sm text-gray-700">
-            {{ $t('company.mst') }}
-          </label>
-          <UInput
-            :model-value="companyForm.mst || ''"
-            class="w-full"
-            :placeholder="$t('company.mst')"
-            disabled
-          />
-        </div>
-
-        <!-- Địa chỉ thuế -->
-        <div>
-          <label class="font-medium text-sm text-gray-700">
-            {{ $t('company.taxAddress') }}
-          </label>
+          <label class="employer-field employer-field-full">
+            <span>{{ $t('company.taxAddress') }}</span>
           <UInput
             v-model.trim="companyForm.taxAddress"
             class="w-full"
+            :ui="{ base: 'h-10 rounded-xl text-[13px]' }"
             :placeholder="$t('company.taxAddress')"
             :disabled="formDisabled"
           />
-        </div>
+          </label>
 
-        <!-- Description -->
-        <div>
-          <div class="flex flex-col gap-1 rich-text-output">
-            <label class="font-medium text-sm text-gray-700">
-              {{ $t('company.form.descLabel') }}
-            </label>
+          <label class="employer-field employer-field-full employer-field-editor">
+            <span>{{ $t('company.form.descLabel') }}</span>
+            <div class="employer-editor rich-text-output">
             <RichTextEditor
               :model-value="companyForm.description || undefined"
               class="w-full rich-text-content"
@@ -88,17 +76,12 @@
                 (val) => (companyForm.description = val || null)
               "
             />
-          </div>
-        </div>
-
-        <!-- Address -->
-        <div>
-          <label class="font-medium text-sm text-gray-700">
-            {{ $t('company.address') }}
-            <span aria-hidden="true" class="text-black">{{
-              $t('common.requiredMark')
-            }}</span>
+            </div>
           </label>
+
+          <label class="employer-field employer-field-full employer-field-editor">
+            <span>{{ $t('company.address') }} {{ $t('common.requiredMark') }}</span>
+            <div class="employer-editor rich-text-output">
           <RichTextEditor
             id="company-address"
             v-model="companyForm.address"
@@ -108,35 +91,35 @@
             :disabled="formDisabled"
             @update:model-value="companyErrors.address = ''"
           />
-          <p v-if="companyErrors.address" class="text-red-500 text-sm mt-1">{{ companyErrors.address }}</p>
+            </div>
+          <p v-if="companyErrors.address" class="employer-field-error">{{ companyErrors.address }}</p>
+          </label>
         </div>
 
-        <!-- Org type + Founded -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label class="font-medium text-sm text-gray-700">
-              {{ $t('company.industry') }}
-              <span aria-hidden="true" class="text-black">{{
-                $t('common.requiredMark')
-              }}</span>
-            </label>
+        <div class="employer-company-section">
+          <div class="employer-grid employer-grid-two">
+          <label class="employer-field">
+            <span>{{ $t('company.industry') }} {{ $t('common.requiredMark') }}</span>
             <USelect
               id="company-organization-type"
               :items="organizationTypeItems"
               :model-value="companyForm.organizationType?.toString()"
-              class="w-full"
-              :class="{ 'border-red-500': companyErrors.organizationType }"
+              class="w-full employer-org-type-select employer-field-control"
+              :class="{
+                'employer-field-select--placeholder': !companyForm.organizationType,
+                'employer-field-select--error': !!companyErrors.organizationType,
+              }"
+              :ui="orgTypeSelectUi"
+              :content="{ side: 'bottom' }"
               :disabled="formDisabled"
               @update:model-value="
                 (v) => { companyForm.organizationType = Number(v ?? 0); companyErrors.organizationType = '' }
               "
             />
-            <p v-if="companyErrors.organizationType" class="text-red-500 text-sm mt-1">{{ companyErrors.organizationType }}</p>
-          </div>
-          <div>
-            <label class="font-medium text-sm text-gray-700">
-              {{ $t('company.founded') }}
-            </label>
+            <p v-if="companyErrors.organizationType" class="employer-field-error">{{ companyErrors.organizationType }}</p>
+          </label>
+          <label class="employer-field">
+            <span>{{ $t('company.founded') }}</span>
             <UInput
               id="company-founded-year"
               v-model.number="companyForm.foundedYear"
@@ -144,22 +127,23 @@
               min="1800"
               max="2100"
               class="w-full"
-              :class="{ 'border-red-500': companyErrors.foundedYear }"
+              :ui="{
+                base:
+                  'h-10 rounded-xl text-[13px]' +
+                  (companyErrors.foundedYear ? ' !ring-1 !ring-inset !ring-red-500' : ''),
+              }"
               :disabled="formDisabled"
               :placeholder="
                 $t('company.form.placeholderFounded') as string
               "
               @input="companyErrors.foundedYear = ''"
             />
-            <p v-if="companyErrors.foundedYear" class="text-red-500 text-sm mt-1">{{ companyErrors.foundedYear }}</p>
-          </div>
+            <p v-if="companyErrors.foundedYear" class="employer-field-error">{{ companyErrors.foundedYear }}</p>
+          </label>
         </div>
 
-        <!-- Size -->
-        <div>
-          <label class="font-medium text-sm text-gray-700">
-            {{ $t('company.size') }}
-          </label>
+          <label class="employer-field employer-field-full">
+            <span>{{ $t('company.size') }}</span>
           <UInput
             id="company-size"
             v-model.number="companyForm.companySize"
@@ -167,130 +151,142 @@
             min="0"
             step="1"
             class="w-full"
-            :class="{ 'border-red-500': companyErrors.companySize }"
+            :ui="{
+              base:
+                'h-10 rounded-xl text-[13px]' +
+                (companyErrors.companySize ? ' !ring-1 !ring-inset !ring-red-500' : ''),
+            }"
             :disabled="formDisabled"
             :placeholder="$t('company.form.placeholderCompanySize')"
             @input="companyErrors.companySize = ''"
           />
-          <p v-if="companyErrors.companySize" class="text-red-500 text-sm mt-1">{{ companyErrors.companySize }}</p>
-        </div>
-
-        <!-- Website -->
-        <div>
-          <label class="font-medium text-sm text-gray-700">
-            {{ $t('company.website') }}
+          <p v-if="companyErrors.companySize" class="employer-field-error">{{ companyErrors.companySize }}</p>
           </label>
+
+          <label class="employer-field employer-field-full">
+            <span>{{ $t('company.website') }}</span>
           <UInput
             id="company-website"
             v-model.trim="companyForm.website"
             type="url"
             class="w-full"
-            :class="{ 'border-red-500': companyErrors.website }"
+            :ui="{
+              base:
+                'h-10 rounded-xl text-[13px]' +
+                (companyErrors.website ? ' !ring-1 !ring-inset !ring-red-500' : ''),
+            }"
             :disabled="formDisabled"
             :placeholder="$t('company.form.placeholderWebsite')"
             @input="companyErrors.website = ''"
           />
-          <p v-if="companyErrors.website" class="text-red-500 text-sm mt-1">{{ companyErrors.website }}</p>
-        </div>
+          <p v-if="companyErrors.website" class="employer-field-error">{{ companyErrors.website }}</p>
+          </label>
 
-        <!-- Social links -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label class="font-medium text-sm text-gray-700">
-              {{ $t('company.social.facebook') }}
-            </label>
+          <div class="employer-grid employer-grid-two">
+          <label class="employer-field">
+            <span>{{ $t('company.social.facebook') }}</span>
             <UInput
               id="company-facebook"
               v-model.trim="companyForm.facebookLink"
               class="w-full"
-              :class="{ 'border-red-500': companyErrors.facebookLink }"
+            :ui="{
+              base:
+                'h-10 rounded-xl text-[13px]' +
+                (companyErrors.facebookLink ? ' !ring-1 !ring-inset !ring-red-500' : ''),
+            }"
               :disabled="formDisabled"
               :placeholder="$t('company.form.placeholderFacebook')"
               @input="companyErrors.facebookLink = ''"
             />
-            <p v-if="companyErrors.facebookLink" class="text-red-500 text-sm mt-1">{{ companyErrors.facebookLink }}</p>
-          </div>
-          <div>
-            <label class="font-medium text-sm text-gray-700">
-              {{ $t('company.social.twitter') }}
-            </label>
+            <p v-if="companyErrors.facebookLink" class="employer-field-error">{{ companyErrors.facebookLink }}</p>
+          </label>
+          <label class="employer-field">
+            <span>{{ $t('company.social.twitter') }}</span>
             <UInput
               id="company-twitter"
               v-model.trim="companyForm.twitterLink"
               class="w-full"
-              :class="{ 'border-red-500': companyErrors.twitterLink }"
+            :ui="{
+              base:
+                'h-10 rounded-xl text-[13px]' +
+                (companyErrors.twitterLink ? ' !ring-1 !ring-inset !ring-red-500' : ''),
+            }"
               :disabled="formDisabled"
               :placeholder="$t('company.form.placeholderTwitter')"
               @input="companyErrors.twitterLink = ''"
             />
-            <p v-if="companyErrors.twitterLink" class="text-red-500 text-sm mt-1">{{ companyErrors.twitterLink }}</p>
-          </div>
-          <div>
-            <label class="font-medium text-sm text-gray-700">
-              {{ $t('company.social.instagram') }}
-            </label>
+            <p v-if="companyErrors.twitterLink" class="employer-field-error">{{ companyErrors.twitterLink }}</p>
+          </label>
+          <label class="employer-field">
+            <span>{{ $t('company.social.instagram') }}</span>
             <UInput
               id="company-instagram"
               v-model.trim="companyForm.instagramLink"
               class="w-full"
-              :class="{ 'border-red-500': companyErrors.instagramLink }"
+            :ui="{
+              base:
+                'h-10 rounded-xl text-[13px]' +
+                (companyErrors.instagramLink ? ' !ring-1 !ring-inset !ring-red-500' : ''),
+            }"
               :disabled="formDisabled"
               :placeholder="$t('company.form.placeholderInstagram')"
               @input="companyErrors.instagramLink = ''"
             />
-            <p v-if="companyErrors.instagramLink" class="text-red-500 text-sm mt-1">{{ companyErrors.instagramLink }}</p>
-          </div>
-          <div>
-            <label class="font-medium text-sm text-gray-700">
-              {{ $t('company.social.linkedin') }}
-            </label>
+            <p v-if="companyErrors.instagramLink" class="employer-field-error">{{ companyErrors.instagramLink }}</p>
+          </label>
+          <label class="employer-field">
+            <span>{{ $t('company.social.linkedin') }}</span>
             <UInput
               id="company-linkedin"
               v-model.trim="companyForm.linkedInLink"
               class="w-full"
-              :class="{ 'border-red-500': companyErrors.linkedInLink }"
+            :ui="{
+              base:
+                'h-10 rounded-xl text-[13px]' +
+                (companyErrors.linkedInLink ? ' !ring-1 !ring-inset !ring-red-500' : ''),
+            }"
               :disabled="formDisabled"
               :placeholder="$t('company.form.placeholderLinkedIn')"
               @input="companyErrors.linkedInLink = ''"
             />
-            <p v-if="companyErrors.linkedInLink" class="text-red-500 text-sm mt-1">{{ companyErrors.linkedInLink }}</p>
-          </div>
-        </div>
-
-        <!-- Video URL -->
-        <div>
-          <label class="font-medium text-sm text-gray-700">
-            {{ $t('company.form.videoTitle') }}
+            <p v-if="companyErrors.linkedInLink" class="employer-field-error">{{ companyErrors.linkedInLink }}</p>
           </label>
+          </div>
+
+          <label class="employer-field employer-field-full">
+            <span>{{ $t('company.form.videoTitle') }}</span>
           <UInput
             id="company-video"
             v-model.trim="companyForm.videoUrl"
             type="url"
             class="w-full"
-            :class="{ 'border-red-500': companyErrors.videoUrl }"
+            :ui="{
+              base:
+                'h-10 rounded-xl text-[13px]' +
+                (companyErrors.videoUrl ? ' !ring-1 !ring-inset !ring-red-500' : ''),
+            }"
             :disabled="formDisabled"
             :placeholder="$t('company.form.placeholderVideo')"
             @input="companyErrors.videoUrl = ''"
           />
-          <p v-if="companyErrors.videoUrl" class="text-red-500 text-sm mt-1">{{ companyErrors.videoUrl }}</p>
+          <p v-if="companyErrors.videoUrl" class="employer-field-error">{{ companyErrors.videoUrl }}</p>
+          </label>
         </div>
 
-        <!-- Logo uploader (SINGLE, with crop) -->
-        <div>
-          <label class="font-medium text-sm text-gray-700">
-            {{ $t('company.form.logoTitle') }}
-            <span aria-hidden="true" class="text-black">{{
-              $t('common.requiredMark')
-            }}</span>
-          </label>
+        <div class="employer-company-section">
+          <div class="employer-company-media-stack">
+          <div class="employer-company-media-field">
+            <div class="employer-company-media-label">
+              <strong>{{ $t('company.form.logoTitle') }} {{ $t('common.requiredMark') }}</strong>
+            </div>
 
           <div
-            class="border-2 border-dashed rounded-xl p-6 text-center transition bg-gray-50"
+            class="employer-company-media-shell is-logo employer-company-upload-zone"
             :class="[
               isDraggingLogo && !formDisabled
-                ? 'ring-2 ring-blue-400 bg-blue-50'
-                : 'border-gray-400',
-              formDisabled ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'
+                ? 'is-dragging'
+                : '',
+              formDisabled ? 'is-disabled' : 'is-clickable',
             ]"
             @click="!formDisabled && logoFileEl?.click()"
             @dragenter.prevent="!formDisabled && onDragEnterLogo()"
@@ -345,26 +341,30 @@
               </div>
             </div>
 
-            <div v-else class="text-gray-500">
-              {{ $t('company.form.dropHintLogo') }}
+            <div v-else class="grid place-items-center">
+              <div
+                class="h-9 w-9 rounded-xl bg-[#eef5ff] grid place-items-center"
+                style="border: 1px solid rgba(29, 36, 51, 0.10)"
+              >
+                <UIcon name="i-lucide-upload" class="w-5 h-5 text-[var(--blue)]" />
+              </div>
             </div>
           </div>
-          <p v-if="companyErrors.logo" class="text-red-500 text-sm mt-1">{{ companyErrors.logo }}</p>
-        </div>
+          <p v-if="companyErrors.logo" class="employer-field-error">{{ companyErrors.logo }}</p>
+          </div>
 
-        <!-- Banner Image -->
-        <div>
-          <label class="font-medium text-sm text-gray-700">
-            {{ $t('company.form.bannerTitle') }}
-          </label>
+          <div class="employer-company-media-field">
+            <div class="employer-company-media-label">
+              <strong>{{ $t('company.form.bannerTitle') }}</strong>
+            </div>
 
           <div
-            class="border-2 border-dashed rounded-xl p-6 text-center transition bg-gray-50"
+            class="employer-company-media-shell is-cover employer-company-upload-zone"
             :class="[
               isDraggingBanner && !formDisabled
-                ? 'ring-2 ring-blue-400 bg-blue-50'
-                : 'border-gray-400',
-              formDisabled ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'
+                ? 'is-dragging'
+                : '',
+              formDisabled ? 'is-disabled' : 'is-clickable',
             ]"
             @click="!formDisabled && bannerFileEl?.click()"
             @dragenter.prevent="!formDisabled && onDragEnterBanner()"
@@ -404,25 +404,29 @@
               </div>
             </div>
 
-            <div v-else class="text-gray-500">
-              {{ $t('company.form.bannerDropHint') }}
+            <div v-else class="grid place-items-center">
+              <div
+                class="h-9 w-9 rounded-xl bg-[#eef5ff] grid place-items-center"
+                style="border: 1px solid rgba(29, 36, 51, 0.10)"
+              >
+                <UIcon name="i-lucide-upload" class="w-5 h-5 text-[var(--blue)]" />
+              </div>
             </div>
           </div>
-        </div>
+          </div>
 
-        <!-- Company images uploader (MULTIPLE) -->
-        <div>
-          <label class="font-medium text-sm text-gray-700">
-            {{ $t('company.form.imagesTitleAdditional') }}
-          </label>
+          <div class="employer-company-media-field">
+            <div class="employer-company-media-label">
+              <strong>{{ $t('company.form.imagesTitleAdditional') }}</strong>
+            </div>
 
           <div
-            class="border-2 border-dashed rounded-xl p-6 text-center transition bg-gray-50"
+            class="employer-company-media-shell is-gallery employer-company-upload-zone"
             :class="[
               isDraggingImages && !formDisabled
-                ? 'ring-2 ring-blue-400 bg-blue-50'
-                : 'border-gray-400',
-              formDisabled ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'
+                ? 'is-dragging'
+                : '',
+              formDisabled ? 'is-disabled' : 'is-clickable',
             ]"
             @click="!formDisabled && imagesFileEl?.click()"
             @dragenter.prevent="!formDisabled && onDragEnterImages()"
@@ -478,26 +482,37 @@
               </div>
             </div>
 
-            <div v-else class="text-gray-500">
-              {{ $t('company.form.dropHint') }}
+            <div v-else class="grid place-items-center">
+              <div
+                class="h-9 w-9 rounded-xl bg-[#eef5ff] grid place-items-center"
+                style="border: 1px solid rgba(29, 36, 51, 0.10)"
+              >
+                <UIcon name="i-lucide-upload" class="w-5 h-5 text-[var(--blue)]" />
+              </div>
             </div>
+          </div>
+          </div>
           </div>
         </div>
 
-        <!-- Actions -->
-        <div v-if="!isHostCompanyUser" class="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+        <div v-if="!isHostCompanyUser" class="employer-company-permission-note">
           <p class="text-amber-700 text-sm">
             <UIcon name="i-heroicons-lock-closed" class="w-4 h-4 inline-block mr-1" />
-            Bạn không có quyền chỉnh sửa thông tin công ty. Chỉ tài khoản Host công ty mới có thể thực hiện.
+            {{ $t('company.editCompany.noPermission') }}
           </p>
         </div>
-        <div class="flex justify-end gap-3 mt-4">
-          <UButton color="primary" :loading="saving" :disabled="!isHostCompanyUser" @click="saveCompany">
-            {{ $t('company.editCompany.editCompanyContent') }}
-          </UButton>
+
+        <div class="employer-settings-actions employer-company-actions">
+          <button
+            type="submit"
+            class="employer-settings-primary"
+            :disabled="!isHostCompanyUser || saving"
+          >
+            {{ saving ? $t('jobs.results.loading') : 'Lưu thông tin' }}
+          </button>
         </div>
-      </div>
-    </div>
+      </form>
+    </section>
 
     <!-- Crop Modal -->
     <Teleport to="body">
@@ -604,13 +619,16 @@
         </div>
       </div>
     </Teleport>
-  </div>
+  </main>
 </template>
 
 <script setup lang="ts">
 import { nextTick, watch } from 'vue'
 import type { CompanyAddUpdateEntity, CompanyEntity } from '~/entities/company'
 import RichTextEditor from '~/components/RichTextEditor.vue'
+import { adminJobDrawerCompanySelectControlUi } from '~/utils/admin-drawer-ui'
+
+const orgTypeSelectUi = adminJobDrawerCompanySelectControlUi
 
 // Props
 const props = defineProps<{
@@ -626,6 +644,7 @@ const { t } = useI18n()
 const { $api } = useNuxtApp()
 const authStore = useAuthStore()
 const { organizationTypeItems } = useJobFilters()
+const { loadForCrop } = useImageCropSource()
 
 // Check if current user is the host company
 const isHostCompanyUser = computed(() => authStore.user?.isHostCompany === true)
@@ -875,44 +894,15 @@ function removeLogo() {
   companyForm.value.logo = null // Clear from form
 }
 
-function openCropModal() {
+async function openCropModal() {
   if (!logoPreview.value) return
 
-  // Use the preview URL directly for cropping
-  if (logoPreview.value.startsWith('blob:')) {
-    // For blob URLs, read as file
-    fetch(logoPreview.value)
-      .then((res) => res.blob())
-      .then((blob) => {
-        const reader = new FileReader()
-
-        reader.onload = (e) => {
-          cropImageSrc.value = e.target?.result as string
-          showCropModal.value = true
-        }
-        reader.readAsDataURL(blob)
-      })
-      .catch((err) => {
-        console.error('Error loading image for crop:', err)
-        useNotify({ message: 'Không thể tải ảnh để cắt' })
-      })
-  } else {
-    // For existing URL, fetch as blob first
-    fetch(logoPreview.value)
-      .then((res) => res.blob())
-      .then((blob) => {
-        const reader = new FileReader()
-
-        reader.onload = (e) => {
-          cropImageSrc.value = e.target?.result as string
-          showCropModal.value = true
-        }
-        reader.readAsDataURL(blob)
-      })
-      .catch((err) => {
-        console.error('Error loading image for crop:', err)
-        useNotify({ message: 'Không thể tải ảnh để cắt' })
-      })
+  try {
+    cropImageSrc.value = await loadForCrop(logoPreview.value)
+    showCropModal.value = true
+  } catch (err) {
+    console.error('Error loading image for crop:', err)
+    useNotify({ message: 'Không thể tải ảnh để cắt' })
   }
 }
 
@@ -1315,6 +1305,7 @@ function addImageFiles(files: File[]) {
   for (const f of files) {
     // Add blob URL to form directly for preview
     const blobUrl = URL.createObjectURL(f)
+
     imagePreviews.value.push(blobUrl)
     companyForm.value.companyImages.push({ url: blobUrl })
   }
@@ -1544,10 +1535,12 @@ async function saveCompany() {
     // Upload logo if there's a cropped file
     if (logoCroppedFile.value) {
       const uploadedUrl = await $api.upload.uploadImageR2(logoCroppedFile.value, 'logo')
+
       if (uploadedUrl) {
         logoUrl = uploadedUrl
       } else {
         useNotify({ message: 'Tải lên logo thất bại. Vui lòng thử lại.', type: 'error' })
+
         return
       }
     } else if (companyForm.value.logo && !companyForm.value.logo.startsWith('blob:')) {
@@ -1561,10 +1554,12 @@ async function saveCompany() {
       const blob = await fetch(companyForm.value.bannerImage).then((res) => res.blob())
       const file = new File([blob], 'banner.png', { type: 'image/png' })
       const uploadedUrl = await $api.upload.uploadImageR2(file, 'banner')
+
       if (uploadedUrl) {
         bannerUrl = uploadedUrl
       } else {
         useNotify({ message: 'Tải lên banner thất bại. Vui lòng thử lại.', type: 'error' })
+
         return
       }
     } else if (companyForm.value.bannerImage) {
@@ -1574,11 +1569,13 @@ async function saveCompany() {
 
     // Upload company images that are blob URLs (new files)
     const currentUrls = companyForm.value.companyImages.map((img: any) => img.url).filter(Boolean)
+
     for (const url of currentUrls) {
       if (url.startsWith('blob:')) {
         const blob = await fetch(url).then((res) => res.blob())
         const file = new File([blob], 'company-image.png', { type: 'image/png' })
         const uploadedUrl = await $api.upload.uploadImageR2(file, 'company-images')
+
         if (uploadedUrl) {
           detailUrls.push(uploadedUrl)
         }

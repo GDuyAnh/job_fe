@@ -22,6 +22,17 @@ export interface AdminApplication {
   applicationDate: string
 }
 
+export interface AdminImportResult {
+  summary: {
+    companies: number
+    users: number
+    jobs: number
+    jobApplications: number
+    blogs: number
+  }
+  errors: string[]
+}
+
 const AdminModule = (apiService: FetchFactory) => {
   const getStats = async () =>
     apiService.get<AdminStats>(ROUTE_API.ADMIN.STATS)
@@ -32,10 +43,14 @@ const AdminModule = (apiService: FetchFactory) => {
   const deleteApplication = async (id: number) =>
     apiService.delete<{ message: string }>(ROUTE_API.ADMIN.APPLICATION_DELETE(id))
 
+  const postImportExcel = async (formData: FormData) =>
+    apiService.postFormData<AdminImportResult>(ROUTE_API.ADMIN.IMPORT_EXCEL, formData)
+
   return {
     getStats,
     getApplications,
     deleteApplication,
+    postImportExcel,
   }
 }
 

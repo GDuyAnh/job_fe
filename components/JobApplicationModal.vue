@@ -282,25 +282,7 @@
       </div>
 
       <!-- Terms Agreement -->
-      <div class="space-y-4">
-        <UCheckbox
-          v-model="formData.agreeTerms"
-          :label="$t('job.application.termsAgreement')"
-        >
-          <template #label>
-            <span class="text-sm text-gray-700">
-              {{ $t('job.application.termsAgreement') }}
-              <a href="#" class="text-blue-600 hover:text-blue-800 underline">{{
-                $t('job.application.termsAndConditions')
-              }}</a>
-              {{ $t('job.application.and') }}
-              <a href="#" class="text-blue-600 hover:text-blue-800 underline">{{
-                $t('job.application.privacyPolicy')
-              }}</a>
-            </span>
-          </template>
-        </UCheckbox>
-      </div>
+      <!-- Terms Agreement removed -->
     </div>
 
     <!-- Footer -->
@@ -310,7 +292,7 @@
         size="lg"
         :loading="isSubmitting"
         :disabled="!isFormValid"
-        class="min-w-[300px]"
+        class="job-apply-submit-btn min-w-[300px]"
         @click="submitApplication"
       >
         {{ $t('job.application.submit') }}
@@ -329,7 +311,6 @@ interface ApplicationFormData {
   coverLetter: string
   coverLetterFile: File | null
   coverLetterUrl?: string | null
-  agreeTerms: boolean
 }
 
 interface Props {
@@ -367,7 +348,6 @@ const formData = ref<ApplicationFormData>({
   coverLetter: '',
   coverLetterFile: null,
   coverLetterUrl: null,
-  agreeTerms: false,
 })
 
 const isSubmitting = ref(false)
@@ -403,8 +383,7 @@ const isFormValid = computed(() => {
     formData.value.fullName.trim() !== '' &&
     formData.value.phone.trim() !== '' &&
     formData.value.email.trim() !== '' &&
-    hasCv.value &&
-    formData.value.agreeTerms
+    hasCv.value
   )
 })
 
@@ -420,9 +399,9 @@ const handleFile = (file: File, type: 'cv' | 'coverLetter') => {
 
   if (file.size > maxSize) {
     if (type === 'cv') {
-      cvFileError.value = 'File size must be less than 5MB'
+      cvFileError.value = 'Kích thước tệp phải nhỏ hơn 5MB'
     } else {
-      coverLetterFileError.value = 'File size must be less than 5MB'
+      coverLetterFileError.value = 'Kích thước tệp phải nhỏ hơn 5MB'
     }
 
     return false
@@ -430,9 +409,9 @@ const handleFile = (file: File, type: 'cv' | 'coverLetter') => {
 
   if (!allowedTypes.includes(file.type)) {
     if (type === 'cv') {
-      cvFileError.value = 'Only PDF, DOC, and DOCX files are allowed'
+      cvFileError.value = 'Chỉ hỗ trợ PDF, DOC và DOCX'
     } else {
-      coverLetterFileError.value = 'Only PDF, DOC, and DOCX files are allowed'
+      coverLetterFileError.value = 'Chỉ hỗ trợ PDF, DOC và DOCX'
     }
 
     return false
@@ -586,7 +565,6 @@ const resetForm = () => {
     coverLetter: '',
     coverLetterFile: null,
     coverLetterUrl: null,
-    agreeTerms: false,
   }
   cvFileError.value = ''
   coverLetterFileError.value = ''
@@ -639,3 +617,15 @@ watch(
   { immediate: true },
 )
 </script>
+
+<style scoped>
+.job-apply-submit-btn {
+  transition: transform 140ms ease, box-shadow 140ms ease;
+  will-change: transform, box-shadow;
+}
+
+.job-apply-submit-btn:hover:not([disabled]) {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 14px 28px rgba(53, 99, 255, 0.24);
+}
+</style>

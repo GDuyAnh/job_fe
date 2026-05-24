@@ -1,8 +1,12 @@
 <template>
-  <div class="rich-text-editor">
+  <div
+    class="rich-text-editor overflow-hidden rounded-xl border border-slate-200/90 bg-white shadow-sm"
+  >
     <div
-      class="editor-toolbar border-b border-gray-300 bg-gray-50 p-2 flex flex-wrap gap-2"
-      :class="{ 'opacity-50 pointer-events-none': disabled }"
+      class="editor-toolbar flex flex-wrap gap-2 border-b border-slate-200/80 bg-slate-50/90 p-2"
+      :class="{
+        'pointer-events-none': disabled || readonly,
+      }"
     >
       <UButton
         variant="ghost"
@@ -95,11 +99,7 @@
       </UButton>
     </div>
     <div
-      class="editor-content border border-gray-300 rounded-b-lg"
-      :class="{
-        'rounded-t-lg': disabled || readonly,
-        'bg-gray-50': disabled || readonly,
-      }"
+      class="editor-content bg-white"
     >
       <EditorContent :editor="editor" />
     </div>
@@ -148,7 +148,7 @@ const editor = useEditor({
   editorProps: {
     attributes: {
       class:
-        'prose prose-sm sm:prose lg:prose-lg xl:prose-2xl mx-auto focus:outline-none p-4 min-h-[200px] max-w-none',
+        'prose prose-sm sm:prose lg:prose-lg xl:prose-2xl mx-auto max-w-none min-h-[200px] p-4 text-slate-900 focus:outline-none prose-p:text-slate-900 prose-headings:text-slate-900',
     },
   },
 })
@@ -186,6 +186,14 @@ onBeforeUnmount(() => {
 <style scoped>
 :deep(.ProseMirror) {
   outline: none;
+  color: rgb(15 23 42);
+}
+
+:deep(.ProseMirror[contenteditable='false']) {
+  color: rgb(15 23 42);
+  opacity: 1;
+  -webkit-text-fill-color: rgb(15 23 42);
+  cursor: default;
 }
 
 :deep(.ProseMirror p.is-editor-empty:first-child::before) {

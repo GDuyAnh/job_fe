@@ -226,7 +226,7 @@ function handleForgotPassword() {
   // TODO: Implement forgot password functionality
   useNotify({
     type: 'success',
-    message: 'Forgot password functionality coming soon!',
+    message: 'Tính năng quên mật khẩu sẽ được cập nhật sau.',
   })
 }
 

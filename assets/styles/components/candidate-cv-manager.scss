@@ -1,0 +1,373 @@
+/* Hồ sơ ứng tuyển — candidate-content ?view=resume */
+
+.candidate-panel.candidate-cv-manager-panel {
+  min-height: auto;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+}
+
+.candidate-cv-manager {
+  display: grid;
+  gap: 0;
+  max-width: 100%;
+  background: transparent;
+}
+
+.candidate-cv-layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0;
+  align-items: start;
+}
+
+.candidate-cv-section {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+  padding: 20px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.candidate-cv-section + .candidate-cv-section {
+  border-top: 1px solid rgba(220, 227, 239, 0.92);
+}
+
+.candidate-cv-section-primary {
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+}
+
+.candidate-cv-section-primary .candidate-cv-section-head {
+  grid-column: 1 / -1;
+}
+
+.candidate-cv-section-primary .candidate-cv-upload-error {
+  grid-column: 1 / -1;
+  margin: 0;
+  color: #dc2626;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.candidate-cv-section-cover {
+  padding-top: 18px;
+}
+
+.candidate-cv-section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.candidate-cv-section-head h2 {
+  margin: 0;
+  color: #0f172a;
+  font-size: 17px;
+  line-height: 1.25;
+  font-weight: bold;
+}
+
+.candidate-cv-current {
+  display: block;
+  min-width: 0;
+}
+
+.candidate-cv-file-link {
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-width: 0;
+  padding: 10px 12px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: inherit;
+  text-decoration: none;
+  transition:
+    border-color 0.18s ease,
+    box-shadow 0.18s ease,
+    transform 0.18s ease;
+}
+
+.candidate-cv-file-link--empty {
+  cursor: default;
+  pointer-events: none;
+}
+
+.candidate-cv-file-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  background: rgba(53, 99, 255, 0.1);
+  color: #1d46c6;
+  flex-shrink: 0;
+}
+
+.candidate-cv-file-copy {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.candidate-cv-file-name-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.candidate-cv-file-name-row strong {
+  min-width: 0;
+  overflow: hidden;
+  color: #111827;
+  font-size: 14px;
+  line-height: 1.3;
+  font-weight: bold;
+  text-decoration: none;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.candidate-cv-file-status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  color: #16a34a;
+}
+
+.candidate-cv-file-copy > span:last-child {
+  color: #6b7280;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.candidate-cv-upload-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-top: 0;
+  border-top: 0;
+  justify-self: end;
+}
+
+.candidate-cv-upload-note {
+  margin: 0;
+  color: #6b7280;
+  font-size: 12px;
+  line-height: 1.45;
+  white-space: nowrap;
+}
+
+.candidate-cv-edit-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  flex: 0 0 auto;
+  padding: 0;
+  border: 1px solid rgba(191, 207, 232, 0.86);
+  border-radius: 10px;
+  background: #ffffff;
+  color: #1d46c6;
+  cursor: pointer;
+  transition:
+    border-color 0.18s ease,
+    background 0.18s ease,
+    color 0.18s ease,
+    transform 0.18s ease;
+}
+
+.candidate-cv-edit-btn:hover {
+  border-color: rgba(53, 99, 255, 0.35);
+  background: rgba(53, 99, 255, 0.06);
+}
+
+.candidate-cv-edit-btn[aria-pressed='true'] {
+  border-color: rgba(53, 99, 255, 0.45);
+  background: rgba(53, 99, 255, 0.1);
+}
+
+.candidate-cv-field {
+  display: grid;
+  gap: 8px;
+}
+
+.candidate-cv-field input {
+  width: 100%;
+  padding: 0 16px;
+  border: 1px solid rgba(210, 219, 235, 0.96);
+  border-radius: 12px;
+  background: #ffffff;
+  color: #1f2937;
+  box-shadow: none;
+  outline: none;
+  font-family: inherit;
+}
+
+.candidate-cv-cover-field textarea {
+  display: block;
+  width: 100%;
+  min-height: 138px;
+  margin: 0;
+  padding: 14px 16px;
+  border: 1px solid rgba(210, 219, 235, 0.96);
+  border-radius: 12px;
+  background: #ffffff;
+  color: #1f2937;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.6;
+  letter-spacing: -0.01em;
+  resize: vertical;
+  appearance: none;
+  box-shadow: none;
+  outline: none;
+}
+
+.candidate-cv-cover-field textarea::placeholder {
+  color: #94a3b8;
+  font-weight: 400;
+  opacity: 1;
+}
+
+.candidate-cv-cover-field textarea:focus {
+  border-color: rgba(53, 99, 255, 0.45);
+  box-shadow: 0 0 0 3px rgba(53, 99, 255, 0.12);
+  background: #ffffff;
+}
+
+.candidate-cv-cover-field textarea.is-readonly,
+.candidate-cv-cover-field textarea[readonly] {
+  background: #ffffff;
+  color: #64748b;
+  font-weight: 400;
+  resize: none;
+  cursor: default;
+}
+
+.candidate-cv-cover-field textarea.is-readonly::placeholder,
+.candidate-cv-cover-field textarea[readonly]::placeholder {
+  color: #94a3b8;
+  font-weight: 400;
+  opacity: 1;
+}
+
+.candidate-cv-cover-field small {
+  justify-self: end;
+  color: #8b95a9;
+  font-size: 12px;
+}
+
+.candidate-cv-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 14px 20px;
+  border-top: 1px solid rgba(220, 227, 239, 0.92);
+}
+
+.candidate-primary-btn,
+.candidate-secondary-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: auto;
+  min-width: 64px;
+  height: 42px;
+  min-height: 42px;
+  padding: 0 18px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+  transition:
+    background 0.18s ease,
+    border-color 0.18s ease,
+    color 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+.candidate-primary-btn {
+  border: 0;
+  background: linear-gradient(135deg, #3563ff 0%, #2e57ef 100%);
+  color: #ffffff;
+  box-shadow: none;
+}
+
+.candidate-primary-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #2e57ef 0%, #2550e8 100%);
+}
+
+.candidate-primary-btn:disabled {
+  background: #f2f3f5;
+  color: #b2b7c0;
+  cursor: not-allowed;
+}
+
+.candidate-secondary-btn {
+  border: 1px solid #dfe5ee;
+  background: #ffffff;
+  color: #303744;
+}
+
+.candidate-secondary-btn:hover:not(:disabled) {
+  border-color: rgba(216, 224, 238, 0.96);
+  background: #eef2fb;
+  color: #3a4b67;
+}
+
+.candidate-secondary-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.candidate-cv-upload-btn {
+  width: fit-content;
+  min-width: 104px;
+  min-height: 36px;
+  flex: 0 0 auto;
+  padding: 0 16px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.candidate-cv-actions .candidate-primary-btn,
+.candidate-cv-actions .candidate-secondary-btn {
+  min-height: 42px;
+  padding: 0 20px;
+  border-radius: 10px;
+  font-size: 14px;
+}
+
+@media (max-width: 768px) {
+  .candidate-cv-section-primary {
+    grid-template-columns: 1fr;
+  }
+
+  .candidate-cv-upload-row {
+    justify-self: start;
+    flex-wrap: wrap;
+  }
+
+  .candidate-cv-upload-note {
+    white-space: normal;
+  }
+}

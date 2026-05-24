@@ -14,7 +14,11 @@ export default defineNuxtConfig({
       },
 
       charset: 'utf-8',
-      title: 'Jobster',
+      title: 'TuyenGiaoVien.com',
+      titleTemplate: (titleChunk?: string) =>
+        titleChunk && String(titleChunk).trim().length > 0
+          ? `${String(titleChunk).trim()} - TuyenGiaoVien.com`
+          : 'TuyenGiaoVien.com',
       viewport:
         'width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0',
       link: [
@@ -48,7 +52,7 @@ export default defineNuxtConfig({
   fonts: {
     families: [
       {
-        name: 'Noto Sans JP',
+        name: 'Manrope',
         weights: [300, 400, 500, 600, 700],
         provider: 'google',
       },

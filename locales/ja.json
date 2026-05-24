@@ -3,8 +3,8 @@
     "name": "Job"
   },
   "auth": {
-    "login": "Login",
-    "loginFailed": "Login failed",
+    "login": "Đăng nhập",
+    "loginFailed": "Đăng nhập thất bại",
     "welcomeBack": "Welcome back!",
     "emailAddress": "Email address",
     "password": "Password",
@@ -12,11 +12,11 @@
     "forgotPassword": "Forgot password",
     "newToJobster": "New to Jobster?",
     "createAccount": "Create an account",
-    "fullName": "Full name",
+    "fullName": "Họ và tên",
     "createPassword": "Create password",
     "alreadyHaveAccount": "Already have an account?",
     "signIn": "Sign in",
-    "registerSuccess": "Account created successfully!",
+    "registerSuccess": "Tạo tài khoản thành công!",
     "registerFailed": "Đăng ký thất bại. Vui lòng thử lại sau.",
     "sessionExpired": "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.",
     "pleaseLogin": "Vui lòng đăng nhập để tiếp tục.",
@@ -32,6 +32,8 @@
     "zoomOut": "Thu nhỏ",
     "rotate": "Xoay",
     "cancel": "Hủy",
+    "close": "Đóng",
+    "logout": "Đăng xuất",
     "confirm": "Xác nhận",
     "processing": "Đang xử lý...",
     "dragToMove": "Kéo để di chuyển",
@@ -39,10 +41,20 @@
       "ok": "OK"
     },
     "fields": {
-      "email": "Email",
-      "password": "Password"
+      "email": "Địa chỉ email",
+      "password": "Mật khẩu"
     },
-    "validate": {},
+    "validate": {
+      "required": "{field} không được để trống",
+      "email": "{field} không hợp lệ",
+      "passwordMin": "{field} phải có ít nhất 8 ký tự",
+      "passwordLower": "{field} phải có chữ thường",
+      "passwordUpper": "{field} phải có chữ hoa",
+      "passwordNumber": "{field} phải có số",
+      "minLength": "{field} phải có ít nhất {min} ký tự",
+      "maxLength": "{field} không được vượt quá {max} ký tự",
+      "passwordMatch": "Mật khẩu xác nhận không khớp"
+    },
     "error": {
       "title": "Đã xảy ra lỗi",
       "retry": "Thử lại"
@@ -195,7 +207,8 @@
   },
   "companies": {
     "search": {
-      "placeholder": "Nhập tên công ty để tìm kiếm "
+      "placeholder": "Tên trung tâm, trường học, tổ chức giáo dục…",
+      "organizationType": "Loại hình"
     },
     "jobs": "Việc Làm",
     "noJobs": "Không có việc làm mới",
@@ -221,7 +234,7 @@
     "searchByCategory": {
       "title1": "Danh mục việc làm",
       "title2": "Tìm kiếm cơ hội nghề nghiệp theo chuyên môn của bạn",
-      "allCategories": "Xem tất cả ➔",
+      "allCategories": "Xem tất cả",
       "openPosition": "việc làm"
     },
     "featuredJobOffers": {
@@ -326,8 +339,8 @@
     "results": {
       "showingJobs": "Showing {count} jobs",
       "loading": "Loading jobs...",
-      "error": "Error fetching jobs!",
-      "noJobs": "No jobs found."
+      "error": "Không tải được danh sách việc làm!",
+      "noJobs": "Không tìm thấy việc làm nào."
     }
   },
   "search": {
@@ -337,7 +350,7 @@
     "filters": "Bộ lọc",
     "employmentType": "Hình thức làm việc",
     "experienceLevel": "Kinh nghiệm",
-    "clearFilters": "Xóa lọc",
+    "clearFilters": "Xóa bộ lọc",
     "viewJob": "Xem việc làm",
     "noResults": "Không tìm thấy việc làm",
     "noResultsDescription": "Thử điều chỉnh tiêu chí tìm kiếm hoặc lọc để tìm thấy nhiều việc làm hơn.",
@@ -356,7 +369,7 @@
       "employmentType": "Hình thức làm việc",
       "location": "Địa điểm",
       "description": "Mô tả chi tiết",
-      "requirements": "Yêu cầu",
+      "requirements": "Bằng cấp",
       "requirement1": "Bằng cử nhân ngành Giáo dục hoặc lĩnh vực liên quan",
       "requirement2": "Chứng chỉ giảng dạy hoặc giấy phép hành nghề",
       "requirement3": "Tối thiểu 2 năm kinh nghiệm giảng dạy",
@@ -389,23 +402,32 @@
       "waitingJob": "Chờ duyệt"
     },
     "uploadJob": {
-      "title": "Đăng việc làm mới",
+      "title": "Đăng tin tuyển dụng",
+      "stepCompanyInfo": "Thông tin công ty",
+      "stepPostDetail": "Chi tiết tin đăng",
+      "mstLabel": "Mã số thuế",
+      "lookupMst": "Tra cứu",
+      "lookupFoundTitle": "Đã tìm thấy thông tin",
+      "optionalMoreInfo": "Thêm thông tin bổ sung",
+      "optionalMoreInfoHint": "(tuỳ chọn)",
+      "continueNext": "Tiếp tục",
+      "detailAddressLabel": "Địa chỉ chi tiết",
       "mandatoryChar": "*",
-      "nameJobLabel": "Vị trí công việc",
-      "nameJobPlaceHolder": "Ví dụ: Tuyển nhân viên trợ giảng, Tuyển giáo viên tiểu học,...",
-      "detailJobLabel": "Chi tiết công việc",
-      "emailJobLabel": "Địa chỉ email",
-      "emailJobPlaceholder": "Email nhận CV",
+      "nameJobLabel": "Vị trí tuyển dụng",
+      "nameJobPlaceHolder": "VD: Giáo viên Toán THCS, Trợ giảng Tiếng Anh...",
+      "detailJobLabel": "Mô tả công việc",
+      "emailJobLabel": "Email liên hệ",
+      "emailJobPlaceholder": "{'email@truong.edu.vn'}",
       "phoneJobLabel": "Số điện thoại",
-      "phoneJobPlaceholder": "Số điện thoại người đăng tin",
+      "phoneJobPlaceholder": "0xxx xxx xxx",
       "companyNameLabel": "Tên công ty",
-      "deadlineLabel": "Hạn ứng tuyển",
-      "categoryLabel": "Lĩnh vực công việc",
-      "typeJobLabel": "Hình thức làm việc",
-      "currentSalaryLabel": "Mức lượng hiện tại",
+      "deadlineLabel": "Hạn nộp",
+      "categoryLabel": "Lĩnh vực",
+      "typeJobLabel": "Hình thức",
+      "currentSalaryLabel": "Loại lương",
       "minSalaryLabel": "Tối thiểu",
       "maxSalaryLabel": "Tối đa",
-      "experienceLabel": "Yêu cầu kinh nghiệm",
+      "experienceLabel": "Kinh nghiệm",
       "benefitLabel": "Phúc lợi",
       "addressJobLabel": "Địa chỉ làm việc",
       "addressJobPlaceholder": "Nhập địa chỉ làm việc",
@@ -415,28 +437,28 @@
       "agreePolicy": "Điều khoản và Điều kiện ",
       "agreePrivacy": "Chính sách quyền riêng tư",
       "and": " và ",
-      "uploadJobContent": "Đăng tin",
+      "uploadJobContent": "Đăng tin ngay",
       "updateJobContent": "Cập nhật công việc",
       "uploadJobComplete": "Đăng tải công việc thành công.",
       "uploadJobFailed": "Đăng tải công việc thất bại. Vui lòng thử lại.",
       "chooseSchool": "Tra cứu công ty / trường học",
       "viewJob": "Xem trước công việc",
-      "chooseDate": "Chọn ngày",
+      "chooseDate": "dd/mm/yyyy",
       "chooseCategory": "Chọn lĩnh vực",
-      "chooseTypeOfEmployment": "Chọn loại công việc",
+      "chooseTypeOfEmployment": "Chọn hình thức",
       "moreInformation": "Thông tin khác",
-      "requiredQualificationLabel": "Yêu cầu bằng cấp",
+      "requiredQualificationLabel": "Chọn bằng cấp",
       "genderLabel": "Giới tính",
       "gradeLabel": "Khối",
       "chooseSalaryType": "Chọn loại lương",
       "enterSalary": "Nhập mức lương",
-      "minSalary": "Mức lương tối thiểu",
-      "maxSalary": "Mức lương tối đa",
+      "minSalary": "VD: 8,000,000",
+      "maxSalary": "VD: 15,000,000",
       "chooseExperienceLevel": "Chọn kinh nghiệm",
       "chooseBenefitLevel": "Chọn phúc lợi (Chọn nhiều)",
       "chooseGender": "Chọn giới tính",
       "chooseGradeLevel": "Chọn khối",
-      "chooseLocation": "Chọn địa điểm"
+      "chooseLocation": "Chọn tỉnh / thành"
     },
     "editJob": {
       "title": "Chỉnh sửa việc làm",
@@ -529,7 +551,7 @@
     },
     "name": "Tên công ty",
     "mst": "Mã số thuế",
-    "taxAddress": "Địa chỉ thuế",
+    "taxAddress": "Nhập địa chỉ thuế",
     "email": "Email",
     "industry": "Loại hình tổ chức",
     "founded": "Năm thành lập",
@@ -562,7 +584,7 @@
       "logoBadge": "Logo",
       "insightLabel": "Mô tả tầm nhìn của công ty",
       "descLabel": "Giới thiệu công ty",
-      "descPlaceholder": "Giới thiệu ngắn gọn về công ty: lĩnh vực hoạt động, sứ mệnh, văn hoá, các thành tựu chính...",
+      "descPlaceholder": "Giới thiệu ngắn về sứ mệnh, môi trường làm việc, đội ngũ và điểm nổi bật của công ty...",
       "overviewLabel": "Tổng quan",
       "overviewPlaceholder": "Tổng quan chi tiết: quy mô, cơ cấu, môi trường làm việc, lợi thế cạnh tranh, mục tiêu sắp tới...",
       "confirmNext": "Xác nhận & Tiếp tục",
@@ -570,17 +592,17 @@
       "createFailed": "Đăng ký công ty thất bại. Vui lòng thử lại.",
       "backToList": "Trở về trang danh sách",
       "createBtn": "Tạo công ty",
-      "placeholderInsight": "Sứ mệnh của côngty",
+      "placeholderInsight": "Sứ mệnh của công ty",
       "placeholderName": "Nhập tên công ty",
-      "placeholderAddress": "Nhập địa chỉ",
-      "placeholderFounded": "2020",
-      "placeholderCompanySize": "120",
+      "placeholderAddress": "Nhập địa chỉ làm việc hoặc địa chỉ trụ sở chính...",
+      "placeholderFounded": "VD: 2008",
+      "placeholderCompanySize": "VD: 120",
       "placeholderEmail": "Enter your email",
-      "placeholderWebsite": "https://example.com",
-      "placeholderFacebook": "https://facebook.com/...",
-      "placeholderTwitter": "https://twitter.com/...",
-      "placeholderInstagram": "https://instagram.com/...",
-      "placeholderLinkedIn": "https://linkedin.com/company/...",
+      "placeholderWebsite": "https://your-company.com",
+      "placeholderFacebook": "https://facebook.com/your-company",
+      "placeholderTwitter": "https://twitter.com/your-company",
+      "placeholderInstagram": "https://instagram.com/your-company",
+      "placeholderLinkedIn": "https://linkedin.com/company/your-company",
       "videoTitle": "Video giới thiệu công ty",
       "placeholderVideo": "https://youtube.com/watch?v=...",
       "errName": "Tên công ty không được để trống.",
@@ -593,7 +615,8 @@
     "editCompany": {
       "title": "Chỉnh sửa công ty",
       "editCompanyContent": "Lưu thông tin",
-      "editCompanyComplete": "Chỉnh sửa thông tin công ty thành công"
+      "editCompanyComplete": "Chỉnh sửa thông tin công ty thành công",
+      "noPermission": "Bạn không có quyền chỉnh sửa thông tin công ty. Chỉ tài khoản Host công ty mới có thể thực hiện."
     }
   },
   "dashboard": {
@@ -623,9 +646,29 @@
       "adminCandidates": "Ứng viên",
       "adminUsers": "Users",
       "adminBlogs": "Blogs",
-      "adminSettings": "Cài đặt"
+      "adminSettings": "Cài đặt",
+      "adminImportExcel": "Import Excel"
     },
     "admin": {
+      "importExcel": {
+        "placeholder": "Khu vực nhập liệu từ file Excel. Bạn có thể bổ sung upload và mapping cột ở bước sau.",
+        "title": "Import dữ liệu từ Excel",
+        "hint": "Sheet \"note\" (đầu file): hướng dẫn cách điền cột và mã từ dropdown. Các sheet dữ liệu: companies → users → jobs → job_applications → blogs (jobs: category/location/benefits dùng multi-select).",
+        "chooseFile": "Chọn file Excel",
+        "downloadTemplate": "Tải file Excel mẫu",
+        "importData": "Import data",
+        "selected": "Đã chọn:",
+        "resultTitle": "Kết quả import",
+        "errors": "Ghi chú / lỗi dòng",
+        "notifyDownloaded": "Đã tải file mẫu",
+        "notifyDownloadError": "Không tải được file mẫu",
+        "notifyImportOk": "Import hoàn tất",
+        "notifyImportDoneWithErrors": "Import xong, có {n} dòng ghi chú — xem chi tiết bên dưới",
+        "notifyImportError": "Import thất bại"
+      },
+      "overview": {
+        "welcome": "Welcome, System Admin"
+      },
       "stats": {
         "companies": "Companies",
         "jobs": "Jobs",
@@ -639,7 +682,7 @@
         "searchPlaceholder": "Tìm theo tên công ty, MST hoặc Email",
         "filterFeature": "Feature",
         "filterBanner": "Banner",
-        "newCompany": "New Company",
+        "newCompany": "Thêm công ty",
         "total": "Tổng số công ty",
         "pendingLabel": "Chờ duyệt",
         "table": {
@@ -685,6 +728,7 @@
       },
       "jobs": {
         "title": "Quản lý công việc",
+        "welcome": "Welcome, System Admin",
         "description": "Duyệt và quản lý tất cả tin tuyển dụng",
         "searchPlaceholder": "Tìm kiếm theo tiêu đề...",
         "total": "Tổng số tin",
@@ -733,14 +777,15 @@
       },
       "settings": {
         "title": "Cài đặt",
-        "description": "Cài đặt hệ thống (đang phát triển)."
+        "welcome": "Welcome, System Admin",
+        "description": "Cài đặt hệ thống."
       },
       "users": {
         "title": "Users",
         "welcome": "Welcome, System Admin",
         "description": "Quản lý tất cả người dùng trong hệ thống",
         "searchPlaceholder": "Search...",
-        "newUser": "New User",
+        "newUser": "Thêm người dùng",
         "total": "Tổng số users",
         "table": {
           "avatar": "AVATAR",
@@ -784,6 +829,7 @@
       },
       "blogs": {
         "title": "Quản lý Blog",
+        "welcome": "Welcome, System Admin",
         "description": "Quản lý tất cả bài viết blog",
         "searchPlaceholder": "Tìm kiếm blog...",
         "total": "Tổng số bài viết",
@@ -895,7 +941,7 @@
       "noJobs": "Chưa có tin đăng nào",
       "noJobsDescription": "Bắt đầu đăng tin tuyển dụng đầu tiên của bạn",
       "createNewJob": "Đăng tin mới",
-      "searchPlaceholder": "Tìm kiếm theo tiêu đề...",
+      "searchPlaceholder": "Tìm theo vị trí, địa điểm, lĩnh vực...",
       "filterByStatus": "Lọc theo trạng thái",
       "clearFilter": "Xóa bộ lọc",
       "loading": "Đang tải...",
@@ -927,6 +973,13 @@
       "deleteSuccess": "Xóa công việc thành công!",
       "deleteFailed": "Xóa công việc thất bại",
       "fetchFailed": "Không thể tải danh sách công việc",
+      "deleteModal": {
+        "title": "Xóa tin tuyển dụng?",
+        "message": "Bạn có chắc chắn muốn xóa tin",
+        "irreversible": "Hành động này không thể hoàn tác.",
+        "cancel": "Hủy",
+        "confirm": "Xóa"
+      },
       "approveModal": {
         "title": "Xác nhận duyệt tin đăng",
         "subtitle": "Bạn có chắc chắn muốn duyệt tin đăng này?",
@@ -975,7 +1028,15 @@
       "viewDetailFeature": "Tính năng xem chi tiết đang được phát triển",
       "deleteConfirm": "Bạn có chắc chắn muốn xóa đơn ứng tuyển này không?",
       "deleteSuccess": "Đã xóa đơn ứng tuyển thành công",
-      "deleteFailed": "Không thể xóa đơn ứng tuyển"
+      "deleteFailed": "Không thể xóa đơn ứng tuyển",
+      "deleteModal": {
+        "title": "Xóa đơn ứng tuyển?",
+        "message": "Bạn có chắc chắn muốn xóa đơn ứng tuyển của",
+        "forJob": "cho vị trí",
+        "irreversible": "Hành động này không thể hoàn tác.",
+        "cancel": "Hủy",
+        "confirm": "Xóa"
+      }
     },
     "settings": {
       "description": "Quản lý cài đặt tài khoản của bạn",

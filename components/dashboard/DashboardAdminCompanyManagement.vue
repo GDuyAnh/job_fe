@@ -1,7 +1,7 @@
 <template>
-  <div class="space-y-6">
+  <div class="employer-admin-company-mgmt">
     <!-- Header: breadcrumb + tabs (nền trắng) -->
-    <div class="bg-white rounded-xl border border-gray-200 p-4 sm:p-6">
+    <div class="employer-admin-company-mgmt-header bg-white rounded-xl border border-gray-200 p-4 sm:p-6">
       <!-- Breadcrumb -->
       <nav class="flex text-sm text-gray-500 mb-4">
         <NuxtLink
@@ -37,423 +37,693 @@
       </div>
     </div>
 
-    <!-- Employers Tab -->
-    <div v-show="activeTab === 'employers'" class="space-y-4">
-      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <UInput
-          v-model="employerSearch"
-          placeholder="Search..."
-          icon="i-lucide-search"
-          class="max-w-xs"
-          @keyup.enter="fetchEmployers"
-        />
-        <UButton color="primary" icon="i-lucide-plus" @click="openNewEmployer">
-          New Employer
-        </UButton>
-      </div>
-      <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
-        <div v-if="employersLoading" class="py-12 text-center text-gray-500">Đang tải...</div>
-        <div v-else-if="employers.length === 0" class="py-12 text-center">
-          <UIcon name="i-lucide-users" class="w-12 h-12 text-gray-400 mx-auto mb-2" />
-          <p class="text-gray-600">No data</p>
-        </div>
-        <table v-else class="w-full">
-          <thead class="bg-white border-b-2 border-gray-200">
-            <tr>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tên User</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Email</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Phone Number</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Created Date</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Host công ty</th>
-              <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Action</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-gray-200">
-            <tr v-for="u in paginatedEmployers" :key="u.id" class="hover:bg-gray-50">
-              <td class="px-6 py-4 text-sm font-medium text-gray-900">{{ u.fullName || '–' }}</td>
-              <td class="px-6 py-4 text-sm text-gray-900">{{ u.email || '–' }}</td>
-              <td class="px-6 py-4 text-sm text-gray-900">{{ u.phoneNumber || '–' }}</td>
-              <td class="px-6 py-4 text-sm text-gray-900">{{ formatDate(u.createdAt) }}</td>
-              <td class="px-6 py-4">
-                <span
-                  v-if="u.isHostCompany"
-                  class="inline-flex px-2.5 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800"
+    <!-- Employers Tab (Employee) -->
+    <div v-show="activeTab === 'employers'">
+      <div class="employer-admin-users-scale">
+        <div class="employer-admin-users-panel">
+          <div class="employer-admin-users-toolbar flex flex-col lg:flex-row lg:items-start lg:justify-between">
+            <div class="employer-admin-users-head">
+              <h1 class="text-3xl font-bold text-gray-400">
+                Employers
+              </h1>
+              <p class="text-gray-500 text-sm">
+                {{ companyName }}
+              </p>
+              <p class="employer-admin-users-summary">
+                Tổng số nhân viên:
+                <strong>{{ filteredEmployers.length }}</strong>
+              </p>
+              <div class="employer-admin-users-filters">
+                <span class="employer-admin-users-filters-label">Vai trò:</span>
+                <button
+                  type="button"
+                  class="employer-admin-users-filter-pill"
+                  :class="{ 'is-active': employerHostFilter === 'all' }"
+                  @click="employerHostFilter = 'all'"
+                >
+                  Tất cả
+                </button>
+                <button
+                  type="button"
+                  class="employer-admin-users-filter-pill"
+                  :class="{ 'is-active': employerHostFilter === 'host' }"
+                  @click="employerHostFilter = 'host'"
                 >
                   Host
-                </span>
-                <UButton
-                  v-else
-                  variant="outline"
-                  size="xs"
-                  :loading="hostTogglingUserId === u.id"
-                  @click="setHost(u, true)"
+                </button>
+                <button
+                  type="button"
+                  class="employer-admin-users-filter-pill"
+                  :class="{ 'is-active': employerHostFilter === 'member' }"
+                  @click="employerHostFilter = 'member'"
                 >
-                  Chuyển thành host
-                </UButton>
-              </td>
-              <td class="px-6 py-4 text-right">
-                <UButton variant="ghost" size="xs" color="error" icon="i-lucide-trash-2" @click="deleteEmployer(u)" />
-              </td>
-            </tr>
-          </tbody>
-        </table>
-        <div v-if="employers.length > 0" class="flex items-center justify-between px-6 py-3 border-t border-gray-200">
-          <span class="text-sm text-gray-600">10 / page</span>
-          <div class="flex items-center gap-2">
-            <UButton variant="ghost" size="xs" icon="i-lucide-chevron-left" :disabled="employerPage <= 1" @click="employerPage--" />
-            <span class="text-sm">{{ employerPage }}</span>
-            <UButton variant="ghost" size="xs" icon="i-lucide-chevron-right" :disabled="employerPage >= employerTotalPages" @click="employerPage++" />
+                  Nhân viên
+                </button>
+              </div>
+            </div>
+            <div class="employer-admin-users-search flex w-full min-w-0 flex-col gap-3 sm:w-auto sm:max-w-none sm:flex-row sm:items-center sm:justify-end">
+              <UInput
+                v-model="employerSearch"
+                placeholder="Search..."
+                icon="i-lucide-search"
+                class="min-w-0 w-full max-w-[380px] sm:flex-1"
+                :ui="{ base: 'h-10 rounded-xl text-[13px]' }"
+              />
+              <div class="w-full sm:w-auto shrink-0 min-w-0 sm:min-w-[10rem]">
+                <UDrawer
+                  v-model:open="addEmployerSlideOpen"
+                  :title="addEmployerDrawerTitle"
+                  :description="addEmployerDrawerSubtitle"
+                  direction="right"
+                  :modal="true"
+                  handle-only
+                  :ui="addEmployerDrawerUi"
+                >
+                  <template #header>
+                    <AdminDrawerHeader
+                      :kicker="addEmployerDrawerKicker"
+                      :title="addEmployerDrawerTitle"
+                      :subtitle="addEmployerDrawerSubtitle"
+                      @close="closeAddEmployerDrawer"
+                    />
+                  </template>
+                  <UButton
+                    color="primary"
+                    icon="i-lucide-plus"
+                    class="h-10 w-full justify-center sm:w-auto whitespace-nowrap rounded-xl px-4 text-[13px] font-semibold shadow-sm"
+                    @click="openNewEmployer"
+                  >
+                    Thêm employer
+                  </UButton>
+                  <template #body>
+                    <div class="p-6 ui-drawer-body-vh">
+                      <form
+                        class="employer-company-form employer-admin-user-drawer-form"
+                        @submit.prevent="submitAddEmployer"
+                      >
+                        <label class="employer-admin-company-featured">
+                          <span class="employer-admin-company-featured-label">User Type</span>
+                          <span class="employer-admin-company-featured-control">
+                            <UCheckbox v-model="employerForm.isHost" />
+                            <span>Host</span>
+                          </span>
+                        </label>
+
+                        <label class="employer-field employer-field-full">
+                          <span>
+                            Full name
+                            <span class="text-red-500">*</span>
+                          </span>
+                          <UInput
+                            v-model.trim="employerForm.fullName"
+                            class="w-full"
+                            placeholder="Full name"
+                            :class="{ 'ring-red-500': employerFormErrors.fullName }"
+                            @blur="employerFormErrors.fullName = ''"
+                          />
+                          <p v-if="employerFormErrors.fullName" class="employer-field-error">
+                            {{ employerFormErrors.fullName }}
+                          </p>
+                        </label>
+
+                        <label class="employer-field employer-field-full">
+                          <span>
+                            Email
+                            <span class="text-red-500">*</span>
+                          </span>
+                          <UInput
+                            v-model.trim="employerForm.email"
+                            type="email"
+                            icon="i-lucide-mail"
+                            class="w-full"
+                            placeholder="Email address"
+                            :class="{ 'ring-red-500': employerFormErrors.email }"
+                            @blur="employerFormErrors.email = ''"
+                          />
+                          <p v-if="employerFormErrors.email" class="employer-field-error">
+                            {{ employerFormErrors.email }}
+                          </p>
+                        </label>
+
+                        <label class="employer-field employer-field-full">
+                          <span>
+                            Password
+                            <span class="text-red-500">*</span>
+                          </span>
+                          <div class="employer-admin-user-password-wrap">
+                            <UInput
+                              v-model="employerForm.password"
+                              :type="showEmployerPassword ? 'text' : 'password'"
+                              class="w-full"
+                              placeholder="Password"
+                              :class="{ 'ring-red-500': employerFormErrors.password }"
+                              @blur="employerFormErrors.password = ''"
+                            />
+                            <button
+                              type="button"
+                              class="employer-admin-user-password-toggle"
+                              :aria-label="showEmployerPassword ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'"
+                              @click="showEmployerPassword = !showEmployerPassword"
+                            >
+                              <UIcon
+                                :name="showEmployerPassword ? 'i-lucide-eye-off' : 'i-lucide-eye'"
+                                class="h-5 w-5"
+                              />
+                            </button>
+                          </div>
+                          <p v-if="employerFormErrors.password" class="employer-field-error">
+                            {{ employerFormErrors.password }}
+                          </p>
+                        </label>
+
+                        <label class="employer-field employer-field-full">
+                          <span>
+                            Confirm Password
+                            <span class="text-red-500">*</span>
+                          </span>
+                          <div class="employer-admin-user-password-wrap">
+                            <UInput
+                              v-model="employerForm.confirmPassword"
+                              :type="showEmployerConfirmPassword ? 'text' : 'password'"
+                              class="w-full"
+                              placeholder="Confirm password"
+                              :class="{ 'ring-red-500': employerFormErrors.confirmPassword }"
+                              @blur="employerFormErrors.confirmPassword = ''"
+                            />
+                            <button
+                              type="button"
+                              class="employer-admin-user-password-toggle"
+                              :aria-label="showEmployerConfirmPassword ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'"
+                              @click="showEmployerConfirmPassword = !showEmployerConfirmPassword"
+                            >
+                              <UIcon
+                                :name="showEmployerConfirmPassword ? 'i-lucide-eye-off' : 'i-lucide-eye'"
+                                class="h-5 w-5"
+                              />
+                            </button>
+                          </div>
+                          <p v-if="employerFormErrors.confirmPassword" class="employer-field-error">
+                            {{ employerFormErrors.confirmPassword }}
+                          </p>
+                        </label>
+
+                        <div class="employer-admin-drawer-form-actions">
+                          <UButton type="submit" color="primary" :loading="addEmployerLoading">
+                            Create
+                          </UButton>
+                          <UButton
+                            type="button"
+                            variant="outline"
+                            color="neutral"
+                            :disabled="addEmployerLoading"
+                            @click="closeAddEmployerDrawer"
+                          >
+                            Hủy
+                          </UButton>
+                        </div>
+                      </form>
+                    </div>
+                  </template>
+                </UDrawer>
+              </div>
+            </div>
+          </div>
+
+          <div
+            v-if="!employersLoading && filteredEmployers.length > 0"
+            class="employer-admin-users-pagination flex items-center justify-end gap-4"
+          >
+            <div class="flex items-center gap-2">
+              <button
+                type="button"
+                :disabled="employerPage <= 1"
+                class="w-8 h-8 flex items-center justify-center rounded text-gray-400 hover:text-gray-600 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                @click="employerPage--"
+              >
+                <UIcon name="i-lucide-chevron-left" class="w-5 h-5" />
+              </button>
+              <div class="flex items-center gap-2">
+                <button
+                  v-for="page in employerTotalPages"
+                  :key="page"
+                  type="button"
+                  :class="[
+                    'min-w-[32px] h-8 px-2 flex items-center justify-center rounded text-sm font-medium transition-colors',
+                    employerPage === page
+                      ? 'border border-blue-500 text-blue-500 bg-white'
+                      : 'text-gray-900 hover:text-gray-600',
+                  ]"
+                  @click="employerPage = page"
+                >
+                  {{ page }}
+                </button>
+              </div>
+              <button
+                type="button"
+                :disabled="employerPage >= employerTotalPages"
+                class="w-8 h-8 flex items-center justify-center rounded text-gray-400 hover:text-gray-600 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                @click="employerPage++"
+              >
+                <UIcon name="i-lucide-chevron-right" class="w-5 h-5" />
+              </button>
+              <div class="ml-4 relative employer-items-per-page-dropdown">
+                <button
+                  type="button"
+                  class="px-3 py-1.5 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-1"
+                  @click="showEmployerItemsPerPageDropdown = !showEmployerItemsPerPageDropdown"
+                >
+                  {{ employerPerPage }} / page
+                  <UIcon name="i-lucide-chevron-down" class="w-4 h-4" />
+                </button>
+                <div
+                  v-if="showEmployerItemsPerPageDropdown"
+                  class="absolute right-0 mt-1 w-32 bg-white border border-gray-200 rounded-lg shadow-lg z-10"
+                >
+                  <button
+                    v-for="option in [10, 20, 50, 100]"
+                    :key="option"
+                    type="button"
+                    :class="[
+                      'w-full px-3 py-2 text-sm text-left rounded hover:bg-gray-100 transition-colors',
+                      employerPerPage === option ? 'bg-gray-100 font-medium' : '',
+                    ]"
+                    @click="employerPerPage = option; showEmployerItemsPerPageDropdown = false"
+                  >
+                    {{ option }} / page
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="employer-admin-users-body">
+            <div v-if="employersLoading" class="employer-admin-users-loading">
+              <USkeleton class="h-64 w-full" />
+            </div>
+
+            <div v-else-if="filteredEmployers.length === 0" class="employer-admin-users-empty">
+              <UIcon name="i-lucide-users" class="w-12 h-12 text-gray-400 mx-auto mb-2" />
+              <p>Không có nhân viên</p>
+            </div>
+
+            <div v-else class="employer-admin-users-table-wrap">
+              <table class="employer-admin-users-table">
+                <thead>
+                  <tr>
+                    <th>Avatar</th>
+                    <th>Tên User</th>
+                    <th>Email</th>
+                    <th>Phone Number</th>
+                    <th>Host công ty</th>
+                    <th>Created Date</th>
+                    <th class="is-action">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr
+                    v-for="u in paginatedEmployers"
+                    :key="u.id"
+                  >
+                    <td>
+                      <span class="employer-admin-user-avatar" aria-hidden="true">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                          <circle cx="12" cy="8" r="3.5" stroke="currentColor" stroke-width="2" />
+                          <path d="M5 20a7 7 0 0 1 14 0" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                        </svg>
+                      </span>
+                    </td>
+                    <td>
+                      <strong class="employer-admin-user-name">{{ u.fullName || '–' }}</strong>
+                    </td>
+                    <td>{{ u.email || '–' }}</td>
+                    <td>{{ u.phoneNumber || '–' }}</td>
+                    <td>
+                      <span
+                        v-if="u.isHostCompany"
+                        class="employer-admin-user-type is-host"
+                      >
+                        Host
+                      </span>
+                      <button
+                        v-else
+                        type="button"
+                        class="employer-admin-company-host-btn"
+                        :disabled="hostTogglingUserId === u.id"
+                        @click="setHost(u, true)"
+                      >
+                        {{ hostTogglingUserId === u.id ? 'Đang xử lý...' : 'Chuyển thành host' }}
+                      </button>
+                    </td>
+                    <td>{{ formatUserDate(u.createdAt) }}</td>
+                    <td class="is-action">
+                      <EmployerRowActions
+                        :show-view="false"
+                        :show-edit="false"
+                        delete-label="Xóa"
+                        @delete="deleteEmployer(u)"
+                      />
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       </div>
     </div>
-
-    <!-- Slide Add Employers -->
-    <UDrawer
-      v-model:open="addEmployerSlideOpen"
-      title="Add Employers"
-      direction="right"
-      :modal="false"
-      handle-only
-      :ui="{ content: 'w-full min-w-[400px] max-w-lg' }"
-    >
-      <template #header>
-        <div class="flex items-center w-full gap-2">
-          <span class="flex-1 font-semibold">Add Employers</span>
-          <UButton color="neutral" variant="ghost" icon="i-lucide-x" @click="addEmployerSlideOpen = false" />
-        </div>
-      </template>
-      <template #body>
-        <div class="p-6 space-y-4">
-          <!-- User Type: chỉ 1 checkbox Host -->
-          <div>
-            <p class="text-sm font-medium text-gray-700 mb-2">User Type</p>
-            <label class="inline-flex items-center gap-2 cursor-pointer">
-              <UCheckbox v-model="employerForm.isHost" />
-              <span class="text-sm font-medium text-gray-700">Host</span>
-            </label>
-          </div>
-          <!-- Full name (BE bắt buộc) -->
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">
-              Full name <span class="text-red-500">*</span>
-            </label>
-            <UInput
-              v-model.trim="employerForm.fullName"
-              class="w-full"
-              placeholder="Full name"
-              :class="{ 'border-red-500': employerFormErrors.fullName }"
-            />
-            <p v-if="employerFormErrors.fullName" class="text-red-500 text-sm mt-1">{{ employerFormErrors.fullName }}</p>
-          </div>
-          <!-- Email (BE bắt buộc) -->
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">
-              Email <span class="text-red-500">*</span>
-            </label>
-            <UInput
-              v-model.trim="employerForm.email"
-              type="email"
-              class="w-full"
-              placeholder="Email address"
-              :class="{ 'border-red-500': employerFormErrors.email }"
-            />
-            <p v-if="employerFormErrors.email" class="text-red-500 text-sm mt-1">{{ employerFormErrors.email }}</p>
-          </div>
-          <!-- Password -->
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">
-              Password <span class="text-red-500">*</span>
-            </label>
-            <UInput
-              v-model="employerForm.password"
-              type="password"
-              class="w-full"
-              placeholder="Password"
-              :class="{ 'border-red-500': employerFormErrors.password }"
-            />
-            <p v-if="employerFormErrors.password" class="text-red-500 text-sm mt-1">{{ employerFormErrors.password }}</p>
-          </div>
-          <!-- Confirm Password -->
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">
-              Confirm Password <span class="text-red-500">*</span>
-            </label>
-            <UInput
-              v-model="employerForm.confirmPassword"
-              type="password"
-              class="w-full"
-              placeholder="Confirm password"
-              :class="{ 'border-red-500': employerFormErrors.confirmPassword }"
-            />
-            <p v-if="employerFormErrors.confirmPassword" class="text-red-500 text-sm mt-1">{{ employerFormErrors.confirmPassword }}</p>
-          </div>
-          <div class="flex justify-end pt-2">
-            <UButton color="primary" :loading="addEmployerLoading" @click="submitAddEmployer">
-              Create
-            </UButton>
-          </div>
-        </div>
-      </template>
-    </UDrawer>
 
     <!-- Jobs Tab -->
-    <div v-show="activeTab === 'jobs'" class="space-y-4">
-      <!-- Status cards -->
-      <div class="bg-white rounded-xl border border-gray-200 p-4">
-        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-          <button
-            v-for="card in jobStatusCards"
-            :key="card.key"
-            type="button"
-            class="rounded-lg border-2 p-3 text-left transition-colors bg-white"
-            :class="jobStatusFilter === card.key ? 'border-blue-600 bg-blue-50' : 'border-gray-300 hover:bg-gray-50'"
-            @click="jobStatusFilter = card.key"
-          >
-            <p class="text-xs font-medium text-gray-500">{{ card.label }}</p>
-            <p class="text-lg font-semibold text-gray-900">{{ card.count }}</p>
-          </button>
+    <div v-show="activeTab === 'jobs'">
+      <div class="employer-admin-jobs-scale">
+        <div class="employer-admin-jobs-panel">
+          <div class="employer-admin-jobs-toolbar flex flex-col lg:flex-row lg:items-center lg:justify-between">
+            <div class="employer-admin-jobs-head min-w-0 shrink-0">
+              <h1 class="text-2xl font-semibold text-gray-400">
+                Jobs
+              </h1>
+              <p class="text-gray-500 text-sm">
+                {{ companyName }}
+              </p>
+            </div>
+            <div
+              class="employer-admin-jobs-search flex w-full min-w-0 flex-nowrap items-center overflow-x-auto lg:flex-1 lg:justify-end"
+            >
+              <UInput
+                v-model="jobSearch"
+                placeholder="Search..."
+                icon="i-lucide-search"
+                class="min-w-0 max-w-[380px] flex-1"
+                :ui="{ base: 'h-10 w-full rounded-xl text-[13px]' }"
+              />
+              <UButton
+                color="primary"
+                icon="i-lucide-plus"
+                class="h-10 shrink-0 whitespace-nowrap rounded-xl px-4 text-[13px] font-semibold shadow-sm"
+                @click="openNewJob"
+              >
+                New Job
+              </UButton>
+            </div>
+          </div>
+
+          <div class="employer-admin-jobs-stats">
+            <div class="employer-admin-jobs-stats-grid grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6">
+              <button
+                v-for="card in jobStatusCards"
+                :key="card.key"
+                type="button"
+                class="employer-admin-jobs-stat"
+                :class="{ 'is-active': jobStatusFilter === card.key }"
+                @click="jobStatusFilter = card.key"
+              >
+                <span class="employer-admin-jobs-stat-label">{{ card.label }}</span>
+                <strong>{{ card.count }}</strong>
+              </button>
+            </div>
+          </div>
+
+          <div class="employer-admin-jobs-body">
+            <div v-if="jobsLoading" class="py-12 text-center text-gray-500">
+              Đang tải...
+            </div>
+
+            <div v-else class="overflow-x-auto">
+              <table class="w-full">
+                <thead class="bg-white border-b-2 border-gray-200">
+                  <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase relative post-type-filter-th">
+                      Position
+                    </th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase relative post-type-filter-th">
+                      Posted By
+                    </th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase relative post-type-filter-th">
+                      Total Application
+                    </th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase relative post-type-filter-th">
+                      <button
+                        type="button"
+                        class="inline-flex items-center gap-1 hover:text-gray-700"
+                        @click="toggleSort('postType')"
+                      >
+                        Post Type
+                        <UIcon v-if="sortBy === 'postType'" :name="sortOrder === 'asc' ? 'i-lucide-arrow-up' : 'i-lucide-arrow-down'" class="w-3 h-3" />
+                        <UIcon v-else name="i-lucide-chevrons-up-down" class="w-3 h-3 opacity-50" />
+                      </button>
+                      <button
+                        type="button"
+                        class="ml-1 inline-flex items-center justify-center w-4 h-4 rounded hover:bg-gray-200"
+                        :class="postTypeFilter ? 'text-blue-600' : 'text-gray-400'"
+                        @click="showPostTypeFilter = !showPostTypeFilter"
+                      >
+                        <UIcon name="i-lucide-filter" class="w-3 h-3" />
+                      </button>
+                      <div v-if="showPostTypeFilter" class="fixed z-[100] mt-1 bg-white rounded-lg shadow-lg border border-gray-200 p-2">
+                        <label class="flex items-center gap-2 cursor-pointer px-2 py-1 hover:bg-gray-50 rounded">
+                          <input v-model="postTypeFilter" type="radio" :value="null" class="w-4 h-4 text-blue-600">
+                          <span class="text-sm">Tất cả</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer px-2 py-1 hover:bg-gray-50 rounded">
+                          <input v-model="postTypeFilter" type="radio" value="Basic" class="w-4 h-4 text-blue-600">
+                          <span class="text-sm">Cơ bản</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer px-2 py-1 hover:bg-gray-50 rounded">
+                          <input v-model="postTypeFilter" type="radio" value="Hot" class="w-4 h-4 text-blue-600">
+                          <span class="text-sm">Mới nhất</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer px-2 py-1 hover:bg-gray-50 rounded">
+                          <input v-model="postTypeFilter" type="radio" value="Urgent" class="w-4 h-4 text-blue-600">
+                          <span class="text-sm">Tuyển gấp</span>
+                        </label>
+                      </div>
+                    </th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase relative status-filter-th">
+                      <button
+                        type="button"
+                        class="inline-flex items-center gap-1 hover:text-gray-700"
+                        @click="toggleSort('status')"
+                      >
+                        Status
+                        <UIcon v-if="sortBy === 'status'" :name="sortOrder === 'asc' ? 'i-lucide-arrow-up' : 'i-lucide-arrow-down'" class="w-3 h-3" />
+                        <UIcon v-else name="i-lucide-chevrons-up-down" class="w-3 h-3 opacity-50" />
+                      </button>
+                      <button
+                        type="button"
+                        class="ml-1 inline-flex items-center justify-center w-4 h-4 rounded hover:bg-gray-200"
+                        :class="statusFilter ? 'text-blue-600' : 'text-gray-400'"
+                        @click="showStatusFilter = !showStatusFilter"
+                      >
+                        <UIcon name="i-lucide-filter" class="w-3 h-3" />
+                      </button>
+                      <div v-if="showStatusFilter" class="fixed z-[100] mt-1 bg-white rounded-lg shadow-lg border border-gray-200 p-2">
+                        <label class="flex items-center gap-2 cursor-pointer px-2 py-1 hover:bg-gray-50 rounded">
+                          <input v-model="statusFilter" type="radio" :value="null" class="w-4 h-4 text-blue-600">
+                          <span class="text-sm">Tất cả</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer px-2 py-1 hover:bg-gray-50 rounded">
+                          <input v-model="statusFilter" type="radio" value="approved" class="w-4 h-4 text-blue-600">
+                          <span class="text-sm">Approved</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer px-2 py-1 hover:bg-gray-50 rounded">
+                          <input v-model="statusFilter" type="radio" value="pending" class="w-4 h-4 text-blue-600">
+                          <span class="text-sm">Pending</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer px-2 py-1 hover:bg-gray-50 rounded">
+                          <input v-model="statusFilter" type="radio" value="reviewing" class="w-4 h-4 text-blue-600">
+                          <span class="text-sm">Reviewing</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer px-2 py-1 hover:bg-gray-50 rounded">
+                          <input v-model="statusFilter" type="radio" value="rejected" class="w-4 h-4 text-blue-600">
+                          <span class="text-sm">Rejected</span>
+                        </label>
+                      </div>
+                    </th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase relative post-type-filter-th">
+                      Posted On
+                    </th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase relative post-type-filter-th">
+                      Expired Date
+                    </th>
+                    <th class="is-action px-6 py-3 text-xs font-medium text-gray-500 uppercase">
+                      Action
+                    </th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                  <tr v-if="paginatedJobs.length === 0 && !jobsLoading">
+                    <td colspan="8" class="px-6 py-16 text-center text-gray-500">
+                      <UIcon name="i-lucide-folder-open" class="w-14 h-14 text-gray-400 mx-auto mb-3" />
+                      <p>No data</p>
+                    </td>
+                  </tr>
+                  <tr v-for="job in paginatedJobs" :key="job.id" class="hover:bg-gray-50">
+                    <td class="px-6 py-4">
+                      <div class="flex items-center gap-2">
+                        <img
+                          v-if="job.companyLogo || job.imageLogo"
+                          :src="job.companyLogo || job.imageLogo"
+                          alt=""
+                          class="w-8 h-8 rounded object-cover flex-shrink-0"
+                        >
+                        <span class="text-sm font-medium text-gray-900">{{ job.title || '–' }}</span>
+                      </div>
+                    </td>
+                    <td class="px-6 py-4 text-sm text-gray-600 max-w-[200px] truncate" :title="job.companyName || companyName">
+                      {{ job.companyName || companyName || '–' }}
+                    </td>
+                    <td class="px-6 py-4 text-sm text-gray-600">
+                      {{ applicationCount(job) }} application
+                    </td>
+                    <td class="px-6 py-4">
+                      <span
+                        :class="[
+                          'inline-flex px-2.5 py-1 text-xs font-medium rounded-full',
+                          postTypeChipClass(job.postType),
+                        ]"
+                      >
+                        {{ postTypeLabel(job.postType) }}
+                      </span>
+                    </td>
+                    <td class="px-6 py-4">
+                      <span
+                        :class="[
+                          'inline-flex px-2 py-0.5 text-xs font-medium rounded-full uppercase',
+                          jobStatusDisplayClass(job),
+                        ]"
+                      >
+                        {{ jobStatusDisplayLabel(job) }}
+                      </span>
+                    </td>
+                    <td class="px-6 py-4 text-sm text-gray-600">
+                      {{ formatJobDate(job.postedDate || job.createdAt) }}
+                    </td>
+                    <td class="px-6 py-4">
+                      <span :class="expiredDateClass(job.deadline)" class="text-sm">
+                        {{ formatJobDate(job.deadline) }}
+                      </span>
+                    </td>
+                    <td class="is-action px-6 py-4">
+                      <EmployerRowActions
+                        @view="viewJob(job.id)"
+                        @edit="openEditJob(job)"
+                        @delete="deleteJob(job)"
+                      >
+                        <template v-if="!isJobApproved(job)" #prepend>
+                          <button
+                            type="button"
+                            class="employer-row-action"
+                            aria-label="Approve"
+                            @click="openApproveJob(job)"
+                          >
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                              <path
+                                d="M22 11.08V12a10 10 0 1 1-5.93-9.14"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                              />
+                              <path
+                                d="m9 11 3 3L22 4"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                              />
+                            </svg>
+                          </button>
+                        </template>
+                      </EmployerRowActions>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div
+              v-if="filteredJobs.length > 0"
+              class="px-6 py-4 border-t border-gray-200 flex items-center justify-between"
+            >
+              <div class="text-sm text-gray-700">
+                Showing {{ (jobPage - 1) * jobItemsPerPage + 1 }} -
+                {{ Math.min(jobPage * jobItemsPerPage, filteredJobs.length) }} of
+                {{ filteredJobs.length }}
+              </div>
+              <div class="flex gap-2">
+                <UButton
+                  variant="outline"
+                  color="neutral"
+                  size="sm"
+                  :disabled="jobPage === 1"
+                  @click="jobPage--"
+                >
+                  Previous
+                </UButton>
+                <UButton
+                  variant="outline"
+                  color="neutral"
+                  size="sm"
+                  :disabled="jobPage >= jobTotalPages"
+                  @click="jobPage++"
+                >
+                  Next
+                </UButton>
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
-      <!-- Header: Search (location) + 1 filter + New Job + Upload Jobs - cùng hàng, cùng chiều cao -->
-      <div class="flex flex-wrap items-center gap-3">
-        <UInput
-          v-model="jobSearch"
-          placeholder="Search..."
-          icon="i-lucide-search"
-          class="w-[220px] h-10"
-        />
-        <USelect
-          v-model="jobTypeFilter"
-          :items="jobTypeFilterItems"
-          class="w-[160px] h-10"
-        />
-        <UButton
-          color="primary"
-          icon="i-lucide-plus"
-          class="h-10"
-          @click="openNewJob"
-        >
-          New Job
-        </UButton>
-        <UButton
-          variant="outline"
-          color="neutral"
-          icon="i-lucide-upload"
-          class="h-10"
-          @click="uploadJobs"
-        >
-          Upload Jobs
-        </UButton>
-      </div>
-      <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
-        <div v-if="jobsLoading" class="py-12 text-center text-gray-500">Đang tải...</div>
-        <div v-else-if="allJobs.length === 0" class="py-16 text-center">
-          <UIcon name="i-lucide-folder-open" class="w-14 h-14 text-gray-400 mx-auto mb-3" />
-          <p class="text-gray-600">No data</p>
-        </div>
-        <table v-else class="w-full">
-          <thead class="bg-white border-b-2 border-gray-200">
-            <tr>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Position</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Total Application</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase relative post-type-filter-th">
-                <button
-                  type="button"
-                  class="inline-flex items-center gap-1 hover:text-gray-700"
-                  @click="toggleSort('postType')"
-                >
-                  Post Type
-                  <UIcon v-if="sortBy === 'postType'" :name="sortOrder === 'asc' ? 'i-lucide-arrow-up' : 'i-lucide-arrow-down'" class="w-3 h-3" />
-                  <UIcon v-else name="i-lucide-chevrons-up-down" class="w-3 h-3 opacity-50" />
-                </button>
-                <button
-                  type="button"
-                  class="ml-1 inline-flex items-center justify-center w-4 h-4 rounded hover:bg-gray-200"
-                  :class="postTypeFilter ? 'text-blue-600' : 'text-gray-400'"
-                  @click="showPostTypeFilter = !showPostTypeFilter"
-                >
-                  <UIcon name="i-lucide-filter" class="w-3 h-3" />
-                </button>
-                <div v-if="showPostTypeFilter" class="fixed z-[100] mt-1 bg-white rounded-lg shadow-lg border border-gray-200 p-2">
-                  <label class="flex items-center gap-2 cursor-pointer px-2 py-1 hover:bg-gray-50 rounded">
-                    <input v-model="postTypeFilter" type="radio" :value="null" class="w-4 h-4 text-blue-600" />
-                    <span class="text-sm">Tất cả</span>
-                  </label>
-                  <label class="flex items-center gap-2 cursor-pointer px-2 py-1 hover:bg-gray-50 rounded">
-                    <input v-model="postTypeFilter" type="radio" value="Basic" class="w-4 h-4 text-blue-600" />
-                    <span class="text-sm">Cơ bản</span>
-                  </label>
-                  <label class="flex items-center gap-2 cursor-pointer px-2 py-1 hover:bg-gray-50 rounded">
-                    <input v-model="postTypeFilter" type="radio" value="Hot" class="w-4 h-4 text-blue-600" />
-                    <span class="text-sm">Mới nhất</span>
-                  </label>
-                  <label class="flex items-center gap-2 cursor-pointer px-2 py-1 hover:bg-gray-50 rounded">
-                    <input v-model="postTypeFilter" type="radio" value="Urgent" class="w-4 h-4 text-blue-600" />
-                    <span class="text-sm">Tuyển gấp</span>
-                  </label>
-                </div>
-              </th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase relative status-filter-th">
-                <button
-                  type="button"
-                  class="inline-flex items-center gap-1 hover:text-gray-700"
-                  @click="toggleSort('status')"
-                >
-                  Status
-                  <UIcon v-if="sortBy === 'status'" :name="sortOrder === 'asc' ? 'i-lucide-arrow-up' : 'i-lucide-arrow-down'" class="w-3 h-3" />
-                  <UIcon v-else name="i-lucide-chevrons-up-down" class="w-3 h-3 opacity-50" />
-                </button>
-                <button
-                  type="button"
-                  class="ml-1 inline-flex items-center justify-center w-4 h-4 rounded hover:bg-gray-200"
-                  :class="statusFilter ? 'text-blue-600' : 'text-gray-400'"
-                  @click="showStatusFilter = !showStatusFilter"
-                >
-                  <UIcon name="i-lucide-filter" class="w-3 h-3" />
-                </button>
-                <div v-if="showStatusFilter" class="fixed z-[100] mt-1 bg-white rounded-lg shadow-lg border border-gray-200 p-2">
-                  <label class="flex items-center gap-2 cursor-pointer px-2 py-1 hover:bg-gray-50 rounded">
-                    <input v-model="statusFilter" type="radio" :value="null" class="w-4 h-4 text-blue-600" />
-                    <span class="text-sm">Tất cả</span>
-                  </label>
-                  <label class="flex items-center gap-2 cursor-pointer px-2 py-1 hover:bg-gray-50 rounded">
-                    <input v-model="statusFilter" type="radio" value="approved" class="w-4 h-4 text-blue-600" />
-                    <span class="text-sm">Approved</span>
-                  </label>
-                  <label class="flex items-center gap-2 cursor-pointer px-2 py-1 hover:bg-gray-50 rounded">
-                    <input v-model="statusFilter" type="radio" value="pending" class="w-4 h-4 text-blue-600" />
-                    <span class="text-sm">Pending</span>
-                  </label>
-                  <label class="flex items-center gap-2 cursor-pointer px-2 py-1 hover:bg-gray-50 rounded">
-                    <input v-model="statusFilter" type="radio" value="reviewing" class="w-4 h-4 text-blue-600" />
-                    <span class="text-sm">Reviewing</span>
-                  </label>
-                  <label class="flex items-center gap-2 cursor-pointer px-2 py-1 hover:bg-gray-50 rounded">
-                    <input v-model="statusFilter" type="radio" value="rejected" class="w-4 h-4 text-blue-600" />
-                    <span class="text-sm">Rejected</span>
-                  </label>
-                </div>
-              </th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Posted On</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Note</th>
-              <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Action</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-gray-200">
-            <tr v-if="filteredJobs.length === 0" class="hover:bg-gray-50">
-              <td colspan="7" class="px-6 py-16 text-center text-gray-500">
-                <UIcon name="i-lucide-folder-open" class="w-14 h-14 text-gray-400 mx-auto mb-3" />
-                <p>No data</p>
-              </td>
-            </tr>
-            <tr v-for="job in filteredJobs" :key="job.id" class="hover:bg-gray-50">
-              <td class="px-6 py-4 text-sm font-medium text-gray-900">{{ job.title || '–' }}</td>
-              <td class="px-6 py-4 text-sm text-gray-600">0</td>
-              <td class="px-6 py-4">
-                <span
-                  :class="[
-                    'inline-flex px-2.5 py-1 text-xs font-medium rounded-full',
-                    postTypeChipClass(job.postType),
-                  ]"
-                >
-                  {{ postTypeLabel(job.postType) }}
-                </span>
-              </td>
-              <td class="px-6 py-4">
-                <span
-                  :class="[
-                    'inline-flex px-2 py-0.5 text-xs font-medium rounded-full',
-                    jobStatusDisplayClass(job),
-                  ]"
-                >
-                  {{ jobStatusDisplayLabel(job) }}
-                </span>
-              </td>
-              <td class="px-6 py-4 text-sm text-gray-600">{{ formatDate(job.postedDate || job.createdAt) }}</td>
-              <td class="px-6 py-4">
-                <span
-                  v-if="(job.note || 'user') === 'admin'"
-                  class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-violet-100 text-violet-600"
-                  title="Admin"
-                >
-                  <UIcon name="i-lucide-shield-check" class="w-4 h-4" />
-                </span>
-                <span
-                  v-else
-                  class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-gray-100 text-gray-600"
-                  title="User"
-                >
-                  <UIcon name="i-lucide-user" class="w-4 h-4" />
-                </span>
-              </td>
-              <td class="px-6 py-4 text-right">
-                <div class="flex items-center justify-end gap-1">
-                  <UButton
-                    v-if="!isJobApproved(job)"
-                    variant="ghost"
-                    size="xs"
-                    color="primary"
-                    @click="openApproveJob(job)"
-                  >
-                    <UIcon name="i-lucide-check-circle" class="w-4 h-4" />
-                  </UButton>
-                  <UButton variant="ghost" size="xs" icon="i-lucide-eye" @click="viewJob(job.id)" />
-                  <UButton variant="ghost" size="xs" icon="i-lucide-pencil" @click="openEditJob(job)" />
-                  <UButton variant="ghost" size="xs" color="error" icon="i-lucide-trash-2" @click="deleteJob(job)" />
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
       </div>
     </div>
+
+    <Teleport to="body">
+      <div
+        v-if="jobSlideOpen"
+        class="employer-admin-job-drawer-backdrop fixed inset-0 z-10 bg-[rgba(15,23,42,0.42)] backdrop-blur-sm"
+        aria-hidden="true"
+        @click="closeJobSlide"
+      />
+    </Teleport>
 
     <!-- Slide Add/Edit Job (UI đồng bộ với trang add job) -->
     <UDrawer
       v-model:open="jobSlideOpen"
       :title="jobSlideTitle"
+      :description="jobSlideSubtitle"
       direction="right"
       :modal="false"
+      :overlay="false"
+      :should-scale-background="false"
+      :no-body-styles="true"
       handle-only
-      :ui="{ content: 'w-full min-w-[400px] max-w-4xl' }"
+      :ui="jobDrawerUi"
     >
       <template #header>
-        <div class="flex items-center w-full gap-2">
-          <span class="flex-1 font-semibold">{{ jobSlideTitle }}</span>
-          <UButton color="neutral" variant="ghost" icon="i-lucide-x" @click="closeJobSlide" />
-        </div>
+        <AdminDrawerHeader
+          :kicker="jobSlideKicker"
+          :title="jobSlideTitle"
+          :subtitle="jobSlideSubtitle"
+          @close="closeJobSlide"
+        />
       </template>
       <template #body>
-        <div class="p-6 overflow-y-auto max-h-[85vh]">
-          <!-- Header: Job Posting + Company name -->
-          <div class="mb-6">
-            <h2 class="text-2xl font-bold text-gray-900">Job Posting</h2>
-            <p class="mt-1 text-sm text-gray-500 uppercase">{{ companyName || 'Công ty' }}</p>
-          </div>
-          <div v-if="editingJob">
+        <div class="employer-job-drawer-body-inner ui-drawer-body-vh">
+          <div class="employer-admin-job-drawer-company">
+            <label class="employer-admin-job-drawer-company-label">
+              Công ty
+            </label>
             <USelect
-              :items="editCompanySelectItem"
-              :model-value="editingJob.companyId?.toString() ?? ''"
-              class="w-full"
+              :items="companyDisplaySelectItem"
+              :model-value="companyDisplaySelectValue"
+              class="w-full employer-admin-job-drawer-company-select"
+              :ui="adminJobDrawerCompanySelectControlUi"
               disabled
             />
           </div>
-          <template v-else>
-            <USelect
-              v-if="companySelectItems.length > 0"
-              :items="companySelectItems"
-              :model-value="selectedCompanyId?.toString() ?? ''"
-              placeholder="Chọn công ty"
-              class="w-full"
-              @update:model-value="onSelectCompany"
-            />
-            <p v-else class="text-sm text-gray-500">Đang tải danh sách công ty...</p>
-          </template>
           <DashboardNewJob
             :company-data="companyDataForJob ?? undefined"
             :job-to-edit="editingJobForForm ?? undefined"
-            :require-company-selection="!editingJob"
+            :require-company-selection="false"
+            embedded-in-drawer
             @job-created="onJobSlideSuccess"
           />
         </div>
@@ -585,8 +855,9 @@
 <script setup lang="ts">
 import type { JobModel } from '~/models/job'
 import type { CompanyEntity } from '~/entities/company'
-
+import AdminDrawerHeader from '~/components/AdminDrawerHeader.vue'
 import { ROUTE_PAGE } from '~/constants/route-page'
+import { postTypeAdminChipClass } from '~/constants/post-type'
 
 const { $api } = useNuxtApp()
 
@@ -601,6 +872,9 @@ const activeTab = ref<'employers' | 'jobs'>('employers')
 const employers = ref<any[]>([])
 const employersLoading = ref(false)
 const employerSearch = ref('')
+const employerHostFilter = ref<'all' | 'host' | 'member'>('all')
+const employerPerPage = ref(10)
+const showEmployerItemsPerPageDropdown = ref(false)
 
 // Delete confirmation modals
 const showDeleteEmployerModal = ref(false)
@@ -610,7 +884,7 @@ const employerPendingDelete = ref<any | null>(null)
 const jobPendingDelete = ref<any | null>(null)
 const jobPendingApprove = ref<any | null>(null)
 const employerPage = ref(1)
-const employerPerPage = 10
+
 const filteredEmployers = computed(() => {
   let list = employers.value
   const kw = employerSearch.value?.trim().toLowerCase()
@@ -618,22 +892,36 @@ const filteredEmployers = computed(() => {
     list = list.filter((u: any) => {
       const name = (u.fullName ?? '').toString().toLowerCase()
       const email = (u.email ?? '').toString().toLowerCase()
-      return name.includes(kw) || email.includes(kw)
+      const phone = (u.phoneNumber ?? '').toString().toLowerCase()
+      return name.includes(kw) || email.includes(kw) || phone.includes(kw)
     })
+  }
+  if (employerHostFilter.value === 'host') {
+    list = list.filter((u: any) => u.isHostCompany)
+  } else if (employerHostFilter.value === 'member') {
+    list = list.filter((u: any) => !u.isHostCompany)
   }
   return list
 })
 
 const employerTotalPages = computed(() =>
-  Math.ceil(filteredEmployers.value.length / employerPerPage),
+  Math.max(1, Math.ceil(filteredEmployers.value.length / employerPerPage.value)),
 )
 
 const paginatedEmployers = computed(() => {
-  const start = (employerPage.value - 1) * employerPerPage
-  return filteredEmployers.value.slice(start, start + employerPerPage)
+  const start = (employerPage.value - 1) * employerPerPage.value
+  return filteredEmployers.value.slice(start, start + employerPerPage.value)
 })
 
 watch(employerSearch, () => {
+  employerPage.value = 1
+})
+
+watch(employerHostFilter, () => {
+  employerPage.value = 1
+})
+
+watch(employerPerPage, () => {
   employerPage.value = 1
 })
 
@@ -641,7 +929,8 @@ const allJobs = ref<any[]>([])
 const jobsLoading = ref(false)
 const jobSearch = ref('')
 const jobStatusFilter = ref<string>('all')
-const jobTypeFilter = ref<string>('all')
+const jobPage = ref(1)
+const jobItemsPerPage = ref(10)
 
 // Filter and Sort for Jobs table
 const postTypeFilter = ref<string | null>(null)
@@ -659,13 +948,6 @@ function toggleSort(field: string) {
     sortOrder.value = 'asc'
   }
 }
-
-const JOB_NEW_DAYS = 14
-const jobTypeFilterItems = [
-  { value: 'all', label: 'All jobs' },
-  { value: 'new', label: 'Job mới' },
-  { value: 'urgent', label: 'Job tuyển gấp' },
-]
 
 const jobStatusCards = computed(() => {
   const list = allJobs.value
@@ -704,26 +986,12 @@ const filteredJobs = computed(() => {
   now.setHours(0, 0, 0, 0)
   if (status === 'reviewing') list = list.filter((j: any) => (j.status || '').toUpperCase() === 'ADMIN_REVIEW')
   else if (status === 'pending') list = list.filter((j: any) => (j.status || '').toUpperCase() === 'PENDING')
-  else if (status === 'approved') list = list.filter((j: any) => (j.status || '').toUpperCase() === 'APPROVED')
+  else if (status === 'approved') list = list.filter((j: any) => isJobApproved(j))
   else if (status === 'expired') list = list.filter((j: any) => {
     const d = j.deadline ? (typeof j.deadline === 'string' ? new Date(j.deadline) : j.deadline) : null
     return d && d < now
   })
   else if (status === 'trash') list = []
-  // Filter loại: All jobs / Job mới / Job tuyển gấp
-  const type = jobTypeFilter.value
-  if (type === 'new') {
-    const cutoff = new Date()
-    cutoff.setDate(cutoff.getDate() - JOB_NEW_DAYS)
-    list = list.filter((j: any) => {
-      const d = j.createdAt || j.postedDate
-      if (!d) return false
-      const created = typeof d === 'string' ? new Date(d) : d
-      return created >= cutoff
-    })
-  } else if (type === 'urgent') {
-    list = list.filter((j: any) => (j.postType || '').toLowerCase() === 'urgent')
-  }
 
   // Filter by Post Type (column filter)
   const postType = postTypeFilter.value
@@ -758,11 +1026,62 @@ const filteredJobs = computed(() => {
   return list
 })
 
+const jobTotalPages = computed(() =>
+  Math.max(1, Math.ceil(filteredJobs.value.length / jobItemsPerPage.value)),
+)
+
+const paginatedJobs = computed(() => {
+  const start = (jobPage.value - 1) * jobItemsPerPage.value
+  return filteredJobs.value.slice(start, start + jobItemsPerPage.value)
+})
+
+watch(jobSearch, () => {
+  jobPage.value = 1
+})
+
+watch(jobStatusFilter, () => {
+  jobPage.value = 1
+})
+
+watch(postTypeFilter, () => {
+  jobPage.value = 1
+})
+
+watch(statusFilter, () => {
+  jobPage.value = 1
+})
+
 const companyName = computed(() => props.companyName || '')
 const hostTogglingUserId = ref<number | null>(null)
 
 const addEmployerSlideOpen = ref(false)
 const addEmployerLoading = ref(false)
+const showEmployerPassword = ref(false)
+const showEmployerConfirmPassword = ref(false)
+
+const addEmployerDrawerKicker = computed(() => 'Tạo nhà tuyển dụng')
+
+const addEmployerDrawerTitle = computed(() => 'Thêm employer mới')
+
+const addEmployerDrawerSubtitle = computed(() => {
+  const name = companyName.value?.trim()
+  return name
+    ? `Tạo tài khoản employer hoặc host cho công ty "${name}".`
+    : 'Tạo tài khoản employer hoặc host company cho công ty.'
+})
+
+const addEmployerDrawerUi = {
+  ...adminDrawerUi('max-w-lg', 'employer-admin-user-drawer'),
+  header: 'employer-admin-job-drawer-header employer-drawer-bg shrink-0 p-0',
+  container:
+    'employer-admin-job-drawer-container employer-drawer-bg w-full min-h-0 flex flex-1 flex-col gap-0 self-stretch p-0 overflow-hidden',
+  body: 'employer-admin-job-drawer-body employer-drawer-bg flex min-h-0 flex-1 flex-col overflow-hidden p-0',
+}
+
+function closeAddEmployerDrawer() {
+  addEmployerSlideOpen.value = false
+}
+
 const employerForm = ref({
   isHost: false,
   fullName: '',
@@ -773,56 +1092,86 @@ const employerForm = ref({
 const employerFormErrors = ref<Record<string, string>>({})
 
 const jobSlideOpen = ref(false)
-const jobSlideTitle = ref('')
+const jobSlideTitle = computed(() =>
+  editingJob.value ? 'Chỉnh sửa tin tuyển dụng' : 'Đăng tin tuyển dụng',
+)
+const jobSlideKicker = computed(() =>
+  editingJob.value ? 'Chỉnh sửa tin' : 'Đăng tin mới',
+)
+const jobSlideSubtitle = computed(() => {
+  const name = companyName.value?.trim()
+  if (name) {
+    return editingJob.value
+      ? `Cập nhật tin tuyển dụng cho ${name}.`
+      : `Tạo tin mới cho ${name}.`
+  }
+  return 'Tạo hoặc chỉnh sửa tin tuyển dụng trên màn quản trị.'
+})
+const jobDrawerUi = adminJobFormDrawerUi()
 const editingJob = ref<any>(null)
-const companySelectItems = ref<any[]>([])
-const selectedCompanyId = ref<number | null>(null)
 const companyDataForJob = ref<CompanyEntity | null>(null)
 const editingJobForForm = ref<JobModel | null>(null)
 
 // Jobs functions
 function postTypeChipClass(postType: string | undefined) {
-  const type = (postType || '').toLowerCase()
-  if (type === 'hot') return 'bg-red-100 text-red-800'
-  if (type === 'urgent') return 'bg-orange-100 text-orange-800'
-  return 'bg-gray-100 text-gray-800'
+  return postTypeAdminChipClass(postType)
 }
 function postTypeLabel(postType: string | undefined): string {
-  const type = (postType || '').toLowerCase()
-  if (type === 'hot') return 'Mới nhất'
-  if (type === 'urgent') return 'Tuyển gấp'
+  const t = (postType || 'Basic').toUpperCase()
+  if (t === 'FREE' || t === 'BASIC') return 'Cơ bản'
+  if (t === 'HOT') return 'Mới nhất'
+  if (t === 'URGENT') return 'Tuyển gấp'
   return 'Cơ bản'
 }
 function jobStatusDisplayLabel(j: any): string {
   const s = (j.status || '').toUpperCase()
-  if (s === 'PENDING') return 'Pending'
   if (s === 'APPROVED') return 'Approved'
-  if (s === 'ADMIN_REVIEW') return 'Reviewing'
+  if (s === 'ADMIN_REVIEW') return 'Admin Review'
+  if (s === 'PENDING') return 'Pending'
   if (s === 'REJECTED') return 'Rejected'
-  return s || 'Unknown'
+  return 'Admin Review'
 }
 function jobStatusDisplayClass(j: any): string {
   const s = (j.status || '').toUpperCase()
-  if (s === 'PENDING') return 'bg-yellow-100 text-yellow-800'
-  if (s === 'APPROVED') return 'bg-green-100 text-green-800'
-  if (s === 'ADMIN_REVIEW') return 'bg-blue-100 text-blue-800'
+  if (s === 'APPROVED') return 'bg-blue-100 text-blue-800'
   if (s === 'REJECTED') return 'bg-red-100 text-red-800'
-  return 'bg-gray-100 text-gray-800'
+  if (s === 'PENDING') return 'bg-orange-100 text-orange-800'
+  return 'bg-amber-100 text-amber-800'
 }
-function formatDate(date: any) {
+function formatJobDate(date: Date | string | undefined) {
   if (!date) return '–'
   const d = typeof date === 'string' ? new Date(date) : date
-  return d.toLocaleDateString('vi-VN')
+  if (Number.isNaN(d.getTime())) return '–'
+  return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' })
+}
+function applicationCount(job: any): number {
+  return job.totalApplications ?? job.applicationCount ?? 0
+}
+
+function formatUserDate(date: any) {
+  if (!date) return '–'
+  const d = typeof date === 'string' ? new Date(date) : date
+  if (Number.isNaN(d.getTime())) return '–'
+  const day = String(d.getDate()).padStart(2, '0')
+  const month = String(d.getMonth() + 1).padStart(2, '0')
+  const year = d.getFullYear()
+  return `${day}/${month}/${year}`
 }
 function isJobApproved(job: any) {
   return (job.status || '').toUpperCase() === 'APPROVED'
 }
-function expiredDateClass(job: any) {
-  if (!job.deadline) return 'text-gray-600'
+function expiredDateClass(deadline: Date | string | undefined): string {
+  if (!deadline) return 'text-gray-600'
+  const d = typeof deadline === 'string' ? new Date(deadline) : deadline
   const now = new Date()
   now.setHours(0, 0, 0, 0)
-  const d = new Date(job.deadline)
-  if (d < now) return 'text-red-600'
+  const today = now.getTime()
+  const exp = new Date(d)
+  exp.setHours(0, 0, 0, 0)
+  const expTime = exp.getTime()
+  const daysLeft = Math.ceil((expTime - today) / (24 * 60 * 60 * 1000))
+  if (daysLeft < 0) return 'text-red-600 font-medium'
+  if (daysLeft <= 7) return 'text-red-600'
   return 'text-gray-600'
 }
 
@@ -847,15 +1196,17 @@ function openNewEmployer() {
     confirmPassword: '',
   }
   employerFormErrors.value = {}
+  showEmployerPassword.value = false
+  showEmployerConfirmPassword.value = false
   addEmployerSlideOpen.value = true
 }
 async function submitAddEmployer() {
   employerFormErrors.value = {}
-  if (!employerForm.value.fullName) employerFormErrors.value.fullName = 'Required'
-  if (!employerForm.value.email) employerFormErrors.value.email = 'Required'
-  if (!employerForm.value.password) employerFormErrors.value.password = 'Required'
+  if (!employerForm.value.fullName) employerFormErrors.value.fullName = 'Không được để trống'
+  if (!employerForm.value.email) employerFormErrors.value.email = 'Không được để trống'
+  if (!employerForm.value.password) employerFormErrors.value.password = 'Không được để trống'
   if (employerForm.value.password !== employerForm.value.confirmPassword) {
-    employerFormErrors.value.confirmPassword = 'Passwords do not match'
+    employerFormErrors.value.confirmPassword = 'Mật khẩu xác nhận không khớp'
   }
   if (Object.keys(employerFormErrors.value).length > 0) return
 
@@ -882,14 +1233,14 @@ async function submitAddEmployer() {
       await $api.users.setHostCompany(created.id, props.companyId, true)
     }
 
-    addEmployerSlideOpen.value = false
+    closeAddEmployerDrawer()
     await fetchEmployers()
   } catch (e: any) {
     console.error('Failed to create employer', e)
     employerFormErrors.value.email =
       e?.message ||
       e?.response?._data?.message ||
-      'Failed to create'
+      'Không thể tạo'
   } finally {
     addEmployerLoading.value = false
   }
@@ -944,27 +1295,15 @@ async function fetchJobs() {
 function openNewJob() {
   editingJob.value = null
   editingJobForForm.value = null
-  jobSlideTitle.value = 'New Job'
-  if (selectedCompanyId.value) {
-    const company = companySelectItems.value.find((c: any) => c.value === selectedCompanyId.value?.toString())
-    if (company) {
-      companyDataForJob.value = {
-        id: Number(selectedCompanyId.value),
-        name: company.label,
-      } as CompanyEntity
-    }
-  } else {
-    companyDataForJob.value = {
-      id: props.companyId,
-      name: companyName.value,
-    } as CompanyEntity
-  }
+  companyDataForJob.value = {
+    id: props.companyId,
+    name: companyName.value,
+  } as CompanyEntity
   jobSlideOpen.value = true
 }
 function openEditJob(job: any) {
   editingJob.value = job
   editingJobForForm.value = job
-  jobSlideTitle.value = 'Edit Job'
   companyDataForJob.value = {
     id: job.companyId,
     name: job.companyName || '',
@@ -1036,15 +1375,18 @@ function cancelApproveJob() {
   showApproveJobModal.value = false
   jobPendingApprove.value = null
 }
-function uploadJobs() {
-  alert('Upload jobs feature coming soon')
-}
-function onSelectCompany(val: string) {
-  selectedCompanyId.value = val ? Number(val) : null
-}
-const editCompanySelectItem = computed(() => {
-  if (!editingJob.value?.companyId) return []
-  return [{ value: String(editingJob.value.companyId), label: editingJob.value.companyName || 'Company' }]
+const companyDisplaySelectValue = computed(() =>
+  String(companyDataForJob.value?.id ?? props.companyId ?? ''),
+)
+
+const companyDisplaySelectItem = computed(() => {
+  const id = companyDataForJob.value?.id ?? props.companyId
+  const name =
+    companyDataForJob.value?.name ??
+    editingJob.value?.companyName ??
+    companyName.value
+  if (!id) return []
+  return [{ value: String(id), label: name?.trim() || `Công ty #${id}` }]
 })
 
 watch(() => props.companyId, (newId) => {
@@ -1057,12 +1399,28 @@ watch(activeTab, (tab) => {
   else fetchJobs()
 })
 
+watch(jobSlideOpen, (open) => {
+  if (open) {
+    showPostTypeFilter.value = false
+    showStatusFilter.value = false
+  }
+})
+
 onMounted(() => {
   document.addEventListener('click', (e) => {
     const target = e.target as HTMLElement
-    if (!target.closest('[class*="post-type-filter-th"]') && !target.closest('[class*="status-filter-th"]')) {
-      showPostTypeFilter.value = false
-      showStatusFilter.value = false
+    if (
+      target.closest('.employer-admin-job-drawer')
+      || target.closest('.employer-company-job-drawer')
+      || target.closest('[class*="post-type-filter-th"]')
+      || target.closest('[class*="status-filter-th"]')
+    ) {
+      return
+    }
+    showPostTypeFilter.value = false
+    showStatusFilter.value = false
+    if (!target.closest('.employer-items-per-page-dropdown')) {
+      showEmployerItemsPerPageDropdown.value = false
     }
   })
 })

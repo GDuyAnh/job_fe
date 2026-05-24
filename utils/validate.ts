@@ -26,25 +26,26 @@ interface FieldValidator {
 
 const createFieldValidator = (label: string): FieldValidator => {
   return {
-    required: (message) => z.string().min(1, message || `${label} is required`),
+    required: (message) =>
+      z.string().min(1, message || `${label} không được để trống`),
 
     email: (message) =>
-      z.string().email(message || `${label} must be a valid email`),
+      z.string().email(message || `${label} không hợp lệ`),
 
     password: (message) =>
       z
         .string()
-        .min(8, message || `${label} must be at least 8 characters`)
-        .regex(/[a-z]/, message || `${label} must include a lowercase letter`)
-        .regex(/[A-Z]/, message || `${label} must include an uppercase letter`)
-        .regex(/[0-9]/, message || `${label} must include a number`),
+        .min(8, message || `${label} phải có ít nhất 8 ký tự`)
+        .regex(/[a-z]/, message || `${label} phải có chữ thường`)
+        .regex(/[A-Z]/, message || `${label} phải có chữ hoa`)
+        .regex(/[0-9]/, message || `${label} phải có số`),
 
     minLength: (length, message) =>
       z
         .string()
         .min(
           length,
-          message || `${label} must be at least ${length} characters`,
+          message || `${label} phải có ít nhất ${length} ký tự`,
         ),
 
     maxLength: (length, message) =>
@@ -52,38 +53,38 @@ const createFieldValidator = (label: string): FieldValidator => {
         .string()
         .max(
           length,
-          message || `${label} must be at most ${length} characters`,
+          message || `${label} không được vượt quá ${length} ký tự`,
         ),
 
     minNumber: (min, message) =>
-      z.number().min(min, message || `${label} must be at least ${min}`),
+      z.number().min(min, message || `${label} phải lớn hơn hoặc bằng ${min}`),
 
     maxNumber: (max, message) =>
-      z.number().max(max, message || `${label} must be at most ${max}`),
+      z.number().max(max, message || `${label} phải nhỏ hơn hoặc bằng ${max}`),
 
     decimalMin: (min, message) =>
       z.string().refine((val) => parseFloat(val) >= min, {
-        message: message || `${label} must be at least ${min}`,
+        message: message || `${label} phải lớn hơn hoặc bằng ${min}`,
       }),
 
     decimalMax: (max, message) =>
       z.string().refine((val) => parseFloat(val) <= max, {
-        message: message || `${label} must be at most ${max}`,
+        message: message || `${label} phải nhỏ hơn hoặc bằng ${max}`,
       }),
 
     number: (message) =>
-      z.number({ invalid_type_error: message || `${label} must be a number` }),
+      z.number({ invalid_type_error: message || `${label} phải là số` }),
 
     requiredNumber: (message) =>
       z
-        .number({ invalid_type_error: message || `${label} must be a number` })
+        .number({ invalid_type_error: message || `${label} phải là số` })
         .nullable()
         .refine((val): val is number => val !== null, {
-          message: message || `${label} is required`,
+          message: message || `${label} không được để trống`,
         }),
 
     stringNumber: (message) =>
-      z.string().regex(/^\d+$/, message || `${label} must be numeric string`),
+      z.string().regex(/^\d+$/, message || `${label} phải là chuỗi số`),
 
     optional: () => z.any().optional(),
 
@@ -92,7 +93,7 @@ const createFieldValidator = (label: string): FieldValidator => {
         .string()
         .regex(
           /^\d{10,11}$/,
-          message || `${label} must be a valid phone number`,
+          message || `${label} không hợp lệ`,
         ),
 
     numberWithDecimal: (message) =>
@@ -100,7 +101,7 @@ const createFieldValidator = (label: string): FieldValidator => {
         .string()
         .regex(
           /^\d+(\.\d+)?$/,
-          message || `${label} must be a valid decimal number`,
+          message || `${label} phải là số thập phân hợp lệ`,
         ),
 
     length: (length, message) =>
@@ -108,7 +109,7 @@ const createFieldValidator = (label: string): FieldValidator => {
         .string()
         .length(
           length,
-          message || `${label} must be exactly ${length} characters`,
+          message || `${label} phải có đúng ${length} ký tự`,
         ),
 
     createSchema: (...rules) => {

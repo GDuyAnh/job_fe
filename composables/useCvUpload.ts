@@ -59,7 +59,7 @@ export const useCvUpload = () => {
       const { $api } = useNuxtApp()
 
       if (!$api?.upload) {
-        throw new Error('Upload service not available')
+        throw new Error('Dịch vụ tải lên không khả dụng')
       }
 
       progress.value = 30
@@ -105,7 +105,7 @@ export const useCvUpload = () => {
       const { $api } = useNuxtApp()
 
       if (!$api?.upload) {
-        throw new Error('Upload service not available')
+        throw new Error('Dịch vụ tải lên không khả dụng')
       }
 
       progress.value = 30
@@ -158,7 +158,7 @@ export const useCvUpload = () => {
       const { $api } = useNuxtApp()
 
       if (!$api?.upload) {
-        throw new Error('Upload service not available')
+        throw new Error('Dịch vụ tải lên không khả dụng')
       }
 
       progress.value = 30

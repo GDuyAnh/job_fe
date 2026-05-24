@@ -40,7 +40,11 @@ export class CompanyMapper {
       location: jobDto.location,
       typeOfEmployment: jobDto.typeOfEmployment,
       imageLogo: jobDto.imageLogo ?? null,
-      postedDate: new Date(jobDto.postedDate),
+      postedDate: jobDto.postedDate ? new Date(jobDto.postedDate) : undefined,
+      salaryMin: jobDto.salaryMin ?? null,
+      salaryMax: jobDto.salaryMax ?? null,
+      salaryType: jobDto.salaryType ?? null,
+      experienceLevel: jobDto.experienceLevel ?? null,
     }
   }
 

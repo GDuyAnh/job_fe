@@ -1,33 +1,32 @@
 <template>
   <div>
-    <!-- Header -->
-    <div class="mb-6">
-      <h1 class="text-3xl font-bold text-gray-900">{{ $t('dashboard.appliedJobs.title') }}</h1>
-    </div>
-
-    <!-- Control Bar -->
-    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 mb-4">
-      <div class="flex items-center justify-end gap-4">
-        <!-- Count and Search -->
-        <span class="text-sm text-gray-600">
-          {{ totalApplications }} {{ $t('dashboard.appliedJobs.totalApplications') }}
-        </span>
-        <div class="relative">
-          <UIcon
-            name="i-lucide-search"
-            class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400"
-          />
-          <UInput
-            v-model="searchQuery"
-            :placeholder="$t('dashboard.appliedJobs.searchPlaceholder')"
-            class="pl-10 w-80"
-          />
+    <!-- Header + search -->
+    <div class="mb-6 flex flex-col gap-4 md:flex-row md:items-start md:justify-between md:gap-6">
+      <div class="min-w-0">
+        <h1 class="text-[28px] font-extrabold text-[#1d2433]">
+          Công việc đã ứng tuyển
+        </h1>
+        <div class="mt-3 text-[12px] text-[rgba(29,36,51,0.55)]">
+          {{ totalApplications }} công việc đã ứng tuyển
         </div>
+      </div>
+
+      <div class="w-full max-w-[360px] md:mt-8">
+        <UInput
+          v-model="searchQuery"
+          icon="i-lucide-search"
+          placeholder="Tìm kiếm vị trí hoặc công ty đã ứng tuyển"
+          class="w-full"
+          :ui="{
+            base: 'h-10 rounded-xl text-[13px]',
+            leadingIcon: 'text-[rgba(29,36,51,0.35)]',
+          }"
+        />
       </div>
     </div>
 
     <!-- Applications Table -->
-    <div class="bg-white rounded-xl shadow-sm border border-gray-200">
+    <div class="bg-white rounded-2xl shadow-sm overflow-hidden" style="border: 1px solid rgba(29, 36, 51, 0.10)">
       <div v-if="loading" class="text-center py-12">
         <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
         <p class="mt-2 text-gray-600">{{ $t('dashboard.appliedJobs.loading') }}</p>
@@ -39,135 +38,99 @@
       </div>
 
       <div v-else class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-gray-200">
-          <thead class="bg-white border-b-2 border-gray-200">
-            <tr>
-              <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-60">
-                {{ $t('dashboard.appliedJobs.table.position') }}
-              </th>
-              <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-60">
-                {{ $t('dashboard.appliedJobs.table.location') }}
-              </th>
-              <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-50">
-                {{ $t('dashboard.appliedJobs.table.category') }}
-              </th>
-              <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                {{ $t('dashboard.appliedJobs.table.type') }}
-              </th>
-              <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                {{ $t('dashboard.appliedJobs.table.appliedDate') }}
-              </th>
+        <table class="w-full">
+          <thead>
+            <tr class="text-left text-[11px] font-extrabold text-[rgba(29,36,51,0.55)]" style="background: rgba(247, 250, 255, 0.9)">
+              <th class="px-6 py-4">VỊ TRÍ ỨNG TUYỂN</th>
+              <th class="px-6 py-4">TỈNH THÀNH</th>
+              <th class="px-6 py-4">LĨNH VỰC</th>
+              <th class="px-6 py-4">TYPE</th>
+              <th class="px-6 py-4">NGÀY ỨNG TUYỂN</th>
+              <th class="px-6 py-4 text-right">THAO TÁC</th>
             </tr>
           </thead>
-          <tbody class="bg-white divide-y divide-gray-200">
+          <tbody>
             <tr
-              v-for="application in filteredApplications"
+              v-for="application in paginatedApplications"
               :key="application.id"
               class="hover:bg-gray-50 transition-colors"
+              style="border-top: 1px solid rgba(29, 36, 51, 0.10)"
             >
-              <!-- Job Title and Company -->
-              <td class="px-4 py-4 w-60">
-                <div class="min-w-0">
-                  <NuxtLink
-                    :to="`/jobs/${application.jobId}`"
-                    class="text-blue-600 hover:text-blue-700 font-semibold text-sm block mb-1"
+              <td class="px-6 py-5">
+                <div class="flex items-start gap-3">
+                  <div
+                    class="h-12 w-12 rounded-xl bg-white flex items-center justify-center overflow-hidden shrink-0"
+                    style="border: 1px solid rgba(29, 36, 51, 0.12)"
                   >
-                    {{ application.jobTitle }}
-                  </NuxtLink>
-                  <NuxtLink
-                    :to="`/companies/${application.companyId || application.jobId}`"
-                    class="text-sm text-gray-600 hover:text-blue-600"
-                  >
-                    {{ application.companyName || '-' }}
-                  </NuxtLink>
-                </div>
-              </td>
+                    <img
+                      v-if="application.companyLogo"
+                      :src="application.companyLogo"
+                      :alt="application.companyName || 'Company'"
+                      class="h-full w-full object-contain"
+                    />
+                    <UIcon v-else name="i-lucide-briefcase" class="h-6 w-6 text-[rgba(29,36,51,0.35)]" />
+                  </div>
 
-              <!-- Location (Tỉnh thành) -->
-              <td class="px-4 py-4 w-60">
-                <span class="text-sm text-gray-600">
-                  {{ getLocationLabels(application.location).join(', ') || '-' }}
-                </span>
-              </td>
-
-              <!-- Category -->
-              <td class="px-4 py-4 w-50">
-                <span class="text-sm text-gray-600">
-                  {{ getCategoryLabels(application.category).join(', ') || '-' }}
-                </span>
-              </td>
-
-              <!-- Type -->
-              <td class="px-4 py-4">
-                <span v-if="application.typeOfEmployment" class="font-semibold text-gray-900 text-sm">
-                  {{ getEmploymentTypeLabel(application.typeOfEmployment) }}
-                </span>
-                <span v-else class="text-gray-400 text-sm">-</span>
-              </td>
-
-              <!-- Date & Actions -->
-              <td class="px-4 py-4">
-                <div class="flex items-center justify-between gap-4">
-                  <span class="text-sm text-gray-600">
-                    {{ formatDateTime(application.appliedAt) }}
-                  </span>
-                  <div class="flex items-center gap-2">
-                    <button
-                      :title="$t('dashboard.appliedJobs.actions.view')"
-                      class="p-1.5 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded transition-colors"
-                      @click="handleViewJob(application.jobId)"
-                    >
-                      <UIcon name="i-lucide-eye" class="w-4 h-4" />
-                    </button>
-                    <button
-                      :title="$t('dashboard.appliedJobs.actions.delete')"
-                      class="p-1.5 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded transition-colors"
-                      @click="handleDeleteApplication(application.id)"
-                    >
-                      <UIcon name="i-lucide-trash-2" class="w-4 h-4" />
-                    </button>
+                  <div class="min-w-0">
+                    <div class="text-[13px] font-extrabold text-[#1d2433] truncate">
+                      {{ application.jobTitle }}
+                    </div>
+                    <div class="mt-1 text-[12px] text-[var(--blue)] truncate">
+                      {{ application.companyName || '-' }}
+                    </div>
                   </div>
                 </div>
+              </td>
+
+              <td class="px-6 py-5 text-[12px] text-[rgba(29,36,51,0.75)]">
+                {{ getLocationLabels(application.location).join(', ') || '-' }}
+              </td>
+
+              <td class="px-6 py-5 text-[12px] text-[rgba(29,36,51,0.75)]">
+                {{ getCategoryLabels(application.category).join(', ') || '-' }}
+              </td>
+
+              <td class="px-6 py-5">
+                <span v-if="application.typeOfEmployment" class="text-[12px] font-semibold text-[#1d2433]">
+                  {{ getEmploymentTypeLabel(application.typeOfEmployment) }}
+                </span>
+                <span v-else class="text-[12px] text-[rgba(29,36,51,0.45)]">-</span>
+              </td>
+
+              <td class="px-6 py-5 text-[12px] text-[rgba(29,36,51,0.75)]">
+                {{ formatDateTime(application.appliedAt) }}
+              </td>
+
+              <td class="px-6 py-5 text-right">
+                <button
+                  class="inline-flex items-center justify-center h-9 w-9 rounded-xl text-[var(--blue)] hover:bg-[rgba(53,99,255,0.10)] transition-colors"
+                  @click="handleViewJob(application.jobId)"
+                >
+                  <UIcon name="i-lucide-eye" class="w-5 h-5" />
+                </button>
               </td>
             </tr>
           </tbody>
         </table>
       </div>
 
-      <!-- Pagination -->
-      <div v-if="totalPages > 1" class="flex items-center justify-between px-6 py-4 border-t border-gray-200">
-        <div class="text-sm text-gray-600">
-          {{ $t('dashboard.appliedJobs.pagination.showing') }} {{ (currentPage - 1) * itemsPerPage + 1 }} - {{ Math.min(currentPage * itemsPerPage, filteredApplications.length) }} {{ $t('dashboard.appliedJobs.pagination.of') }} {{ filteredApplications.length }} {{ $t('dashboard.appliedJobs.pagination.results') }}
+      <!-- Footer pagination (match screenshot) -->
+      <div
+        v-if="filteredApplications.length > 0"
+        class="flex items-center justify-between px-6 py-4"
+        style="border-top: 1px solid rgba(29, 36, 51, 0.10)"
+      >
+        <div class="text-[12px] text-[rgba(29,36,51,0.55)]">
+          Hiển thị {{ (currentPage - 1) * itemsPerPage + 1 }}-{{
+            Math.min(currentPage * itemsPerPage, filteredApplications.length)
+          }} trong {{ filteredApplications.length }} công việc
         </div>
-        <div class="flex items-center gap-2">
-          <button
-            :disabled="currentPage === 1"
-            class="px-3 py-1 rounded border border-gray-300 text-sm hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-            @click="currentPage--"
-          >
-            {{ $t('dashboard.appliedJobs.pagination.previous') }}
-          </button>
-          <button
-            v-for="page in visiblePages"
-            :key="page"
-            :class="[
-              'px-3 py-1 rounded border text-sm',
-              currentPage === page
-                ? 'bg-blue-600 text-white border-blue-600'
-                : 'border-gray-300 hover:bg-gray-50'
-            ]"
-            @click="currentPage = page"
-          >
-            {{ page }}
-          </button>
-          <button
-            :disabled="currentPage === totalPages"
-            class="px-3 py-1 rounded border border-gray-300 text-sm hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-            @click="currentPage++"
-          >
-            {{ $t('dashboard.appliedJobs.pagination.next') }}
-          </button>
-        </div>
+        <button
+          type="button"
+          class="h-10 w-10 rounded-xl bg-[var(--blue)] text-white font-extrabold text-[12px] shadow-sm"
+        >
+          {{ currentPage }}
+        </button>
       </div>
     </div>
   </div>
@@ -233,11 +196,7 @@ const formatDateTime = (date: Date | string | null | undefined): string => {
   const day = String(d.getDate()).padStart(2, '0')
   const month = String(d.getMonth() + 1).padStart(2, '0')
   const year = d.getFullYear()
-  const minutes = String(d.getMinutes()).padStart(2, '0')
-  const ampm = d.getHours() >= 12 ? 'pm' : 'am'
-  const displayHours = d.getHours() % 12 || 12
-
-  return `${year}/${month}/${day} at ${displayHours}:${minutes} ${ampm}`
+  return `${day}/${month}/${year}`
 }
 
 const getEmploymentTypeLabel = (type: number | null | undefined): string => {

@@ -1,5 +1,13 @@
 import { z } from 'zod'
 
+const optionalPhoneSchema = z
+  .string()
+  .optional()
+  .transform((v) => (v ?? '').trim())
+  .refine((v) => v === '' || /^\+?\d[\d\s().-]{7,}$/.test(v), {
+    message: 'Số điện thoại không hợp lệ',
+  })
+
 export const registerSchema = () => {
   const { $i18n } = useNuxtApp()
 
@@ -13,6 +21,7 @@ export const registerSchema = () => {
       (field) => field.required(),
       (field) => field.email(),
     ),
+    phoneNumber: optionalPhoneSchema,
     password: Validate.field($i18n.t('common.fields.password')).createSchema(
       (field) => field.required(),
       (field) => field.password(),
@@ -35,6 +44,7 @@ export const registerCompanySchema = () => {
       (field) => field.required(),
       (field) => field.email(),
     ),
+    phoneNumber: optionalPhoneSchema,
     password: Validate.field($i18n.t('common.fields.password')).createSchema(
       (field) => field.required(),
       (field) => field.password(),

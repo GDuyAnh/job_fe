@@ -1,241 +1,255 @@
 <template>
-  <div class="min-h-screen bg-gray-50">
-    <!-- Header -->
-    <header class="bg-white shadow-sm border-b border-gray-200">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between items-center h-16">
-          <!-- Logo -->
-          <NuxtLink to="/" class="flex items-center cursor-pointer">
-            <h1 class="text-2xl font-bold text-blue-900 hover:text-blue-700 transition-colors">
-              {{ $t('dashboard.header.logo') }}
-            </h1>
+  <div class="candidate-dashboard-page">
+    <div
+      class="candidate-dashboard"
+      data-candidate-dashboard=""
+      data-home-url="/"
+      :data-account-url="accountDashboardUrl"
+    >
+      <aside class="candidate-sidebar">
+        <NuxtLink to="/" class="candidate-brand wordmark" aria-label="Trang chủ">
+          <span class="wordmark-main">TuyenGiaoVien</span>
+          <span class="wordmark-dot">.vn</span>
+        </NuxtLink>
+
+        <nav class="candidate-sidebar-nav" aria-label="Dashboard ứng viên">
+          <NuxtLink
+            :to="{ path: '/users/dashboard', query: { view: 'dashboard' } }"
+            class="candidate-nav-link"
+            :class="{ 'is-active': activeView === 'dashboard' }"
+          >
+            <span class="candidate-nav-icon" aria-hidden="true">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                <path
+                  d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-5v-6h-4v6H5a1 1 0 0 1-1-1v-9.5Z"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            </span>
+            <span>Tổng quan</span>
           </NuxtLink>
 
-          <!-- Right side actions -->
-          <div class="flex items-center space-x-4">
-            <!-- Post a Job Button -->
-            <button
-              class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-              @click="navigateToPostJob"
-            >
-              {{ $t('dashboard.header.postJob') }}
-            </button>
-
-            <!-- Notifications -->
-            <button class="relative p-2 text-gray-600 hover:text-gray-900">
-              <UIcon name="i-lucide-bell" class="w-6 h-6" />
-              <span
-                v-if="unreadNotifications > 0"
-                class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center"
-              >
-                {{ unreadNotifications }}
-              </span>
-            </button>
-
-            <!-- User Profile -->
-            <div class="relative">
-              <button
-                class="flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-100"
-                @click="toggleUserDropdown"
-              >
-                <!-- Avatar with image or fallback to initials -->
-                <div
-                  v-if="authStore.user?.avatarUrl"
-                  class="w-8 h-8 rounded-full overflow-hidden bg-gray-200"
-                >
-                  <img
-                    :src="authStore.user.avatarUrl"
-                    :alt="authStore.user.fullName || 'User'"
-                    class="w-full h-full object-cover"
-                  />
-                </div>
-                <div
-                  v-else
-                  class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center"
-                >
-                  <span class="text-white font-semibold text-sm">
-                    {{
-                      authStore.user?.fullName?.charAt(0)?.toUpperCase() || 'U'
-                    }}
-                  </span>
-                </div>
-                <span class="text-gray-900 font-medium">{{
-                  authStore.user?.fullName || 'User'
-                }}</span>
-                <UIcon
-                  name="i-lucide-chevron-down"
-                  class="w-4 h-4 text-gray-500"
+          <NuxtLink
+            :to="{ path: '/users/dashboard', query: { view: 'resume' } }"
+            class="candidate-nav-link"
+            :class="{ 'is-active': activeView === 'resume' }"
+          >
+            <span class="candidate-nav-icon" aria-hidden="true">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                <path
+                  d="M7 3.5h7.5L18 7v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4.5a1 1 0 0 1 1-1Z"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linejoin="round"
                 />
-              </button>
+                <path
+                  d="M14.5 3.5V7H18M9 12h6M9 16h4"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            </span>
+            <span>Hồ sơ ứng tuyển</span>
+          </NuxtLink>
 
-              <!-- User Dropdown -->
-              <div
-                v-if="showUserDropdown"
-                class="absolute right-0 mt-2 w-56 bg-white rounded-md shadow-lg border border-gray-200 z-50"
-              >
-                <div class="py-1">
-                  <button
-                    v-for="item in userMenuItems"
-                    :key="item.label"
-                    class="flex items-center gap-3 w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
-                    @click="handleMenuItemClick(item)"
-                  >
-                    <UIcon :name="item.icon" class="w-4 h-4" />
-                    {{ item.label }}
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </header>
+          <NuxtLink
+            :to="{ path: '/users/dashboard', query: { view: 'applications' } }"
+            class="candidate-nav-link"
+            :class="{ 'is-active': activeView === 'applications' }"
+          >
+            <span class="candidate-nav-icon" aria-hidden="true">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                <rect
+                  x="4"
+                  y="7"
+                  width="16"
+                  height="13"
+                  rx="2.5"
+                  stroke="currentColor"
+                  stroke-width="2"
+                />
+                <path
+                  d="M9 7V5.5A2.5 2.5 0 0 1 11.5 3h1A2.5 2.5 0 0 1 15 5.5V7M4 12h16"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                />
+              </svg>
+            </span>
+            <span>Công việc đã ứng tuyển</span>
+          </NuxtLink>
 
-    <div class="flex">
-      <!-- Sidebar -->
-      <aside class="w-64 bg-[#fff9ed] min-h-screen">
-        <nav class="mt-8">
-          <div class="px-4 mb-6">
-            <div class="space-y-1">
-              <button
-                :class="[
-                  'w-full flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors',
-                  activeView === 'dashboard'
-                    ? 'text-white bg-[#002748]'
-                    : 'text-gray-800 hover:bg-gray-100'
-                ]"
-                @click="setActiveView('dashboard')"
-              >
-                <UIcon name="i-lucide-home" class="w-5 h-5 mr-3" />
-                Tổng quan
-              </button>
-              <button
-                :class="[
-                  'w-full flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors',
-                  activeView === 'editProfile'
-                    ? 'text-white bg-[#002748]'
-                    : 'text-gray-800 hover:bg-gray-100'
-                ]"
-                @click="setActiveView('editProfile')"
-              >
-                <UIcon name="i-lucide-user" class="w-5 h-5 mr-3" />
-                Thông tin tài khoản
-              </button>
-              <button
-                :class="[
-                  'w-full flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors',
-                  activeView === 'resume'
-                    ? 'text-white bg-[#002748]'
-                    : 'text-gray-800 hover:bg-gray-100'
-                ]"
-                @click="setActiveView('resume')"
-              >
-                <UIcon name="i-lucide-file-text" class="w-5 h-5 mr-3" />
-                Hồ sơ ứng tuyển
-              </button>
-              <button
-                :class="[
-                  'w-full flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors',
-                  activeView === 'applications'
-                    ? 'text-white bg-[#002748]'
-                    : 'text-gray-800 hover:bg-gray-100'
-                ]"
-                @click="setActiveView('applications')"
-              >
-                <UIcon name="i-lucide-file-text" class="w-5 h-5 mr-3" />
-                Công việc đã ứng tuyển
-              </button>
-              <button
-                :class="[
-                  'w-full flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors',
-                  activeView === 'changePassword'
-                    ? 'text-white bg-[#002748]'
-                    : 'text-gray-800 hover:bg-gray-100'
-                ]"
-                @click="setActiveView('changePassword')"
-              >
-                <UIcon name="i-lucide-lock" class="w-5 h-5 mr-3" />
-                Thay đổi mật khẩu
-              </button>
-              <button
-                :class="[
-                  'w-full flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors',
-                  activeView === 'deleteAccount'
-                    ? 'text-white bg-[#002748]'
-                    : 'text-gray-800 hover:bg-gray-100'
-                ]"
-                @click="setActiveView('deleteAccount')"
-              >
-                <UIcon name="i-lucide-trash-2" class="w-5 h-5 mr-3" />
-                Xoá tài khoản
-              </button>
-            </div>
-          </div>
+          <NuxtLink
+            :to="{ path: '/users/dashboard', query: { view: 'editProfile' } }"
+            class="candidate-nav-link"
+            :class="{ 'is-active': activeView === 'editProfile' }"
+          >
+            <span class="candidate-nav-icon" aria-hidden="true">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                <path
+                  d="M12 12.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z"
+                  stroke="currentColor"
+                  stroke-width="2"
+                />
+                <path
+                  d="M5 20a7 7 0 0 1 14 0"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                />
+              </svg>
+            </span>
+            <span>Thông tin Tài Khoản</span>
+          </NuxtLink>
+
+          <NuxtLink
+            :to="{ path: '/users/dashboard', query: { view: 'settings' } }"
+            class="candidate-nav-link"
+            :class="{ 'is-active': activeView === 'settings' }"
+          >
+            <span class="candidate-nav-icon" aria-hidden="true">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                <path
+                  d="M12 8.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7Z"
+                  stroke="currentColor"
+                  stroke-width="2"
+                />
+                <path
+                  d="M19.4 15a1 1 0 0 0 .2 1.1l.1.1a1.7 1.7 0 0 1-1.2 2.9h-.2a1 1 0 0 0-.9.6l-.1.2a1.7 1.7 0 0 1-3.1 0l-.1-.2a1 1 0 0 0-.9-.6h-.4a1 1 0 0 0-.9.6l-.1.2a1.7 1.7 0 0 1-3.1 0l-.1-.2a1 1 0 0 0-.9-.6h-.2a1.7 1.7 0 0 1-1.2-2.9l.1-.1a1 1 0 0 0 .2-1.1l-.1-.2a1.7 1.7 0 0 1 0-1.6l.1-.2a1 1 0 0 0-.2-1.1l-.1-.1A1.7 1.7 0 0 1 5.5 8.9h.2a1 1 0 0 0 .9-.6l.1-.2a1.7 1.7 0 0 1 3.1 0l.1.2a1 1 0 0 0 .9.6h.4a1 1 0 0 0 .9-.6l.1-.2a1.7 1.7 0 0 1 3.1 0l.1.2a1 1 0 0 0 .9.6h.2a1.7 1.7 0 0 1 1.2 2.9l-.1.1a1 1 0 0 0-.2 1.1l.1.2a1.7 1.7 0 0 1 0 1.6l-.1.2Z"
+                  stroke="currentColor"
+                  stroke-width="1.6"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            </span>
+            <span>Cài đặt</span>
+          </NuxtLink>
         </nav>
       </aside>
 
-      <!-- Main Content -->
-      <main class="flex-1 p-8">
-        <!-- Dashboard View -->
-        <DashboardUserOverview
-          v-if="activeView === 'dashboard'"
-          ref="overviewRef"
-          @view-all-applications="setActiveView('applications')"
-          @view-job="handleViewJob"
-        />
+      <div class="candidate-main">
+        <header class="candidate-topbar">
+          <div />
+          <div class="candidate-topbar-menu" data-candidate-menu="">
+            <button
+              type="button"
+              class="candidate-topbar-user"
+              data-candidate-menu-button=""
+              aria-haspopup="menu"
+              :aria-expanded="showUserDropdown"
+              @click.stop="toggleUserDropdown"
+            >
+              <span class="candidate-avatar" data-candidate-avatar="">{{ avatarInitial }}</span>
+              <span data-candidate-name="">{{ displayName }}</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path
+                  d="m6 9 6 6 6-6"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            </button>
 
-        <!-- Edit Profile View -->
-        <DashboardUserEditProfile
-          v-else-if="activeView === 'editProfile'"
-          @back="setActiveView('dashboard')"
-        />
+            <div
+              v-show="showUserDropdown"
+              class="candidate-topbar-dropdown"
+              data-candidate-menu-panel=""
+              role="menu"
+              @click.stop
+            >
+              <button
+                type="button"
+                class="candidate-topbar-dropdown-item"
+                data-candidate-logout=""
+                role="menuitem"
+                @click="logout()"
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path
+                    d="M14 7V5.5A1.5 1.5 0 0 0 12.5 4h-6A1.5 1.5 0 0 0 5 5.5v13A1.5 1.5 0 0 0 6.5 20h6A1.5 1.5 0 0 0 14 18.5V17"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                  <path
+                    d="M10 12h10M17 8l3 4-3 4"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+                <span>{{ $t('common.logout') }}</span>
+              </button>
+            </div>
+          </div>
+        </header>
 
-        <!-- Resume View -->
-        <DashboardUserResume
-          v-else-if="activeView === 'resume'"
-          @back="setActiveView('dashboard')"
-        />
+        <main class="candidate-content">
+          <DashboardUserOverview
+            v-if="activeView === 'dashboard'"
+            ref="overviewRef"
+            @view-all-applications="setActiveView('applications')"
+            @view-job="handleViewJob"
+          />
 
-        <!-- Applications View -->
-        <DashboardApplications
-          v-else-if="activeView === 'applications'"
-          @back="setActiveView('dashboard')"
-        />
+          <DashboardUserEditProfile
+            v-else-if="activeView === 'editProfile'"
+            @back="setActiveView('dashboard')"
+          />
 
+          <DashboardUserResume
+            v-else-if="activeView === 'resume'"
+            @back="setActiveView('dashboard')"
+          />
 
-        <!-- Change Password View -->
-        <DashboardChangePassword
-          v-else-if="activeView === 'changePassword'"
-          @back="setActiveView('dashboard')"
-        />
+          <DashboardUserApplications
+            v-else-if="activeView === 'applications'"
+          />
 
-        <!-- Delete Account View -->
-        <DashboardDeleteAccount
-          v-else-if="activeView === 'deleteAccount'"
-          @back="setActiveView('dashboard')"
-        />
-      </main>
+          <DashboardSettings
+            v-else-if="activeView === 'settings'"
+            @edit-profile="setActiveView('editProfile')"
+          />
+        </main>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { useRouter, useRoute } from 'vue-router'
-import { ref, onMounted, onUnmounted, watch } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import DashboardUserOverview from '~/components/dashboard/DashboardUserOverview.vue'
 import DashboardUserEditProfile from '~/components/dashboard/DashboardUserEditProfile.vue'
 import DashboardUserResume from '~/components/dashboard/DashboardUserResume.vue'
-import DashboardApplications from '~/components/dashboard/DashboardApplications.vue'
-import DashboardChangePassword from '~/components/dashboard/DashboardChangePassword.vue'
-import DashboardDeleteAccount from '~/components/dashboard/DashboardDeleteAccount.vue'
+import DashboardUserApplications from '~/components/dashboard/DashboardUserApplications.vue'
+import DashboardSettings from '~/components/dashboard/DashboardSettings.vue'
+
+definePageMeta({
+  layout: 'blank',
+})
+
+useHead({
+  title: 'Tài khoản ứng viên',
+})
 
 // Composables
 const router = useRouter()
 const route = useRoute()
 const authStore = useAuthStore()
 
+const accountDashboardUrl = '/users/dashboard?view=editProfile'
+
 // Dashboard view types
-type DashboardView = 'dashboard' | 'editProfile' | 'resume' | 'applications' | 'changePassword' | 'deleteAccount'
+type DashboardView = 'dashboard' | 'editProfile' | 'resume' | 'applications' | 'settings'
 
 // Active view state
 const activeView = ref<DashboardView>('dashboard')
@@ -244,10 +258,24 @@ const activeView = ref<DashboardView>('dashboard')
 const showUserDropdown = ref(false)
 const overviewRef = ref<InstanceType<typeof DashboardUserOverview> | null>(null)
 
-// Computed properties
-const unreadNotifications = computed(() => {
-  // This would come from your notification system
-  return 0
+const displayName = computed(() => {
+  return authStore.user?.fullName?.trim() || authStore.user?.email || 'Ứng viên'
+})
+
+const avatarInitial = computed(() => {
+  const name = authStore.user?.fullName?.trim()
+
+  if (name) {
+    return name.charAt(0).toUpperCase()
+  }
+
+  const em = authStore.user?.email
+
+  if (em) {
+    return em.charAt(0).toUpperCase()
+  }
+
+  return 'Ứ'
 })
 
 // Methods
@@ -269,85 +297,26 @@ const toggleUserDropdown = () => {
   showUserDropdown.value = !showUserDropdown.value
 }
 
-const handleMenuItemClick = (item: any) => {
-  showUserDropdown.value = false
-  if (item.click) {
-    item.click()
-  }
-}
-
 // Navigation methods
-const navigateToPostJob = () => {
-  router.push('/jobs/upload')
-}
-
 const handleViewJob = (jobId: number) => {
   router.push(`/jobs/${jobId}`)
 }
 
 const logout = () => {
+  showUserDropdown.value = false
   authStore.logout()
   router.push('/')
 }
 
 // Watch for route query changes (immediate để chạy ngay khi load)
 watch(() => route.query.view, (newView) => {
-  if (newView && ['dashboard', 'editProfile', 'resume', 'applications', 'changePassword', 'deleteAccount'].includes(newView as string)) {
-    activeView.value = newView as DashboardView
+  const raw = newView as string | undefined
+  const mapped = raw === 'changePassword' ? 'settings' : raw
+  if (mapped && ['dashboard', 'editProfile', 'resume', 'applications', 'settings'].includes(mapped)) {
+    activeView.value = mapped as DashboardView
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 }, { immediate: true })
-
-// User dropdown menu items
-const userMenuItems = [
-  {
-    label: 'Tổng quan',
-    icon: 'i-lucide-layout-dashboard',
-    click: () => {
-      setActiveView('dashboard')
-    },
-  },
-  {
-    label: 'Thông tin tài khoản',
-    icon: 'i-lucide-user',
-    click: () => {
-      setActiveView('editProfile')
-    },
-  },
-  {
-    label: 'Hồ sơ ứng tuyển',
-    icon: 'i-lucide-file-text',
-    click: () => {
-      setActiveView('resume')
-    },
-  },
-  {
-    label: 'Công việc đã ứng tuyển',
-    icon: 'i-lucide-briefcase',
-    click: () => {
-      setActiveView('applications')
-    },
-  },
-  {
-    label: 'Đăng tin mới',
-    icon: 'i-lucide-plus-circle',
-    click: () => {
-      navigateToPostJob()
-    },
-  },
-  {
-    label: 'Thay đổi mật khẩu',
-    icon: 'i-lucide-lock',
-    click: () => {
-      setActiveView('changePassword')
-    },
-  },
-  {
-    label: 'Đăng xuất',
-    icon: 'i-lucide-log-out',
-    click: logout,
-  },
-]
 
 // Lifecycle
 onMounted(() => {
@@ -369,7 +338,7 @@ onUnmounted(() => {
 const handleClickOutside = (event: Event) => {
   const target = event.target as HTMLElement
 
-  if (!target.closest('.relative')) {
+  if (!target.closest('.candidate-topbar-menu')) {
     showUserDropdown.value = false
   }
 }

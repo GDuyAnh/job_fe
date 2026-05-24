@@ -271,18 +271,12 @@
                 </div>
 
                 <!-- Salary -->
-                <div v-if="job.salaryMin || job.salaryMax" class="mt-6">
+                <div class="mt-6">
                   <h4 class="text-md font-semibold mb-2">
                     {{ $t('job.detail.salary') }}
                   </h4>
                   <p class="text-sm text-gray-700">
-                    <span v-if="job.salaryMin">{{
-                      formatNumber(job.salaryMin)
-                    }}</span>
-                    <span v-if="job.salaryMin && job.salaryMax"> - </span>
-                    <span v-if="job.salaryMax">{{
-                      formatNumber(job.salaryMax)
-                    }}</span>
+                    {{ formatSalaryRange(job) }}
                   </p>
                 </div>
               </UCard>
@@ -460,7 +454,7 @@
 <script setup lang="ts">
 import type { JobModelAddUpdate } from '~/models/job'
 import type { CompanyEntity } from '~/entities/company'
-import { formatDate, formatNumber } from '~/utils/helper'
+import { formatDate } from '~/utils/helper'
 import { processEnumArray } from '~/utils/enum-helper'
 
 const {
@@ -478,6 +472,13 @@ const router = useRouter()
 const loading = ref(false)
 const job = ref<JobModelAddUpdate | null>(null)
 const company = ref<CompanyEntity | null>(null)
+
+useHead({
+  title: computed(() => {
+    const name = job.value?.title?.trim()
+    return name && name.length > 0 ? `Xem trước: ${name}` : 'Xem trước tin tuyển dụng'
+  }),
+})
 
 // Process benefits string (comma-separated) or array using the utility
 const processBenefits = (benefits: string | string[] | null | undefined): string[] => {

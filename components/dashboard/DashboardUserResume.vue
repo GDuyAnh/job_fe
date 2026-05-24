@@ -1,169 +1,189 @@
 <template>
-  <div>
-    <!-- Header -->
-    <div class="mb-6">
-      <h1 class="text-3xl font-bold text-gray-900">{{ $t('dashboard.resume.title') }}</h1>
-      <p class="text-gray-600 mt-2">
-        {{ $t('dashboard.resume.description') }}
-      </p>
-    </div>
-
-    <!-- Cover Letter Text Card -->
-    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
-      <h2 class="text-lg font-bold text-gray-900 mb-4">{{ $t('dashboard.resume.coverLetterTitle') }}</h2>
-      <p class="text-sm text-gray-600 mb-4">
-        {{ $t('dashboard.resume.coverLetterDescription') }}
-      </p>
-      <textarea
-        v-model="coverLetterTextValue"
-        rows="10"
-        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
-        :placeholder="$t('dashboard.resume.coverLetterPlaceholder')"
-      />
-      <div class="flex justify-end mt-4">
-        <UButton
-          color="primary"
-          size="lg"
-          :loading="savingCoverLetterText"
-          @click="saveCoverLetterText"
-        >
-          {{ $t('dashboard.resume.saveCoverLetter') }}
-        </UButton>
-      </div>
-    </div>
-
-    <!-- CV Management Card -->
-    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-      <h2 class="text-lg font-bold text-gray-900 mb-4">{{ $t('dashboard.resume.cvTitle') }}</h2>
-
-      <!-- Current CV Display -->
-      <div v-if="currentCv" class="mb-6">
-        <div class="flex items-center gap-3">
-          <!-- File Icon -->
-          <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
-            <UIcon name="i-lucide-file-text" class="w-6 h-6 text-blue-600" />
+  <section class="candidate-panel candidate-cv-manager-panel">
+    <form
+      class="candidate-cv-manager"
+      data-candidate-cv-manager=""
+      @submit.prevent="saveCoverLetterText"
+    >
+      <div class="candidate-cv-layout">
+        <section class="candidate-cv-section candidate-cv-section-primary">
+          <div class="candidate-cv-section-head">
+            <div>
+              <h2>CV của bạn</h2>
+            </div>
           </div>
 
-          <!-- File Info -->
-          <div class="flex-1 min-w-0">
+          <div class="candidate-cv-current">
             <a
+              v-if="currentCv?.url"
               :href="currentCv.url"
+              class="candidate-cv-file-link"
+              data-candidate-cv-file-link=""
+              :download="cvDisplayName"
               target="_blank"
               rel="noopener noreferrer"
-              class="text-blue-600 hover:text-blue-700 underline text-sm font-medium block truncate"
             >
-              {{ currentCv.fileName }}
+              <span class="candidate-cv-file-icon" aria-hidden="true">
+                <svg width="25" height="44" viewBox="0 0 24 24" fill="none">
+                  <path
+                    d="M7 3.5h7.5L18 7v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4.5a1 1 0 0 1 1-1Z"
+                    stroke="currentColor"
+                    stroke-width="1.8"
+                    stroke-linejoin="round"
+                  />
+                  <path
+                    d="M14.5 3.5V7H18"
+                    stroke="currentColor"
+                    stroke-width="1.8"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                  <path
+                    d="M8.5 16.5 10.7 12l2.1 4.5M9.1 15.2h3.2"
+                    stroke="currentColor"
+                    stroke-width="1.8"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+              </span>
+
+              <span class="candidate-cv-file-copy">
+                <span class="candidate-cv-file-name-row">
+                  <strong data-candidate-cv-file-name="">{{ cvDisplayName }}</strong>
+                  <span class="candidate-cv-file-status" aria-label="CV hợp lệ">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                      <path
+                        d="m5.5 12.5 4 4 9-9"
+                        stroke="currentColor"
+                        stroke-width="2.3"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      />
+                    </svg>
+                  </span>
+                </span>
+                <span data-candidate-cv-file-date="">
+                  Cập nhật lần cuối: {{ formatDate(currentCv.modifiedDate) }}
+                </span>
+              </span>
             </a>
-            <p class="text-sm text-gray-500 mt-1">
-              {{ $t('dashboard.resume.lastModified') }} {{ formatDate(currentCv.modifiedDate) }}
+
+            <div v-else class="candidate-cv-file-link candidate-cv-file-link--empty">
+              <span class="candidate-cv-file-icon" aria-hidden="true">
+                <svg width="25" height="44" viewBox="0 0 24 24" fill="none">
+                  <path
+                    d="M7 3.5h7.5L18 7v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4.5a1 1 0 0 1 1-1Z"
+                    stroke="currentColor"
+                    stroke-width="1.8"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+              </span>
+              <span class="candidate-cv-file-copy">
+                <span class="candidate-cv-file-name-row">
+                  <strong>Chưa có CV đính kèm</strong>
+                </span>
+                <span>Hãy tải CV để ứng tuyển nhanh hơn.</span>
+              </span>
+            </div>
+          </div>
+
+          <div class="candidate-cv-upload-row">
+            <label class="candidate-primary-btn candidate-cv-upload-btn">
+              <input
+                ref="cvFileEl"
+                type="file"
+                accept=".pdf,.doc,.docx"
+                data-candidate-cv-file-input=""
+                hidden
+                @change="onPickCv"
+              >
+              <span>{{ uploading ? 'Đang tải...' : 'Tải lên CV' }}</span>
+            </label>
+
+            <p class="candidate-cv-upload-note">
+              Hỗ trợ .doc, .docx, .pdf · tối đa 3MB
             </p>
           </div>
-        </div>
-      </div>
 
-      <!-- No CV Message -->
-      <div v-else class="mb-6">
-        <p class="text-sm text-gray-500">{{ $t('dashboard.resume.noCvUploaded') }}</p>
-      </div>
+          <p v-if="uploadError" class="candidate-cv-upload-error">
+            {{ uploadError }}
+          </p>
+        </section>
 
-      <!-- Upload Button -->
-      <div class="mb-4">
-        <UButton
-          color="primary"
-          size="lg"
-          :loading="uploading"
-          @click="cvFileEl?.click()"
-        >
-          {{ $t('dashboard.resume.uploadCv') }}
-        </UButton>
-        <input
-          ref="cvFileEl"
-          type="file"
-          accept=".doc,.docx,.pdf"
-          class="hidden"
-          @change="onPickCv"
-        />
-      </div>
+        <section class="candidate-cv-section candidate-cv-section-cover">
+          <div class="candidate-cv-section-head">
+            <div>
+              <h2>Cover Letter (Không bắt buộc)</h2>
+            </div>
 
-      <!-- Upload Guidelines -->
-      <p class="text-sm text-gray-600">
-        {{ $t('dashboard.resume.uploadGuidelines') }}
-      </p>
-
-      <!-- Error Message -->
-      <p v-if="uploadError" class="text-sm text-red-500 mt-2">
-        {{ uploadError }}
-      </p>
-    </div>
-
-    <!-- Cover Letter Management Card -->
-    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mt-6">
-      <h2 class="text-lg font-bold text-gray-900 mb-4">{{ $t('dashboard.resume.coverLetterFileTitle') }}</h2>
-
-      <!-- Current Cover Letter Display -->
-      <div v-if="currentCoverLetter" class="mb-6">
-        <div class="flex items-center gap-3">
-          <!-- File Icon -->
-          <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0">
-            <UIcon name="i-lucide-file-text" class="w-6 h-6 text-green-600" />
-          </div>
-
-          <!-- File Info -->
-          <div class="flex-1 min-w-0">
-            <a
-              :href="currentCoverLetter.url"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="text-blue-600 hover:text-blue-700 underline text-sm font-medium block truncate"
+            <button
+              type="button"
+              class="candidate-cv-edit-btn"
+              data-candidate-cv-edit-section="cover"
+              :aria-pressed="isEditingCoverLetter"
+              aria-label="Chỉnh sửa cover letter"
+              title="Chỉnh sửa cover letter"
+              @click="toggleEditCoverLetter"
             >
-              {{ currentCoverLetter.fileName }}
-            </a>
-            <p class="text-sm text-gray-500 mt-1">
-              {{ $t('dashboard.resume.lastModified') }} {{ formatDate(currentCoverLetter.modifiedDate) }}
-            </p>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path
+                  d="M4 20h4l9.8-9.8a1.5 1.5 0 0 0 0-2.1l-1.9-1.9a1.5 1.5 0 0 0-2.1 0L4 16v4Z"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linejoin="round"
+                />
+                <path
+                  d="m12.5 7.5 4 4"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                />
+              </svg>
+            </button>
           </div>
-        </div>
+
+          <label class="candidate-cv-field candidate-cv-cover-field">
+            <textarea
+              v-model="coverLetterDraft"
+              rows="6"
+              maxlength="1000"
+              placeholder="Giới thiệu bản thân và lý do tại sao bạn sẽ là một ứng viên phù hợp."
+              data-candidate-cv-cover-letter=""
+              :readonly="!isEditingCoverLetter"
+              :class="{ 'is-readonly': !isEditingCoverLetter }"
+            />
+            <small data-candidate-cv-count="">{{ coverLetterDraft.length }} / 1000</small>
+          </label>
+        </section>
       </div>
 
-      <!-- No Cover Letter Message -->
-      <div v-else class="mb-6">
-        <p class="text-sm text-gray-500">{{ $t('dashboard.resume.noCoverLetterUploaded') }}</p>
-      </div>
-
-      <!-- Upload Button -->
-      <div class="mb-4">
-        <UButton
-          color="primary"
-          size="lg"
-          :loading="uploadingCoverLetter"
-          @click="coverLetterFileEl?.click()"
+      <div class="candidate-cv-actions">
+        <button
+          type="button"
+          class="candidate-secondary-btn"
+          data-candidate-cv-cancel=""
+          :disabled="!isEditingCoverLetter"
+          @click="cancelEditCoverLetter"
         >
-          {{ $t('dashboard.resume.uploadCoverLetter') }}
-        </UButton>
-        <input
-          ref="coverLetterFileEl"
-          type="file"
-          accept=".doc,.docx,.pdf"
-          class="hidden"
-          @change="onPickCoverLetter"
-        />
+          Hủy
+        </button>
+        <button
+          type="submit"
+          class="candidate-primary-btn"
+          data-candidate-cv-save=""
+          :disabled="!canSaveCoverLetter"
+        >
+          {{ savingCoverLetterText ? 'Đang lưu...' : 'Lưu' }}
+        </button>
       </div>
-
-      <!-- Upload Guidelines -->
-      <p class="text-sm text-gray-600">
-        {{ $t('dashboard.resume.uploadGuidelines') }}
-      </p>
-
-      <!-- Error Message -->
-      <p v-if="uploadCoverLetterError" class="text-sm text-red-500 mt-2">
-        {{ uploadCoverLetterError }}
-      </p>
-    </div>
-  </div>
+    </form>
+  </section>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useNuxtApp } from '#app'
 import { useAuthStore } from '~/stores/auth'
 import { useNotify } from '~/composables/useNotify'
@@ -179,6 +199,8 @@ const { t } = useI18n()
 
 const coverLetterTextValue = ref('')
 const savingCoverLetterText = ref(false)
+const isEditingCoverLetter = ref(false)
+const coverLetterDraft = ref('')
 
 const cvFileEl = ref<HTMLInputElement | null>(null)
 const uploading = ref(false)
@@ -190,15 +212,17 @@ const currentCv = ref<{
   modifiedDate: Date | string
 } | null>(null)
 
-const coverLetterFileEl = ref<HTMLInputElement | null>(null)
-const uploadingCoverLetter = ref(false)
-const uploadCoverLetterError = ref('')
+const cvDisplayName = computed(() => {
+  if (authStore.user?.cvFileName) {
+    return authStore.user.cvFileName
+  }
 
-const currentCoverLetter = ref<{
-  fileName: string
-  url: string
-  modifiedDate: Date | string
-} | null>(null)
+  if (currentCv.value?.fileName) {
+    return currentCv.value.fileName
+  }
+
+  return 'CV của bạn'
+})
 
 const formatDate = (date: Date | string | null | undefined): string => {
   if (!date) return 'N/A'
@@ -212,7 +236,6 @@ const formatDate = (date: Date | string | null | undefined): string => {
 }
 
 const validateFile = (file: File): string | null => {
-  // Check file type
   const allowedTypes = [
     'application/msword',
     'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
@@ -225,7 +248,6 @@ const validateFile = (file: File): string | null => {
     return t('dashboard.resume.fileTypeError')
   }
 
-  // Check file size (3MB = 3 * 1024 * 1024 bytes)
   const maxSize = 3 * 1024 * 1024
 
   if (file.size > maxSize) {
@@ -241,18 +263,13 @@ const onPickCv = async (e: Event) => {
   if (!files?.length) return
 
   const file = files[0]
-
   uploadError.value = ''
 
-  // Validate file
   const validationError = validateFile(file)
 
   if (validationError) {
     uploadError.value = validationError
-    useNotify({
-      message: validationError,
-      type: 'error',
-    })
+    useNotify({ message: validationError, type: 'error' })
 
     if (cvFileEl.value) cvFileEl.value.value = ''
 
@@ -262,7 +279,6 @@ const onPickCv = async (e: Event) => {
   uploading.value = true
 
   try {
-    // Upload CV to Cloudflare R2 (will delete old CV if exists)
     const { uploadCv } = useCvUpload()
     const oldCvUrl = authStore.user?.cvUrl || undefined
     const result = await uploadCv(file, oldCvUrl)
@@ -271,7 +287,6 @@ const onPickCv = async (e: Event) => {
       throw new Error(t('dashboard.resume.uploadCvFailed'))
     }
 
-    // Save CV URL and original filename to database
     await $api.users.updateProfile({
       username: authStore.user?.username || '',
       fullName: authStore.user?.fullName || '',
@@ -282,10 +297,8 @@ const onPickCv = async (e: Event) => {
       cvFileName: result.originalName,
     })
 
-    // Reload user data
     await authStore.getMe()
 
-    // Update current CV display
     currentCv.value = {
       fileName: result.originalName,
       url: result.url,
@@ -297,7 +310,6 @@ const onPickCv = async (e: Event) => {
       type: 'success',
     })
 
-    // Clear file input
     if (cvFileEl.value) cvFileEl.value.value = ''
   } catch (error: any) {
     console.error('Failed to upload CV:', error)
@@ -312,6 +324,8 @@ const onPickCv = async (e: Event) => {
 }
 
 const saveCoverLetterText = async () => {
+  if (!canSaveCoverLetter.value) return
+
   savingCoverLetterText.value = true
 
   try {
@@ -321,16 +335,18 @@ const saveCoverLetterText = async () => {
       phoneNumber: authStore.user?.phoneNumber || undefined,
       location: authStore.user?.location || undefined,
       expertise: authStore.user?.expertise || undefined,
-      coverLetterText: coverLetterTextValue.value,
+      coverLetterText: coverLetterDraft.value,
     })
 
-    // Reload user data
     await authStore.getMe()
 
     useNotify({
       message: t('dashboard.resume.saveCoverLetterSuccess'),
       type: 'success',
     })
+
+    coverLetterTextValue.value = coverLetterDraft.value
+    isEditingCoverLetter.value = false
   } catch (error: any) {
     console.error('Failed to save cover letter text:', error)
     useNotify({
@@ -342,130 +358,47 @@ const saveCoverLetterText = async () => {
   }
 }
 
-// Load current CV on mount
+const canSaveCoverLetter = computed(() => {
+  if (!isEditingCoverLetter.value || savingCoverLetterText.value) return false
+
+  const next = (coverLetterDraft.value || '').trim()
+  const prev = (coverLetterTextValue.value || '').trim()
+
+  return next !== prev
+})
+
+const toggleEditCoverLetter = () => {
+  isEditingCoverLetter.value = true
+}
+
+const cancelEditCoverLetter = () => {
+  coverLetterDraft.value = coverLetterTextValue.value || ''
+  isEditingCoverLetter.value = false
+}
+
 onMounted(async () => {
   try {
-    // Reload user data from server to get latest CV and Cover Letter URLs
     await authStore.getMe()
 
-    // Load cover letter text from user
     if (authStore.user?.coverLetterText) {
       coverLetterTextValue.value = authStore.user.coverLetterText
     }
 
-    // Load CV URL if exists
+    coverLetterDraft.value = coverLetterTextValue.value || ''
+
     if (authStore.user?.cvUrl) {
-      // Extract filename from URL
-      const fileName = decodeURIComponent(authStore.user.cvUrl.split('/').pop() || 'CV của bạn')
+      const fileName =
+        authStore.user.cvFileName ||
+        decodeURIComponent(authStore.user.cvUrl.split('/').pop() || 'CV của bạn')
 
       currentCv.value = {
-        fileName: fileName,
+        fileName,
         url: authStore.user.cvUrl,
         modifiedDate: new Date(),
       }
     }
-
-    // Load Cover Letter URL if exists
-    if (authStore.user?.coverLetterUrl) {
-      // Extract filename from URL or use default
-      const urlParts = authStore.user.coverLetterUrl.split('/')
-      const fileName = urlParts[urlParts.length - 1] || 'Cover Letter của bạn'
-      
-      currentCoverLetter.value = {
-        fileName: decodeURIComponent(fileName),
-        url: authStore.user.coverLetterUrl,
-        modifiedDate: new Date(),
-      }
-    }
-
-    console.log('Loaded resume data:', {
-      cvUrl: authStore.user?.cvUrl,
-      coverLetterUrl: authStore.user?.coverLetterUrl,
-      coverLetterText: authStore.user?.coverLetterText,
-    })
   } catch (error) {
     console.error('Failed to load resume data:', error)
   }
 })
-
-const onPickCoverLetter = async (e: Event) => {
-  const files = (e.target as HTMLInputElement).files
-
-  if (!files?.length) return
-
-  const file = files[0]
-
-  uploadCoverLetterError.value = ''
-
-  // Validate file
-  const validationError = validateFile(file)
-
-  if (validationError) {
-    uploadCoverLetterError.value = validationError
-    useNotify({
-      message: validationError,
-      type: 'error',
-    })
-
-    if (coverLetterFileEl.value) coverLetterFileEl.value.value = ''
-
-    return
-  }
-
-  uploadingCoverLetter.value = true
-
-  try {
-    // Generate dummy URL for Cover Letter (giả lập upload)
-    const coverLetterUrl = `https://abcxyz.com/${encodeURIComponent(file.name)}`
-
-    // Save Cover Letter URL to database
-    await $api.users.updateProfile({
-      username: authStore.user?.username || '',
-      fullName: authStore.user?.fullName || '',
-      phoneNumber: authStore.user?.phoneNumber || undefined,
-      location: authStore.user?.location || undefined,
-      expertise: authStore.user?.expertise || undefined,
-      coverLetterUrl: coverLetterUrl,
-    })
-
-    // Reload user data
-    await authStore.getMe()
-
-    // Update current Cover Letter display
-    currentCoverLetter.value = {
-      fileName: file.name,
-      url: coverLetterUrl,
-      modifiedDate: new Date(),
-    }
-
-    useNotify({
-      message: t('dashboard.resume.uploadCoverLetterSuccess'),
-      type: 'success',
-    })
-
-    // Clear file input
-    if (coverLetterFileEl.value) coverLetterFileEl.value.value = ''
-  } catch (error: any) {
-    console.error('Failed to upload Cover Letter:', error)
-    uploadCoverLetterError.value = error.message || t('dashboard.resume.uploadCoverLetterFailed')
-    useNotify({
-      message: error.message || t('dashboard.resume.uploadCoverLetterFailed'),
-      type: 'error',
-    })
-  } finally {
-    uploadingCoverLetter.value = false
-  }
-}
-
-// No need for cleanup since we're using persistent URLs from database
-// onBeforeUnmount(() => {
-//   // Cleanup blob URL if exists
-//   if (currentCv.value?.url?.startsWith('blob:')) {
-//     URL.revokeObjectURL(currentCv.value.url)
-//   }
-//   if (currentCoverLetter.value?.url?.startsWith('blob:')) {
-//     URL.revokeObjectURL(currentCoverLetter.value.url)
-//   }
-// })
 </script>
-

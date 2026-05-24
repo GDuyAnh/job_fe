@@ -1,16 +1,18 @@
 <template>
   <div>
-    <!-- Header: Title + Welcome (left), Search + New Company (right) -->
-    <div class="mb-6 bg-white rounded-xl shadow-sm border border-gray-200 p-6 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
-      <div>
+    <div class="employer-admin-companies-scale">
+    <div class="employer-admin-companies-panel">
+    <!-- Toolbar: Title + Search -->
+    <div class="employer-admin-companies-toolbar flex flex-col sm:flex-row sm:items-start sm:justify-between">
+      <div class="employer-admin-companies-head">
         <h1 class="text-3xl font-bold text-gray-400">
           {{ $t('dashboard.admin.companies.title') }}
         </h1>
-        <p class="text-gray-500 mt-1 text-sm">
+        <p class="text-gray-500 text-sm">
           {{ $t('dashboard.admin.companies.welcome') }}
         </p>
         <!-- Filter Checkboxes: Feature, Banner -->
-        <div class="flex items-center gap-6 mt-4">
+        <div class="employer-admin-companies-filters flex items-center gap-6">
           <label class="flex items-center gap-2 cursor-pointer">
             <UCheckbox
               v-model="filterFeature"
@@ -27,78 +29,99 @@
           </label>
         </div>
       </div>
-      <div class="flex items-center gap-3 flex-shrink-0">
+      <div class="employer-admin-companies-search flex w-full min-w-0 flex-col gap-3 sm:w-auto sm:max-w-none sm:flex-row sm:items-center sm:justify-end">
         <UInput
           v-model="searchQuery"
           :placeholder="$t('dashboard.admin.companies.searchPlaceholder')"
           icon="i-lucide-search"
-          class="min-w-[220px] rounded-lg"
-          @keyup.enter="fetchCompanies"
+          class="min-w-0 w-full max-w-[380px] sm:flex-1"
+          :ui="{ base: 'h-10 rounded-xl text-[13px]' }"
         />
+        <div class="w-full sm:w-auto shrink-0 min-w-0 sm:min-w-[10rem]">
+        <!-- Backdrop (modal=false để USelect portal không bị overlay chặn click) -->
+        <Teleport to="body">
+          <div
+            v-if="companyDrawerOpen"
+            class="employer-admin-job-drawer-backdrop fixed inset-0 z-10 bg-[rgba(15,23,42,0.42)] backdrop-blur-sm"
+            aria-hidden="true"
+            @click="closeAllCompanyDrawers"
+          />
+        </Teleport>
         <UDrawer
-          v-model:open="addCompanySlideoverOpen"
-          :title="$t('dashboard.admin.companies.newCompany')"
+          :open="addCompanySlideoverOpen"
+          :title="addCompanyDrawerTitle"
+          :description="addCompanyDrawerSubtitle"
           direction="right"
           :modal="false"
+          :overlay="false"
+          :should-scale-background="false"
+          :no-body-styles="true"
+          :dismissible="false"
           handle-only
-          :ui="{ content: 'w-full min-w-[400px] max-w-4xl' }"
+          :ui="companyDrawerUi"
+          @update:open="onAddCompanyDrawerOpenChange"
         >
           <template #header>
-            <div class="flex items-center w-full gap-2">
-              <span class="flex-1">{{ $t('dashboard.admin.companies.newCompany') }}</span>
-              <UButton
-                color="neutral"
-                variant="ghost"
-                icon="i-lucide-x"
-                @click="addCompanySlideoverOpen = false"
-              />
-            </div>
+            <AdminDrawerHeader
+              :kicker="addCompanyDrawerKicker"
+              :title="addCompanyDrawerTitle"
+              :subtitle="addCompanyDrawerSubtitle"
+              @close="closeAddCompanyDrawer"
+            />
           </template>
           <UButton
-            class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700 transition-colors"
+            color="primary"
+            icon="i-lucide-plus"
+            class="h-10 w-full justify-center sm:w-auto whitespace-nowrap rounded-xl px-4 text-[13px] font-semibold shadow-sm"
           >
-            <UIcon name="i-lucide-plus" class="w-5 h-5" />
             {{ $t('dashboard.admin.companies.newCompany') }}
           </UButton>
           <template #body>
-            <div class="p-6 overflow-y-auto max-h-[85vh]">
+            <div class="p-6 ui-drawer-body-vh">
               <DashboardAdminCompanyForm
+                v-if="addCompanySlideoverOpen"
+                :key="`add-company-${addCompanyFormKey}`"
                 @success="onCompanyAdded"
-                @cancel="addCompanySlideoverOpen = false"
-                @crop-open="cropModalOpen = true"
-                @crop-closed="cropModalOpen = false"
+                @cancel="closeAddCompanyDrawer"
+                @crop-open="handleCropModalOpen"
+                @crop-closed="handleCropModalClosed"
               />
             </div>
           </template>
         </UDrawer>
+        </div>
         <UDrawer
-          v-model:open="editCompanySlideoverOpen"
+          :open="editCompanySlideoverOpen"
           :title="editCompanyDrawerTitle"
+          :description="editCompanyDrawerSubtitle"
           direction="right"
           :modal="false"
+          :overlay="false"
+          :should-scale-background="false"
+          :no-body-styles="true"
+          :dismissible="false"
           handle-only
-          :ui="{ content: 'w-full min-w-[400px] max-w-4xl' }"
+          :ui="companyDrawerUi"
+          @update:open="onEditCompanyDrawerOpenChange"
         >
           <template #header>
-            <div class="flex items-center w-full gap-2">
-              <span class="flex-1">{{ editCompanyDrawerTitle }}</span>
-              <UButton
-                color="neutral"
-                variant="ghost"
-                icon="i-lucide-x"
-                @click="editCompanySlideoverOpen = false"
-              />
-            </div>
+            <AdminDrawerHeader
+              :kicker="editCompanyDrawerKicker"
+              :title="editCompanyDrawerTitle"
+              :subtitle="editCompanyDrawerSubtitle"
+              @close="closeEditCompanyDrawer"
+            />
           </template>
           <template #body>
-            <div class="p-6 overflow-y-auto max-h-[85vh]">
+            <div class="p-6 ui-drawer-body-vh">
               <DashboardAdminCompanyForm
-                v-if="editingCompany != null"
+                v-if="editCompanySlideoverOpen && editingCompany != null"
+                :key="`edit-company-${editingCompany.id}`"
                 :initial-company="editingCompany"
                 @success="onCompanyUpdated"
-                @cancel="editCompanySlideoverOpen = false"
-                @crop-open="cropModalOpen = true"
-                @crop-closed="cropModalOpen = false"
+                @cancel="closeEditCompanyDrawer"
+                @crop-open="handleCropModalOpen"
+                @crop-closed="handleCropModalClosed"
               />
             </div>
           </template>
@@ -107,7 +130,7 @@
     </div>
 
     <!-- Companies Table -->
-    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+    <div class="employer-admin-companies-body">
       <!-- Loading State -->
       <div v-if="loading" class="text-center py-12">
         <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
@@ -193,7 +216,7 @@
                   </label>
                 </div>
               </th>
-              <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th class="is-action px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
                 {{ $t('dashboard.manageJobs.table.actions') }}
               </th>
             </tr>
@@ -274,34 +297,15 @@
                 </span>
               </td>
 
-              <!-- Action: icon mắt, bút, thùng rác -->
-              <td class="px-6 py-4 whitespace-nowrap text-right">
-                <div class="flex items-center justify-end gap-1">
-                  <UButton
-                    variant="ghost"
-                    color="neutral"
-                    size="xs"
-                    icon="i-lucide-eye"
-                    :title="$t('dashboard.admin.companies.actions.view')"
-                    @click="viewCompany(company)"
-                  />
-                  <UButton
-                    variant="ghost"
-                    color="neutral"
-                    size="xs"
-                    icon="i-lucide-pencil"
-                    :title="$t('dashboard.admin.companies.actions.edit')"
-                    @click="editCompany(company)"
-                  />
-                  <UButton
-                    variant="ghost"
-                    color="error"
-                    size="xs"
-                    icon="i-lucide-trash-2"
-                    :title="$t('dashboard.admin.companies.actions.delete')"
-                    @click="deleteCompany(company)"
-                  />
-                </div>
+              <td class="is-action px-6 py-4 whitespace-nowrap">
+                <EmployerRowActions
+                  :view-label="$t('dashboard.admin.companies.actions.view')"
+                  :edit-label="$t('dashboard.admin.companies.actions.edit')"
+                  :delete-label="$t('dashboard.admin.companies.actions.delete')"
+                  @view="viewCompany(company)"
+                  @edit="editCompany(company)"
+                  @delete="deleteCompany(company)"
+                />
               </td>
             </tr>
           </tbody>
@@ -339,6 +343,8 @@
           </UButton>
         </div>
       </div>
+    </div>
+    </div>
     </div>
 
     <!-- Delete confirmation popup -->
@@ -384,6 +390,8 @@
 </template>
 
 <script setup lang="ts">
+import AdminDrawerHeader from '~/components/AdminDrawerHeader.vue'
+
 const { $api } = useNuxtApp()
 const { t } = useI18n()
 
@@ -410,30 +418,132 @@ function toggleSort(field: string) {
 }
 
 const addCompanySlideoverOpen = ref(false)
+const addCompanyFormKey = ref(0)
 const editCompanySlideoverOpen = ref(false)
 const editingCompany = ref<any | null>(null)
 const cropModalOpen = ref(false)
+const CROP_DRAWER_GUARD_MS = 700
+let suppressDrawerBackdropUntil = 0
+let blockDrawerCloseUntil = 0
+
+function shouldBlockCompanyDrawerClose() {
+  return cropModalOpen.value || Date.now() < blockDrawerCloseUntil
+}
+
+function handleCropModalOpen() {
+  const guardUntil = Date.now() + CROP_DRAWER_GUARD_MS
+  cropModalOpen.value = true
+  suppressDrawerBackdropUntil = guardUntil
+  blockDrawerCloseUntil = guardUntil
+}
+
+function handleCropModalClosed() {
+  const guardUntil = Date.now() + CROP_DRAWER_GUARD_MS
+  suppressDrawerBackdropUntil = guardUntil
+  blockDrawerCloseUntil = guardUntil
+  window.setTimeout(() => {
+    cropModalOpen.value = false
+  }, 480)
+}
+
+function onAddCompanyDrawerOpenChange(open: boolean) {
+  if (!open && shouldBlockCompanyDrawerClose()) {
+    addCompanySlideoverOpen.value = true
+    return
+  }
+  addCompanySlideoverOpen.value = open
+}
+
+function onEditCompanyDrawerOpenChange(open: boolean) {
+  if (!open && shouldBlockCompanyDrawerClose()) {
+    editCompanySlideoverOpen.value = true
+    return
+  }
+  editCompanySlideoverOpen.value = open
+  if (!open) {
+    editingCompany.value = null
+  }
+}
 
 // Delete confirmation modal
 const showDeleteModal = ref(false)
 const companyPendingDelete = ref<any | null>(null)
 
-const editCompanyDrawerTitle = computed(() =>
-  editingCompany.value?.name ? `Chỉnh sửa công ty: ${editingCompany.value.name}` : 'Chỉnh sửa công ty',
+const addCompanyDrawerKicker = computed(() => 'Thêm công ty mới')
+
+const addCompanyDrawerTitle = computed(
+  () => t('dashboard.admin.companies.newCompany') as string,
 )
 
-// Khi drawer bị đóng (do click vào modal crop) trong lúc crop đang mở thì mở lại drawer ngay, không delay
-watch(addCompanySlideoverOpen, (open) => {
-  if (!open && cropModalOpen.value) {
+const addCompanyDrawerSubtitle = computed(
+  () => 'Điền MST, địa chỉ và hồ sơ công ty để đăng ký trên hệ thống.',
+)
+
+const editCompanyDrawerKicker = computed(() => 'Chỉnh sửa công ty')
+
+const editCompanyDrawerTitle = computed(() => 'Chỉnh sửa thông tin công ty')
+
+const editCompanyDrawerSubtitle = computed(() => {
+  const name = editingCompany.value?.name?.trim()
+  return name
+    ? `Cập nhật MST, địa chỉ và hồ sơ cho "${name}".`
+    : 'Cập nhật MST, địa chỉ và hồ sơ công ty trên hệ thống.'
+})
+
+const companyDrawerUi = {
+  ...adminDrawerUi('max-w-4xl', 'employer-admin-company-drawer'),
+  header: 'employer-admin-job-drawer-header employer-drawer-bg shrink-0 p-0',
+  container:
+    'employer-admin-job-drawer-container employer-drawer-bg w-full min-h-0 flex flex-1 flex-col gap-0 self-stretch p-0 overflow-hidden',
+  body: 'employer-admin-job-drawer-body employer-drawer-bg flex min-h-0 flex-1 flex-col overflow-hidden p-0',
+}
+
+function closeAddCompanyDrawer() {
+  cropModalOpen.value = false
+  addCompanySlideoverOpen.value = false
+}
+
+function closeEditCompanyDrawer() {
+  cropModalOpen.value = false
+  editCompanySlideoverOpen.value = false
+  editingCompany.value = null
+}
+
+const companyDrawerOpen = computed(
+  () => addCompanySlideoverOpen.value || editCompanySlideoverOpen.value,
+)
+
+function closeAllCompanyDrawers() {
+  if (shouldBlockCompanyDrawerClose()) return
+  closeAddCompanyDrawer()
+  closeEditCompanyDrawer()
+}
+
+watch(addCompanySlideoverOpen, (open, wasOpen) => {
+  if (open && !wasOpen) {
+    addCompanyFormKey.value += 1
+    cropModalOpen.value = false
+    blockDrawerCloseUntil = 0
+  }
+  if (!open && shouldBlockCompanyDrawerClose()) {
     addCompanySlideoverOpen.value = true
+    return
   }
-}, { flush: 'sync' })
+  if (!open) {
+    cropModalOpen.value = false
+  }
+})
+
 watch(editCompanySlideoverOpen, (open) => {
-  if (!open && cropModalOpen.value) {
+  if (!open && shouldBlockCompanyDrawerClose()) {
     editCompanySlideoverOpen.value = true
+    return
   }
-  if (!open) editingCompany.value = null
-}, { flush: 'sync' })
+  if (!open) {
+    cropModalOpen.value = false
+    editingCompany.value = null
+  }
+})
 
 const filteredCompanies = computed(() => {
   let result = companies.value
@@ -453,6 +563,26 @@ const filteredCompanies = computed(() => {
   // Filter by banner - using bannerImage field (not empty)
   if (filterBanner.value) {
     result = result.filter(c => c.bannerImage && c.bannerImage.trim() !== '')
+  }
+
+  // Tìm theo từ khóa (chỉ trên list đã tải — không gọi API)
+  const q = searchQuery.value?.trim().toLowerCase() ?? ''
+  if (q) {
+    result = result.filter((c) => {
+      const chunks = [
+        c.name,
+        c.mst,
+        c.openPositions,
+        c.creatorEmail,
+        c.email,
+        c.creatorPhone,
+        c.phone,
+        c.provinceName,
+        c.address,
+      ]
+
+      return chunks.some(s => String(s ?? '').toLowerCase().includes(q))
+    })
   }
   
   // Sort: mặc định mới nhất theo ngày tạo; khi chọn cột Company type thì sort theo trạng thái duyệt
@@ -559,6 +689,7 @@ const editCompany = (company: any) => {
 }
 
 function onCompanyUpdated() {
+  cropModalOpen.value = false
   editCompanySlideoverOpen.value = false
   editingCompany.value = null
   fetchCompanies()
@@ -570,7 +701,6 @@ const fetchCompanies = async () => {
   try {
     const params: Record<string, any> = {}
 
-    if (searchQuery.value?.trim()) params.keyword = searchQuery.value.trim()
     if (filterFeature.value) params.isFeatured = true
     if (filterBanner.value) params.hasBanner = true
     if (filterApproved.value === 'approved') params.isWaiting = false
@@ -598,6 +728,7 @@ const fetchCompanies = async () => {
 }
 
 function onCompanyAdded() {
+  cropModalOpen.value = false
   addCompanySlideoverOpen.value = false
   fetchCompanies()
 }
@@ -637,6 +768,10 @@ const cancelDeleteCompany = () => {
 watch([filterFeature, filterBanner, filterApproved], () => {
   currentPage.value = 1
   // Filter on client side only - no API call
+})
+
+watch(searchQuery, () => {
+  currentPage.value = 1
 })
 
 // Close filter dropdown when clicking outside

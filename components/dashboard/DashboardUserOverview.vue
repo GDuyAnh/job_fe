@@ -1,169 +1,226 @@
 <template>
-  <div>
-    <!-- Top Section - Two Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-      <!-- Left Card - CV Information -->
-      <div class="bg-[#FFFBF2] rounded-xl shadow-sm p-6 border border-gray-200">
-        <h3 class="text-lg font-bold text-gray-900 mb-4">
-          CV đính kèm của bạn
-        </h3>
-        <div class="flex items-start gap-4">
-          <div class="flex-shrink-0">
-            <div class="w-12 h-12 rounded-lg bg-white border-2 border-[#EAB308] flex items-center justify-center">
-              <UIcon name="i-lucide-file-text" class="w-6 h-6 text-[#EAB308]" />
-            </div>
-          </div>
-          <div class="flex-1 min-w-0">
-            <div v-if="latestCv">
-              <p class="text-sm font-medium text-gray-900 truncate mb-1">
-                {{ latestCv.fileName }}
-              </p>
-              <p class="text-xs text-gray-600 mb-3">
-                Lần cuối chỉnh sửa: {{ formatDate(latestCv.modifiedDate) }}
-              </p>
-              <NuxtLink
-                to="/users/dashboard?view=resume"
-                class="inline-flex items-center gap-1 text-sm font-medium text-[#EAB308] hover:text-[#D97706] transition-colors"
-              >
-                Quản lí CV
-                <UIcon name="i-lucide-chevron-right" class="w-4 h-4" />
-              </NuxtLink>
-            </div>
-            <div v-else>
-              <p class="text-sm text-gray-600 mb-3">
-                Chưa có CV đính kèm
-              </p>
-              <NuxtLink
-                to="/users/dashboard?view=resume"
-                class="inline-flex items-center gap-1 text-sm font-medium text-[#EAB308] hover:text-[#D97706] transition-colors"
-              >
-                Tải CV lên
-                <UIcon name="i-lucide-chevron-right" class="w-4 h-4" />
-              </NuxtLink>
-            </div>
-          </div>
-        </div>
-      </div>
+  <section class="candidate-overview">
+    <div class="candidate-overview-grid">
+      <article class="candidate-overview-card candidate-overview-cv-card">
+        <h1>CV đính kèm của bạn</h1>
 
-      <!-- Right Card - Application Summary -->
-      <div class="bg-[#F0F7FF] rounded-xl shadow-sm p-6 border border-gray-200">
-        <div class="flex items-start gap-4">
-          <div class="flex-shrink-0">
-            <div class="w-12 h-12 rounded-lg bg-white border-2 border-blue-600 flex items-center justify-center">
-              <UIcon name="i-lucide-file-text" class="w-6 h-6 text-blue-600" />
-            </div>
-          </div>
-          <div class="flex-1">
-            <p class="text-4xl font-bold text-gray-900 mb-1">
-              {{ totalApplications }}
-            </p>
-            <p class="text-sm text-gray-600">
-              Việc đã ứng tuyển
-            </p>
+        <div class="candidate-overview-cv">
+          <span class="candidate-overview-file-icon is-yellow" aria-hidden="true">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+              <path
+                d="M7 3.5h7.5L18 7v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4.5a1 1 0 0 1 1-1Z"
+                stroke="currentColor"
+                stroke-width="1.8"
+                stroke-linejoin="round"
+              />
+              <path
+                d="M14.5 3.5V7H18M9 12h6M9 16h4"
+                stroke="currentColor"
+                stroke-width="1.8"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+          </span>
+
+          <div class="candidate-overview-cv-copy">
+            <template v-if="latestCv">
+              <strong>{{ latestCv.fileName }}</strong>
+              <span>Lần cuối chỉnh sửa: {{ formatDate(latestCv.modifiedDate) }}</span>
+              <NuxtLink to="/users/dashboard?view=resume">Hồ sơ ứng tuyển</NuxtLink>
+            </template>
+            <template v-else>
+              <strong>Chưa có CV</strong>
+              <span>Tải CV để ứng tuyển nhanh hơn</span>
+              <NuxtLink to="/users/dashboard?view=resume">Tải CV lên</NuxtLink>
+            </template>
           </div>
         </div>
-      </div>
+      </article>
+
+      <article class="candidate-overview-card candidate-overview-total-card">
+        <span class="candidate-overview-file-icon is-blue" aria-hidden="true">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+            <path
+              d="M7 3.5h7.5L18 7v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4.5a1 1 0 0 1 1-1Z"
+              stroke="currentColor"
+              stroke-width="1.8"
+              stroke-linejoin="round"
+            />
+            <path
+              d="M14.5 3.5V7H18M9 12h6M9 16h4"
+              stroke="currentColor"
+              stroke-width="1.8"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+        </span>
+
+        <div class="candidate-overview-total-copy">
+          <strong>{{ totalApplications }}</strong>
+          <span>Việc đã ứng tuyển</span>
+        </div>
+      </article>
     </div>
 
-    <!-- Bottom Section - Recently Applied Jobs -->
-    <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
-      <div class="flex items-center justify-between mb-6">
-        <h3 class="text-lg font-bold text-gray-900">
-          Công việc ứng tuyển gần đây
-        </h3>
+    <section class="candidate-overview-card candidate-overview-applications">
+      <div class="candidate-overview-card-head">
+        <h2>Công việc ứng tuyển gần đây</h2>
         <button
-          class="text-sm font-medium text-blue-600 hover:text-blue-700 hover:underline transition-colors cursor-pointer"
+          type="button"
+          class="candidate-overview-card-head-link"
           @click="emit('view-all-applications')"
         >
           Xem tất cả
         </button>
       </div>
 
-      <div v-if="loading" class="text-center py-8">
-        <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-        <p class="mt-2 text-gray-600">Đang tải...</p>
+      <div v-if="loading" class="candidate-overview-state">
+        <div class="candidate-overview-spinner" />
+        <p>Đang tải...</p>
       </div>
 
-      <div v-else-if="recentApplications.length === 0" class="text-center py-8">
-        <UIcon name="i-lucide-briefcase" class="w-12 h-12 text-gray-400 mx-auto mb-2" />
-        <p class="text-gray-600">Chưa có công việc nào đã ứng tuyển</p>
+      <div v-else-if="recentApplications.length === 0" class="candidate-overview-state">
+        <p>Chưa có công việc nào đã ứng tuyển</p>
       </div>
 
-      <div v-else class="overflow-x-auto">
-        <table class="w-full">
-          <tbody class="divide-y divide-gray-200">
+      <div v-else class="candidate-overview-table-shell">
+        <table class="candidate-overview-table">
+          <colgroup>
+            <col class="candidate-overview-col-position">
+            <col class="candidate-overview-col-location">
+            <col class="candidate-overview-col-type">
+            <col class="candidate-overview-col-date">
+            <col class="candidate-overview-col-action">
+          </colgroup>
+          <thead>
+            <tr>
+              <th>Vị trí</th>
+              <th>Địa điểm</th>
+              <th>Hình thức</th>
+              <th>Ngày ứng tuyển</th>
+              <th class="is-action">Thao tác</th>
+            </tr>
+          </thead>
+          <tbody>
             <tr
               v-for="application in recentApplications"
               :key="application.id"
-              class="hover:bg-gray-50 transition-colors"
             >
-              <!-- Job Title & Company -->
-              <td class="px-4 py-3">
-                <div class="flex items-start gap-2">
-                  <div class="w-12 h-12 bg-gray-100 rounded-lg flex-shrink-0 flex items-center justify-center border border-gray-200">
-                    <UIcon name="i-lucide-briefcase" class="w-6 h-6 text-gray-400" />
-                  </div>
-                  <div class="min-w-0 flex-1">
-                    <h4 class="text-base font-bold text-gray-900 mb-1">
-                      {{ application.jobTitle }}
-                    </h4>
-                    <p class="text-sm text-gray-600">
-                      {{ application.companyName }}
-                    </p>
-                  </div>
-                </div>
-              </td>
-
-              <!-- Location -->
-              <td class="px-4 py-3">
-                <div class="flex items-center gap-1 text-sm text-gray-600">
-                  <template v-if="getLocationLabels(application.location).length > 0">
-                    <UIcon
-                      name="i-raphael:globealt"
-                      class="w-3 h-3 text-gray-600"
-                    />
-                    <span
-                      v-for="(loc, index) in getLocationLabels(application.location)"
-                      :key="index"
+              <td class="candidate-overview-position-cell">
+                <div class="candidate-overview-position">
+                  <div
+                    class="candidate-overview-job-icon job-logo"
+                    :class="{ 'logo-has-image': !!application.companyLogo }"
+                  >
+                    <img
+                      v-if="application.companyLogo"
+                      :src="application.companyLogo"
+                      :alt="`${application.companyName || 'Company'} logo`"
+                      loading="lazy"
                     >
-                      {{ loc }}<span v-if="index < getLocationLabels(application.location).length - 1"> / </span>
-                    </span>
-                  </template>
-                  <span v-else class="text-gray-400">-</span>
+                    <svg
+                      v-else
+                      width="22"
+                      height="22"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      aria-hidden="true"
+                    >
+                      <rect
+                        x="4"
+                        y="7"
+                        width="16"
+                        height="13"
+                        rx="2.5"
+                        stroke="currentColor"
+                        stroke-width="2"
+                      />
+                      <path
+                        d="M9 7V5.5A2.5 2.5 0 0 1 11.5 3h1A2.5 2.5 0 0 1 15 5.5V7M4 12h16"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                      />
+                    </svg>
+                  </div>
+
+                  <div class="candidate-overview-job-copy">
+                    <UTooltip
+                      v-if="application.jobTitle"
+                      :text="application.jobTitle"
+                      :popper="{ placement: 'top' }"
+                    >
+                      <strong class="candidate-overview-job-copy-line--truncate">
+                        {{ application.jobTitle }}
+                      </strong>
+                    </UTooltip>
+                    <UTooltip
+                      v-if="application.companyName"
+                      :text="application.companyName"
+                      :popper="{ placement: 'top' }"
+                    >
+                      <span class="candidate-overview-job-copy-line--truncate">
+                        {{ application.companyName }}
+                      </span>
+                    </UTooltip>
+                  </div>
                 </div>
               </td>
-
-              <!-- Type of Employment -->
-              <td class="px-4 py-3">
-                <div v-if="application.typeOfEmployment" class="font-semibold text-gray-900 text-sm">
+              <td class="candidate-overview-location-cell">
+                <UTooltip
+                  v-if="getLocationDisplayText(application.location)"
+                  :text="getLocationDisplayText(application.location)"
+                  :popper="{ placement: 'top' }"
+                >
+                  <span class="candidate-overview-job-location candidate-overview-job-location--truncate">
+                    {{ getLocationDisplayText(application.location) }}
+                  </span>
+                </UTooltip>
+                <span v-else class="candidate-overview-job-location">-</span>
+              </td>
+              <td>
+                <strong
+                  v-if="application.typeOfEmployment"
+                  class="candidate-overview-job-type"
+                >
                   {{ getEmploymentTypeLabel(application.typeOfEmployment) }}
-                </div>
-                <span v-else class="text-gray-400 text-sm">-</span>
+                </strong>
+                <span v-else class="candidate-overview-job-date">-</span>
               </td>
-
-              <!-- Applied Date -->
-              <td class="px-4 py-3">
-                <span v-if="application.appliedAt" class="text-sm text-gray-600">
+              <td>
+                <span
+                  v-if="application.appliedAt"
+                  class="candidate-overview-job-date"
+                >
                   {{ formatDate(application.appliedAt) }}
                 </span>
-                <span v-else class="text-gray-400 text-sm">-</span>
+                <span v-else class="candidate-overview-job-date">-</span>
               </td>
-
-              <!-- Action -->
-              <td class="px-4 py-3">
+              <td class="is-action">
                 <button
-                  class="p-2 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors"
-                  @click="$emit('view-job', application.jobId)"
+                  type="button"
+                  class="candidate-overview-view"
+                  :aria-label="`Xem chi tiết công việc ${application.jobTitle}`"
+                  @click="emit('view-job', application.jobId)"
                 >
-                  <UIcon name="i-lucide-eye" class="w-5 h-5" />
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path
+                      d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    />
+                    <circle cx="12" cy="12" r="2.8" stroke="currentColor" stroke-width="2" />
+                  </svg>
                 </button>
               </td>
             </tr>
           </tbody>
         </table>
       </div>
-    </div>
-  </div>
+    </section>
+  </section>
 </template>
 
 <script setup lang="ts">
@@ -186,7 +243,6 @@ const formatDate = (date: Date | string | null | undefined): string => {
   const d = date instanceof Date ? date : new Date(date)
   const day = String(d.getDate()).padStart(2, '0')
   const month = String(d.getMonth() + 1).padStart(2, '0')
-
   const year = d.getFullYear()
 
   return `${day}/${month}/${year}`
@@ -214,6 +270,12 @@ const getLocationLabels = (location: string | null | undefined): string[] => {
   return locations.map(loc => getLocationLabel(loc)).filter(loc => loc)
 }
 
+const getLocationDisplayText = (location: string | null | undefined): string => {
+  const labels = getLocationLabels(location)
+
+  return labels.length > 0 ? labels.join(' / ') : ''
+}
+
 const fetchUserApplications = async () => {
   if (!authStore.user?.id) return
 
@@ -222,7 +284,6 @@ const fetchUserApplications = async () => {
     const response = await $api.job.getUserApplications(authStore.user.id)
 
     if (response && Array.isArray(response)) {
-      // Sort by appliedAt descending and take 5 most recent
       const sorted = response.sort((a, b) => {
         const dateA = new Date(a.appliedAt).getTime()
         const dateB = new Date(b.appliedAt).getTime()
@@ -233,7 +294,6 @@ const fetchUserApplications = async () => {
       recentApplications.value = sorted.slice(0, 5)
       totalApplications.value = response.length
 
-      // Get latest CV from applications
       const latestAppWithCv = response
         .filter((app) => app.resumePath)
         .sort((a, b) => {
