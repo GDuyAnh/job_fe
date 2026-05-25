@@ -1,28 +1,42 @@
 <template>
-  <header v-if="!headerStore.hideHeader" class="app-header">
-    <div class="app-header__container">
-      <div class="app-header__inner">
-        <!-- Cụm trái: Logo -->
-        <div class="app-header__cluster app-header__cluster--start">
-          <NuxtLink to="/" class="wordmark" aria-label="Home">
-            <span class="wordmark-main">TuyenGiaoVien</span>
-            <span class="wordmark-dot">.vn</span>
-          </NuxtLink>
-        </div>
+  <header v-if="!headerStore.hideHeader" class="app-header site-header">
+    <div class="topbar app-header__container">
+      <div class="topbar-inner app-header__inner">
+        <NuxtLink to="/" class="wordmark" aria-label="Trang chủ">
+          <span class="wordmark-main">TuyenGiaoVien</span>
+          <span class="wordmark-dot">.vn</span>
+        </NuxtLink>
 
-        <!-- Cụm giữa: Nav -->
-        <nav class="site-nav" data-mobile-nav aria-label="Primary">
+        <button
+          type="button"
+          class="mobile-toggle"
+          data-mobile-toggle
+          :aria-expanded="isMobileNavOpen"
+          aria-controls="site-primary-nav"
+          aria-label="Menu"
+          @click="toggleMobileNav"
+        >
+          <span aria-hidden="true">{{ isMobileNavOpen ? '✕' : '☰' }}</span>
+        </button>
+
+        <nav
+          id="site-primary-nav"
+          class="site-nav"
+          :class="{ 'is-open': isMobileNavOpen }"
+          data-mobile-nav
+          aria-label="Primary"
+        >
           <NuxtLink
             v-for="item in menuItems"
             :key="item.to"
             :to="item.to"
             :class="{ 'is-active': isActive(item) }"
+            @click="closeMobileNav"
           >
             {{ item.label }}
           </NuxtLink>
         </nav>
 
-        <!-- Cụm phải: Buttons -->
         <div class="topbar-actions app-header__cluster app-header__cluster--end">
           <template v-if="authStore.isLoggedIn">
             <UDropdownMenu
@@ -59,7 +73,7 @@
           <button
             v-if="showPostButton"
             type="button"
-            class="white-btn small-btn"
+            class="white-btn small-btn topbar-actions__post"
             @click="handlePostJobFree"
           >
             Đăng tin miễn phí
@@ -68,6 +82,14 @@
       </div>
     </div>
 
+    <button
+      v-if="isMobileNavOpen"
+      type="button"
+      class="app-header__backdrop"
+      aria-label="Đóng menu"
+      tabindex="-1"
+      @click="closeMobileNav"
+    />
   </header>
 </template>
 
@@ -85,6 +107,7 @@ const router = useRouter()
 const authModalOpen = ref(false)
 const authModalView = ref<'login' | 'register'>('login')
 const suppressAuthModalOpenUntil = ref(0)
+const isMobileNavOpen = ref(false)
 
 const openAuthModal = (view: 'login' | 'register') => {
   if (Date.now() < suppressAuthModalOpenUntil.value) return
@@ -93,8 +116,15 @@ const openAuthModal = (view: 'login' | 'register') => {
 }
 
 const onAuthModalClosed = () => {
-  // Prevent immediate reopen from click-through
   suppressAuthModalOpenUntil.value = Date.now() + 250
+}
+
+const toggleMobileNav = () => {
+  isMobileNavOpen.value = !isMobileNavOpen.value
+}
+
+const closeMobileNav = () => {
+  isMobileNavOpen.value = false
 }
 
 const menuItems = computed(() => [
@@ -112,14 +142,15 @@ const userRole = computed(() => authStore.user?.role)
 const isAdmin = computed(() => userRole.value === USER_ROLES.ADMIN)
 const isCompany = computed(() => userRole.value === USER_ROLES.COMPANY)
 
-// Chỉ hiển thị khi chưa đăng nhập
 const showPostButton = computed(() => !authStore.isLoggedIn)
 
 const handlePostJobFree = () => {
+  closeMobileNav()
   router.push(ROUTE_PAGE.PAGE)
 }
 
 const goDashboard = (path: string, query?: Record<string, any>) => {
+  closeMobileNav()
   router.push({ path, query: query ?? {} })
 }
 
@@ -154,6 +185,22 @@ const userDropdownItems = computed(() => {
   ])
 
   return items
+})
+
+watch(
+  () => router.currentRoute.value.fullPath,
+  () => closeMobileNav(),
+)
+
+watch(isMobileNavOpen, (open) => {
+  if (!import.meta.client) return
+  document.body.style.overflow = open ? 'hidden' : ''
+})
+
+onUnmounted(() => {
+  if (import.meta.client) {
+    document.body.style.overflow = ''
+  }
 })
 </script>
 

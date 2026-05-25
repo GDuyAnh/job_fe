@@ -48,26 +48,26 @@
       <div class="container company-single-layout">
         <div class="company-single-main">
           <section class="company-single-section">
-            <h2>Giới thiệu</h2>
-            <p v-if="company.overview" class="company-single-lead">
-              {{ company.overview }}
-            </p>
+            <h2>Giới thiệu công ty</h2>
             <div
-              v-if="company.insight"
-              class="rich-text-output"
-              v-html="company.insight"
-            />
-            <div
-              v-if="company.description"
-              class="rich-text-output"
+              v-if="hasCompanyDescription"
+              class="company-detail-description rich-text-output"
               v-html="company.description"
             />
-            <p
-              v-if="!company.overview && !company.insight && !company.description"
-              class="company-single-lead"
-            >
+            <p v-else class="company-single-lead">
               {{ $t('common.nanValue') }}
             </p>
+
+            <template v-if="hasCompanyOverview || hasCompanyInsight">
+              <div v-if="hasCompanyOverview" class="company-single-subsection">
+                <h3 class="company-single-subtitle">Tổng quan</h3>
+                <p class="company-single-lead">{{ company.overview }}</p>
+              </div>
+              <div v-if="hasCompanyInsight" class="company-single-subsection">
+                <h3 class="company-single-subtitle">Tầm nhìn</h3>
+                <p class="company-single-lead">{{ company.insight }}</p>
+              </div>
+            </template>
           </section>
 
           <section v-if="galleryDisplayImages.length" class="company-single-section">
@@ -213,9 +213,16 @@
                 <span>Thành lập</span>
                 <strong>{{ company.foundedYear }}</strong>
               </div>
-              <div v-if="sidebarLocationText">
+              <div v-if="hasCompanyAddress" class="company-single-info-address">
+                <span>Địa chỉ</span>
+                <div
+                  class="company-detail-address rich-text-output"
+                  v-html="company.address"
+                />
+              </div>
+              <div v-else-if="company.provinceName">
                 <span>Địa điểm</span>
-                <strong>{{ sidebarLocationText }}</strong>
+                <strong>{{ company.provinceName }}</strong>
               </div>
             </div>
           </article>
@@ -300,6 +307,7 @@
 
 <script setup lang="ts">
 import type { CompanyEntity, CompanyJobSummary } from '~/entities/company'
+import { hasRichTextContent } from '~/utils/rich-text'
 
 const INITIAL_JOBS_COUNT = 3
 
@@ -327,11 +335,17 @@ const { locationEnumLabel, experienceLevelsEnumLabel } = useJobFilters()
 
 const companyRef = computed(() => props.company)
 
+const hasCompanyDescription = computed(() =>
+  hasRichTextContent(props.company.description),
+)
+const hasCompanyOverview = computed(() => !!props.company.overview?.trim())
+const hasCompanyInsight = computed(() => !!props.company.insight?.trim())
+const hasCompanyAddress = computed(() => hasRichTextContent(props.company.address))
+
 const {
   logoFallback,
   heroMetaPrimary,
   heroMetaLocation,
-  sidebarLocationText,
   openPositionsText,
   galleryModalImages,
   galleryDisplayImages,

@@ -1,4 +1,5 @@
 import type { CompanyEntity } from '~/entities/company'
+import { stripHtmlToText } from '~/utils/rich-text'
 
 export function useCompanyDetailView(company: Ref<CompanyEntity | null>) {
   const { organizationTypesLabel } = useJobFilters()
@@ -9,8 +10,7 @@ export function useCompanyDetailView(company: Ref<CompanyEntity | null>) {
 
   const companyLocationText = computed(() => {
     const raw = (company.value?.address || company.value?.provinceName || '').toString()
-    if (!raw) return ''
-    return raw.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim()
+    return stripHtmlToText(raw)
   })
 
   function getOrganizationTypeLabel(type: number) {
@@ -25,11 +25,6 @@ export function useCompanyDetailView(company: Ref<CompanyEntity | null>) {
   })
 
   const heroMetaLocation = computed(() => companyLocationText.value)
-
-  const sidebarLocationText = computed(() => {
-    if (company.value?.provinceName) return company.value.provinceName
-    return companyLocationText.value
-  })
 
   const openPositionsText = computed(() => {
     const count = Number(company.value?.openPositions ?? company.value?.jobs?.length ?? 0)
@@ -109,7 +104,6 @@ export function useCompanyDetailView(company: Ref<CompanyEntity | null>) {
     logoFallback,
     heroMetaPrimary,
     heroMetaLocation,
-    sidebarLocationText,
     openPositionsText,
     galleryModalImages,
     galleryDisplayImages,

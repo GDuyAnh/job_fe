@@ -1,31 +1,6 @@
 import type { JobModel } from '~/models/job'
 import { formatDate } from '~/utils/helper'
 import { processEnumArray } from '~/utils/enum-helper'
-
-function htmlToListItems(html?: string | null): string[] {
-  if (!html?.trim()) return []
-
-  const items: string[] = []
-  const liRegex = /<li[^>]*>([\s\S]*?)<\/li>/gi
-  let match: RegExpExecArray | null
-  while ((match = liRegex.exec(html)) !== null) {
-    const text = match[1].replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim()
-    if (text) items.push(text)
-  }
-  if (items.length) return items
-
-  const plain = html
-    .replace(/<br\s*\/?>/gi, '\n')
-    .replace(/<\/p>/gi, '\n')
-    .replace(/<[^>]+>/g, '')
-    .trim()
-
-  return plain
-    .split(/\n+/)
-    .map((s) => s.trim())
-    .filter(Boolean)
-}
-
 export function useJobDetailView(job: Ref<JobModel | null>) {
   const { t } = useI18n()
   const {
@@ -48,10 +23,6 @@ export function useJobDetailView(job: Ref<JobModel | null>) {
     const status = (job.value?.status || '').toUpperCase()
     return status === 'ADMIN_REVIEW' || status === 'PENDING'
   })
-
-  const descriptionList = computed(() =>
-    htmlToListItems(job.value?.detailDescription || job.value?.description),
-  )
 
   const processBenefits = (benefits: string | null): string[] => {
     if (!benefits) return []
@@ -161,12 +132,6 @@ export function useJobDetailView(job: Ref<JobModel | null>) {
     return processedBenefits.value.join(', ')
   })
 
-  const workAddressText = computed(() => {
-    const raw = (job.value?.jobAddress || job.value?.address || '').toString()
-    if (!raw) return ''
-    return raw.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim()
-  })
-
   const requirementsList = computed((): string[] => {
     if (!job.value) return []
 
@@ -273,11 +238,9 @@ export function useJobDetailView(job: Ref<JobModel | null>) {
   return {
     companyLogoLetters,
     showReviewStatus,
-    descriptionList,
     processedBenefits,
     requirementsList,
     metaItems,
-    workAddressText,
     getExperienceText,
     getFullLocationTextFor,
     truncateText,

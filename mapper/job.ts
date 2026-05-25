@@ -6,7 +6,6 @@ export class JobMapper {
     return {
       id: value.id,
       title: value.title,
-      description: value.description,
       category: value.category,
       location: value.location,
       typeOfEmployment: value.typeOfEmployment,
@@ -34,7 +33,7 @@ export class JobMapper {
       status: (value as any).status ?? undefined,
       createdAt: value.createdAt || new Date(),
       deadline: value.deadline,
-      detailDescription: value.detailDescription,
+      detailDescription: value.detailDescription ?? (value as { description?: string }).description ?? null,
       email: value.email,
       phoneNumber: value.phoneNumber,
       address: value.address || '',
@@ -46,7 +45,8 @@ export class JobMapper {
   static toModelAddUpdate(value: JobEntity): JobModelAddUpdate {
     return {
       title: value.title,
-      description: value.description,
+      detailDescription:
+        value.detailDescription ?? (value as { description?: string }).description ?? '',
       category: value.category 
         ? value.category.split(',').map(c => c.trim()).filter(c => c)
         : undefined,
@@ -76,7 +76,6 @@ export class JobMapper {
       deadline: value.deadline
         ? new Date(value.deadline).toISOString().split('T')[0]
         : undefined,
-      detailDescription: value.detailDescription ?? undefined,
       imageLogo: '',
       bannerLogo: '',
       postedDate: new Date(),

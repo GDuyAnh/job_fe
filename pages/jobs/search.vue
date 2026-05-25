@@ -399,9 +399,9 @@
                 <div class="jobs-detail-section">
                   <h4>Mô tả công việc</h4>
                   <div
-                    v-if="selectedJob.detailDescription || selectedJob.description"
-                    class="jobs-detail-lead rich-text-output"
-                    v-html="selectedJob.detailDescription || selectedJob.description"
+                    v-if="hasRichTextContent(selectedJob.detailDescription)"
+                    class="jobs-detail-description rich-text-output"
+                    v-html="selectedJob.detailDescription"
                   />
                   <p
                     v-else
@@ -456,8 +456,8 @@
                 <div class="jobs-detail-section">
                   <h4>Địa chỉ làm việc</h4>
                   <div
-                    v-if="selectedJob.jobAddress || selectedJob.address"
-                    class="jobs-detail-lead rich-text-output"
+                    v-if="hasRichTextContent(selectedJob.jobAddress || selectedJob.address)"
+                    class="jobs-detail-address rich-text-output"
                     v-html="selectedJob.jobAddress || selectedJob.address"
                   />
                   <p
@@ -519,6 +519,7 @@
 <script setup lang="ts">
 import type { JobModel } from '~/models/job'
 import { JobMapper } from '~/mapper/job'
+import { hasRichTextContent } from '~/utils/rich-text'
 
 interface SearchParams {
   keyword: string
@@ -537,6 +538,7 @@ const directorySelectNoIcon = ''
 const directorySelectUi = {
   trailing: '!hidden',
   trailingIcon: '!hidden',
+  content: 'z-[10000]',
 }
 
 // Enum

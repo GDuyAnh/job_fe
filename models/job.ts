@@ -1,7 +1,6 @@
 export interface JobModel {
   id: number
   title: string
-  description: string
   category: string
   location: string
   typeOfEmployment: string
@@ -41,7 +40,7 @@ export interface JobModel {
 
 export interface JobModelAddUpdate {
   title: string
-  description: string
+  detailDescription: string
   category?: string[] // Array for UI binding, will be converted to string when sending
   location?: string[] // Array for UI binding, will be converted to string when sending
   typeOfEmployment: number
@@ -59,7 +58,6 @@ export interface JobModelAddUpdate {
   salaryMax?: string
   salaryType: number
   benefits?: string[] // Array for UI binding, will be converted to string when sending
-  detailDescription?: string
   email?: string
   phoneNumber?: string
   address: string

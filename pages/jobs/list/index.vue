@@ -113,9 +113,9 @@
                     </div>
                     <div>
                       <div
-                        v-if="job.description"
+                        v-if="job.detailDescription"
                         class="text-gray-600 text-sm line-clamp-2 mb-4 rich-text-output"
-                        v-html="job.description"
+                        v-html="job.detailDescription"
                       />
                     </div>
                     <div>
