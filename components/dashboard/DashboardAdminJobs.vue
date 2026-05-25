@@ -635,7 +635,6 @@ function jobToListJobModel(j: any): JobModel | null {
   return {
     id: j.id,
     title: j.title ?? '',
-    description: j.description ?? '',
     category: typeof j.category === 'string' ? j.category : (Array.isArray(j.category) ? j.category.join(',') : ''),
     location: typeof j.location === 'string' ? j.location : (Array.isArray(j.location) ? j.location.join(',') : ''),
     typeOfEmployment: String(j.typeOfEmployment ?? ''),
@@ -655,7 +654,7 @@ function jobToListJobModel(j: any): JobModel | null {
     status: (j.status || '').toUpperCase() || 'ADMIN_REVIEW',
     createdAt: j.createdAt ? new Date(j.createdAt) : undefined,
     deadline: j.deadline ? new Date(j.deadline) : undefined,
-    detailDescription: j.detailDescription ?? null,
+    detailDescription: j.detailDescription ?? j.description ?? null,
     email: j.email ?? null,
     phoneNumber: j.phoneNumber ?? null,
     address: j.address ?? '',

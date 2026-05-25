@@ -31,7 +31,7 @@
               </p>
               <div
                 v-if="processedContent"
-                class="blog-detail-content"
+                class="blog-detail-content rich-text-output"
                 v-html="processedContent"
               />
             </template>

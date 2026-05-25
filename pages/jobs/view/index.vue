@@ -158,9 +158,9 @@
                 </h2>
                 <div class="prose prose-gray max-w-none">
                   <div
-                    v-if="job.description"
+                    v-if="hasRichTextContent(job.detailDescription)"
                     class="rich-text-output"
-                    v-html="job.description"
+                    v-html="job.detailDescription"
                   />
                 </div>
               </UCard>
@@ -456,6 +456,7 @@ import type { JobModelAddUpdate } from '~/models/job'
 import type { CompanyEntity } from '~/entities/company'
 import { formatDate } from '~/utils/helper'
 import { processEnumArray } from '~/utils/enum-helper'
+import { hasRichTextContent } from '~/utils/rich-text'
 
 const {
   categoryEnumLabel,

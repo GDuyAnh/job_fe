@@ -64,13 +64,13 @@
               </label>
               <!-- Text Editor -->
               <RichTextEditor
-                id="job-description"
-                v-model="job.description"
+                id="job-detail-description"
+                v-model="job.detailDescription"
                 class="w-full rich-text-content"
-                :class="{ 'border-red-500': jobErrors.description }"
+                :class="{ 'border-red-500': jobErrors.detailDescription }"
               />
-              <p v-if="jobErrors.description" class="text-red-500 text-sm mt-1 px-5">
-                {{ jobErrors.description }}
+              <p v-if="jobErrors.detailDescription" class="text-red-500 text-sm mt-1 px-5">
+                {{ jobErrors.detailDescription }}
               </p>
             </div>
 
@@ -854,12 +854,11 @@ function validateJobFields(): boolean {
     isValid = false
   }
 
-  // Check if description is empty or only contains empty HTML tags
-  const descriptionHtml = job.value.description || ''
-  const cleanDescription = descriptionHtml.replace(/<[^>]*>/g, '').trim()
+  const detailHtml = job.value.detailDescription || ''
+  const cleanDetail = detailHtml.replace(/<[^>]*>/g, '').trim()
 
-  if (cleanDescription.length === 0) {
-    jobErrors.value.description = 'Mô tả công việc không được để trống.'
+  if (cleanDetail.length === 0) {
+    jobErrors.value.detailDescription = 'Mô tả công việc không được để trống.'
     isValid = false
   }
 
@@ -979,7 +978,7 @@ function validateJobFields(): boolean {
   if (!isValid) {
     const jobFieldIdMap: Record<string, string> = {
       title: 'job-title',
-      description: 'job-description',
+      detailDescription: 'job-detail-description',
       deadline: 'job-deadline',
       category: 'job-category',
       typeOfEmployment: 'job-type-employment',
@@ -1076,6 +1075,7 @@ const editJob = async () => {
     // Ensure salary values are unformatted (no commas) before sending
     const jobDataToSend: any = {
       ...job.value,
+      detailDescription: job.value.detailDescription ?? '',
       benefits: benefitsString,
       category: categoryString,
       gender: genderString || undefined,

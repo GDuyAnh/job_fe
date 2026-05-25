@@ -711,13 +711,13 @@
                         <span class="text-red-500">{{ $t('job.uploadJob.mandatoryChar') }}</span>
                       </label>
                       <RichTextEditor
-                        id="job-description"
-                        v-model="job.description"
+                        id="job-detail-description"
+                        v-model="job.detailDescription"
                         class="w-full rich-text-content"
-                        :class="{ 'ring-1 ring-red-300': jobErrors.description }"
+                        :class="{ 'ring-1 ring-red-300': jobErrors.detailDescription }"
                         placeholder="Nhập mô tả công việc"
                       />
-                      <p v-if="jobErrors.description" class="mt-1 text-sm !text-red-500">{{ jobErrors.description }}</p>
+                      <p v-if="jobErrors.detailDescription" class="mt-1 text-sm !text-red-500">{{ jobErrors.detailDescription }}</p>
                     </div>
 
                     <div class="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -2523,7 +2523,7 @@ const addJob = async () => {
         },
         job: {
           title: job.value.title,
-          description: job.value.description,
+          detailDescription: job.value.detailDescription ?? '',
           category: Array.isArray(job.value.category)
             ? job.value.category.filter(Boolean).map(String).join(',')
             : String(job.value.category ?? ''),
@@ -2550,7 +2550,6 @@ const addJob = async () => {
               ? 0
               : Number(unformatCurrency(job.value.salaryMax as any) ?? 0),
           salaryType: Number(job.value.salaryType ?? 0),
-          detailDescription: job.value.detailDescription ?? '',
           phoneNumber: job.value.phoneNumber ?? '',
           email: job.value.email || '',
           address: job.value.address || '',
@@ -2696,12 +2695,11 @@ function validateJobFields(): boolean {
     isValid = false
   }
 
-  // Check if description is empty or only contains empty HTML tags
-  const descriptionHtml = job.value.description || ''
-  const cleanDescription = descriptionHtml.replace(/<[^>]*>/g, '').trim()
+  const detailHtml = job.value.detailDescription || ''
+  const cleanDetail = detailHtml.replace(/<[^>]*>/g, '').trim()
 
-  if (cleanDescription.length === 0) {
-    jobErrors.value.description = 'Mô tả công việc không được để trống.'
+  if (cleanDetail.length === 0) {
+    jobErrors.value.detailDescription = 'Mô tả công việc không được để trống.'
     isValid = false
   }
 
@@ -2821,7 +2819,7 @@ function validateJobFields(): boolean {
   if (!isValid) {
     const jobFieldIdMap: Record<string, string> = {
       title: 'job-title',
-      description: 'job-description',
+      detailDescription: 'job-detail-description',
       deadline: 'job-deadline',
       category: 'job-category',
       typeOfEmployment: 'job-type-employment',

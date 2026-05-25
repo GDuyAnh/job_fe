@@ -57,22 +57,22 @@
               <p v-if="jobErrors.title" class="mt-1 text-sm !text-red-500">{{ jobErrors.title }}</p>
             </div>
 
-            <div data-job-field="description" class="mt-4 space-y-1.5 rich-text-output">
+            <div data-job-field="detailDescription" class="mt-4 space-y-1.5 rich-text-output">
               <label class="employer-input-label">
                 {{ $t('job.uploadJob.detailJobLabel') }}
                 <span class="text-red-500">{{ $t('job.uploadJob.mandatoryChar') }}</span>
               </label>
               <RichTextEditor
-                id="job-description"
-                v-model="job.description"
+                id="job-detail-description"
+                v-model="job.detailDescription"
                 class="w-full rich-text-content"
-                :class="{ 'ring-1 ring-red-300': jobErrors.description }"
+                :class="{ 'ring-1 ring-red-300': jobErrors.detailDescription }"
                 placeholder="Nhập mô tả công việc"
                 :disabled="isFormDisabled"
                 :readonly="isFormDisabled"
-                @update:model-value="jobErrors.description = ''"
+                @update:model-value="jobErrors.detailDescription = ''"
               />
-              <p v-if="jobErrors.description" class="mt-1 text-sm !text-red-500">{{ jobErrors.description }}</p>
+              <p v-if="jobErrors.detailDescription" class="mt-1 text-sm !text-red-500">{{ jobErrors.detailDescription }}</p>
             </div>
 
             <div
@@ -929,7 +929,7 @@ const convertJobModelToAddUpdate = (jobModel: import('~/models/job').JobModel): 
 
   return {
     title: jobModel.title,
-    description: jobModel.description,
+    detailDescription: jobModel.detailDescription ?? '',
     category: jobModel.category ? jobModel.category.split(',').map(c => c.trim()).filter(c => c) : undefined,
     location: jobModel.location ? jobModel.location.split(',').map(l => l.trim()).filter(l => l) : undefined,
     typeOfEmployment: Number(jobModel.typeOfEmployment),
@@ -947,7 +947,6 @@ const convertJobModelToAddUpdate = (jobModel: import('~/models/job').JobModel): 
     salaryMax: jobModel.salaryMax || undefined,
     salaryType: jobModel.salaryType,
     benefits: jobModel.benefits ? jobModel.benefits.split(',').map(b => b.trim()).filter(b => b) : undefined,
-    detailDescription: jobModel.detailDescription || undefined,
     email: jobModel.email || undefined,
     phoneNumber: jobModel.phoneNumber || undefined,
     address: jobModel.address || '',
@@ -1232,6 +1231,7 @@ const addJob = async () => {
 
     const jobDataToSend: any = {
       ...job.value,
+      detailDescription: job.value.detailDescription ?? '',
       benefits: benefitsString,
       category: categoryString,
       gender: genderString || undefined,
@@ -1295,7 +1295,7 @@ const addJob = async () => {
 
 const JOB_FIELD_ERROR_ORDER = [
   'title',
-  'description',
+  'detailDescription',
   'deadline',
   'category',
   'typeOfEmployment',
@@ -1315,7 +1315,7 @@ const JOB_FIELD_ERROR_ORDER = [
 
 const JOB_FIELD_SECTION: Record<string, 'basic' | 'candidate' | 'contact'> = {
   title: 'basic',
-  description: 'basic',
+  detailDescription: 'basic',
   deadline: 'basic',
   category: 'basic',
   typeOfEmployment: 'basic',
@@ -1432,12 +1432,11 @@ function validateJobFields(): boolean {
     isValid = false
   }
 
-  // Check if description is empty or only contains empty HTML tags
-  const descriptionHtml = job.value.description || ''
-  const cleanDescription = descriptionHtml.replace(/<[^>]*>/g, '').trim()
+  const detailHtml = job.value.detailDescription || ''
+  const cleanDetail = detailHtml.replace(/<[^>]*>/g, '').trim()
 
-  if (cleanDescription.length === 0) {
-    jobErrors.value.description = 'Mô tả công việc không được để trống.'
+  if (cleanDetail.length === 0) {
+    jobErrors.value.detailDescription = 'Mô tả công việc không được để trống.'
     isValid = false
   }
 

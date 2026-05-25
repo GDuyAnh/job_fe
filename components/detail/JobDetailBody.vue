@@ -98,13 +98,10 @@
         <article class="job-single-main">
           <div class="job-single-body">
             <h2>Mô tả công việc</h2>
-            <ul v-if="descriptionList.length" class="job-single-list">
-              <li v-for="item in descriptionList" :key="item">{{ item }}</li>
-            </ul>
             <div
-              v-else-if="job.detailDescription || job.description"
-              class="rich-text-output"
-              v-html="job.detailDescription || job.description"
+              v-if="hasDetailDescription"
+              class="job-detail-description rich-text-output"
+              v-html="job.detailDescription"
             />
             <p v-else>{{ $t('common.nanValue') }}</p>
 
@@ -122,10 +119,9 @@
 
             <div class="job-single-inline-block">
               <span>Địa chỉ làm việc</span>
-              <p v-if="workAddressText">{{ workAddressText }}</p>
               <div
-                v-else-if="job.jobAddress || job.address"
-                class="rich-text-output"
+                v-if="hasJobAddress"
+                class="job-detail-address rich-text-output"
                 v-html="job.jobAddress || job.address"
               />
               <p v-else>{{ $t('common.nanValue') }}</p>
@@ -240,6 +236,7 @@
 
 <script setup lang="ts">
 import type { JobModel } from '~/models/job'
+import { hasRichTextContent } from '~/utils/rich-text'
 
 const heroAccentStyle = {
   '--job-accent-from': '#5d7cff',
@@ -275,14 +272,19 @@ const emit = defineEmits<{
 
 const jobRef = computed(() => props.job)
 
+const hasDetailDescription = computed(() =>
+  hasRichTextContent(props.job.detailDescription),
+)
+const hasJobAddress = computed(() =>
+  hasRichTextContent(props.job.jobAddress || props.job.address),
+)
+
 const {
   companyLogoLetters,
   showReviewStatus,
-  descriptionList,
   processedBenefits,
   requirementsList,
   metaItems,
-  workAddressText,
   getExperienceText,
   getFullLocationTextFor,
   truncateText,
