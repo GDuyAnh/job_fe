@@ -33,7 +33,7 @@
         </div>
     </div>
 
-    <!-- Status cards: All Jobs, Reviewing, Pending, Approved, Expired, Trash -->
+    <!-- Status cards -->
     <div class="employer-admin-jobs-stats">
       <div class="employer-admin-jobs-stats-grid grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6">
         <button
@@ -126,19 +126,19 @@
                   </label>
                   <label class="flex items-center gap-2 cursor-pointer px-2 py-1 hover:bg-gray-50 rounded">
                     <input v-model="statusFilter" type="radio" value="approved" class="w-4 h-4 text-blue-600" />
-                    <span class="text-sm">Approved</span>
+                    <span class="text-sm">{{ $t('dashboard.manageJobs.rowStatus.approved') }}</span>
                   </label>
                   <label class="flex items-center gap-2 cursor-pointer px-2 py-1 hover:bg-gray-50 rounded">
                     <input v-model="statusFilter" type="radio" value="pending" class="w-4 h-4 text-blue-600" />
-                    <span class="text-sm">Pending</span>
+                    <span class="text-sm">{{ $t('dashboard.manageJobs.rowStatus.pending') }}</span>
                   </label>
                   <label class="flex items-center gap-2 cursor-pointer px-2 py-1 hover:bg-gray-50 rounded">
                     <input v-model="statusFilter" type="radio" value="reviewing" class="w-4 h-4 text-blue-600" />
-                    <span class="text-sm">Reviewing</span>
+                    <span class="text-sm">{{ $t('dashboard.manageJobs.rowStatus.adminReview') }}</span>
                   </label>
                   <label class="flex items-center gap-2 cursor-pointer px-2 py-1 hover:bg-gray-50 rounded">
                     <input v-model="statusFilter" type="radio" value="rejected" class="w-4 h-4 text-blue-600" />
-                    <span class="text-sm">Rejected</span>
+                    <span class="text-sm">{{ $t('dashboard.manageJobs.rowStatus.rejected') }}</span>
                   </label>
                 </div>
               </th>
@@ -164,7 +164,14 @@
                     alt=""
                     class="w-8 h-8 rounded object-cover flex-shrink-0"
                   >
-                  <span class="text-sm font-medium text-gray-900">{{ job.title || '–' }}</span>
+                  <button
+                    type="button"
+                    class="employer-row-title-btn text-sm font-medium text-left"
+                    :aria-label="`Xem ứng viên: ${job.title || ''}`"
+                    @click="openJobApplicantsModal(job)"
+                  >
+                    {{ job.title || '–' }}
+                  </button>
                 </div>
               </td>
               <td class="px-6 py-4 text-sm text-gray-600 max-w-[200px] truncate" :title="job.companyName">{{ job.companyName || '–' }}</td>
@@ -235,13 +242,8 @@
       <!-- Pagination -->
       <div
         v-if="filteredJobs.length > 0"
-        class="px-6 py-4 border-t border-gray-200 flex items-center justify-between"
+        class="px-6 py-4 border-t border-gray-200 flex items-center justify-end"
       >
-        <div class="text-sm text-gray-700">
-          Showing {{ (currentPage - 1) * itemsPerPage + 1 }} -
-          {{ Math.min(currentPage * itemsPerPage, filteredJobs.length) }} of
-          {{ filteredJobs.length }}
-        </div>
         <div class="flex gap-2">
           <UButton
             variant="outline"
@@ -331,6 +333,7 @@
             </template>
           </div>
           <DashboardNewJob
+            admin-mode
             :company-data="companyDataForJob"
             :job-to-edit="editingJobForForm ?? undefined"
             :require-company-selection="!editingJob"
@@ -420,6 +423,104 @@
         </div>
       </div>
     </Teleport>
+
+    <!-- Job applicants modal -->
+    <Teleport to="body">
+      <div
+        class="employer-candidate-dialog"
+        data-job-applicants-dialog=""
+        :hidden="!showApplicantsModal"
+      >
+        <button
+          type="button"
+          class="employer-candidate-dialog-backdrop"
+          aria-label="Đóng danh sách ứng viên"
+          @click="closeJobApplicantsModal"
+        />
+        <div
+          v-if="selectedJobForApplicants"
+          class="employer-candidate-dialog-panel employer-job-applicants-panel"
+          role="dialog"
+          aria-modal="true"
+          :aria-label="`Ứng viên: ${selectedJobForApplicants.title}`"
+          @click.stop
+        >
+          <div class="employer-candidate-dialog-head">
+            <div class="employer-candidate-dialog-copy">
+              <h2>{{ selectedJobForApplicants.title }}</h2>
+              <p class="employer-job-applicants-subtitle">
+                Danh sách ứng viên đã ứng tuyển
+              </p>
+            </div>
+
+            <button
+              type="button"
+              class="employer-edit-drawer-close"
+              aria-label="Đóng danh sách ứng viên"
+              @click="closeJobApplicantsModal"
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path
+                  d="M6 6 18 18M18 6 6 18"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                />
+              </svg>
+            </button>
+          </div>
+
+          <div class="employer-candidate-dialog-body">
+            <div v-if="loadingApplications" class="employer-job-applicants-loading">
+              <USkeleton class="h-32 w-full rounded-2xl" />
+            </div>
+
+            <div
+              v-else-if="selectedJobApplicants.length === 0"
+              class="employer-job-applicants-empty"
+            >
+              Chưa có ứng viên nào ứng tuyển vào tin này.
+            </div>
+
+            <div v-else class="employer-job-applicants-table-wrap">
+              <table class="employer-job-applicants-table">
+                <thead>
+                  <tr>
+                    <th>Họ tên ứng viên</th>
+                    <th>CV</th>
+                    <th>Ngày ứng tuyển</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr
+                    v-for="application in selectedJobApplicants"
+                    :key="application.id"
+                  >
+                    <td>
+                      <strong>{{ application.applicantName }}</strong>
+                    </td>
+                    <td>
+                      <a
+                        v-if="application.cvUrl"
+                        :href="application.cvUrl"
+                        class="employer-candidate-cv"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        :download="cvFileName(application)"
+                      >
+                        <span>Tải CV</span>
+                      </a>
+                      <span v-else class="employer-overview-table-muted">—</span>
+                    </td>
+                    <td>{{ formatApplicantDate(application.applicationDate) }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </Teleport>
   </div>
 </template>
 
@@ -430,9 +531,24 @@ import { USER_ROLES } from '~/constants/roles'
 import { postTypeAdminChipClass } from '~/constants/post-type'
 import AdminDrawerHeader from '~/components/AdminDrawerHeader.vue'
 
+interface JobApplicationItem {
+  id: number
+  jobTitle: string
+  jobId: number
+  applicantName: string
+  cvUrl?: string
+  applicationDate: Date | string
+}
+
 const { $api } = useNuxtApp()
 const { t } = useI18n()
 const authStore = useAuthStore()
+const {
+  buildStatusCards,
+  matchesStatusFilter,
+  jobRowStatusLabel,
+  isApproved,
+} = useJobManageStatusCards()
 
   // Check if current user is admin
 const isAdmin = computed(() => authStore.user?.role === USER_ROLES.ADMIN)
@@ -446,9 +562,15 @@ const companySelectMenuUi = adminJobDrawerCompanySelectMenuUi
 const jobDrawerUi = adminJobFormDrawerUi()
 
 const loading = ref(false)
+const loadingApplications = ref(false)
 const allJobs = ref<any[]>([])
+const applications = ref<JobApplicationItem[]>([])
+const showApplicantsModal = ref(false)
+const selectedJobForApplicants = ref<any | null>(null)
 const jobSearch = ref('')
-const jobStatusFilter = ref<string>('all')
+const jobStatusFilter = ref<
+  'all' | 'pendingReview' | 'approved' | 'expiringSoon' | 'expired' | 'trash'
+>('all')
 const postTypeFilter = ref<string | null>(null)
 const statusFilter = ref<string | null>(null)
 
@@ -501,27 +623,7 @@ const jobTypeFilterItems = [
   { value: 'urgent', label: 'Job tuyển gấp' },
 ]
 
-const jobStatusCards = computed(() => {
-  const list = allJobs.value
-  const now = new Date()
-  now.setHours(0, 0, 0, 0)
-  const statusUpper = (j: any) => (j.status || '').toUpperCase()
-  const reviewing = list.filter((j: any) => statusUpper(j) === 'ADMIN_REVIEW').length
-  const pending = list.filter((j: any) => statusUpper(j) === 'PENDING').length
-  const approved = list.filter((j: any) => statusUpper(j) === 'APPROVED').length
-  const expired = list.filter((j: any) => {
-    const d = j.deadline ? (typeof j.deadline === 'string' ? new Date(j.deadline) : j.deadline) : null
-    return d && d < now
-  }).length
-  return [
-    { key: 'all', label: 'All Jobs', count: list.length },
-    { key: 'reviewing', label: 'Reviewing', count: reviewing },
-    { key: 'pending', label: 'Pending', count: pending },
-    { key: 'approved', label: 'Approved', count: approved },
-    { key: 'expired', label: 'Expired', count: expired },
-    { key: 'trash', label: 'Trash', count: 0 },
-  ]
-})
+const jobStatusCards = computed(() => buildStatusCards(allJobs.value))
 
 const filteredJobs = computed(() => {
   let list = allJobs.value
@@ -534,20 +636,10 @@ const filteredJobs = computed(() => {
       return title.includes(kw) || company.includes(kw) || email.includes(kw)
     })
   }
-  
-  // Filter by status card (all, reviewing, pending, approved, expired, trash)
-  const status = jobStatusFilter.value
-  const now = new Date()
-  now.setHours(0, 0, 0, 0)
-  if (status === 'reviewing') list = list.filter((j: any) => (j.status || '').toUpperCase() === 'ADMIN_REVIEW')
-  else if (status === 'pending') list = list.filter((j: any) => (j.status || '').toUpperCase() === 'PENDING')
-  else if (status === 'approved') list = list.filter((j: any) => isJobApproved(j))
-  else if (status === 'expired') list = list.filter((j: any) => {
-    const d = j.deadline ? (typeof j.deadline === 'string' ? new Date(j.deadline) : j.deadline) : null
-    return d && d < now
-  })
-  else if (status === 'trash') list = []
-  
+
+  if (jobStatusFilter.value !== 'all') {
+    list = list.filter((job) => matchesStatusFilter(job, jobStatusFilter.value))
+  }
   // Filter by Post Type
   const postType = postTypeFilter.value
   if (postType) {
@@ -664,16 +756,11 @@ function jobToListJobModel(j: any): JobModel | null {
 }
 
 function isJobApproved(j: any): boolean {
-  return (j.status || '').toUpperCase() === 'APPROVED'
+  return isApproved(j)
 }
 
 function jobStatusDisplayLabel(j: any): string {
-  const s = (j.status || '').toUpperCase()
-  if (s === 'APPROVED') return 'Approved'
-  if (s === 'ADMIN_REVIEW') return 'Admin Review'
-  if (s === 'PENDING') return 'Pending'
-  if (s === 'REJECTED') return 'Rejected'
-  return 'Admin Review'
+  return jobRowStatusLabel(j)
 }
 
 function jobStatusDisplayClass(j: any): string {
@@ -691,9 +778,114 @@ function formatDate(d: Date | string | undefined) {
   return date.toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' })
 }
 
+function formatApplicantDate(date?: Date | string) {
+  if (!date) return '–'
+
+  const d = typeof date === 'string' ? new Date(date) : date
+  if (Number.isNaN(d.getTime())) return '–'
+
+  const day = String(d.getDate()).padStart(2, '0')
+  const month = String(d.getMonth() + 1).padStart(2, '0')
+  const year = d.getFullYear()
+
+  return `${day}/${month}/${year}`
+}
+
+const applicationsCountByJobId = computed(() => {
+  const map = new Map<number, number>()
+
+  for (const app of applications.value) {
+    map.set(app.jobId, (map.get(app.jobId) ?? 0) + 1)
+  }
+
+  return map
+})
+
+const selectedJobApplicants = computed(() => {
+  if (!selectedJobForApplicants.value) return []
+
+  const jobId = selectedJobForApplicants.value.id
+
+  return applications.value
+    .filter((app) => app.jobId === jobId)
+    .sort((a, b) => {
+      const dateA = a.applicationDate ? new Date(a.applicationDate).getTime() : 0
+      const dateB = b.applicationDate ? new Date(b.applicationDate).getTime() : 0
+
+      return dateB - dateA
+    })
+})
+
+const cvFileName = (application: JobApplicationItem) => {
+  const base = application.applicantName
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, '-')
+    .replace(/[^a-z0-9-]/gi, '')
+
+  return base ? `cv-${base}.pdf` : 'cv.pdf'
+}
+
 function applicationCount(job: any): number {
+  const counted = applicationsCountByJobId.value.get(job.id)
+  if (counted !== undefined) return counted
+
   return job.totalApplications ?? job.applicationCount ?? 0
 }
+
+async function fetchApplications() {
+  loadingApplications.value = true
+
+  try {
+    const response = await $api.admin.getApplications()
+
+    if (response && Array.isArray(response)) {
+      applications.value = response.map((app: any) => ({
+        id: app.id,
+        jobTitle: app.jobTitle,
+        jobId: app.jobId,
+        applicantName: app.applicantName,
+        cvUrl: app.cvUrl,
+        applicationDate: app.applicationDate,
+      }))
+    } else {
+      applications.value = []
+    }
+  } catch (error) {
+    console.error('Failed to fetch applications:', error)
+    applications.value = []
+  } finally {
+    loadingApplications.value = false
+  }
+}
+
+function openJobApplicantsModal(job: any) {
+  selectedJobForApplicants.value = job
+  showApplicantsModal.value = true
+}
+
+function closeJobApplicantsModal() {
+  showApplicantsModal.value = false
+  selectedJobForApplicants.value = null
+}
+
+function onApplicantsDialogKeydown(event: KeyboardEvent) {
+  if (event.key === 'Escape') {
+    closeJobApplicantsModal()
+  }
+}
+
+watch(showApplicantsModal, (open) => {
+  if (!import.meta.client) return
+
+  if (open) {
+    document.body.style.overflow = 'hidden'
+    window.addEventListener('keydown', onApplicantsDialogKeydown)
+  } else {
+    document.body.style.overflow = ''
+    window.removeEventListener('keydown', onApplicantsDialogKeydown)
+  }
+})
 
 function expiredDateClass(deadline: Date | string | undefined): string {
   if (!deadline) return 'text-gray-600'
@@ -868,6 +1060,7 @@ watch(jobSlideOpen, (open) => {
 
 onMounted(() => {
   fetchJobs()
+  fetchApplications()
   document.addEventListener('click', (e) => {
     const target = e.target as HTMLElement
     if (
@@ -881,5 +1074,12 @@ onMounted(() => {
     showPostTypeFilter.value = false
     showStatusFilter.value = false
   })
+})
+
+onUnmounted(() => {
+  if (!import.meta.client) return
+
+  document.body.style.overflow = ''
+  window.removeEventListener('keydown', onApplicantsDialogKeydown)
 })
 </script>

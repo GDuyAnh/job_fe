@@ -152,6 +152,7 @@
                         </div>
                       </div>
                       <NuxtLink
+                        v-if="canApplyToJobs"
                         :to="`/jobs/${jobItem.id}`"
                         class="apply-chip"
                         @click.stop
@@ -205,9 +206,9 @@
                 <span>Lĩnh vực</span>
                 <strong>{{ getOrganizationTypeLabel(company.organizationType) }}</strong>
               </div>
-              <div v-if="company.companySize">
+              <div v-if="companySizeLabel">
                 <span>Quy mô</span>
-                <strong>{{ company.companySize }}+ nhân sự</strong>
+                <strong>{{ companySizeLabel }}</strong>
               </div>
               <div v-if="company.foundedYear">
                 <span>Thành lập</span>
@@ -234,6 +235,7 @@
       class="company-gallery-modal"
       :hidden="!galleryModalOpen"
       @keydown.escape="closeGallery"
+      @click.self="closeGallery"
     >
       <button
         type="button"
@@ -246,6 +248,7 @@
         role="dialog"
         aria-modal="true"
         aria-label="Xem ảnh lớn"
+        @click.stop
       >
         <button
           v-if="galleryModalImages.length > 1"
@@ -264,14 +267,6 @@
           @click.stop="galleryNext"
         >
           ›
-        </button>
-        <button
-          type="button"
-          class="company-gallery-modal-close"
-          aria-label="Đóng"
-          @click="closeGallery"
-        >
-          ×
         </button>
         <img
           v-if="galleryModalImages[galleryIndex]"
@@ -307,6 +302,7 @@
 
 <script setup lang="ts">
 import type { CompanyEntity, CompanyJobSummary } from '~/entities/company'
+import { getCompanySizeLabel } from '~/constants/company-size'
 import { hasRichTextContent } from '~/utils/rich-text'
 
 const INITIAL_JOBS_COUNT = 3
@@ -332,6 +328,7 @@ const props = withDefaults(
 
 const router = useRouter()
 const { locationEnumLabel, experienceLevelsEnumLabel } = useJobFilters()
+const { canApplyToJobs } = useAppliedJobs()
 
 const companyRef = computed(() => props.company)
 
@@ -341,6 +338,10 @@ const hasCompanyDescription = computed(() =>
 const hasCompanyOverview = computed(() => !!props.company.overview?.trim())
 const hasCompanyInsight = computed(() => !!props.company.insight?.trim())
 const hasCompanyAddress = computed(() => hasRichTextContent(props.company.address))
+
+const companySizeLabel = computed(() =>
+  getCompanySizeLabel(props.company.companySize),
+)
 
 const {
   logoFallback,

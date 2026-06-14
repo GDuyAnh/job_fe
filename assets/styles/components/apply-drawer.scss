@@ -255,6 +255,10 @@
   font-weight: 700;
 }
 
+.job-apply-drawer-content .apply-modal-field span .is-required {
+  color: #ef4444;
+}
+
 .job-apply-drawer-content .apply-modal-field input,
 .job-apply-drawer-content .apply-modal-field textarea {
   width: 100%;
@@ -277,6 +281,11 @@
   background: #f8fafc;
   color: #64748b;
   cursor: not-allowed;
+}
+
+.job-apply-drawer-content .apply-modal-field.has-error input {
+  border-color: #dc2626;
+  box-shadow: 0 0 0 1px rgba(220, 38, 38, 0.12);
 }
 
 .job-apply-drawer-content .apply-modal-field-wide,

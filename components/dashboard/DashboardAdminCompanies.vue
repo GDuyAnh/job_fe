@@ -315,13 +315,8 @@
       <!-- Pagination -->
       <div
         v-if="filteredCompanies.length > 0"
-        class="px-6 py-4 border-t border-gray-200 flex items-center justify-between"
+        class="px-6 py-4 border-t border-gray-200 flex items-center justify-end"
       >
-        <div class="text-sm text-gray-700">
-          {{ $t('dashboard.manageJobs.pagination.showing') }} {{ (currentPage - 1) * itemsPerPage + 1 }} -
-          {{ Math.min(currentPage * itemsPerPage, filteredCompanies.length) }} {{ $t('dashboard.manageJobs.pagination.of') }}
-          {{ filteredCompanies.length }}
-        </div>
         <div class="flex gap-2">
           <UButton
             variant="outline"

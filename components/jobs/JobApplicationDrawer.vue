@@ -38,6 +38,7 @@
 
         <JobApplicationDrawerForm
           :user-info="userInfo"
+          :loading="formSubmitting"
           @cancel="open = false"
           @submit="onSubmit"
         />
@@ -49,6 +50,7 @@
 <script setup lang="ts">
 import type { JobModel } from '~/models/job'
 import type { JobApplicationFormPayload } from '~/composables/useJobApplicationSubmit'
+import { resolveUserPhoneNumber } from '~/utils/user-profile'
 
 const open = defineModel<boolean>('open', { default: false })
 
@@ -83,13 +85,31 @@ const emit = defineEmits<{
 
 const authStore = useAuthStore()
 const { submitApplication } = useJobApplicationSubmit()
+const { markJobAsApplied } = useAppliedJobs()
+const formSubmitting = ref(false)
+
+watch(open, async (isOpen) => {
+  if (!isOpen) {
+    formSubmitting.value = false
+    return
+  }
+
+  if (authStore.isLoggedIn) {
+    try {
+      await authStore.getMe()
+    }
+    catch (error) {
+      console.error('Failed to refresh user profile for apply drawer:', error)
+    }
+  }
+})
 
 const userInfo = computed(() => {
   if (!authStore.isLoggedIn || !authStore.user) return null
   return {
     fullName: authStore.user.fullName || '',
     email: authStore.user.email || '',
-    phone: authStore.user.phoneNumber || '',
+    phone: resolveUserPhoneNumber(authStore.user.phoneNumber, authStore.user.email),
     cvUrl: authStore.user.cvUrl || null,
     coverLetterUrl: authStore.user.coverLetterUrl || null,
     coverLetterText: authStore.user.coverLetterText || null,
@@ -97,17 +117,23 @@ const userInfo = computed(() => {
 })
 
 async function onSubmit(data: JobApplicationFormPayload) {
-  if (!props.job) return
+  if (!props.job || formSubmitting.value) return
 
-  const result = await submitApplication(props.job, data)
-  if (!result.ok) return
+  formSubmitting.value = true
+  try {
+    const result = await submitApplication(props.job, data)
+    if (!result.ok) return
 
-  if (result.isNewUser) {
+    if (result.isNewUser) {
+      open.value = false
+      return
+    }
+
+    markJobAsApplied(props.job.id)
+    emit('success', props.job.id)
     open.value = false
-    return
+  } finally {
+    formSubmitting.value = false
   }
-
-  emit('success', props.job.id)
-  open.value = false
 }
 </script>

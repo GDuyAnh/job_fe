@@ -122,7 +122,15 @@
               <tr v-for="job in paginatedJobs" :key="job.id">
                 <td class="is-position">
                   <div class="employer-row-title-wrap">
-                    <strong data-row-title="">{{ job.title }}</strong>
+                    <button
+                      type="button"
+                      class="employer-row-title-btn"
+                      data-row-title=""
+                      :aria-label="`Xem ứng viên: ${job.title}`"
+                      @click="openJobApplicantsModal(job)"
+                    >
+                      {{ job.title }}
+                    </button>
                   </div>
                 </td>
                 <td class="is-applications">
@@ -227,9 +235,6 @@
             data-dashboard-pagination=""
             aria-label="Phân trang tin đăng"
           >
-            <p class="employer-dashboard-pagination-meta" data-dashboard-pagination-meta="">
-              Hiển thị {{ paginationFrom }}-{{ paginationTo }} trong {{ filteredJobs.length }} tin đăng
-            </p>
             <div class="employer-dashboard-pagination-pages" data-dashboard-pagination-pages="">
               <button
                 v-if="currentPage > 1"
@@ -382,6 +387,104 @@
         </div>
       </div>
     </Teleport>
+
+    <!-- Job applicants modal -->
+    <Teleport to="body">
+      <div
+        class="employer-candidate-dialog"
+        data-job-applicants-dialog=""
+        :hidden="!showApplicantsModal"
+      >
+        <button
+          type="button"
+          class="employer-candidate-dialog-backdrop"
+          aria-label="Đóng danh sách ứng viên"
+          @click="closeJobApplicantsModal"
+        />
+        <div
+          v-if="selectedJobForApplicants"
+          class="employer-candidate-dialog-panel employer-job-applicants-panel"
+          role="dialog"
+          aria-modal="true"
+          :aria-label="`Ứng viên: ${selectedJobForApplicants.title}`"
+          @click.stop
+        >
+          <div class="employer-candidate-dialog-head">
+            <div class="employer-candidate-dialog-copy">
+              <h2>{{ selectedJobForApplicants.title }}</h2>
+              <p class="employer-job-applicants-subtitle">
+                Danh sách ứng viên đã ứng tuyển
+              </p>
+            </div>
+
+            <button
+              type="button"
+              class="employer-edit-drawer-close"
+              aria-label="Đóng danh sách ứng viên"
+              @click="closeJobApplicantsModal"
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path
+                  d="M6 6 18 18M18 6 6 18"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                />
+              </svg>
+            </button>
+          </div>
+
+          <div class="employer-candidate-dialog-body">
+            <div v-if="loadingApplications" class="employer-job-applicants-loading">
+              <USkeleton class="h-32 w-full rounded-2xl" />
+            </div>
+
+            <div
+              v-else-if="selectedJobApplicants.length === 0"
+              class="employer-job-applicants-empty"
+            >
+              Chưa có ứng viên nào ứng tuyển vào tin này.
+            </div>
+
+            <div v-else class="employer-job-applicants-table-wrap">
+              <table class="employer-job-applicants-table">
+                <thead>
+                  <tr>
+                    <th>Họ tên ứng viên</th>
+                    <th>CV</th>
+                    <th>Ngày ứng tuyển</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr
+                    v-for="application in selectedJobApplicants"
+                    :key="application.id"
+                  >
+                    <td>
+                      <strong>{{ application.applicantName }}</strong>
+                    </td>
+                    <td>
+                      <a
+                        v-if="application.cvUrl"
+                        :href="application.cvUrl"
+                        class="employer-candidate-cv"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        :download="cvFileName(application)"
+                      >
+                        <span>Tải CV</span>
+                      </a>
+                      <span v-else class="employer-overview-table-muted">—</span>
+                    </td>
+                    <td>{{ formatTableDate(application.applicationDate) }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </Teleport>
   </div>
 </template>
 
@@ -390,6 +493,17 @@ import type { JobModel } from '~/models/job'
 import { isJobVisible } from '~/models/job'
 import { JobMapper } from '~/mapper/job'
 import { postTypeBadgeClass } from '~/constants/post-type'
+
+interface JobApplicationItem {
+  id: number
+  jobTitle: string
+  jobId: number
+  applicantName: string
+  phone: string
+  email: string
+  cvUrl?: string
+  applicationDate: Date | string
+}
 
 const props = defineProps<{
   companyInitial: string
@@ -421,50 +535,38 @@ const postTypeLabel = (postType?: string | null): string => {
 
 const isHostCompanyUser = computed(() => authStore.user?.isHostCompany === true)
 
+const {
+  buildStatusCards,
+  matchesStatusFilter,
+  jobRowStatusLabel,
+  isExpired,
+} = useJobManageStatusCards()
+
 const loading = ref(false)
+const loadingApplications = ref(false)
 const jobs = ref<JobModel[]>([])
+const applications = ref<JobApplicationItem[]>([])
 const deletingJobId = ref<number | null>(null)
 const approvingJobId = ref<number | null>(null)
 const showDeleteModal = ref(false)
 const jobPendingDelete = ref<JobModel | null>(null)
 const showApproveModal = ref(false)
 const selectedJobForApprove = ref<JobModel | null>(null)
+const showApplicantsModal = ref(false)
+const selectedJobForApplicants = ref<JobModel | null>(null)
 const searchQuery = ref('')
 const currentPage = ref(1)
 const itemsPerPage = 8
 const activeStatus = ref<
-  'all' | 'reviewing' | 'pending' | 'approved' | 'expired' | 'trash'
+  'all' | 'pendingReview' | 'approved' | 'expiringSoon' | 'expired' | 'trash'
 >('all')
 
-const normalizeStatus = (status?: string) => (status || '').toUpperCase().trim()
-
-const isExpired = (job: JobModel) => {
-  if (!job.deadline) return false
-
-  const time = new Date(job.deadline as any).getTime()
-
-  if (Number.isNaN(time)) return false
-
-  return time < Date.now()
-}
-
-const statusLabel = (job: JobModel) => {
-  if (isExpired(job)) return 'Expired'
-
-  const s = normalizeStatus(job.status)
-
-  if (s === 'ADMIN_REVIEW') return 'Reviewing'
-  if (s === 'PENDING') return 'Pending'
-  if (s === 'APPROVED') return 'Approved'
-  if (s === 'REJECTED') return 'Rejected'
-
-  return s || 'Unknown'
-}
+const statusLabel = (job: JobModel) => jobRowStatusLabel(job)
 
 const statusBadgeClass = (job: JobModel) => {
   if (isExpired(job)) return 'is-expired'
 
-  const s = normalizeStatus(job.status)
+  const s = (job.status || '').toUpperCase().trim()
 
   if (s === 'ADMIN_REVIEW') return 'is-reviewing'
   if (s === 'PENDING') return 'is-pending'
@@ -474,10 +576,30 @@ const statusBadgeClass = (job: JobModel) => {
   return 'is-default'
 }
 
-const applicationsLabel = (job: JobModel) => {
-  const count = (job as { applicationsCount?: number }).applicationsCount ?? 0
+const applicationsCountByJobId = computed(() => {
+  const map = new Map<number, number>()
 
-  return `${count} ứng viên`
+  for (const app of applications.value) {
+    map.set(app.jobId, (map.get(app.jobId) ?? 0) + 1)
+  }
+
+  return map
+})
+
+const jobApplicationsCount = (job: JobModel) => {
+  const counted = applicationsCountByJobId.value.get(job.id)
+  if (counted !== undefined) return counted
+
+  const extended = job as JobModel & {
+    applicationsCount?: number
+    totalApplications?: number
+  }
+
+  return extended.applicationsCount ?? extended.totalApplications ?? 0
+}
+
+const applicationsLabel = (job: JobModel) => {
+  return `${jobApplicationsCount(job)} ứng viên`
 }
 
 const formatTableDate = (date?: Date | string) => {
@@ -495,17 +617,9 @@ const filteredJobs = computed(() => {
   let result = [...jobs.value]
 
   if (activeStatus.value !== 'all') {
-    result = result.filter((job) => {
-      const s = normalizeStatus(job.status)
-
-      if (activeStatus.value === 'reviewing') return s === 'ADMIN_REVIEW'
-      if (activeStatus.value === 'pending') return s === 'PENDING'
-      if (activeStatus.value === 'approved') return s === 'APPROVED'
-      if (activeStatus.value === 'expired') return isExpired(job)
-      if (activeStatus.value === 'trash') return false
-
-      return true
-    })
+    result = result.filter((job) =>
+      matchesStatusFilter(job, activeStatus.value),
+    )
   }
 
   if (searchQuery.value.trim()) {
@@ -532,16 +646,6 @@ const paginatedJobs = computed(() => {
 
   return filteredJobs.value.slice(start, end)
 })
-
-const paginationFrom = computed(() => {
-  if (filteredJobs.value.length === 0) return 0
-
-  return (currentPage.value - 1) * itemsPerPage + 1
-})
-
-const paginationTo = computed(() =>
-  Math.min(currentPage.value * itemsPerPage, filteredJobs.value.length),
-)
 
 type PaginationItem = number | 'ellipsis'
 
@@ -594,31 +698,89 @@ watch(totalPages, (total) => {
   }
 })
 
-const statusCards = computed(() => {
-  const list = jobs.value
-  const countBy = (predicate: (j: JobModel) => boolean) =>
-    list.reduce((acc, j) => acc + (predicate(j) ? 1 : 0), 0)
+const statusCards = computed(() => buildStatusCards(jobs.value))
 
-  return [
-    { key: 'all' as const, label: 'All Jobs', count: list.length },
-    {
-      key: 'reviewing' as const,
-      label: 'Reviewing',
-      count: countBy((j) => normalizeStatus(j.status) === 'ADMIN_REVIEW'),
-    },
-    {
-      key: 'pending' as const,
-      label: 'Pending',
-      count: countBy((j) => normalizeStatus(j.status) === 'PENDING'),
-    },
-    {
-      key: 'approved' as const,
-      label: 'Approved',
-      count: countBy((j) => normalizeStatus(j.status) === 'APPROVED'),
-    },
-    { key: 'expired' as const, label: 'Expired', count: countBy((j) => isExpired(j)) },
-    { key: 'trash' as const, label: 'Trash', count: 0 },
-  ]
+const selectedJobApplicants = computed(() => {
+  if (!selectedJobForApplicants.value) return []
+
+  const jobId = selectedJobForApplicants.value.id
+
+  return applications.value
+    .filter((app) => app.jobId === jobId)
+    .sort((a, b) => {
+      const dateA = a.applicationDate ? new Date(a.applicationDate).getTime() : 0
+      const dateB = b.applicationDate ? new Date(b.applicationDate).getTime() : 0
+
+      return dateB - dateA
+    })
+})
+
+const cvFileName = (application: JobApplicationItem) => {
+  const base = application.applicantName
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, '-')
+    .replace(/[^a-z0-9-]/gi, '')
+
+  return base ? `cv-${base}.pdf` : 'cv.pdf'
+}
+
+const fetchApplications = async () => {
+  if (!authStore.user?.id) return
+
+  loadingApplications.value = true
+
+  try {
+    const response = await $api.company.getApplications(authStore.user.id)
+
+    if (response && Array.isArray(response)) {
+      applications.value = response.map((app: any) => ({
+        id: app.id,
+        jobTitle: app.jobTitle,
+        jobId: app.jobId,
+        applicantName: app.applicantName,
+        phone: app.phone || '',
+        email: app.email,
+        cvUrl: app.cvUrl,
+        applicationDate: app.applicationDate,
+      }))
+    } else {
+      applications.value = []
+    }
+  } catch (error: any) {
+    console.error('Failed to fetch applications:', error)
+    applications.value = []
+  } finally {
+    loadingApplications.value = false
+  }
+}
+
+const openJobApplicantsModal = (job: JobModel) => {
+  selectedJobForApplicants.value = job
+  showApplicantsModal.value = true
+}
+
+const closeJobApplicantsModal = () => {
+  showApplicantsModal.value = false
+  selectedJobForApplicants.value = null
+}
+
+function onApplicantsDialogKeydown(event: KeyboardEvent) {
+  if (event.key === 'Escape') {
+    closeJobApplicantsModal()
+  }
+}
+
+watch(showApplicantsModal, (open) => {
+  if (!import.meta.client) return
+
+  if (open) {
+    document.body.style.overflow = 'hidden'
+    window.addEventListener('keydown', onApplicantsDialogKeydown)
+  } else {
+    document.body.style.overflow = ''
+    window.removeEventListener('keydown', onApplicantsDialogKeydown)
+  }
 })
 
 const fetchJobs = async () => {
@@ -759,5 +921,13 @@ onMounted(() => {
   }
 
   fetchJobs()
+  fetchApplications()
+})
+
+onUnmounted(() => {
+  if (!import.meta.client) return
+
+  document.body.style.overflow = ''
+  window.removeEventListener('keydown', onApplicantsDialogKeydown)
 })
 </script>

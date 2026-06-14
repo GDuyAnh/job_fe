@@ -47,17 +47,17 @@
             <col class="candidate-applications-col-location">
             <col class="candidate-applications-col-domain">
             <col class="candidate-applications-col-type">
+            <col class="candidate-applications-col-status">
             <col class="candidate-applications-col-date">
-            <col class="candidate-applications-col-action">
           </colgroup>
           <thead>
             <tr>
               <th>Vị trí ứng tuyển</th>
               <th>Tỉnh thành</th>
               <th>Lĩnh vực</th>
-              <th>Type</th>
+              <th>Hình thức</th>
+              <th>{{ $t('dashboard.applicationStatus.column') }}</th>
               <th>Ngày ứng tuyển</th>
-              <th class="is-action">Thao tác</th>
             </tr>
           </thead>
           <tbody data-candidate-jobs-rows="">
@@ -69,18 +69,23 @@
                 <div class="candidate-application-position">
                   <div
                     class="candidate-application-logo job-logo"
-                    :class="{ 'logo-has-image': !!application.companyLogo }"
+                    :class="{ 'logo-has-image': !!resolveCompanyLogo(application) }"
                   >
                     <img
-                      v-if="application.companyLogo"
-                      :src="application.companyLogo"
+                      v-if="resolveCompanyLogo(application)"
+                      :src="resolveCompanyLogo(application)"
                       :alt="`${application.companyName || 'Company'} logo`"
                       loading="lazy"
                     >
+                    <span v-else>{{ getCompanyLogoLetters(application) }}</span>
                   </div>
 
                   <div class="candidate-application-position-copy">
-                    <NuxtLink :to="jobDetailUrl(application.jobId)">
+                    <NuxtLink
+                      :to="jobDetailUrl(application.jobId)"
+                      class="candidate-application-title"
+                      :title="application.jobTitle || undefined"
+                    >
                       {{ application.jobTitle || '-' }}
                     </NuxtLink>
                     <span>{{ application.companyName || '-' }}</span>
@@ -96,27 +101,12 @@
                 <span v-else>-</span>
               </td>
               <td>
+                <ApplicationStatusBadge :status="application.status" />
+              </td>
+              <td>
                 <span class="candidate-application-date">
                   {{ formatDate(application.appliedAt) }}
                 </span>
-              </td>
-              <td class="is-action">
-                <div class="candidate-application-actions">
-                  <NuxtLink
-                    :to="jobDetailUrl(application.jobId)"
-                    class="candidate-application-action"
-                    :aria-label="`Xem chi tiết công việc ${application.jobTitle || ''}`"
-                  >
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                      <path
-                        d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z"
-                        stroke="currentColor"
-                        stroke-width="2"
-                      />
-                      <circle cx="12" cy="12" r="2.8" stroke="currentColor" stroke-width="2" />
-                    </svg>
-                  </NuxtLink>
-                </div>
               </td>
             </tr>
           </tbody>
@@ -128,11 +118,6 @@
           data-candidate-jobs-pagination=""
           aria-label="Phân trang công việc ứng tuyển"
         >
-          <p class="candidate-applications-pagination-meta" data-candidate-jobs-pagination-meta="">
-            Hiển thị {{ paginationFrom }}-{{ paginationTo }} trong
-            {{ filteredApplications.length }} công việc
-          </p>
-
           <div class="candidate-applications-pagination-pages" data-candidate-jobs-pagination-pages="">
             <button
               type="button"
@@ -186,6 +171,7 @@ import { useAuthStore } from '~/stores/auth'
 import { useNotify } from '~/composables/useNotify'
 import { useJobFilters } from '~/composables/useMasterdataOptions'
 import { useI18n } from 'vue-i18n'
+import ApplicationStatusBadge from '~/components/dashboard/ApplicationStatusBadge.vue'
 
 const { $api } = useNuxtApp()
 const authStore = useAuthStore()
@@ -233,16 +219,6 @@ const paginatedApplications = computed(() => {
   return filteredApplications.value.slice(start, end)
 })
 
-const paginationFrom = computed(() => {
-  if (filteredApplications.value.length === 0) return 0
-
-  return (currentPage.value - 1) * itemsPerPage + 1
-})
-
-const paginationTo = computed(() =>
-  Math.min(currentPage.value * itemsPerPage, filteredApplications.value.length),
-)
-
 type PaginationItem = number | 'ellipsis'
 
 const paginationItems = computed((): PaginationItem[] => {
@@ -281,6 +257,23 @@ const paginationItems = computed((): PaginationItem[] => {
 })
 
 const jobDetailUrl = (jobId: number) => `/jobs/${jobId}`
+
+const resolveCompanyLogo = (application: {
+  companyLogo?: string | null
+  job?: { companyLogo?: string | null }
+}) => application.companyLogo || application.job?.companyLogo || ''
+
+const getCompanyLogoLetters = (application: {
+  companyName?: string | null
+  jobTitle?: string | null
+}) =>
+  (application.companyName || application.jobTitle || 'TV')
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((word) => word[0])
+    .join('')
+    .toUpperCase()
 
 const formatDate = (date: Date | string | null | undefined): string => {
   if (!date) return '-'

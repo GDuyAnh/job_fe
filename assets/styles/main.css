@@ -12,6 +12,7 @@
 @import "./components/employer-dashboard.scss";
 @import "./components/companies-directory.scss";
 @import "./components/jobs-directory.scss";
+@import "./components/directory-select-menu.scss";
 @import "./components/blog-directory.scss";
 @import "./components/blog-detail.scss";
 @import "./components/auth-modal.scss";

@@ -93,13 +93,21 @@ export function useJobDetailView(job: Ref<JobModel | null>) {
   })
 
   const qualificationText = computed(() => {
-    if (!job.value?.requiredQualification) return t('common.nanValue')
-    const v = job.value.requiredQualification as unknown as number
-    return (
-      (requiredQualificationLabel as Record<string, string>)?.[v] ??
-      (requiredQualificationLabel as Record<string, string>)?.[String(v)] ??
-      String(job.value.requiredQualification)
-    )
+    const raw = (job.value?.requiredQualification || '').trim()
+    if (!raw) return t('common.nanValue')
+
+    const labels = raw
+      .split(',')
+      .map((q) => q.trim())
+      .filter(Boolean)
+      .map(
+        (q) =>
+          (requiredQualificationLabel as Record<string, string>)?.[q] ??
+          (requiredQualificationLabel as Record<string, string>)?.[String(Number(q))] ??
+          q,
+      )
+
+    return labels.length ? labels.join(', ') : t('common.nanValue')
   })
 
   const gradeText = computed(() => {

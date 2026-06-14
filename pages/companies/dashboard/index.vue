@@ -11,7 +11,7 @@
       }"
       data-employer-overview=""
     >
-      <aside class="employer-sidebar">
+      <aside class="employer-sidebar employer-sidebar-with-footer">
         <div class="employer-sidebar-brand-wrap">
           <NuxtLink to="/" class="employer-sidebar-brand wordmark" aria-label="Trang chủ">
             <span class="wordmark-main">TuyenGiaoVien</span>
@@ -98,6 +98,17 @@
                 <UIcon name="i-lucide-settings" class="size-[22px]" />
               </span>
               <span>{{ $t('dashboard.sidebar.adminSettings') }}</span>
+            </button>
+            <button
+              type="button"
+              class="employer-sidebar-link"
+              :class="{ 'is-active': activeView === 'adminEmailSettings' }"
+              @click="setActiveView('adminEmailSettings')"
+            >
+              <span class="employer-sidebar-link-icon" aria-hidden="true">
+                <UIcon name="i-lucide-mail" class="size-[22px]" />
+              </span>
+              <span>{{ $t('dashboard.sidebar.adminEmailSettings') }}</span>
             </button>
           </template>
 
@@ -187,14 +198,27 @@
             >
               <span class="employer-sidebar-link-icon" aria-hidden="true">
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-                  <path d="M12 8.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7Z" stroke="currentColor" stroke-width="2" />
-                  <path d="M19.4 15a1 1 0 0 0 .2 1.1l.1.1a1.7 1.7 0 0 1-1.2 2.9h-.2a1 1 0 0 0-.9.6l-.1.2a1.7 1.7 0 0 1-3.1 0l-.1-.2a1 1 0 0 0-.9-.6h-.2a1.7 1.7 0 0 1-1.2-2.9l.1-.1a1 1 0 0 0-.2-1.1l-.1-.2a1.7 1.7 0 0 1 0-1.6l.1-.2a1 1 0 0 0-.2-1.1l-.1-.1a1.7 1.7 0 0 1 1.2-2.9h.2a1 1 0 0 0 .9-.6l.1-.2a1.7 1.7 0 0 1 3.1 0l.1.2a1 1 0 0 0 .9.6h.2a1.7 1.7 0 0 1 1.2 2.9l-.1.1a1 1 0 0 0-.2 1.1l.1.2a1.7 1.7 0 0 1 0 1.6l-.1.2Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" />
+                  <path d="M12 12a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" stroke="currentColor" stroke-width="2" />
+                  <path d="M5 18a4 4 0 0 1 4-4h6a4 4 0 0 1 4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
                 </svg>
               </span>
-              <span>Cài đặt</span>
+              <span>Thông tin tài khoản</span>
             </button>
           </template>
         </nav>
+
+        <div class="employer-sidebar-bottom">
+          <button
+            type="button"
+            class="employer-sidebar-link employer-sidebar-link--logout"
+            @click="logout"
+          >
+            <span class="employer-sidebar-link-icon" aria-hidden="true">
+              <UIcon name="i-lucide-log-out" class="size-[22px]" />
+            </span>
+            <span>{{ $t('common.logout') }}</span>
+          </button>
+        </div>
       </aside>
 
       <div
@@ -396,20 +420,12 @@
 
         <!-- Admin Settings View -->
         <div v-else-if="activeView === 'adminSettings'">
-          <div class="mb-6">
-            <h1 class="text-3xl font-bold text-gray-900">
-              {{ $t('dashboard.admin.settings.title') }}
-            </h1>
-            <p class="text-gray-600 mt-2">
-              {{ $t('dashboard.admin.settings.description') }}
-            </p>
-          </div>
-          <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-8 text-center">
-            <UIcon name="i-lucide-settings" class="w-16 h-16 text-gray-400 mx-auto mb-4" />
-            <p class="text-gray-600">
-              {{ $t('dashboard.admin.settings.description') }}
-            </p>
-          </div>
+          <DashboardAdminSettings />
+        </div>
+
+        <!-- Admin Email Settings View -->
+        <div v-else-if="activeView === 'adminEmailSettings'">
+          <DashboardAdminEmailSettings />
         </div>
 
         <!-- New Job View -->
@@ -517,6 +533,7 @@ type DashboardView =
   | 'adminUsers'
   | 'adminBlogs'
   | 'adminSettings'
+  | 'adminEmailSettings'
 
 // Active view state
 const activeView = ref<DashboardView>('dashboard')
@@ -650,6 +667,13 @@ const userMenuItems = [
     icon: 'i-lucide-users',
     click: () => {
       setActiveView('candidates')
+    },
+  },
+  {
+    label: 'Thông tin tài khoản',
+    icon: 'i-lucide-user',
+    click: () => {
+      setActiveView('settings')
     },
   },
   {
@@ -913,6 +937,7 @@ onMounted(async () => {
       'adminUsers',
       'adminBlogs',
       'adminSettings',
+      'adminEmailSettings',
       'adminImportExcel',
     ]
     const view = viewParam && adminViews.includes(viewParam) ? viewParam : 'adminDashboard'
@@ -930,6 +955,15 @@ onMounted(async () => {
     activeView.value = 'dashboard'
     jobToEdit.value = null
     jobDrawerOpen.value = true
+  } else if (viewParam === 'changePassword') {
+    activeView.value = 'settings'
+    await router.replace({
+      query: {
+        ...route.query,
+        view: 'settings',
+        expand: 'password',
+      },
+    })
   } else if (
     viewParam &&
     ['editProfile', 'manageJobs', 'candidates', 'settings', 'dashboard'].includes(viewParam)

@@ -10,6 +10,7 @@
           v-model.trim="form.mst"
           class="w-full min-w-0 flex-1"
           placeholder="Mã số thuế"
+          inputmode="numeric"
           :disabled="mstChecking || isEditMode"
           @input="onMstInput"
           @keyup.enter="validateMst"
@@ -117,15 +118,19 @@
           {{ $t('company.industry') }}
           {{ $t('common.requiredMark') }}
         </span>
-        <USelect
-          :items="organizationTypeItems"
-          :model-value="form.organizationType?.toString()"
+        <USelectMenu
+          :items="organizationTypeItemsSearchable"
+          :model-value="form.organizationType?.toString() || undefined"
+          value-key="value"
           class="w-full employer-org-type-select employer-field-control"
           :class="{
             'employer-field-select--placeholder': !form.organizationType,
             'employer-field-select--error': !!errors.organizationType,
           }"
           :ui="orgTypeSelectUi"
+          :content="{ side: 'bottom' }"
+          :placeholder="$t('company.industry')"
+          :search-input="{ placeholder: 'Tìm loại hình...', variant: 'none' }"
           :disabled="(!isMstVerified && !isEditMode)"
           @update:model-value="(v) => { form.organizationType = Number(v ?? 0); errors.organizationType = '' }"
         />
@@ -149,13 +154,26 @@
 
     <label class="employer-field employer-field-full">
       <span>{{ $t('company.size') }}</span>
-      <UInput
-        v-model.number="form.companySize"
-        type="number"
-        min="0"
-        class="w-full"
+      <USelect
+        id="company-size"
+        :items="companySizeSelectItems"
+        :model-value="form.companySize?.toString() ?? ''"
+        class="w-full employer-field-select employer-field-control"
+        :class="{
+          'employer-field-select--placeholder': !form.companySize,
+          'employer-field-select--error': !!errors.companySize,
+        }"
+        :ui="orgTypeSelectUi"
+        :content="{ side: 'bottom' }"
         :placeholder="$t('company.form.placeholderCompanySize')"
         :disabled="(!isMstVerified && !isEditMode)"
+        @update:model-value="
+          (v) => {
+            form.companySize = v ? Number(v) : null
+            companySizeDirty = true
+            errors.companySize = ''
+          }
+        "
       />
       <p v-if="errors.companySize" class="employer-field-error">{{ errors.companySize }}</p>
     </label>
@@ -478,6 +496,12 @@ import { nextTick } from 'vue'
 import type { CompanyAddUpdateEntity } from '~/entities/company'
 import RichTextEditor from '~/components/RichTextEditor.vue'
 import { adminJobDrawerCompanySelectControlUi } from '~/utils/admin-drawer-ui'
+import { handleMstInput } from '~/utils/mst'
+import {
+  companySizeSelectItems,
+  resolveCompanySizeForSave,
+  resolveCompanySizeForSelect,
+} from '~/constants/company-size'
 
 const orgTypeSelectUi = adminJobDrawerCompanySelectControlUi
 
@@ -488,7 +512,7 @@ const props = defineProps<{
 
 const { t } = useI18n()
 const { $api } = useNuxtApp()
-const { organizationTypeItems } = useJobFilters()
+const { organizationTypeItemsSearchable } = useJobFilters()
 
 const emit = defineEmits<{ success: []; cancel: []; cropOpen: []; cropClosed: [] }>()
 
@@ -500,6 +524,8 @@ const { loadForCrop } = useImageCropSource()
 
 const loading = ref(false)
 const form = ref<CompanyAddUpdateEntity>(getDefaultForm())
+const companySizeFromDb = ref<number | null>(null)
+const companySizeDirty = ref(false)
 
 /** MST Validation State */
 const isMstVerified = ref(false)
@@ -509,7 +535,11 @@ const mstError = ref('')
 const mstDebounceTimer = ref<ReturnType<typeof setTimeout> | null>(null)
 
 /** Handle MST Change with debounce */
-function onMstInput() {
+function onMstInput(event: Event) {
+  handleMstInput(event, (value) => {
+    form.value.mst = value
+  })
+
   mstError.value = ''
   errors.value.mst = ''
 
@@ -648,7 +678,7 @@ function fillFormFromCompany(company: any) {
     taxAddress: company.taxAddress ?? null,
     website: company.website ?? null,
     organizationType: company.organizationType ?? 0,
-    companySize: company.companySize ?? null,
+    companySize: resolveCompanySizeForSelect(company.companySize),
     foundedYear: company.foundedYear ?? null,
     description: company.description ?? null,
     insight: company.insight ?? null,
@@ -664,6 +694,8 @@ function fillFormFromCompany(company: any) {
     companyImages: Array.isArray(company.companyImages) ? company.companyImages.map((img: any) => ({ url: img?.url ?? '' })) : [],
     bannerImage: company.bannerImage ?? null,
   }
+  companySizeFromDb.value = company.companySize ?? null
+  companySizeDirty.value = false
   console.log('[AdminCompanyForm] form after fill:', form.value)
   logoPreview.value = company.logo || null
   bannerPreview.value = company.bannerImage || null
@@ -682,6 +714,8 @@ function fillFormFromCompany(company: any) {
 
 function resetForm() {
   form.value = getDefaultForm()
+  companySizeFromDb.value = null
+  companySizeDirty.value = false
   errors.value = {}
   logoPreview.value = null
   logoFile.value = null
@@ -1195,10 +1229,6 @@ function validate(): boolean {
     errors.value.website = t('company.form.errWebsite')
     ok = false
   }
-  if (form.value.companySize != null && (form.value.companySize < 0 || !Number.isInteger(form.value.companySize))) {
-    errors.value.companySize = t('company.form.errCompanySize')
-    ok = false
-  }
   if (form.value.foundedYear != null && (form.value.foundedYear < 1800 || form.value.foundedYear > 2100 || !Number.isInteger(form.value.foundedYear))) {
     errors.value.foundedYear = 'Năm thành lập từ 1800 đến 2100.'
     ok = false
@@ -1269,6 +1299,11 @@ async function onSubmit() {
     // Build final submit data
     const submitData: CompanyAddUpdateEntity = {
       ...formDataWithoutId,
+      companySize: resolveCompanySizeForSave(
+        companySizeFromDb.value,
+        formDataWithoutId.companySize,
+        companySizeDirty.value,
+      ) ?? null,
       logo: logoUrl || null,
       companyImages: companyImageUrls.map((url) => ({ url })),
       bannerImage: bannerUrl || null,

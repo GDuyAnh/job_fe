@@ -522,19 +522,19 @@
                         </label>
                         <label class="flex items-center gap-2 cursor-pointer px-2 py-1 hover:bg-gray-50 rounded">
                           <input v-model="statusFilter" type="radio" value="approved" class="w-4 h-4 text-blue-600">
-                          <span class="text-sm">Approved</span>
+                          <span class="text-sm">{{ $t('dashboard.manageJobs.rowStatus.approved') }}</span>
                         </label>
                         <label class="flex items-center gap-2 cursor-pointer px-2 py-1 hover:bg-gray-50 rounded">
                           <input v-model="statusFilter" type="radio" value="pending" class="w-4 h-4 text-blue-600">
-                          <span class="text-sm">Pending</span>
+                          <span class="text-sm">{{ $t('dashboard.manageJobs.rowStatus.pending') }}</span>
                         </label>
                         <label class="flex items-center gap-2 cursor-pointer px-2 py-1 hover:bg-gray-50 rounded">
                           <input v-model="statusFilter" type="radio" value="reviewing" class="w-4 h-4 text-blue-600">
-                          <span class="text-sm">Reviewing</span>
+                          <span class="text-sm">{{ $t('dashboard.manageJobs.rowStatus.adminReview') }}</span>
                         </label>
                         <label class="flex items-center gap-2 cursor-pointer px-2 py-1 hover:bg-gray-50 rounded">
                           <input v-model="statusFilter" type="radio" value="rejected" class="w-4 h-4 text-blue-600">
-                          <span class="text-sm">Rejected</span>
+                          <span class="text-sm">{{ $t('dashboard.manageJobs.rowStatus.rejected') }}</span>
                         </label>
                       </div>
                     </th>
@@ -642,13 +642,8 @@
 
             <div
               v-if="filteredJobs.length > 0"
-              class="px-6 py-4 border-t border-gray-200 flex items-center justify-between"
+              class="px-6 py-4 border-t border-gray-200 flex items-center justify-end"
             >
-              <div class="text-sm text-gray-700">
-                Showing {{ (jobPage - 1) * jobItemsPerPage + 1 }} -
-                {{ Math.min(jobPage * jobItemsPerPage, filteredJobs.length) }} of
-                {{ filteredJobs.length }}
-              </div>
               <div class="flex gap-2">
                 <UButton
                   variant="outline"
@@ -720,6 +715,7 @@
             />
           </div>
           <DashboardNewJob
+            admin-mode
             :company-data="companyDataForJob ?? undefined"
             :job-to-edit="editingJobForForm ?? undefined"
             :require-company-selection="false"
@@ -860,6 +856,13 @@ import { ROUTE_PAGE } from '~/constants/route-page'
 import { postTypeAdminChipClass } from '~/constants/post-type'
 
 const { $api } = useNuxtApp()
+const { t } = useI18n()
+const {
+  buildStatusCards,
+  matchesStatusFilter,
+  jobRowStatusLabel,
+  isApproved,
+} = useJobManageStatusCards()
 
 const props = defineProps<{
   companyId: number
@@ -928,7 +931,9 @@ watch(employerPerPage, () => {
 const allJobs = ref<any[]>([])
 const jobsLoading = ref(false)
 const jobSearch = ref('')
-const jobStatusFilter = ref<string>('all')
+const jobStatusFilter = ref<
+  'all' | 'pendingReview' | 'approved' | 'expiringSoon' | 'expired' | 'trash'
+>('all')
 const jobPage = ref(1)
 const jobItemsPerPage = ref(10)
 
@@ -949,27 +954,7 @@ function toggleSort(field: string) {
   }
 }
 
-const jobStatusCards = computed(() => {
-  const list = allJobs.value
-  const now = new Date()
-  now.setHours(0, 0, 0, 0)
-  const statusUpper = (j: any) => (j.status || '').toUpperCase()
-  const reviewing = list.filter((j: any) => statusUpper(j) === 'ADMIN_REVIEW').length
-  const pending = list.filter((j: any) => statusUpper(j) === 'PENDING').length
-  const approved = list.filter((j: any) => statusUpper(j) === 'APPROVED').length
-  const expired = list.filter((j: any) => {
-    const d = j.deadline ? (typeof j.deadline === 'string' ? new Date(j.deadline) : j.deadline) : null
-    return d && d < now
-  }).length
-  return [
-    { key: 'all', label: 'All Jobs', count: list.length },
-    { key: 'reviewing', label: 'Reviewing', count: reviewing },
-    { key: 'pending', label: 'Pending', count: pending },
-    { key: 'approved', label: 'Approved', count: approved },
-    { key: 'expired', label: 'Expired', count: expired },
-    { key: 'trash', label: 'Trash', count: 0 },
-  ]
-})
+const jobStatusCards = computed(() => buildStatusCards(allJobs.value))
 
 const filteredJobs = computed(() => {
   let list = allJobs.value
@@ -981,18 +966,10 @@ const filteredJobs = computed(() => {
       return title.includes(kw)
     })
   }
-  const status = jobStatusFilter.value
-  const now = new Date()
-  now.setHours(0, 0, 0, 0)
-  if (status === 'reviewing') list = list.filter((j: any) => (j.status || '').toUpperCase() === 'ADMIN_REVIEW')
-  else if (status === 'pending') list = list.filter((j: any) => (j.status || '').toUpperCase() === 'PENDING')
-  else if (status === 'approved') list = list.filter((j: any) => isJobApproved(j))
-  else if (status === 'expired') list = list.filter((j: any) => {
-    const d = j.deadline ? (typeof j.deadline === 'string' ? new Date(j.deadline) : j.deadline) : null
-    return d && d < now
-  })
-  else if (status === 'trash') list = []
 
+  if (jobStatusFilter.value !== 'all') {
+    list = list.filter((job) => matchesStatusFilter(job, jobStatusFilter.value))
+  }
   // Filter by Post Type (column filter)
   const postType = postTypeFilter.value
   if (postType) {
@@ -1124,12 +1101,7 @@ function postTypeLabel(postType: string | undefined): string {
   return 'Cơ bản'
 }
 function jobStatusDisplayLabel(j: any): string {
-  const s = (j.status || '').toUpperCase()
-  if (s === 'APPROVED') return 'Approved'
-  if (s === 'ADMIN_REVIEW') return 'Admin Review'
-  if (s === 'PENDING') return 'Pending'
-  if (s === 'REJECTED') return 'Rejected'
-  return 'Admin Review'
+  return jobRowStatusLabel(j)
 }
 function jobStatusDisplayClass(j: any): string {
   const s = (j.status || '').toUpperCase()
@@ -1158,7 +1130,7 @@ function formatUserDate(date: any) {
   return `${day}/${month}/${year}`
 }
 function isJobApproved(job: any) {
-  return (job.status || '').toUpperCase() === 'APPROVED'
+  return isApproved(job)
 }
 function expiredDateClass(deadline: Date | string | undefined): string {
   if (!deadline) return 'text-gray-600'

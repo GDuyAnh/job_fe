@@ -412,7 +412,7 @@
 
 .employer-overview-stats {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 12px;
 }
 
@@ -654,6 +654,62 @@
   line-height: 1.35;
 }
 
+.employer-candidate-name-btn {
+  display: inline-flex;
+  align-items: center;
+  max-width: 100%;
+  padding: 6px 10px;
+  margin: -6px -10px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: #2563eb;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    background 0.18s ease,
+    color 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+.employer-candidate-name-btn strong {
+  display: inline;
+  color: #2563eb;
+  font-weight: 700;
+  transition: color 0.18s ease;
+}
+
+.employer-candidate-name-btn:hover {
+  background: rgba(239, 246, 255, 0.98);
+}
+
+.employer-candidate-name-btn:hover strong {
+  color: #1d4ed8;
+}
+
+.employer-candidate-name-btn:active {
+  background: rgba(219, 234, 254, 0.98);
+}
+
+.employer-candidate-name-btn:active strong {
+  color: #1e40af;
+}
+
+.employer-candidate-name-btn:focus-visible {
+  outline: none;
+  background: rgba(239, 246, 255, 0.98);
+  box-shadow: 0 0 0 3px rgba(53, 99, 255, 0.18);
+}
+
+.employer-candidate-name-btn:focus-visible strong {
+  color: #1d4ed8;
+}
+
+.employer-candidates-table tbody tr:hover .employer-candidate-name-btn strong {
+  color: #1d4ed8;
+}
+
 .employer-candidate-cv {
   display: inline;
   color: #1d4ed8;
@@ -771,16 +827,10 @@
 .employer-overview-pagination {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
   gap: 16px;
   padding: 16px 22px;
   border-top: 1px solid rgba(232, 237, 247, 0.96);
-}
-
-.employer-overview-pagination-copy {
-  margin: 0;
-  color: #8a94a8;
-  font-size: 13px;
 }
 
 .employer-overview-pagination-actions {
@@ -945,6 +995,16 @@
   font-weight: 600;
 }
 
+.employer-admin-settings-section .employer-field input.employer-field-control--error {
+  border-color: #ef4444;
+  background: #fffafb;
+}
+
+.employer-admin-settings-section .employer-field input.employer-field-control--error:focus {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.12);
+}
+
 /* Input thường trong employer-field (native + Nuxt UI) */
 .employer-dashboard-simple .employer-field input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]):not([type="file"]),
 .employer-dashboard-simple .employer-field select,
@@ -1099,7 +1159,7 @@
 .employer-field-editor .employer-editor {
   border: 1.5px solid rgba(200, 214, 236, 0.9);
   border-radius: 10px;
-  overflow: hidden;
+  overflow: visible;
   background: #fafbfe;
   transition:
     border-color 0.2s ease,
@@ -1125,14 +1185,24 @@
   border-bottom: 1px solid rgba(214, 223, 239, 0.8);
 }
 
-.employer-field-editor :deep(.ProseMirror) {
+.employer-field-editor :deep(.editor-content) {
+  resize: vertical;
+  overflow: auto;
   min-height: 120px;
+}
+
+.employer-field-editor :deep(.ProseMirror) {
+  min-height: 100%;
   padding: 12px 14px;
   line-height: 1.6;
 }
 
-.employer-company-form .employer-field-editor:first-of-type :deep(.ProseMirror) {
+.employer-company-form .employer-field-editor:first-of-type :deep(.editor-content) {
   min-height: 220px;
+}
+
+.employer-company-form .employer-field-editor:first-of-type :deep(.ProseMirror) {
+  min-height: 100%;
 }
 
 .employer-company-media-stack {
@@ -1405,9 +1475,304 @@
 
 .employer-candidates-page .employer-candidates-table {
   width: 100%;
-  min-width: 980px;
+  min-width: 640px;
   border-collapse: separate;
   border-spacing: 0;
+}
+
+.employer-candidates-page .employer-candidates-table thead th.is-sortable {
+  position: relative;
+}
+
+.employer-candidates-th-sort {
+  position: relative;
+  display: inline-flex;
+}
+
+.employer-candidates-th-sort-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-transform: inherit;
+  letter-spacing: inherit;
+  cursor: pointer;
+}
+
+.employer-candidates-th-sort-btn.is-active,
+.employer-candidates-th-sort-btn:hover {
+  color: #2e57ef;
+}
+
+.employer-candidates-sort-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  z-index: 20;
+  min-width: 148px;
+  padding: 6px;
+  border-radius: 12px;
+  border: 1px solid rgba(226, 232, 240, 0.95);
+  background: #fff;
+  box-shadow: 0 8px 24px rgba(31, 49, 93, 0.1);
+}
+
+.employer-candidates-sort-option {
+  display: block;
+  width: 100%;
+  padding: 8px 12px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  text-align: left;
+  font-size: 13px;
+  font-weight: 600;
+  color: #334155;
+  cursor: pointer;
+}
+
+.employer-candidates-sort-option:hover,
+.employer-candidates-sort-option.is-selected {
+  background: rgba(239, 246, 255, 0.95);
+  color: #2e57ef;
+}
+
+.employer-candidates-th-hint {
+  border-bottom: 1px dashed rgba(100, 116, 139, 0.55);
+  cursor: help;
+}
+
+.application-status-control {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+}
+
+.application-status-control.is-compact {
+  gap: 0;
+}
+
+.application-status-control.is-disabled {
+  opacity: 0.72;
+}
+
+.application-status-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.application-status-picker {
+  position: relative;
+  display: inline-flex;
+  max-width: 100%;
+}
+
+.application-status-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-width: 156px;
+  max-width: 100%;
+  min-height: 38px;
+  padding: 0 12px 0 14px;
+  border-radius: 10px;
+  border: 1px solid rgba(200, 214, 236, 0.9);
+  background: #fff;
+  color: #334155;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: "Manrope", sans-serif;
+  line-height: 1.25;
+  cursor: pointer;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.application-status-trigger:hover:not(:disabled) {
+  border-color: rgba(53, 99, 255, 0.45);
+}
+
+.application-status-trigger:focus-visible {
+  outline: none;
+  border-color: rgba(53, 99, 255, 0.55);
+  box-shadow: 0 0 0 3px rgba(53, 99, 255, 0.12);
+}
+
+.application-status-trigger:disabled {
+  cursor: not-allowed;
+}
+
+.application-status-trigger-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.application-status-trigger-chevron {
+  flex-shrink: 0;
+  color: #64748b;
+  transition: transform 0.15s ease;
+}
+
+.application-status-trigger-chevron.is-open {
+  transform: rotate(180deg);
+}
+
+.application-status-trigger.is-submitted {
+  background: rgba(248, 250, 252, 0.96);
+  border-color: rgba(203, 213, 225, 0.95);
+  color: #475569;
+}
+
+.application-status-trigger.is-reviewing {
+  background: rgba(239, 246, 255, 0.96);
+  border-color: rgba(191, 219, 254, 0.95);
+  color: #1d4ed8;
+}
+
+.application-status-trigger.is-interview {
+  background: rgba(245, 243, 255, 0.96);
+  border-color: rgba(221, 214, 254, 0.95);
+  color: #6d28d9;
+}
+
+.application-status-trigger.is-accepted {
+  background: rgba(236, 253, 245, 0.96);
+  border-color: rgba(167, 243, 208, 0.95);
+  color: #047857;
+}
+
+.application-status-trigger.is-rejected {
+  background: rgba(254, 242, 242, 0.96);
+  border-color: rgba(254, 202, 202, 0.95);
+  color: #b91c1c;
+}
+
+.application-status-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  z-index: 420;
+  min-width: 100%;
+  width: max-content;
+  max-width: min(280px, calc(100vw - 32px));
+  padding: 6px;
+  border-radius: 12px;
+  border: 1px solid rgba(226, 232, 240, 0.95);
+  background: #fff;
+  box-shadow: 0 12px 32px rgba(31, 49, 93, 0.12);
+}
+
+.application-status-menu-option {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 9px 12px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: #334155;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: "Manrope", sans-serif;
+  text-align: left;
+  cursor: pointer;
+}
+
+.application-status-menu-option:hover,
+.application-status-menu-option.is-selected {
+  background: rgba(239, 246, 255, 0.95);
+}
+
+.application-status-menu-option.is-submitted.is-selected {
+  background: rgba(241, 245, 249, 0.96);
+}
+
+.application-status-menu-option.is-reviewing {
+  color: #1d4ed8;
+}
+
+.application-status-menu-option.is-interview {
+  color: #6d28d9;
+}
+
+.application-status-menu-option.is-accepted {
+  color: #047857;
+}
+
+.application-status-menu-option.is-rejected {
+  color: #b91c1c;
+}
+
+.application-status-message {
+  width: 100%;
+  min-height: 72px;
+  padding: 10px 12px;
+  border: 1px solid rgba(200, 214, 236, 0.9);
+  border-radius: 10px;
+  background: #fff;
+  color: #334155;
+  font-size: 13px;
+  font-family: "Manrope", sans-serif;
+  line-height: 1.5;
+  resize: vertical;
+}
+
+.application-status-message:focus {
+  outline: none;
+  border-color: rgba(53, 99, 255, 0.55);
+  box-shadow: 0 0 0 3px rgba(53, 99, 255, 0.12);
+}
+
+.application-status-message:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.application-status-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding-top: 4px;
+}
+
+.application-status-control .application-status-save-btn {
+  justify-self: start;
+  min-height: 38px;
+  padding: 0 16px;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.application-status-control.is-compact .application-status-save-btn {
+  min-height: 34px;
+  padding: 0 14px;
+  font-size: 12px;
+}
+
+.application-status-control.is-compact .application-status-trigger {
+  min-width: 140px;
+  min-height: 34px;
+  border-radius: 999px;
+  font-size: 12px;
+}
+
+.employer-candidate-job-status-label {
+  display: block;
+  margin-bottom: 8px;
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
 }
 
 .employer-candidates-page .employer-candidates-table thead th {
@@ -1947,6 +2312,11 @@ body:has(.employer-admin-applications-filters) .vs__no-options {
   line-height: 1.4;
 }
 
+.employer-candidate-job-item .application-status-badge {
+  justify-self: start;
+  margin-top: 2px;
+}
+
 .employer-candidate-job-meta {
   display: flex;
   align-items: center;
@@ -1977,6 +2347,35 @@ body:has(.employer-admin-applications-filters) .vs__no-options {
   color: #64748b;
   font-size: 13px;
   line-height: 1.5;
+}
+
+.employer-candidate-job-status {
+  padding-top: 10px;
+  border-top: 1px solid rgba(226, 232, 240, 0.85);
+}
+
+.employer-candidate-job-actions {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 8px;
+}
+
+.employer-candidate-app-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  height: 28px;
+  padding: 0 8px;
+  border-radius: 999px;
+  background: rgba(59, 130, 246, 0.12);
+  color: #1d4ed8;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.employer-candidate-job-tags {
+  margin-top: 8px;
 }
 
 @media (max-width: 900px) {
@@ -2264,12 +2663,81 @@ body:has(.employer-admin-applications-filters) .vs__no-options {
 }
 
 .employer-row-title-wrap strong,
-.employer-row-position strong {
+.employer-row-position strong,
+.employer-row-title-btn {
   font-size: 14px;
   font-weight: 700;
   line-height: 1.35;
   color: #0f172a;
   overflow-wrap: anywhere;
+}
+
+.employer-row-title-btn {
+  display: inline;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+  color: #2e57ef;
+  transition: color 0.18s ease;
+}
+
+.employer-row-title-btn:hover {
+  color: #1d4ed8;
+  text-decoration: underline;
+}
+
+.employer-job-applicants-subtitle {
+  margin: 8px 0 0;
+  color: #64748b;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.employer-job-applicants-loading,
+.employer-job-applicants-empty {
+  padding: 28px 16px;
+  text-align: center;
+  color: #64748b;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.employer-job-applicants-table-wrap {
+  overflow-x: auto;
+}
+
+.employer-job-applicants-table {
+  width: 100%;
+  min-width: 520px;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.employer-job-applicants-table thead th {
+  padding: 14px 16px;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.95);
+  color: #64748b;
+  font-size: 11.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  text-align: left;
+  background: rgba(255, 255, 255, 0.96);
+}
+
+.employer-job-applicants-table tbody td {
+  padding: 16px;
+  border-bottom: 1px solid rgba(241, 245, 249, 0.95);
+  color: #334155;
+  font-size: 14px;
+  vertical-align: middle;
+}
+
+.employer-job-applicants-table tbody tr:last-child td {
+  border-bottom: 0;
 }
 
 .employer-row-title-wrap span,
@@ -2428,19 +2896,12 @@ body:has(.employer-admin-applications-filters) .vs__no-options {
 .employer-dashboard-pagination {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
   gap: 14px;
   padding: 14px 18px;
   border-top: 1px solid rgba(226, 232, 240, 0.95);
   background: rgba(255, 255, 255, 0.96);
   flex-wrap: wrap;
-}
-
-.employer-dashboard-pagination-meta {
-  margin: 0;
-  color: #64748b;
-  font-size: 13px;
-  font-weight: 600;
 }
 
 .employer-dashboard-pagination-pages {
@@ -2575,6 +3036,62 @@ body:has(.employer-admin-applications-filters) .vs__no-options {
 .employer-settings-panel-body {
   padding: 28px;
   min-width: 0;
+}
+
+.employer-settings-panel-body .employer-account-password-section {
+  margin-top: 28px;
+  border: 1px solid rgba(220, 227, 239, 0.92);
+  border-radius: 16px;
+  background: #ffffff;
+  overflow: hidden;
+}
+
+.employer-settings-panel-body .employer-account-section-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  padding: 18px 22px;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.2s ease;
+}
+
+.employer-settings-panel-body .employer-account-section-toggle:hover {
+  background: rgba(248, 250, 252, 0.95);
+}
+
+.employer-settings-panel-body .employer-account-section-toggle h2 {
+  margin: 0;
+  color: #0f172a;
+  font-size: 18px;
+  line-height: 1.2;
+  font-weight: bold;
+}
+
+.employer-settings-panel-body .employer-account-section-chevron {
+  flex-shrink: 0;
+  color: #64748b;
+  transition: transform 0.28s ease;
+}
+
+.employer-settings-panel-body .employer-account-section-chevron.is-open {
+  transform: rotate(180deg);
+}
+
+.employer-settings-panel-body .employer-account-password-form {
+  margin-top: 0;
+  padding: 0 22px 22px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+.employer-settings-panel-body .employer-account-password-collapse {
+  will-change: height, opacity;
 }
 
 .employer-settings-stack {
@@ -3647,7 +4164,7 @@ body:has(.employer-company-page) [data-reka-combobox-content] {
 .employer-admin-blog-drawer-form .employer-field-editor .employer-editor {
   border: 1.5px solid rgba(200, 214, 236, 0.9);
   border-radius: 12px;
-  overflow: hidden;
+  overflow: visible;
   background: #fafbfe;
   transition:
     border-color 0.2s ease,
@@ -3668,9 +4185,14 @@ body:has(.employer-company-page) [data-reka-combobox-content] {
   box-shadow: none;
 }
 
+.employer-admin-company-drawer-form .employer-field-editor :deep(.editor-content),
+.employer-admin-blog-drawer-form .employer-field-editor :deep(.editor-content) {
+  min-height: 140px;
+}
+
 .employer-admin-company-drawer-form .employer-field-editor :deep(.ProseMirror),
 .employer-admin-blog-drawer-form .employer-field-editor :deep(.ProseMirror) {
-  min-height: 140px;
+  min-height: 100%;
   padding: 12px 14px;
   font-size: 14px;
   line-height: 1.6;
@@ -4178,6 +4700,10 @@ body:has(.employer-company-page) [data-reka-combobox-content] {
   position: relative;
 }
 
+.employer-admin-user-password-wrap > input:not([type='checkbox']):not([type='radio']) {
+  padding-right: 44px;
+}
+
 .employer-admin-user-password-wrap :deep([data-slot="base"]) {
   padding-right: 44px;
 }
@@ -4612,6 +5138,289 @@ html.employer-admin-crop-modal-open [data-vaul-drawer] {
 .employer-admin-settings-toolbar {
   padding: 28px 28px 28px;
   border-bottom: 1px solid rgba(226, 232, 240, 0.96);
+}
+
+.employer-settings-checkbox-row {
+  display: flex;
+  align-items: center;
+}
+
+.employer-settings-checkbox {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  width: fit-content;
+  max-width: 100%;
+  margin: 0;
+  cursor: pointer;
+}
+
+.employer-settings-checkbox input[type='checkbox'] {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.employer-settings-checkbox span {
+  color: #3d4f6c;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.4;
+  cursor: pointer;
+}
+
+.employer-field-label-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #3d4f6c;
+  font-size: 13px;
+  font-weight: bold;
+  letter-spacing: -0.01em;
+}
+
+.employer-field-help-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: none;
+  border-radius: 999px;
+  background: rgba(226, 232, 240, 0.9);
+  color: #64748b;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.employer-field-help-trigger:hover,
+.employer-field-help-trigger:focus-visible {
+  background: rgba(219, 234, 254, 0.95);
+  color: #2563eb;
+  outline: none;
+}
+
+.employer-smtp-pass-help-popover {
+  width: min(360px, calc(100vw - 32px));
+  max-width: 360px;
+  padding: 0 !important;
+  border: 1px solid rgba(226, 232, 240, 0.96);
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.16);
+}
+
+.employer-smtp-pass-help {
+  padding: 16px 18px;
+}
+
+.employer-smtp-pass-help-title {
+  margin: 0 0 8px;
+  color: #0f172a;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.employer-smtp-pass-help-intro,
+.employer-smtp-pass-help-note {
+  margin: 0 0 12px;
+  color: #64748b;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.employer-smtp-pass-help-note {
+  margin-bottom: 0;
+  padding-top: 10px;
+  border-top: 1px solid rgba(226, 232, 240, 0.96);
+  font-size: 12px;
+}
+
+.employer-smtp-pass-help-steps {
+  margin: 0;
+  padding-left: 18px;
+  color: #334155;
+  font-size: 13px;
+  line-height: 1.65;
+}
+
+.employer-smtp-pass-help-steps li + li {
+  margin-top: 10px;
+}
+
+.employer-smtp-pass-help-link {
+  display: inline-block;
+  margin-top: 4px;
+  color: #2563eb;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.5;
+  word-break: break-all;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.employer-smtp-pass-help-link:hover {
+  color: #1d4ed8;
+}
+
+.employer-settings-actions-split {
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.employer-settings-page .employer-settings-primary.is-outline {
+  background: #fff;
+  border: 1px solid rgba(226, 232, 240, 0.96);
+  color: #334155;
+}
+
+.employer-settings-page .employer-settings-primary.is-outline:hover:not(:disabled) {
+  background: #f8fafc;
+}
+
+.employer-admin-email-test-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(15, 23, 42, 0.4);
+}
+
+.employer-admin-email-test-modal-dialog {
+  width: 100%;
+  max-width: 440px;
+  padding: 28px;
+  border-radius: 18px;
+  border: 1px solid rgba(226, 232, 240, 0.96);
+  background: #fff;
+  box-shadow: 0 24px 48px rgba(15, 23, 42, 0.18);
+}
+
+.employer-admin-email-test-modal-title {
+  margin: 0 0 8px;
+  color: #0f172a;
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+}
+
+.employer-admin-email-test-modal-desc {
+  margin: 0 0 22px;
+  color: #64748b;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.employer-admin-email-test-field {
+  display: grid;
+  gap: 8px;
+}
+
+.employer-admin-email-test-field-label {
+  color: #334155;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.employer-admin-email-test-field-required {
+  margin-left: 2px;
+  color: #ef4444;
+}
+
+.employer-admin-email-test-field-control {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.employer-admin-email-test-field-icon {
+  position: absolute;
+  left: 14px;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #64748b;
+  pointer-events: none;
+  transition: color 0.18s ease;
+}
+
+.employer-admin-email-test-field-input {
+  width: 100%;
+  min-height: 48px;
+  padding: 0 14px 0 44px;
+  border-radius: 12px;
+  border: 1.5px solid rgba(200, 214, 236, 0.95);
+  background: #f8fafc;
+  color: #0f172a;
+  font-size: 14px;
+  font-weight: 500;
+  font-family: "Manrope", sans-serif;
+  box-sizing: border-box;
+  outline: none;
+  box-shadow: none;
+  transition:
+    border-color 0.18s ease,
+    box-shadow 0.18s ease,
+    background 0.18s ease;
+}
+
+.employer-admin-email-test-field-input::placeholder {
+  color: #94a3b8;
+  font-weight: 500;
+}
+
+.employer-admin-email-test-field-input:hover:not(:disabled) {
+  border-color: rgba(148, 163, 184, 0.85);
+  background: #fff;
+}
+
+.employer-admin-email-test-field-input:focus {
+  border-color: rgba(53, 99, 255, 0.55);
+  background: #fff;
+  box-shadow: 0 0 0 4px rgba(53, 99, 255, 0.12);
+}
+
+.employer-admin-email-test-field-control:focus-within .employer-admin-email-test-field-icon {
+  color: #3563ff;
+}
+
+.employer-admin-email-test-field.has-error .employer-admin-email-test-field-input {
+  border-color: #ef4444;
+  background: #fffafb;
+}
+
+.employer-admin-email-test-field.has-error .employer-admin-email-test-field-input:focus {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.12);
+}
+
+.employer-admin-email-test-field.has-error .employer-admin-email-test-field-icon {
+  color: #ef4444;
+}
+
+.employer-admin-email-test-field-error {
+  margin: 0;
+  color: #ef4444;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.45;
+}
+
+.employer-admin-email-test-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 24px;
 }
 
 .employer-admin-settings-body {
@@ -5084,5 +5893,325 @@ html.employer-admin-crop-modal-open [data-vaul-drawer] {
   .employer-admin-import-actions :deep(button) {
     width: 100%;
     justify-content: center;
+  }
+}
+
+.employer-email-templates-layout {
+  display: grid;
+  grid-template-columns: minmax(240px, 320px) minmax(0, 1fr);
+  gap: 24px;
+  min-width: 0;
+  align-items: start;
+}
+
+.employer-email-templates-sidebar {
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.employer-email-templates-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding-right: 2px;
+}
+
+.employer-email-template-item {
+  text-align: left;
+  border: 1px solid rgba(226, 232, 240, 0.96);
+  border-radius: 14px;
+  background: #fff;
+  padding: 14px 16px;
+  cursor: pointer;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.employer-email-template-item:hover,
+.employer-email-template-item.is-active {
+  border-color: #93c5fd;
+  box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.15);
+}
+
+.employer-email-template-item-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.employer-email-template-badge {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.employer-email-template-badge.is-active {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.employer-email-template-badge.is-inactive {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.employer-email-template-code {
+  display: block;
+  margin-top: 6px;
+  font-size: 12px;
+  color: #64748b;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+.employer-email-template-desc {
+  margin: 8px 0 0;
+  font-size: 13px;
+  color: #475569;
+  line-height: 1.45;
+}
+
+.employer-email-template-recipient {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  margin: 6px 0 0;
+  color: #64748b;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.employer-email-template-recipient svg {
+  flex-shrink: 0;
+  margin-top: 2px;
+  color: #94a3b8;
+}
+
+.employer-email-template-trigger-info {
+  padding: 14px 16px;
+  border-radius: 14px;
+  border: 1px solid rgba(191, 219, 254, 0.9);
+  background: linear-gradient(180deg, rgba(239, 246, 255, 0.95) 0%, rgba(248, 250, 252, 0.9) 100%);
+}
+
+.employer-email-template-trigger-info-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+  color: #1e40af;
+  font-size: 14px;
+}
+
+.employer-email-template-trigger-dl {
+  margin: 0;
+  display: grid;
+  gap: 10px;
+}
+
+.employer-email-template-trigger-row {
+  display: grid;
+  grid-template-columns: 108px minmax(0, 1fr);
+  gap: 10px;
+  align-items: start;
+}
+
+.employer-email-template-trigger-row dt {
+  margin: 0;
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.employer-email-template-trigger-row dd {
+  margin: 0;
+  color: #334155;
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.employer-email-template-trigger-row.is-note dd {
+  color: #92400e;
+}
+
+.employer-email-template-trigger-row.is-note dt {
+  color: #b45309;
+}
+
+@media (max-width: 640px) {
+  .employer-email-template-trigger-row {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+}
+
+.employer-email-template-editor {
+  display: grid;
+  gap: 20px;
+  min-width: 0;
+  padding: 4px 2px 2px;
+}
+
+.employer-email-template-body-field {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+}
+
+.employer-email-template-body-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px 16px;
+}
+
+.employer-email-template-body-label {
+  color: #3d4f6c;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.employer-email-template-body-hint {
+  color: #94a3b8;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.employer-email-template-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 4px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(226, 232, 240, 0.96);
+}
+
+.employer-email-template-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 42px;
+  padding: 0 16px;
+  border-radius: 12px;
+  border: 1px solid transparent;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    transform 0.16s ease,
+    background 0.16s ease,
+    border-color 0.16s ease,
+    box-shadow 0.16s ease;
+}
+
+.employer-email-template-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.employer-email-template-btn.is-outline {
+  background: #fff;
+  border-color: rgba(226, 232, 240, 0.96);
+  color: #334155;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+
+.employer-email-template-btn.is-outline:hover:not(:disabled) {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+  transform: translateY(-1px);
+}
+
+.employer-email-template-btn.is-primary {
+  background: linear-gradient(135deg, #3563ff 0%, #2e57ef 100%);
+  border-color: transparent;
+  color: #fff;
+  box-shadow: 0 8px 20px rgba(53, 99, 255, 0.22);
+}
+
+.employer-email-template-btn.is-primary:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 24px rgba(53, 99, 255, 0.28);
+}
+
+.employer-email-template-variables {
+  display: grid;
+  gap: 8px;
+}
+
+.employer-email-template-variable-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.employer-email-template-variable-chips :deep([data-slot="trigger"]) {
+  display: inline-flex;
+  max-width: 100%;
+}
+
+.employer-email-template-variable-chip {
+  border: 1px solid #dbeafe;
+  background: #eff6ff;
+  color: #1d4ed8;
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  cursor: pointer;
+}
+
+.employer-email-preview-modal {
+  max-width: 760px;
+  width: calc(100vw - 32px);
+}
+
+.employer-email-preview-subject {
+  margin: 0 0 12px;
+  font-size: 14px;
+  color: #334155;
+}
+
+.employer-email-preview-frame {
+  max-height: 60vh;
+  overflow: auto;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background: #fff;
+  padding: 16px;
+}
+
+@media (max-width: 960px) {
+  .employer-email-templates-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .employer-email-template-actions {
+    justify-content: stretch;
+  }
+
+  .employer-email-template-btn {
+    flex: 1 1 calc(50% - 5px);
+    min-width: 140px;
+  }
+
+  .employer-email-template-btn.is-primary {
+    flex: 1 1 100%;
   }
 }

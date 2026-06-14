@@ -1,0 +1,89 @@
+/* USelectMenu vùng search — đồng bộ typography với ô input (3 site) */
+.hero-location-select,
+.school-directory-select,
+.jobs-directory-select {
+  flex: 1;
+  min-width: 0;
+}
+
+.hero-location-select button,
+.hero-location-select [role='combobox'],
+.school-directory-select button,
+.school-directory-select [role='combobox'],
+.jobs-directory-select button,
+.jobs-directory-select [role='combobox'] {
+  width: 100%;
+  padding: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  font-family: inherit !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  line-height: 1.5 !important;
+  letter-spacing: -0.01em;
+  color: var(--text) !important;
+  justify-content: flex-start !important;
+}
+
+.hero-location-select__placeholder,
+.school-directory-select__placeholder,
+.jobs-directory-select__placeholder {
+  font-family: inherit !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  line-height: 1.5 !important;
+  letter-spacing: -0.01em;
+  color: #8c95a8 !important;
+}
+
+.hero-location-select__value,
+.school-directory-select__value,
+.jobs-directory-select__value {
+  font-family: inherit !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  line-height: 1.5 !important;
+  letter-spacing: -0.01em;
+  color: var(--text) !important;
+}
+
+.hero-location-select button > span[class*='end-0'],
+.hero-location-select [role='combobox'] > span[class*='end-0'],
+.school-directory-select button > span[class*='end-0'],
+.school-directory-select [role='combobox'] > span[class*='end-0'],
+.jobs-directory-select button > span[class*='end-0'],
+.jobs-directory-select [role='combobox'] > span[class*='end-0'] {
+  display: none !important;
+}
+
+.hero-location-select svg,
+.hero-location-select .iconify,
+.school-directory-select svg,
+.school-directory-select .iconify,
+.jobs-directory-select svg,
+.jobs-directory-select .iconify,
+.hero-location-select [class*='chevron'],
+.school-directory-select [class*='chevron'],
+.jobs-directory-select [class*='chevron'] {
+  display: none !important;
+}
+
+.hero-location-select button,
+.hero-location-select [role='combobox'] {
+  height: 54px;
+}
+
+.school-directory-select button,
+.school-directory-select [role='combobox'],
+.jobs-directory-select button,
+.jobs-directory-select [role='combobox'] {
+  height: 56px;
+}
+
+/* Ghi đè text-dimmed / text-highlighted mặc định của Nuxt UI khi đã chọn */
+.search-row-hero .hero-location-select__value,
+.search-item-directory .school-directory-select__value,
+.search-item-directory .jobs-directory-select__value {
+  color: var(--text) !important;
+}

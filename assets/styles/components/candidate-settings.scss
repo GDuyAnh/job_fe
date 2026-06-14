@@ -130,6 +130,7 @@
 
 .candidate-content .candidate-settings-password {
   grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: start;
   margin-top: 0;
 }
 
@@ -139,15 +140,18 @@
 
 .candidate-content .candidate-settings-password-field {
   display: grid;
+  grid-template-rows: auto auto minmax(17px, auto);
   gap: 8px;
+  align-content: start;
   min-width: 0;
   color: #1f2937;
   font-size: 13px;
   font-weight: 700;
 }
 
-.candidate-content .candidate-settings-password-field > span {
+.candidate-content .candidate-settings-password-label {
   font-weight: 700;
+  line-height: 1.35;
 }
 
 .candidate-content .candidate-password-control {
@@ -182,6 +186,25 @@
 .candidate-content .candidate-password-control input:focus {
   border-color: rgba(53, 99, 255, 0.45);
   box-shadow: 0 0 0 3px rgba(53, 99, 255, 0.12);
+}
+
+.candidate-content .candidate-settings-password-field.has-error .candidate-password-control input {
+  border-color: #dc2626;
+  box-shadow: 0 0 0 1px rgba(220, 38, 38, 0.12);
+}
+
+.candidate-content .candidate-settings-field-error {
+  min-height: calc(12px * 1.4);
+  color: #dc2626;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.candidate-content .candidate-settings-field-error.is-placeholder {
+  visibility: hidden;
+  user-select: none;
+  pointer-events: none;
 }
 
 .candidate-content .candidate-password-control input::-ms-reveal,

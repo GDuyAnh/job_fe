@@ -52,90 +52,24 @@
               <table class="employer-candidates-table">
                 <thead>
                   <tr>
-                    <th>Vị trí ứng tuyển</th>
                     <th>Ứng viên</th>
-                    <th>Địa chỉ email</th>
-                    <th>SĐT</th>
+                    <th>Email</th>
+                    <th>Số hồ sơ</th>
                     <th>CV</th>
-                    <th>Ngày ứng tuyển</th>
-                    <th class="is-action">Thao tác</th>
-                  </tr>
-                </thead>
-                <tbody data-candidates-rows="">
-                  <tr v-if="filteredApplications.length === 0">
-                    <td colspan="7" class="employer-candidates-empty-cell">
-                      {{ $t('dashboard.main.applicationsTable.noApplications') }}
-                    </td>
-                  </tr>
-                  <tr
-                    v-for="application in paginatedApplications"
-                    :key="application.id"
-                    data-candidate-row=""
-                  >
-                    <td>
-                      <div class="employer-candidate-role">
-                        <strong>{{ application.jobTitle }}</strong>
-                        <div v-if="companyName" class="employer-candidate-employer">
-                          <img
-                            v-if="companyLogo"
-                            :src="companyLogo"
-                            :alt="`${companyName} logo`"
-                            loading="lazy"
-                          >
-                          <span>{{ companyName }}</span>
-                        </div>
-                      </div>
-                    </td>
-                    <td>
-                      <div class="employer-candidate-person">
-                        <strong>{{ application.applicantName }}</strong>
-                      </div>
-                    </td>
-                    <td>{{ application.email }}</td>
-                    <td>{{ application.phone || '—' }}</td>
-                    <td>
-                      <a
-                        v-if="application.cvUrl"
-                        :href="application.cvUrl"
-                        class="employer-candidate-cv"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        :download="cvFileName(application)"
-                      >
-                        <span>Tải CV</span>
-                      </a>
-                      <span v-else class="employer-overview-table-muted">—</span>
-                    </td>
-                    <td>{{ formatDate(application.applicationDate) }}</td>
-                    <td class="is-action">
-                      <div class="employer-row-actions">
+                    <th ref="dateSortMenuRef" class="is-sortable">
+                      <div class="employer-candidates-th-sort">
                         <button
                           type="button"
-                          class="employer-row-action"
-                          data-candidate-view=""
-                          :aria-label="$t('dashboard.manageJobs.view')"
-                          @click="viewApplication(application)"
+                          class="employer-candidates-th-sort-btn"
+                          :class="{ 'is-active': showDateSortMenu }"
+                          aria-haspopup="listbox"
+                          :aria-expanded="showDateSortMenu"
+                          @click.stop="toggleDateSortMenu"
                         >
-                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                          Ngày ứng tuyển
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                             <path
-                              d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12Z"
-                              stroke="currentColor"
-                              stroke-width="2"
-                            />
-                            <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2" />
-                          </svg>
-                        </button>
-                        <button
-                          type="button"
-                          class="employer-row-action is-delete"
-                          data-candidate-delete=""
-                          :aria-label="$t('dashboard.manageJobs.delete')"
-                          :disabled="deletingApplicationId === application.id"
-                          @click="openDeleteModal(application)"
-                        >
-                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                            <path
-                              d="M4 7h16M9 7V4h6v3M8 7l1 12h6l1-12"
+                              d="m6 9 6 6 6-6"
                               stroke="currentColor"
                               stroke-width="2"
                               stroke-linecap="round"
@@ -143,22 +77,90 @@
                             />
                           </svg>
                         </button>
+                        <div
+                          v-if="showDateSortMenu"
+                          class="employer-candidates-sort-menu"
+                          role="listbox"
+                          aria-label="Sắp xếp theo ngày ứng tuyển"
+                        >
+                          <button
+                            type="button"
+                            class="employer-candidates-sort-option"
+                            :class="{ 'is-selected': applicationDateSort === 'newest' }"
+                            role="option"
+                            :aria-selected="applicationDateSort === 'newest'"
+                            @click="setApplicationDateSort('newest')"
+                          >
+                            Mới nhất
+                          </button>
+                          <button
+                            type="button"
+                            class="employer-candidates-sort-option"
+                            :class="{ 'is-selected': applicationDateSort === 'oldest' }"
+                            role="option"
+                            :aria-selected="applicationDateSort === 'oldest'"
+                            @click="setApplicationDateSort('oldest')"
+                          >
+                            Cũ nhất
+                          </button>
+                        </div>
+                      </div>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody data-candidates-rows="">
+                  <tr v-if="paginatedApplicants.length === 0">
+                    <td colspan="5" class="employer-candidates-empty-cell">
+                      {{ $t('dashboard.main.applicationsTable.noApplications') }}
+                    </td>
+                  </tr>
+                  <tr
+                    v-for="candidate in paginatedApplicants"
+                    :key="candidate.groupKey"
+                    data-candidate-row=""
+                  >
+                    <td>
+                      <div class="employer-candidate-person">
+                        <button
+                          type="button"
+                          class="employer-candidate-name-btn"
+                          @click="viewCandidate(candidate)"
+                        >
+                          <strong>{{ candidate.applicantName }}</strong>
+                        </button>
                       </div>
                     </td>
+                    <td>{{ candidate.email || '—' }}</td>
+                    <td>
+                      <span class="employer-candidate-app-count">
+                        {{ candidate.applicationCount }}
+                      </span>
+                    </td>
+                    <td>
+                      <a
+                        v-if="candidate.cvUrl"
+                        :href="candidate.cvUrl"
+                        class="employer-candidate-cv"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        :download="cvFileName(candidate)"
+                        @click.stop
+                      >
+                        <span>Tải CV</span>
+                      </a>
+                      <span v-else class="employer-overview-table-muted">—</span>
+                    </td>
+                    <td>{{ formatDate(candidate.latestApplicationDate) }}</td>
                   </tr>
                 </tbody>
               </table>
             </div>
 
             <nav
-              v-if="filteredApplications.length > 0"
+              v-if="groupedApplicants.length > 0"
               class="employer-dashboard-pagination employer-candidates-pagination"
               aria-label="Phân trang ứng viên"
             >
-              <p class="employer-dashboard-pagination-meta">
-                Hiển thị {{ paginationFrom }}-{{ paginationTo }} trong
-                {{ filteredApplications.length }} ứng viên
-              </p>
               <div class="employer-dashboard-pagination-pages">
                 <button
                   v-if="currentPage > 1"
@@ -331,7 +333,7 @@
             <ul class="employer-candidate-job-list" data-candidate-detail-jobs="">
               <li
                 v-for="job in candidateDetail.jobs"
-                :key="`${job.jobTitle}-${job.applicationDate}`"
+                :key="job.applicationId"
                 class="employer-candidate-job-item"
               >
                 <strong class="employer-candidate-job-title">{{ job.jobTitle }}</strong>
@@ -348,6 +350,38 @@
                   <span class="employer-candidate-job-date">
                     Ngày ứng tuyển: {{ formatDate(job.applicationDate) }}
                   </span>
+                </div>
+                <div class="employer-candidate-job-status">
+                  <span class="employer-candidate-job-status-label">
+                    {{ $t('dashboard.applicationStatus.updateLabel') }}
+                  </span>
+                  <ApplicationStatusControl
+                    :model-value="job.status || 'SUBMITTED'"
+                    :status-note="job.statusNote"
+                    show-message-field
+                    :disabled="updatingStatusId === job.applicationId"
+                    @change="(payload) => handleDialogStatusChange(job.applicationId, payload)"
+                  >
+                    <template #footer>
+                      <button
+                        type="button"
+                        class="employer-row-action is-delete"
+                        :aria-label="$t('dashboard.manageJobs.delete')"
+                        :disabled="deletingApplicationId === job.applicationId"
+                        @click="openDeleteModalById(job.applicationId)"
+                      >
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                          <path
+                            d="M4 7h16M9 7V4h6v3M8 7l1 12h6l1-12"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                          />
+                        </svg>
+                      </button>
+                    </template>
+                  </ApplicationStatusControl>
                 </div>
               </li>
             </ul>
@@ -379,8 +413,17 @@
 </template>
 
 <script setup lang="ts">
+import ApplicationStatusControl from '~/components/dashboard/ApplicationStatusControl.vue'
+import {
+  belongsToApplicantGroup,
+  groupApplicationsByApplicant,
+  sortGroupedApplicants,
+  type GroupedApplicantRow,
+} from '~/utils/applicantApplicationGroups'
+
 interface JobApplication {
   id: number
+  userId?: number
   jobTitle: string
   jobId: number
   applicantName: string
@@ -389,13 +432,18 @@ interface JobApplication {
   cvUrl?: string
   coverLetterText?: string | null
   applicationDate: Date | string
+  status?: string
+  statusNote?: string | null
 }
 
 interface CandidateAppliedJob {
+  applicationId: number
   jobTitle: string
   applicationDate: Date | string
   companyName: string
   companyLogo?: string | null
+  status?: string
+  statusNote?: string | null
 }
 
 interface CandidateDetail {
@@ -425,6 +473,7 @@ const { t } = useI18n()
 
 const loading = ref(false)
 const applications = ref<JobApplication[]>([])
+const updatingStatusId = ref<number | null>(null)
 const deletingApplicationId = ref<number | null>(null)
 const showDeleteModal = ref(false)
 const applicationPendingDelete = ref<JobApplication | null>(null)
@@ -432,15 +481,17 @@ const searchQuery = ref('')
 const currentPage = ref(1)
 const itemsPerPage = 10
 const showCandidateDialog = ref(false)
-const selectedApplicantEmail = ref<string | null>(null)
+const selectedApplicantGroupKey = ref<string | null>(null)
+type ApplicationDateSort = 'newest' | 'oldest'
+const applicationDateSort = ref<ApplicationDateSort>('newest')
+const showDateSortMenu = ref(false)
+const dateSortMenuRef = ref<HTMLElement | null>(null)
 
 const applicantApplications = computed(() => {
-  if (!selectedApplicantEmail.value) return []
-
-  const email = selectedApplicantEmail.value.toLowerCase()
+  if (!selectedApplicantGroupKey.value) return []
 
   return applications.value
-    .filter((app) => app.email?.toLowerCase() === email)
+    .filter((app) => belongsToApplicantGroup(app, selectedApplicantGroupKey.value!))
     .sort((a, b) => {
       const dateA = a.applicationDate ? new Date(a.applicationDate).getTime() : 0
       const dateB = b.applicationDate ? new Date(b.applicationDate).getTime() : 0
@@ -467,51 +518,53 @@ const candidateDetail = computed((): CandidateDetail | null => {
     cvDownloadName: cvFileName(first),
     coverLetter,
     jobs: apps.map((app) => ({
+      applicationId: app.id,
       jobTitle: app.jobTitle,
       applicationDate: app.applicationDate,
       companyName: props.companyName,
       companyLogo: props.companyLogo,
+      status: app.status,
+      statusNote: app.statusNote,
     })),
   }
 })
 
 const filteredApplications = computed(() => {
-  if (!searchQuery.value.trim()) {
-    return applications.value
+  let list = applications.value
+
+  if (searchQuery.value.trim()) {
+    const query = searchQuery.value.trim().toLowerCase()
+
+    list = list.filter((app) => {
+      const matchesEmail = app.email?.toLowerCase().includes(query)
+      const matchesJobTitle = app.jobTitle?.toLowerCase().includes(query)
+      const matchesApplicantName = app.applicantName?.toLowerCase().includes(query)
+      const matchesPhone = app.phone?.toLowerCase().includes(query)
+
+      return matchesEmail || matchesJobTitle || matchesApplicantName || matchesPhone
+    })
   }
 
-  const query = searchQuery.value.trim().toLowerCase()
-
-  return applications.value.filter((app) => {
-    const matchesEmail = app.email?.toLowerCase().includes(query)
-    const matchesJobTitle = app.jobTitle?.toLowerCase().includes(query)
-    const matchesApplicantName = app.applicantName?.toLowerCase().includes(query)
-    const matchesPhone = app.phone?.toLowerCase().includes(query)
-
-    return matchesEmail || matchesJobTitle || matchesApplicantName || matchesPhone
-  })
+  return list
 })
 
-const totalPages = computed(() =>
-  Math.max(1, Math.ceil(filteredApplications.value.length / itemsPerPage)),
+const groupedApplicants = computed(() =>
+  sortGroupedApplicants(
+    groupApplicationsByApplicant(filteredApplications.value),
+    applicationDateSort.value,
+  ),
 )
 
-const paginatedApplications = computed(() => {
+const totalPages = computed(() =>
+  Math.max(1, Math.ceil(groupedApplicants.value.length / itemsPerPage)),
+)
+
+const paginatedApplicants = computed(() => {
   const start = (currentPage.value - 1) * itemsPerPage
   const end = start + itemsPerPage
 
-  return filteredApplications.value.slice(start, end)
+  return groupedApplicants.value.slice(start, end)
 })
-
-const paginationFrom = computed(() => {
-  if (filteredApplications.value.length === 0) return 0
-
-  return (currentPage.value - 1) * itemsPerPage + 1
-})
-
-const paginationTo = computed(() =>
-  Math.min(currentPage.value * itemsPerPage, filteredApplications.value.length),
-)
 
 type PaginationItem = number | 'ellipsis'
 
@@ -554,6 +607,36 @@ watch(searchQuery, () => {
   currentPage.value = 1
 })
 
+function toggleDateSortMenu() {
+  showDateSortMenu.value = !showDateSortMenu.value
+}
+
+function setApplicationDateSort(sort: ApplicationDateSort) {
+  applicationDateSort.value = sort
+  showDateSortMenu.value = false
+  currentPage.value = 1
+}
+
+function onDateSortDocumentClick(event: MouseEvent) {
+  if (!showDateSortMenu.value) return
+
+  const target = event.target as Node
+
+  if (dateSortMenuRef.value?.contains(target)) return
+
+  showDateSortMenu.value = false
+}
+
+watch(showDateSortMenu, (open) => {
+  if (!import.meta.client) return
+
+  if (open) {
+    document.addEventListener('click', onDateSortDocumentClick)
+  } else {
+    document.removeEventListener('click', onDateSortDocumentClick)
+  }
+})
+
 watch(totalPages, (total) => {
   if (currentPage.value > total) {
     currentPage.value = total
@@ -569,14 +652,50 @@ const formatDate = (date: Date | string): string => {
   return `${day}/${month}/${year}`
 }
 
-const cvFileName = (application: JobApplication) => {
-  const base = application.applicantName
+const cvFileName = (candidate: { applicantName: string }) => {
+  const base = candidate.applicantName
     .trim()
     .toLowerCase()
     .replace(/\s+/g, '-')
     .replace(/[^a-z0-9-]/gi, '')
 
   return base ? `cv-${base}.pdf` : 'cv.pdf'
+}
+
+async function handleStatusChange(
+  application: JobApplication,
+  payload: { status: string; statusMessage?: string },
+) {
+  updatingStatusId.value = application.id
+
+  try {
+    await $api.job.updateApplicationStatus(application.id, payload)
+    application.status = payload.status
+    if (payload.statusMessage !== undefined) {
+      application.statusNote = payload.statusMessage || null
+    }
+    useNotify({
+      type: 'success',
+      message: t('dashboard.applicationStatus.updateSuccess'),
+    })
+  } catch (error: any) {
+    useNotify({
+      type: 'error',
+      message: error?.message || t('dashboard.applicationStatus.updateFailed'),
+    })
+  } finally {
+    updatingStatusId.value = null
+  }
+}
+
+async function handleDialogStatusChange(
+  applicationId: number,
+  payload: { status: string; statusMessage?: string },
+) {
+  const application = applications.value.find((app) => app.id === applicationId)
+  if (!application) return
+
+  await handleStatusChange(application, payload)
 }
 
 const fetchApplications = async () => {
@@ -597,11 +716,14 @@ const fetchApplications = async () => {
         id: app.id,
         jobTitle: app.jobTitle,
         jobId: app.jobId,
+        userId: app.userId,
         applicantName: app.applicantName,
         phone: app.phone || '',
         email: app.email,
         cvUrl: app.cvUrl,
         coverLetterText: app.coverLetterText ?? app.cover_letter_text ?? null,
+        status: app.status || 'SUBMITTED',
+        statusNote: app.statusNote ?? null,
         applicationDate: app.applicationDate,
       }))
     } else {
@@ -618,18 +740,26 @@ const fetchApplications = async () => {
   }
 }
 
-const openCandidateDialog = (application: JobApplication) => {
-  selectedApplicantEmail.value = application.email
+const viewCandidate = (candidate: GroupedApplicantRow<JobApplication>) => {
+  selectedApplicantGroupKey.value = candidate.groupKey
   showCandidateDialog.value = true
 }
 
 const closeCandidateDialog = () => {
   showCandidateDialog.value = false
-  selectedApplicantEmail.value = null
+  selectedApplicantGroupKey.value = null
 }
 
-const viewApplication = (application: JobApplication) => {
-  openCandidateDialog(application)
+function openDeleteModalById(applicationId: number) {
+  const application = applications.value.find((app) => app.id === applicationId)
+  if (!application) return
+
+  openDeleteModal(application)
+}
+
+const openDeleteModal = (application: JobApplication) => {
+  applicationPendingDelete.value = application
+  showDeleteModal.value = true
 }
 
 function onDialogKeydown(event: KeyboardEvent) {
@@ -655,12 +785,8 @@ onUnmounted(() => {
 
   document.body.style.overflow = ''
   window.removeEventListener('keydown', onDialogKeydown)
+  document.removeEventListener('click', onDateSortDocumentClick)
 })
-
-const openDeleteModal = (application: JobApplication) => {
-  applicationPendingDelete.value = application
-  showDeleteModal.value = true
-}
 
 const closeDeleteModal = () => {
   if (deletingApplicationId.value !== null) return
@@ -681,7 +807,7 @@ const confirmDeleteApplication = async () => {
       (app) => app.id !== application.id,
     )
 
-    if (paginatedApplications.value.length === 0 && currentPage.value > 1) {
+    if (paginatedApplicants.value.length === 0 && currentPage.value > 1) {
       currentPage.value--
     }
 
@@ -694,9 +820,9 @@ const confirmDeleteApplication = async () => {
     applicationPendingDelete.value = null
 
     if (
-      selectedApplicantEmail.value
+      selectedApplicantGroupKey.value
       && !applications.value.some(
-        (app) => app.email?.toLowerCase() === selectedApplicantEmail.value?.toLowerCase(),
+        (app) => belongsToApplicantGroup(app, selectedApplicantGroupKey.value!),
       )
     ) {
       closeCandidateDialog()

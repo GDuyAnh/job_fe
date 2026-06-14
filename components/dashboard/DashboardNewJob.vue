@@ -1,7 +1,7 @@
 <template>
   <div ref="jobFormRootRef" class="page-dashboard-newjob page-job-upload">
-    <!-- Trang standalone: title + description (drawer admin/company có header riêng) -->
-    <div v-if="!isAdminJobContext" class="mb-6">
+    <!-- Trang standalone: title + description (drawer có header riêng) -->
+    <div v-if="!embeddedInDrawer" class="mb-6">
       <h1 class="text-3xl font-bold text-gray-900">
         {{ $t('dashboard.sidebar.newJob') }}
       </h1>
@@ -90,13 +90,15 @@
                 >
                   <v-select
                     v-model="categoryForSelect"
-                    :options="categoryItemsWithoutAll"
+                    :options="categoryItemsSearchable"
                     :append-to-body="true"
                     multiple
+                    searchable
                     class="w-full text-sm"
                     :placeholder="$t('job.uploadJob.chooseCategory')"
                     label="label"
                     :disabled="isFormDisabled"
+                    :clear-search-on-blur="() => true"
                     @open="onMultiSelectOpen"
                     @close="onMultiSelectClose"
                     @update:model-value="jobErrors.category = ''"
@@ -322,13 +324,15 @@
                   <v-select
                     id="job-location"
                     v-model="locationForSelect"
-                    :options="locationItemsWithoutAll"
+                    :options="locationSelectItems"
                     :append-to-body="true"
                     multiple
+                    searchable
                     class="w-full text-sm"
                     :placeholder="$t('job.uploadJob.chooseLocation')"
                     label="label"
                     :disabled="isFormDisabled"
+                    :clear-search-on-blur="() => true"
                     @open="onMultiSelectOpen"
                     @close="onMultiSelectClose"
                     @update:model-value="jobErrors.location = ''"
@@ -368,25 +372,27 @@
                   {{ $t('job.uploadJob.requiredQualificationLabel') }}
                   <span class="text-red-500">{{ $t('job.uploadJob.mandatoryChar') }}</span>
                 </label>
-                <USelect
-                  :items="requiredQualificationItems"
-                  :model-value="job.requiredQualification?.toString() || ''"
-                  searchable
-                  :placeholder="$t('job.uploadJob.requiredQualificationLabel')"
-                  :content="{ side: 'bottom' }"
-                  :ui="{
-                    base: jobControlUiBase + fieldErrorRingClass(jobErrors.requiredQualification),
-                    content: 'z-[9999]',
-                  }"
-                  class="w-full text-sm"
-                  :disabled="isFormDisabled"
-                  @update:model-value="
-                    (val) => {
-                      job.requiredQualification = Number(val ?? 0)
-                      jobErrors.requiredQualification = ''
-                    }
-                  "
-                />
+                <div
+                  id="job-required-qualification"
+                  class="job-vselect w-full min-w-0"
+                  :class="{ 'job-vselect--error': jobErrors.requiredQualification }"
+                >
+                  <v-select
+                    v-model="requiredQualificationForSelect"
+                    :options="requiredQualificationSelectItems"
+                    :append-to-body="true"
+                    multiple
+                    searchable
+                    class="w-full text-sm"
+                    :placeholder="$t('job.uploadJob.requiredQualificationLabel')"
+                    label="label"
+                    :disabled="isFormDisabled"
+                    :clear-search-on-blur="() => true"
+                    @open="onMultiSelectOpen"
+                    @close="onMultiSelectClose"
+                    @update:model-value="jobErrors.requiredQualification = ''"
+                  />
+                </div>
                 <p v-if="jobErrors.requiredQualification" class="mt-1 text-sm !text-red-500">{{ jobErrors.requiredQualification }}</p>
               </div>
               <div data-job-field="experienceLevel" class="space-y-1.5">
@@ -429,10 +435,12 @@
                     :options="genderItems"
                     :append-to-body="true"
                     multiple
+                    searchable
                     class="w-full text-sm"
                     :placeholder="$t('job.uploadJob.chooseGender')"
                     label="label"
                     :disabled="isFormDisabled"
+                    :clear-search-on-blur="() => true"
                     @open="onMultiSelectOpen"
                     @close="onMultiSelectClose"
                     @update:model-value="jobErrors.gender = ''"
@@ -452,13 +460,15 @@
                   <v-select
                     id="job-benefit"
                     v-model="benefitsForSelect"
-                    :options="jobBenefitsItems"
+                    :options="jobBenefitsSelectItems"
                     :append-to-body="true"
                     multiple
+                    searchable
                     class="w-full text-sm"
                     :placeholder="$t('job.uploadJob.chooseBenefitLevel')"
                     label="label"
                     :disabled="isFormDisabled"
+                    :clear-search-on-blur="() => true"
                     @open="onMultiSelectOpen"
                     @close="onMultiSelectClose"
                     @update:model-value="jobErrors.benefits = ''"
@@ -648,6 +658,8 @@ import { onUnmounted } from 'vue'
 const props = defineProps<{
   companyData: CompanyEntity | null
   jobToEdit?: import('~/models/job').JobModel | null
+  /** Form admin (Quản lý công việc / company-management): hiện Action by admin, optional email/phone */
+  adminMode?: boolean
   /** Khi true (drawer admin add): bắt buộc chọn công ty trước khi gửi */
   requireCompanySelection?: boolean
   /** Form trong drawer — không khóa scroll body (tránh màn trắng + dropdown bị chặn) */
@@ -825,7 +837,7 @@ function calculateFixedDropdownPosition(dropdownList: HTMLElement, component: an
 
 // Enum
 const {
-  categoryItemsWithoutAll,
+  categoryItemsSearchable,
   employmentTypeItems,
   experienceLevelItems,
   locationItemsWithoutAll,
@@ -836,10 +848,33 @@ const {
   gradeItems,
 } = useJobFilters()
 
+const requiredQualificationSelectItems = computed(() =>
+  [...requiredQualificationItems.value].sort((a, b) =>
+    a.label.localeCompare(b.label, 'vi', { sensitivity: 'base' }),
+  ),
+)
+
+const jobBenefitsSelectItems = computed(() =>
+  [...jobBenefitsItems.value].sort((a, b) =>
+    a.label.localeCompare(b.label, 'vi', { sensitivity: 'base' }),
+  ),
+)
+
+/** Tỉnh/thành: giữ "Toàn Quốc" đầu list, sort A→Z phần còn lại. */
+const locationSelectItems = computed(() => {
+  const items = locationItemsWithoutAll.value
+  const nationwide = items.find((item) => item.value === '0')
+  const provinces = items
+    .filter((item) => item.value !== '0')
+    .sort((a, b) => a.label.localeCompare(b.label, 'vi', { sensitivity: 'base' }))
+
+  return nationwide ? [nationwide, ...provinces] : provinces
+})
+
 const job = ref<JobModelAddUpdate>({} as JobModelAddUpdate)
 const isEditMode = computed(() => !!props.jobToEdit)
-/** Add/edit từ admin (company-management Tab Jobs hoặc Quản lý công việc): bỏ auto-fill, optional email/phone, note = admin */
-const isAdminJobContext = computed(() => !!props.companyData || !!props.requireCompanySelection)
+/** Add/edit từ admin: bỏ auto-fill, optional email/phone, note = admin */
+const isAdminJobContext = computed(() => !!props.adminMode)
 /** Disable all form fields when requireCompanySelection is true and no company is selected */
 const isFormDisabled = computed(
   () => props.requireCompanySelection && !props.companyData?.id,
@@ -884,7 +919,7 @@ const benefitsForSelect = computed({
       .map(b => {
         const value = typeof b === 'object' && b !== null && 'value' in b ? (b as { value: string }).value : String(b)
 
-        return jobBenefitsItems.value.find(item => item.value === value) || { label: value, value }
+        return jobBenefitsSelectItems.value.find(item => item.value === value) || { label: value, value }
       })
   },
   set: (val: any[]) => {
@@ -892,6 +927,43 @@ const benefitsForSelect = computed({
       ? val.map(v => typeof v === 'object' && v !== null && 'value' in v ? (v as { value: string }).value : String(v))
       : []
   }
+})
+
+// Computed property for v-select required qualification (convert between string[] and object[])
+const requiredQualificationForSelect = computed({
+  get: () => {
+    if (
+      !job.value.requiredQualification ||
+      !Array.isArray(job.value.requiredQualification)
+    ) {
+      return []
+    }
+
+    return job.value.requiredQualification
+      .filter((q) => q)
+      .map((q) => {
+        const value =
+          typeof q === 'object' && q !== null && 'value' in q
+            ? (q as { value: string }).value
+            : String(q)
+
+        return (
+          requiredQualificationSelectItems.value.find((item) => item.value === value) || {
+            label: value,
+            value,
+          }
+        )
+      })
+  },
+  set: (val: any[]) => {
+    job.value.requiredQualification = val
+      ? val.map((v) =>
+          typeof v === 'object' && v !== null && 'value' in v
+            ? (v as { value: string }).value
+            : String(v),
+        )
+      : []
+  },
 })
 
 // Computed property for v-select gender (convert between string[] and object[])
@@ -934,7 +1006,9 @@ const convertJobModelToAddUpdate = (jobModel: import('~/models/job').JobModel): 
     location: jobModel.location ? jobModel.location.split(',').map(l => l.trim()).filter(l => l) : undefined,
     typeOfEmployment: Number(jobModel.typeOfEmployment),
     experienceLevel: Number(jobModel.experienceLevel),
-    requiredQualification: Number(jobModel.requiredQualification),
+    requiredQualification: jobModel.requiredQualification
+      ? jobModel.requiredQualification.split(',').map((q) => q.trim()).filter(Boolean)
+      : undefined,
     gender: jobModel.gender ? jobModel.gender.split(',').map(g => g.trim()).filter(g => g) : undefined,
     grade: jobModel.grade ? Number(jobModel.grade) : undefined,
     companyId: jobModel.companyId,
@@ -966,7 +1040,7 @@ const categoryForSelect = computed({
       .map(c => {
         const value = typeof c === 'object' && c !== null && 'value' in c ? (c as { value: string }).value : String(c)
 
-        return categoryItemsWithoutAll.value.find(item => item.value === value) || { label: value, value }
+        return categoryItemsSearchable.value.find(item => item.value === value) || { label: value, value }
       })
   },
   set: (val: any[]) => {
@@ -985,7 +1059,7 @@ const locationForSelect = computed({
       .map(l => {
         const value = typeof l === 'object' && l !== null && 'value' in l ? (l as { value: string }).value : String(l)
 
-        return locationItemsWithoutAll.value.find(item => item.value === value) || { label: value, value }
+        return locationSelectItems.value.find(item => item.value === value) || { label: value, value }
       })
   },
   set: (val: any[]) => {
@@ -1073,30 +1147,6 @@ const formatDateDeadline = (dateStr: string): string => {
   return `${day}/${month}/${year}`
 }
 
-// Min date: today
-const today = new Date()
-
-const minDeadlineDate = computed(() => {
-  return new CalendarDate(
-    today.getFullYear(),
-    today.getMonth() + 1,
-    today.getDate(),
-  )
-})
-
-// Max date: today + 30 days
-const maxDeadlineDate = computed(() => {
-  const maxDate = new Date(today)
-
-  maxDate.setDate(maxDate.getDate() + 30)
-
-  return new CalendarDate(
-    maxDate.getFullYear(),
-    maxDate.getMonth() + 1,
-    maxDate.getDate(),
-  )
-})
-
 // Calendar date binding
 const deadlineCalendarDate = computed({
   get: () => parseDateString(job.value.deadline || null),
@@ -1105,15 +1155,12 @@ const deadlineCalendarDate = computed({
   },
 })
 
-// Function to hide dates outside the allowed range (before today or after 30 days)
-const isDeadlineDateHidden = (date: DateValue): boolean => {
-  const dateToCheck = new CalendarDate(date.year, date.month, date.day)
-  const minDate = minDeadlineDate.value
-  const maxDate = maxDeadlineDate.value
-
-  // Hide dates before today or after maxDate (today + 30 days)
-  return dateToCheck.compare(minDate) < 0 || dateToCheck.compare(maxDate) > 0
-}
+const {
+  minDeadlineDate,
+  maxDeadlineDate,
+  isDeadlineDateHidden,
+  isDeadlineTooEarly,
+} = useJobDeadlineDate()
 
 // Initialize
 onMounted(() => {
@@ -1229,6 +1276,19 @@ const addJob = async () => {
       locationString = job.value.location
     }
 
+    // Convert requiredQualification array to comma-separated string before sending
+    let requiredQualificationString = ''
+
+    if (Array.isArray(job.value.requiredQualification)) {
+      requiredQualificationString = job.value.requiredQualification
+        .filter((q) => q != null && q !== '')
+        .map((q) => String(q).trim())
+        .filter((q) => q)
+        .join(',')
+    } else if (typeof job.value.requiredQualification === 'string') {
+      requiredQualificationString = job.value.requiredQualification
+    }
+
     const jobDataToSend: any = {
       ...job.value,
       detailDescription: job.value.detailDescription ?? '',
@@ -1236,9 +1296,12 @@ const addJob = async () => {
       category: categoryString,
       gender: genderString || undefined,
       location: locationString || undefined,
+      requiredQualification: requiredQualificationString || undefined,
       salaryMin: job.value.salaryMin ? unformatCurrency(job.value.salaryMin) : undefined,
       salaryMax: job.value.salaryMax ? unformatCurrency(job.value.salaryMax) : undefined,
-      postType: job.value.postType || 'Basic',
+      postType: isAdminJobContext.value
+        ? (job.value.postType || 'Basic')
+        : (isEditMode.value ? (job.value.postType || 'Basic') : 'Basic'),
       // note chỉ set khi tạo mới (admin add vs user add); khi update giữ nguyên giá trị cũ
       note: isEditMode.value ? (job.value.note || props.jobToEdit?.note || 'user') : (isAdminJobContext.value ? 'admin' : 'user'),
     }
@@ -1443,6 +1506,9 @@ function validateJobFields(): boolean {
   if (!job.value.deadline) {
     jobErrors.value.deadline = 'Vui lòng chọn hạn nộp hồ sơ.'
     isValid = false
+  } else if (isDeadlineTooEarly(job.value.deadline)) {
+    jobErrors.value.deadline = 'Hạn nộp không được sớm hơn ngày đăng.'
+    isValid = false
   }
 
   if (!job.value.category || (Array.isArray(job.value.category) && job.value.category.length === 0)) {
@@ -1509,8 +1575,12 @@ function validateJobFields(): boolean {
   }
 
   // Required qualification validation - required
-  if (!job.value.requiredQualification || job.value.requiredQualification === 0) {
-    jobErrors.value.requiredQualification = 'Vui lòng chọn trình độ học vấn yêu cầu.'
+  if (
+    !job.value.requiredQualification ||
+    !Array.isArray(job.value.requiredQualification) ||
+    job.value.requiredQualification.length === 0
+  ) {
+    jobErrors.value.requiredQualification = 'Vui lòng chọn bằng cấp.'
     isValid = false
   }
 

@@ -5,7 +5,7 @@
       :class="{
         'employer-admin-overview-page': activeView === 'adminDashboard',
         'employer-candidates-page': activeView === 'adminCandidates',
-        'employer-settings-page': activeView === 'adminSettings',
+        'employer-settings-page': activeView === 'adminSettings' || activeView === 'adminEmailSettings',
       }"
     >
       <aside class="employer-sidebar employer-sidebar-with-footer">
@@ -95,6 +95,17 @@
             </span>
             <span>{{ $t('dashboard.sidebar.adminSettings') }}</span>
           </button>
+          <button
+            type="button"
+            class="employer-sidebar-link"
+            :class="{ 'is-active': activeView === 'adminEmailSettings' }"
+            @click="setActiveView('adminEmailSettings')"
+          >
+            <span class="employer-sidebar-link-icon" aria-hidden="true">
+              <UIcon name="i-lucide-mail" class="size-[22px]" />
+            </span>
+            <span>{{ $t('dashboard.sidebar.adminEmailSettings') }}</span>
+          </button>
         </nav>
 
         <div class="employer-sidebar-bottom">
@@ -120,7 +131,7 @@
       >
         <div
           class="employer-admin-scroll"
-          :class="{ 'is-admin-settings-scroll': activeView === 'adminSettings' }"
+          :class="{ 'is-admin-settings-scroll': activeView === 'adminSettings' || activeView === 'adminEmailSettings' }"
         >
           <header class="employer-dashboard-topbar">
             <div class="employer-topbar-company">
@@ -178,6 +189,8 @@
             <DashboardAdminImportExcel v-else-if="activeView === 'adminImportExcel'" />
 
             <DashboardAdminSettings v-else-if="activeView === 'adminSettings'" />
+
+            <DashboardAdminEmailSettings v-else-if="activeView === 'adminEmailSettings'" />
             </div>
         </div>
       </div>
@@ -207,6 +220,7 @@ type AdminView =
   | 'adminUsers'
   | 'adminBlogs'
   | 'adminSettings'
+  | 'adminEmailSettings'
   | 'adminImportExcel'
 
 const route = useRoute()
@@ -223,6 +237,7 @@ const validViews: AdminView[] = [
   'adminUsers',
   'adminBlogs',
   'adminSettings',
+  'adminEmailSettings',
   'adminImportExcel',
 ]
 

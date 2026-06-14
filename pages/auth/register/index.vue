@@ -97,6 +97,9 @@
                   v-model="formState[activeTab === 'candidate' ? 'fullName' : 'taxCode']"
                   class="w-full rounded-xl text-base"
                   :placeholder="activeTab === 'candidate' ? '氏名 (Họ và tên)' : '納税者番号 (Mã số thuế)'"
+                  :inputmode="activeTab === 'employer' ? 'numeric' : undefined"
+                  @input="onRegisterNameInput"
+                  @blur="onRegisterNameBlur"
                 >
                   <template #trailing>
                     <svg
@@ -115,6 +118,27 @@
                   </template>
                 </app-input>
               </app-form-field>
+              <p
+                v-if="activeTab === 'candidate' && fullNameBlurError"
+                class="text-error text-xs px-2.5 -mt-1"
+                role="alert"
+              >
+                {{ fullNameBlurError }}
+              </p>
+              <p
+                v-if="activeTab === 'employer' && mstChecking"
+                class="text-xs px-2.5 -mt-1 text-gray-500"
+              >
+                Đang kiểm tra...
+              </p>
+              <p
+                v-else-if="activeTab === 'employer' && mstBlurMessage"
+                class="text-xs px-2.5 -mt-1"
+                :class="mstBlurSuccess ? 'text-green-600' : 'text-error'"
+                role="alert"
+              >
+                {{ mstBlurMessage }}
+              </p>
 
               <app-form-field name="email" required>
                 <app-input
@@ -204,6 +228,12 @@
 import type { FormSubmitEvent } from '@nuxt/ui'
 import { registerSchema, registerCompanySchema, type RegisterType, type RegisterCompanyType } from '~/constants/schema/register'
 import { useRouter } from 'vue-router'
+import {
+  handleAuthFullNameInput,
+  validateAuthFullName,
+} from '~/utils/auth-field-validation'
+import { MST_BLUR_MESSAGES } from '~/composables/useEmployerRegistration'
+import { handleMstInput } from '~/utils/mst'
 
 defineComponent({
   name: 'AuthRegister',
@@ -236,6 +266,54 @@ const formState = reactive({
   password: '',
 })
 const loading = ref(false)
+const fullNameBlurError = ref('')
+
+const {
+  message: mstBlurMessage,
+  checking: mstChecking,
+  isSuccess: mstBlurSuccess,
+  isVerified: mstIsVerified,
+  onMstBlur,
+  clearMstBlur,
+  ensureMstChecked,
+} = useMstBlurValidation()
+
+function onRegisterNameInput(event: Event) {
+  if (activeTab.value === 'candidate') {
+    handleAuthFullNameInput(
+      event,
+      (value) => {
+        formState.fullName = value
+      },
+      () => {
+        fullNameBlurError.value = ''
+      },
+    )
+    return
+  }
+
+  handleMstInput(
+    event,
+    (value) => {
+      formState.taxCode = value
+    },
+    clearMstBlur,
+  )
+}
+
+function onRegisterNameBlur() {
+  if (activeTab.value === 'candidate') {
+    fullNameBlurError.value = validateAuthFullName(formState.fullName)
+    return
+  }
+
+  onMstBlur(formState.taxCode)
+}
+
+watch(activeTab, () => {
+  fullNameBlurError.value = ''
+  clearMstBlur()
+})
 
 async function onSubmit(event: FormSubmitEvent<any>) {
   loading.value = true
@@ -253,9 +331,27 @@ async function onSubmit(event: FormSubmitEvent<any>) {
       registerData.fullName = data.fullName
       registerData.role = 1 // USER
     } else {
-      registerData.fullName = data.taxCode // Sử dụng taxCode làm fullName tạm thời
-      registerData.role = 3 // COMPANY
-      registerData.taxCode = data.taxCode
+      await ensureMstChecked(data.taxCode)
+      if (!mstIsVerified.value) {
+        useNotify({
+          type: 'error',
+          message: mstBlurMessage.value || MST_BLUR_MESSAGES.invalid,
+        })
+        return
+      }
+
+      const { registerEmployer } = useEmployerRegistration()
+      await registerEmployer({
+        taxCode: data.taxCode,
+        email: data.email,
+        password: data.password,
+      })
+      useNotify({
+        type: 'success',
+        message: t('auth.registerSuccess'),
+      })
+      await router.push(ROUTE_PAGE.DASHBOARD.COMPANY)
+      return
     }
 
     const response = await authStore.register(registerData)
@@ -278,13 +374,7 @@ async function onSubmit(event: FormSubmitEvent<any>) {
         type: 'success',
         message: t('auth.registerSuccess'),
       })
-
-      // Nếu là nhà tuyển dụng thì chuyển đến dashboard công ty
-      if (activeTab.value === 'employer') {
-        router.push('/companies/dashboard')
-      } else {
-        router.push('/')
-      }
+      router.push('/')
     } else {
       console.log('Registration failed - no response')
       useNotify({

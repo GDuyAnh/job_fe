@@ -41,6 +41,16 @@ export const useJobFilters = () => {
       })),
   ])
 
+  /** Danh sách tỉnh/thành A→Z, không có option placeholder (dùng prop placeholder trên USelect). */
+  const locationItemsSearchable = computed(() =>
+    Object.entries(locationEnumLabel)
+      .map(([key, value]) => ({
+        label: value,
+        value: key,
+      }))
+      .sort((a, b) => a.label.localeCompare(b.label, 'vi', { sensitivity: 'base' })),
+  )
+
   const categoryItems = computed(() => [
     {
       label: t('home.search.placeholderCategory'),
@@ -57,6 +67,16 @@ export const useJobFilters = () => {
       label: value,
       value: key,
     })),
+  )
+
+  /** Bộ môn / lĩnh vực A→Z, không có option placeholder trong list. */
+  const categoryItemsSearchable = computed(() =>
+    Object.entries(categoryEnumLabel)
+      .map(([key, value]) => ({
+        label: value,
+        value: key,
+      }))
+      .sort((a, b) => a.label.localeCompare(b.label, 'vi', { sensitivity: 'base' })),
   )
 
   const employmentTypeItems = computed(() =>
@@ -90,6 +110,16 @@ export const useJobFilters = () => {
       value: key,
     })),
   ])
+
+  /** Loại hình A→Z, không có option placeholder trong list. */
+  const organizationTypeItemsSearchable = computed(() =>
+    Object.entries(organizationTypesLabel)
+      .map(([key, value]) => ({
+        label: value,
+        value: key,
+      }))
+      .sort((a, b) => a.label.localeCompare(b.label, 'vi', { sensitivity: 'base' })),
+  )
 
   const salaryTypeItems = computed(() =>
     Object.entries(salaryTypeLabel).map(([key, value]) => ({
@@ -137,9 +167,12 @@ export const useJobFilters = () => {
     jobBenefits,
     jobBenefitsItems,
     locationItemsWithoutAll,
+    locationItemsSearchable,
     categoryItemsWithoutAll,
+    categoryItemsSearchable,
     organizationTypesLabel,
     organizationTypeItems,
+    organizationTypeItemsSearchable,
     salaryTypeLabel,
     salaryTypeItems,
     genderLabel,

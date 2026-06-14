@@ -269,6 +269,17 @@
     color 0.2s ease;
 }
 
+.apply-chip.is-applied {
+  opacity: 1 !important;
+  transform: none !important;
+  pointer-events: none;
+  cursor: not-allowed;
+  color: #64748b;
+  background: #e8ecf4;
+  border-color: rgba(148, 163, 184, 0.35);
+  box-shadow: none;
+}
+
 .apply-chip:not(.apply-chip-urgent) {
   opacity: 0;
   transform: translateX(6px);

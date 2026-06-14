@@ -78,7 +78,7 @@
         <div v-if="showBackLink" class="blog-detail-back">
           <NuxtLink to="/blog">
             <UIcon name="i-lucide-arrow-left" class="w-4 h-4" />
-            Quay lại danh sách blog
+            Quay lại
           </NuxtLink>
         </div>
       </div>

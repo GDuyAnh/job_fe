@@ -154,14 +154,14 @@ const goDashboard = (path: string, query?: Record<string, any>) => {
   router.push({ path, query: query ?? {} })
 }
 
-const overviewDashboardTarget = computed(() => {
+const accountPageTarget = computed(() => {
   if (isAdmin.value) {
-    return { path: ROUTE_PAGE.DASHBOARD.ADMIN, query: { view: 'adminDashboard' } }
+    return { path: ROUTE_PAGE.DASHBOARD.ADMIN, query: { view: 'adminSettings' } }
   }
   if (isCompany.value) {
-    return { path: ROUTE_PAGE.DASHBOARD.COMPANY, query: { view: 'dashboard' } }
+    return { path: ROUTE_PAGE.DASHBOARD.COMPANY, query: { view: 'settings' } }
   }
-  return { path: ROUTE_PAGE.DASHBOARD.USER, query: { view: 'dashboard' } }
+  return { path: ROUTE_PAGE.DASHBOARD.USER, query: { view: 'editProfile' } }
 })
 
 const userDropdownItems = computed(() => {
@@ -169,10 +169,10 @@ const userDropdownItems = computed(() => {
 
   items.push([
     {
-      label: 'Tổng quan',
-      icon: 'i-lucide-layout-dashboard',
+      label: 'Thông tin tài khoản',
+      icon: 'i-lucide-user',
       onSelect: () =>
-        goDashboard(overviewDashboardTarget.value.path, overviewDashboardTarget.value.query),
+        goDashboard(accountPageTarget.value.path, accountPageTarget.value.query),
     },
   ])
 

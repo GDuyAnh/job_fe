@@ -1,6 +1,6 @@
 <template>
   <div
-    class="rich-text-editor overflow-hidden rounded-xl border border-slate-200/90 bg-white shadow-sm"
+    class="rich-text-editor rounded-xl border border-slate-200/90 bg-white shadow-sm"
   >
     <div
       class="editor-toolbar flex flex-wrap gap-2 border-b border-slate-200/80 bg-slate-50/90 p-2"
@@ -98,9 +98,7 @@
         <UIcon name="i-lucide-code" class="w-4 h-4" />
       </UButton>
     </div>
-    <div
-      class="editor-content bg-white"
-    >
+    <div class="editor-content bg-white">
       <EditorContent :editor="editor" />
     </div>
   </div>
@@ -148,7 +146,7 @@ const editor = useEditor({
   editorProps: {
     attributes: {
       class:
-        'prose prose-sm sm:prose lg:prose-lg xl:prose-2xl mx-auto max-w-none min-h-[200px] p-4 text-slate-900 focus:outline-none prose-p:text-slate-900 prose-headings:text-slate-900',
+        'prose prose-sm sm:prose lg:prose-lg xl:prose-2xl mx-auto max-w-none min-h-full p-4 text-slate-900 focus:outline-none prose-p:text-slate-900 prose-headings:text-slate-900',
     },
   },
 })
@@ -184,9 +182,17 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
+.editor-content {
+  resize: vertical;
+  overflow: auto;
+  min-height: 200px;
+}
+
 :deep(.ProseMirror) {
   outline: none;
   color: rgb(15 23 42);
+  min-height: 100%;
+  box-sizing: border-box;
 }
 
 :deep(.ProseMirror[contenteditable='false']) {

@@ -138,6 +138,7 @@
                   class="w-full"
                   :class="{ 'border-red-500': jobErrors.deadline }"
                   type="date"
+                  :min="minDeadlineInputValue"
                   @input="jobErrors.deadline = ''"
                 />
                 <p v-if="jobErrors.deadline" class="text-red-500 text-sm mt-1">
@@ -425,9 +426,9 @@
                 </div>
 
                 <!-- Job required qualification Level -->
-                <div>
+                <div id="job-required-qualification">
                   <label
-                    for="job-title"
+                    for="job-required-qualification"
                     class="font-medium text-sm text-gray-700"
                   >
                     {{ $t('job.uploadJob.requiredQualificationLabel') }}
@@ -435,22 +436,15 @@
                       $t('job.uploadJob.mandatoryChar')
                     }}</span>
                   </label>
-                  <USelect
-                    :items="requiredQualificationItems"
-                    :model-value="job.requiredQualification?.toString() || ''"
+                  <v-select
+                    v-model="requiredQualificationForSelect"
+                    :options="requiredQualificationItems"
+                    multiple
                     class="w-full text-sm"
                     :class="{ 'border-red-500': jobErrors.requiredQualification }"
-                    searchable
-                    :placeholder="
-                      $t('job.uploadJob.requiredQualificationLabel')
-                    "
-                    :content="{ side: 'bottom' }"
-                    @update:model-value="
-                      (val) => {
-                        job.requiredQualification = Number(val ?? 0)
-                        jobErrors.requiredQualification = ''
-                      }
-                    "
+                    :placeholder="$t('job.uploadJob.requiredQualificationLabel')"
+                    label="label"
+                    @update:model-value="jobErrors.requiredQualification = ''"
                   />
                   <p v-if="jobErrors.requiredQualification" class="!text-red-500 text-sm mt-1">
                     {{ jobErrors.requiredQualification }}
@@ -638,6 +632,10 @@ import { JobMapper } from '~/mapper/job'
 import type { JobModelAddUpdate } from '~/models/job'
 import RichTextEditor from '~/components/RichTextEditor.vue'
 const authStore = useAuthStore()
+const {
+  minDeadlineInputValue,
+  isDeadlineTooEarly,
+} = useJobDeadlineDate()
 const stepper = useTemplateRef('stepper')
 const steppers = ref<StepperItem[]>([
   {
@@ -744,6 +742,53 @@ const benefitsForSelect = computed({
       ? val.map(v => typeof v === 'object' && v !== null && 'value' in v ? (v as { value: string }).value : String(v))
       : []
   }
+})
+
+// Computed property for v-select required qualification (convert between string[] and object[])
+const requiredQualificationForSelect = computed({
+  get: () => {
+    let qualificationArray: string[] = []
+
+    if (job.value.requiredQualification) {
+      if (Array.isArray(job.value.requiredQualification)) {
+        qualificationArray = job.value.requiredQualification as string[]
+      } else if (typeof job.value.requiredQualification === 'string') {
+        qualificationArray = (job.value.requiredQualification as string)
+          .split(',')
+          .map((q: string) => q.trim())
+          .filter((q: string) => q)
+      } else if (typeof job.value.requiredQualification === 'number') {
+        qualificationArray = [String(job.value.requiredQualification)]
+      }
+    }
+
+    if (qualificationArray.length === 0) return []
+
+    return qualificationArray
+      .filter((q: string) => q)
+      .map((q: string) => {
+        const value =
+          typeof q === 'object' && q !== null && 'value' in q
+            ? (q as { value: string }).value
+            : String(q)
+
+        return (
+          requiredQualificationItems.value.find((item) => item.value === value) || {
+            label: value,
+            value,
+          }
+        )
+      })
+  },
+  set: (val: any[]) => {
+    job.value.requiredQualification = val
+      ? val.map((v) =>
+          typeof v === 'object' && v !== null && 'value' in v
+            ? (v as { value: string }).value
+            : String(v),
+        )
+      : []
+  },
 })
 
 // Computed property for v-select gender (convert between string[] and object[])
@@ -865,6 +910,9 @@ function validateJobFields(): boolean {
   if (!job.value.deadline) {
     jobErrors.value.deadline = 'Vui lòng chọn hạn nộp hồ sơ.'
     isValid = false
+  } else if (isDeadlineTooEarly(job.value.deadline)) {
+    jobErrors.value.deadline = 'Hạn nộp không được sớm hơn ngày đăng.'
+    isValid = false
   }
 
   if (!job.value.category || (Array.isArray(job.value.category) && job.value.category.length === 0)) {
@@ -929,8 +977,12 @@ function validateJobFields(): boolean {
   }
 
   // Required qualification validation - required
-  if (!job.value.requiredQualification || job.value.requiredQualification === 0) {
-    jobErrors.value.requiredQualification = 'Vui lòng chọn trình độ học vấn yêu cầu.'
+  if (
+    !job.value.requiredQualification ||
+    !Array.isArray(job.value.requiredQualification) ||
+    job.value.requiredQualification.length === 0
+  ) {
+    jobErrors.value.requiredQualification = 'Vui lòng chọn bằng cấp.'
     isValid = false
   }
 
@@ -1072,6 +1124,19 @@ const editJob = async () => {
       locationString = job.value.location
     }
 
+    // Convert requiredQualification array to comma-separated string before sending
+    let requiredQualificationString = ''
+
+    if (Array.isArray(job.value.requiredQualification)) {
+      requiredQualificationString = job.value.requiredQualification
+        .filter((q) => q != null && q !== '')
+        .map((q) => String(q).trim())
+        .filter((q) => q)
+        .join(',')
+    } else if (typeof job.value.requiredQualification === 'string') {
+      requiredQualificationString = job.value.requiredQualification
+    }
+
     // Ensure salary values are unformatted (no commas) before sending
     const jobDataToSend: any = {
       ...job.value,
@@ -1080,6 +1145,7 @@ const editJob = async () => {
       category: categoryString,
       gender: genderString || undefined,
       location: locationString || undefined,
+      requiredQualification: requiredQualificationString || undefined,
       salaryMin: job.value.salaryMin ? unformatCurrency(job.value.salaryMin) : undefined,
       salaryMax: job.value.salaryMax ? unformatCurrency(job.value.salaryMax) : undefined,
     }

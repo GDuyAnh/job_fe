@@ -36,9 +36,6 @@ const UsersModule = (apiService: FetchFactory) => {
     confirmPassword: string
   }) => apiService.put('/users/change-password', { body })
 
-  const deleteAccount = async (body: { password: string }) =>
-    apiService.delete('/users/account', { body })
-
   const getAllUsers = async (params?: { companyId?: number }) =>
     apiService.get<UserEntity[]>('/users/admin/all', { params })
 
@@ -65,7 +62,6 @@ const UsersModule = (apiService: FetchFactory) => {
     findAll,
     updateProfile,
     changePassword,
-    deleteAccount,
     getAllUsers,
     upgradeToCompanyUser,
     setHostCompany,

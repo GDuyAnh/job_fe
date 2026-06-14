@@ -1,9 +1,82 @@
 <template>
   <form class="apply-modal-form" @submit.prevent="submit">
     <section class="apply-profile-section">
+      <div class="apply-profile-editor-grid">
+        <label
+          class="apply-modal-field"
+          :class="{ 'has-error': fieldErrors.fullName }"
+        >
+          <span>Tên của bạn <span class="is-required">*</span></span>
+          <input
+            v-model="form.fullName"
+            type="text"
+            :disabled="isFullNameDisabled"
+            @input="onFullNameInput"
+            @blur="validateFieldOnBlur('fullName')"
+          />
+          <p v-if="fieldErrors.fullName" class="apply-modal-field-error" role="alert">
+            {{ fieldErrors.fullName }}
+          </p>
+        </label>
+
+        <label
+          class="apply-modal-field"
+          :class="{ 'has-error': fieldErrors.email }"
+        >
+          <span>Email <span class="is-required">*</span></span>
+          <input
+            v-model="form.email"
+            type="email"
+            :disabled="isEmailDisabled"
+            @blur="validateFieldOnBlur('email')"
+            @input="clearFieldError('email')"
+          />
+          <p v-if="fieldErrors.email" class="apply-modal-field-error" role="alert">
+            {{ fieldErrors.email }}
+          </p>
+        </label>
+
+        <label
+          class="apply-modal-field"
+          :class="{ 'has-error': fieldErrors.phone }"
+        >
+          <span>Số điện thoại <span class="is-required">*</span></span>
+          <input
+            v-model="form.phone"
+            type="tel"
+            :disabled="isPhoneDisabled"
+            @blur="validateFieldOnBlur('phone')"
+            @input="clearFieldError('phone')"
+          />
+          <p v-if="fieldErrors.phone" class="apply-modal-field-error" role="alert">
+            {{ fieldErrors.phone }}
+          </p>
+        </label>
+      </div>
+    </section>
+
+    <section class="apply-profile-section">
       <div class="apply-profile-section-head">
         <div>
-          <h3>CV của bạn</h3>
+          <h3>Cover Letter</h3>
+        </div>
+      </div>
+
+      <label class="apply-modal-field apply-modal-field-textarea apply-profile-cover-field">
+        <textarea
+          v-model="form.coverLetter"
+          rows="7"
+          maxlength="1000"
+          placeholder="Viết vài dòng ngắn gọn về kinh nghiệm, thế mạnh và lý do bạn phù hợp với vị trí này."
+        />
+        <small>{{ coverLetterCount }} / 1000</small>
+      </label>
+    </section>
+
+    <section class="apply-profile-section">
+      <div class="apply-profile-section-head">
+        <div>
+          <h3>Tải lên CV</h3>
         </div>
       </div>
 
@@ -70,61 +143,6 @@
       <p v-if="cvError" class="apply-modal-field-error">{{ cvError }}</p>
     </section>
 
-    <section class="apply-profile-section">
-      <div class="apply-profile-section-head">
-        <div>
-          <h3>Thông tin cá nhân</h3>
-        </div>
-      </div>
-
-      <div class="apply-profile-editor-grid">
-        <label class="apply-modal-field">
-          <span>Tên đầy đủ</span>
-          <input
-            v-model="form.fullName"
-            type="text"
-            :disabled="isFullNameDisabled"
-          />
-        </label>
-
-        <label class="apply-modal-field">
-          <span>Email</span>
-          <input
-            v-model="form.email"
-            type="email"
-            :disabled="isEmailDisabled"
-          />
-        </label>
-
-        <label class="apply-modal-field apply-modal-field-wide">
-          <span>Số điện thoại</span>
-          <input
-            v-model="form.phone"
-            type="tel"
-            :disabled="isPhoneDisabled"
-          />
-        </label>
-      </div>
-    </section>
-
-    <section class="apply-profile-section">
-      <div class="apply-profile-section-head">
-        <div>
-          <h3>Cover Letter (Không bắt buộc)</h3>
-        </div>
-      </div>
-
-      <label class="apply-modal-field apply-modal-field-textarea apply-profile-cover-field">
-        <textarea
-          v-model="form.coverLetter"
-          rows="7"
-          maxlength="1000"
-          placeholder="Viết vài dòng ngắn gọn về kinh nghiệm, thế mạnh và lý do bạn phù hợp với vị trí này."
-        />
-        <small>{{ coverLetterCount }} / 1000</small>
-      </label>
-    </section>
-
     <div class="apply-modal-actions">
       <button type="button" class="white-btn apply-modal-cancel" @click="emitCancel">
         Hủy
@@ -132,15 +150,22 @@
       <button
         type="submit"
         class="primary-btn apply-modal-submit"
-        :disabled="!isValid || submitting"
+        :disabled="!isValid || loading"
       >
-        Lưu
+        Nộp đơn
       </button>
     </div>
   </form>
 </template>
 
 <script setup lang="ts">
+import {
+  handleAuthFullNameInput,
+  validateAuthEmail,
+  validateAuthFullName,
+  validateAuthPhone,
+} from '~/utils/auth-field-validation'
+
 interface Props {
   userInfo?: {
     fullName: string
@@ -150,6 +175,7 @@ interface Props {
     coverLetterText?: string | null
     coverLetterUrl?: string | null
   } | null
+  loading?: boolean
 }
 
 interface Emits {
@@ -166,12 +192,18 @@ interface Emits {
   (e: 'cancel'): void
 }
 
-const props = defineProps<Props>()
+const props = withDefaults(defineProps<Props>(), {
+  loading: false,
+})
 const emit = defineEmits<Emits>()
-
-const submitting = ref(false)
 const cvInput = ref<HTMLInputElement | null>(null)
 const cvError = ref('')
+
+const fieldErrors = reactive({
+  fullName: '',
+  email: '',
+  phone: '',
+})
 
 const form = reactive({
   fullName: '',
@@ -183,9 +215,20 @@ const form = reactive({
   coverLetterUrl: null as string | null,
 })
 
-const isFullNameDisabled = computed(() => !!props.userInfo?.fullName)
-const isEmailDisabled = computed(() => !!props.userInfo?.email)
-const isPhoneDisabled = computed(() => !!props.userInfo?.phone)
+const isFullNameDisabled = computed(() => {
+  const value = props.userInfo?.fullName?.trim() || ''
+  return !!value && validateAuthFullName(value) === ''
+})
+
+const isEmailDisabled = computed(() => {
+  const value = props.userInfo?.email?.trim() || ''
+  return !!value && validateAuthEmail(value) === ''
+})
+
+const isPhoneDisabled = computed(() => {
+  const value = props.userInfo?.phone?.trim() || ''
+  return !!value && validateAuthPhone(value) === ''
+})
 
 const hasCvFile = computed(() => !!(form.cvFile || form.cvUrl))
 
@@ -207,6 +250,7 @@ const coverLetterCount = computed(() => form.coverLetter.length)
 watch(
   () => props.userInfo,
   (info) => {
+    clearFieldErrors()
     if (!info) return
     form.fullName = info.fullName || ''
     form.email = info.email || ''
@@ -218,14 +262,88 @@ watch(
   { immediate: true },
 )
 
+const hasFormatErrors = () => {
+  const fullNameError = isFullNameDisabled.value
+    ? ''
+    : validateAuthFullName(form.fullName)
+  const emailError = isEmailDisabled.value
+    ? ''
+    : validateAuthEmail(form.email)
+  const phoneError = isPhoneDisabled.value
+    ? ''
+    : validateAuthPhone(form.phone)
+
+  return !!(fullNameError || emailError || phoneError)
+}
+
 const isValid = computed(() => {
   return (
     form.fullName.trim() !== '' &&
     form.email.trim() !== '' &&
     form.phone.trim() !== '' &&
-    (!!form.cvFile || !!form.cvUrl)
+    (!!form.cvFile || !!form.cvUrl) &&
+    !fieldErrors.fullName &&
+    !fieldErrors.email &&
+    !fieldErrors.phone &&
+    !hasFormatErrors()
   )
 })
+
+function clearFieldErrors() {
+  fieldErrors.fullName = ''
+  fieldErrors.email = ''
+  fieldErrors.phone = ''
+}
+
+function clearFieldError(field: keyof typeof fieldErrors) {
+  fieldErrors[field] = ''
+}
+
+function validateFieldOnBlur(field: keyof typeof fieldErrors) {
+  if (field === 'fullName') {
+    if (isFullNameDisabled.value) {
+      fieldErrors.fullName = ''
+      return
+    }
+    fieldErrors.fullName = validateAuthFullName(form.fullName)
+    return
+  }
+
+  if (field === 'email') {
+    if (isEmailDisabled.value) {
+      fieldErrors.email = ''
+      return
+    }
+    fieldErrors.email = validateAuthEmail(form.email)
+    return
+  }
+
+  if (isPhoneDisabled.value) {
+    fieldErrors.phone = ''
+    return
+  }
+  fieldErrors.phone = validateAuthPhone(form.phone)
+}
+
+function validateAllFields() {
+  validateFieldOnBlur('fullName')
+  validateFieldOnBlur('email')
+  validateFieldOnBlur('phone')
+}
+
+function onFullNameInput(event: Event) {
+  if (isFullNameDisabled.value) return
+
+  handleAuthFullNameInput(
+    event,
+    (value) => {
+      form.fullName = value
+    },
+    () => {
+      fieldErrors.fullName = ''
+    },
+  )
+}
 
 function onCvSelected(e: Event) {
   const input = e.target as HTMLInputElement
@@ -261,22 +379,18 @@ function emitCancel() {
   emit('cancel')
 }
 
-async function submit() {
-  if (!isValid.value) return
-  submitting.value = true
-  try {
-    emit('submit', {
-      fullName: form.fullName,
-      phone: form.phone,
-      email: form.email,
-      cvFile: form.cvFile,
-      cvUrl: form.cvUrl,
-      coverLetter: form.coverLetter,
-      coverLetterFile: null,
-      coverLetterUrl: form.coverLetterUrl,
-    })
-  } finally {
-    submitting.value = false
-  }
+function submit() {
+  validateAllFields()
+  if (!isValid.value || props.loading) return
+  emit('submit', {
+    fullName: form.fullName,
+    phone: form.phone,
+    email: form.email,
+    cvFile: form.cvFile,
+    cvUrl: form.cvUrl,
+    coverLetter: form.coverLetter,
+    coverLetterFile: null,
+    coverLetterUrl: form.coverLetterUrl,
+  })
 }
 </script>

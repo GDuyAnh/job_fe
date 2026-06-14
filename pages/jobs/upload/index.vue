@@ -34,7 +34,29 @@
             :class="{ 'is-active': wizardStep === 0, 'is-done': wizardStep > 0 }"
             data-step-indicator="1"
           >
-            <span class="employer-step-icon">
+            <button
+              v-if="wizardStep > 0"
+              type="button"
+              class="employer-step-icon employer-step-icon-btn"
+              :aria-label="$t('job.uploadJob.stepCompanyInfo')"
+              @click="goBackToCompanyStep()"
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path
+                  d="M12 4L19 8V19H5V8L12 4Z"
+                  stroke="currentColor"
+                  stroke-width="1.9"
+                  stroke-linejoin="round"
+                />
+                <path
+                  d="M9 19V12H15V19"
+                  stroke="currentColor"
+                  stroke-width="1.9"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            </button>
+            <span v-else class="employer-step-icon">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                 <path
                   d="M12 4L19 8V19H5V8L12 4Z"
@@ -107,6 +129,8 @@
                       class="w-full min-w-0 flex-1 text-sm"
                       :ui="{ base: 'h-11 w-full rounded-xl' }"
                       :placeholder="$t('company.action.placeHolderMST')"
+                      inputmode="numeric"
+                      @input="onMstCompanyInput"
                       @keydown.enter="findCompanyByMst()"
                     />
                     <UButton
@@ -162,7 +186,7 @@
                       id="company-name"
                       v-model="companyAdd.name"
                       variant="outline"
-                      :readonly="isExistCompany"
+                      :readonly="isDisplayInputCompany"
                       :ui="{
                         root: 'w-full',
                         base: [
@@ -192,11 +216,14 @@
                         $t('common.requiredMark')
                       }}</span>
                     </label>
-                    <USelect
-                      :items="organizationTypeItems"
-                      :model-value="companyAdd.organizationType?.toString()"
+                    <USelectMenu
+                      :items="organizationTypeItemsSearchable"
+                      :model-value="companyAdd.organizationType?.toString() || undefined"
+                      value-key="value"
                       :content="{ side: 'bottom' }"
                       :disabled="isExistCompany"
+                      :placeholder="$t('company.industry')"
+                      :search-input="{ placeholder: 'Tìm loại hình...', variant: 'none' }"
                       :ui="{
                         base: [
                           'h-11 w-full rounded-xl',
@@ -235,7 +262,7 @@
                   <UInput
                     id="company-tax-address"
                     v-model.trim="companyAdd.taxAddress"
-                    :readonly="isExistCompany"
+                    :readonly="isDisplayInputCompany"
                     placeholder="Địa chỉ thuế"
                     :ui="{
                       root: 'w-full',
@@ -317,9 +344,6 @@
                       >
                         <label class="employer-input-label">
                           {{ $t('job.uploadJob.detailAddressLabel') }}
-                          <span aria-hidden="true" class="text-red-500">{{
-                            $t('common.requiredMark')
-                          }}</span>
                         </label>
                         <RichTextEditor
                           v-model="companyAdd.address"
@@ -372,21 +396,31 @@
                           <label class="employer-input-label">
                             {{ $t('company.size') }}
                           </label>
-                          <UInput
-                            v-model.number="companyAdd.companySize"
-                            type="number"
-                            min="0"
-                            step="1"
-                            class="w-full text-sm"
-                            :class="{
-                              'border-red-500': companyErrors.companySize,
+                          <USelect
+                            id="company-size"
+                            :items="companySizeSelectItems"
+                            :model-value="companyAdd.companySize?.toString() ?? ''"
+                            :content="{ side: 'bottom' }"
+                            :disabled="isExistCompany"
+                            :placeholder="$t('company.form.placeholderCompanySize')"
+                            :ui="{
+                              base: [
+                                'h-11 w-full rounded-xl',
+                                companyErrors.companySize
+                                  ? 'ring-1 ring-inset ring-red-200/80 border border-red-500'
+                                  : companyFieldsLookupHighlight
+                                    ? 'ring-1 ring-inset ring-sky-200/80 border-sky-300/80'
+                                    : '',
+                              ]
+                                .filter(Boolean)
+                                .join(' '),
                             }"
-                            :readonly="isExistCompany"
-                            :placeholder="
-                              $t('company.form.placeholderCompanySize')
+                            @update:model-value="
+                              (v) => {
+                                companyAdd.companySize = v ? Number(v) : null
+                                companyErrors.companySize = ''
+                              }
                             "
-                            :ui="{ base: 'h-11 rounded-xl' }"
-                            @input="companyErrors.companySize = ''"
                           />
                           <p
                             v-if="companyErrors.companySize"
@@ -732,12 +766,14 @@
                         >
                           <v-select
                             v-model="categoryForSelect"
-                            :options="categoryItemsWithoutAll"
+                            :options="categoryItemsSearchable"
                             :append-to-body="true"
                             multiple
+                            searchable
                             class="w-full text-sm"
                             :placeholder="$t('job.uploadJob.chooseCategory')"
                             label="label"
+                            :clear-search-on-blur="() => true"
                             @open="onMultiSelectOpen"
                             @close="onMultiSelectClose"
                             @update:model-value="jobErrors.category = ''"
@@ -939,12 +975,14 @@
                           <v-select
                             id="job-location"
                             v-model="locationForSelect"
-                            :options="locationItemsWithoutAll"
+                            :options="locationSelectItems"
                             :append-to-body="true"
                             multiple
+                            searchable
                             class="w-full text-sm"
                             :placeholder="$t('job.uploadJob.chooseLocation')"
                             label="label"
+                            :clear-search-on-blur="() => true"
                             @open="onMultiSelectOpen"
                             @close="onMultiSelectClose"
                             @update:model-value="jobErrors.location = ''"
@@ -984,23 +1022,26 @@
                             {{ $t('job.uploadJob.requiredQualificationLabel') }}
                             <span class="text-red-500">{{ $t('job.uploadJob.mandatoryChar') }}</span>
                           </label>
-                          <USelect
-                            :items="requiredQualificationItems"
-                            :model-value="job.requiredQualification?.toString() || ''"
-                            searchable
-                            :content="{ side: 'bottom' }"
-                            :placeholder="$t('job.uploadJob.requiredQualificationLabel')"
-                            :ui="{
-                              base: 'h-11 w-full rounded-xl' + fieldErrorRingClass(jobErrors.requiredQualification),
-                            }"
-                            class="w-full text-sm"
-                            @update:model-value="
-                              (val) => {
-                                job.requiredQualification = Number(val ?? 0)
-                                jobErrors.requiredQualification = ''
-                              }
-                            "
-                          />
+                          <div
+                            id="job-required-qualification"
+                            class="job-vselect w-full min-w-0"
+                            :class="{ 'job-vselect--error': jobErrors.requiredQualification }"
+                          >
+                            <v-select
+                              v-model="requiredQualificationForSelect"
+                              :options="requiredQualificationSelectItems"
+                              :append-to-body="true"
+                              multiple
+                              searchable
+                              class="w-full text-sm"
+                              :placeholder="$t('job.uploadJob.requiredQualificationLabel')"
+                              label="label"
+                              :clear-search-on-blur="() => true"
+                              @open="onMultiSelectOpen"
+                              @close="onMultiSelectClose"
+                              @update:model-value="jobErrors.requiredQualification = ''"
+                            />
+                          </div>
                           <p v-if="jobErrors.requiredQualification" class="mt-1 text-sm !text-red-500">{{ jobErrors.requiredQualification }}</p>
                         </div>
                         <div class="employer-field-stack">
@@ -1041,9 +1082,11 @@
                               :options="genderItems"
                               :append-to-body="true"
                               multiple
+                              searchable
                               class="w-full text-sm"
                               :placeholder="$t('job.uploadJob.chooseGender')"
                               label="label"
+                              :clear-search-on-blur="() => true"
                               @open="onMultiSelectOpen"
                               @close="onMultiSelectClose"
                               @update:model-value="jobErrors.gender = ''"
@@ -1063,12 +1106,14 @@
                             <v-select
                               id="job-benefit"
                               v-model="benefitsForSelect"
-                              :options="jobBenefitsItems"
+                              :options="jobBenefitsSelectItems"
                               :append-to-body="true"
                               multiple
+                              searchable
                               class="w-full text-sm"
                               :placeholder="$t('job.uploadJob.chooseBenefitLevel')"
                               label="label"
+                              :clear-search-on-blur="() => true"
                               @open="onMultiSelectOpen"
                               @close="onMultiSelectClose"
                               @update:model-value="jobErrors.benefits = ''"
@@ -1157,9 +1202,6 @@
               </label>
 
               <div class="employer-actions employer-actions-end">
-                <button type="button" class="employer-back-link" @click="goBackToChooseSchool()">
-                  Trở về hiệu chỉnh trường học
-                </button>
                 <button
                   type="button"
                   class="employer-primary-btn employer-submit-btn"
@@ -1305,7 +1347,11 @@ import type {
 import type { JobModelAddUpdate } from '~/models/job'
 import { CalendarDate, type DateValue } from '@internationalized/date'
 import RichTextEditor from '~/components/RichTextEditor.vue'
-const { organizationTypeItems } = useJobFilters()
+import { handleMstInput } from '~/utils/mst'
+import {
+  companySizeSelectItems,
+  resolveCompanySizeForSelect,
+} from '~/constants/company-size'
 const { t } = useI18n()
 
 useHead({
@@ -1384,7 +1430,8 @@ function fieldErrorRingClass(errorMsg: string | undefined | null) {
 
 // Enum
 const {
-  categoryItemsWithoutAll,
+  organizationTypeItemsSearchable,
+  categoryItemsSearchable,
   employmentTypeItems,
   experienceLevelItems,
   locationItemsWithoutAll,
@@ -1394,6 +1441,29 @@ const {
   genderItems,
   gradeItems,
 } = useJobFilters()
+
+const requiredQualificationSelectItems = computed(() =>
+  [...requiredQualificationItems.value].sort((a, b) =>
+    a.label.localeCompare(b.label, 'vi', { sensitivity: 'base' }),
+  ),
+)
+
+const jobBenefitsSelectItems = computed(() =>
+  [...jobBenefitsItems.value].sort((a, b) =>
+    a.label.localeCompare(b.label, 'vi', { sensitivity: 'base' }),
+  ),
+)
+
+/** Tỉnh/thành: giữ "Toàn Quốc" đầu list, sort A→Z phần còn lại. */
+const locationSelectItems = computed(() => {
+  const items = locationItemsWithoutAll.value
+  const nationwide = items.find((item) => item.value === '0')
+  const provinces = items
+    .filter((item) => item.value !== '0')
+    .sort((a, b) => a.label.localeCompare(b.label, 'vi', { sensitivity: 'base' }))
+
+  return nationwide ? [nationwide, ...provinces] : provinces
+})
 
 // Computed properties for USelectMenu (convert between string[] and object[])
 const categoryForSelect = computed({
@@ -1405,7 +1475,7 @@ const categoryForSelect = computed({
       .map(c => {
         const value = typeof c === 'object' && c !== null && 'value' in c ? (c as { value: string }).value : String(c)
 
-        return categoryItemsWithoutAll.value.find(item => item.value === value) || { label: value, value }
+        return categoryItemsSearchable.value.find(item => item.value === value) || { label: value, value }
       })
   },
   set: (val: any[]) => {
@@ -1424,7 +1494,7 @@ const locationForSelect = computed({
       .map(l => {
         const value = typeof l === 'object' && l !== null && 'value' in l ? (l as { value: string }).value : String(l)
 
-        return locationItemsWithoutAll.value.find(item => item.value === value) || { label: value, value }
+        return locationSelectItems.value.find(item => item.value === value) || { label: value, value }
       })
   },
   set: (val: any[]) => {
@@ -1444,7 +1514,7 @@ const benefitsForSelect = computed({
       .map(b => {
         const value = typeof b === 'object' && b !== null && 'value' in b ? (b as { value: string }).value : String(b)
 
-        return jobBenefitsItems.value.find(item => item.value === value) || { label: value, value }
+        return jobBenefitsSelectItems.value.find(item => item.value === value) || { label: value, value }
       })
   },
   set: (val: any[]) => {
@@ -1452,6 +1522,43 @@ const benefitsForSelect = computed({
       ? val.map(v => typeof v === 'object' && v !== null && 'value' in v ? (v as { value: string }).value : String(v))
       : []
   }
+})
+
+// Computed property for v-select required qualification (convert between string[] and object[])
+const requiredQualificationForSelect = computed({
+  get: () => {
+    if (
+      !job.value.requiredQualification ||
+      !Array.isArray(job.value.requiredQualification)
+    ) {
+      return []
+    }
+
+    return job.value.requiredQualification
+      .filter((q) => q)
+      .map((q) => {
+        const value =
+          typeof q === 'object' && q !== null && 'value' in q
+            ? (q as { value: string }).value
+            : String(q)
+
+        return (
+          requiredQualificationSelectItems.value.find((item) => item.value === value) || {
+            label: value,
+            value,
+          }
+        )
+      })
+  },
+  set: (val: any[]) => {
+    job.value.requiredQualification = val
+      ? val.map((v) =>
+          typeof v === 'object' && v !== null && 'value' in v
+            ? (v as { value: string }).value
+            : String(v),
+        )
+      : []
+  },
 })
 
 // Computed property for v-select gender (convert between string[] and object[])
@@ -2170,6 +2277,13 @@ const goToListJobUser = () => {
 }
 
 const mstCompany = ref('')
+
+function onMstCompanyInput(event: Event) {
+  handleMstInput(event, (value) => {
+    mstCompany.value = value
+  })
+}
+
 const isGettingCompanyByMst = ref(false)
 const isAddCompany = ref(false)
 const isExistCompany = ref(false)
@@ -2233,30 +2347,6 @@ const formatDateDeadline = (dateStr: string): string => {
   return `${day}/${month}/${year}`
 }
 
-// Min date: today
-const today = new Date()
-
-const minDeadlineDate = computed(() => {
-  return new CalendarDate(
-    today.getFullYear(),
-    today.getMonth() + 1,
-    today.getDate(),
-  )
-})
-
-// Max date: today + 30 days
-const maxDeadlineDate = computed(() => {
-  const maxDate = new Date(today)
-
-  maxDate.setDate(maxDate.getDate() + 30)
-
-  return new CalendarDate(
-    maxDate.getFullYear(),
-    maxDate.getMonth() + 1,
-    maxDate.getDate(),
-  )
-})
-
 // Calendar date binding
 const deadlineCalendarDate = computed({
   get: () => parseDateString(job.value.deadline || null),
@@ -2265,15 +2355,12 @@ const deadlineCalendarDate = computed({
   },
 })
 
-// Function to hide dates outside the allowed range (before today or after 30 days)
-const isDeadlineDateHidden = (date: DateValue): boolean => {
-  const dateToCheck = new CalendarDate(date.year, date.month, date.day)
-  const minDate = minDeadlineDate.value
-  const maxDate = maxDeadlineDate.value
-
-  // Hide dates before today or after maxDate (today + 30 days)
-  return dateToCheck.compare(minDate) < 0 || dateToCheck.compare(maxDate) > 0
-}
+const {
+  minDeadlineDate,
+  maxDeadlineDate,
+  isDeadlineDateHidden,
+  isDeadlineTooEarly,
+} = useJobDeadlineDate()
 
 const findCompanyByMst = async () => {
   isGettingCompanyByMst.value = true
@@ -2341,7 +2428,7 @@ const findCompanyByMst = async () => {
       companyAdd.value.twitterLink = existingCompany.twitterLink ?? ''
       companyAdd.value.linkedInLink = existingCompany.linkedInLink ?? ''
       companyAdd.value.website = existingCompany.website ?? ''
-      companyAdd.value.companySize = existingCompany.companySize ?? null
+      companyAdd.value.companySize = resolveCompanySizeForSelect(existingCompany.companySize)
       companyAdd.value.foundedYear = existingCompany.foundedYear ?? null
       companyAdd.value.description = existingCompany.description ?? ''
       companyAdd.value.insight = existingCompany.insight ?? ''
@@ -2377,7 +2464,7 @@ const findCompanyByMst = async () => {
 
           // Fill data from VietQR
           companyAdd.value.name = companyByMST.value.data.name ?? ''
-          companyAdd.value.address = companyByMST.value.data.address ?? ''
+          companyAdd.value.address = ''
           companyAdd.value.taxAddress = companyByMST.value.data.address ?? '' // Địa chỉ thuế từ VietQR
           companyAdd.value.mst = companyByMST.value.data.id ?? ''
 
@@ -2465,7 +2552,7 @@ const confirmCreateSchool = () => {
   }
 }
 
-const goBackToChooseSchool = () => {
+const goBackToCompanyStep = () => {
   if (stepper.value?.hasPrev) {
     stepper.value.prev()
     wizardStep.value = 0
@@ -2518,6 +2605,7 @@ const addJob = async () => {
           name: companyAdd.value?.name || '',
           mst: companyAdd.value?.mst || mstCompany.value || '',
           address: companyAdd.value?.address || '',
+          taxAddress: companyAdd.value?.taxAddress || '',
           organizationType: companyAdd.value?.organizationType || 1,
           website: companyAdd.value?.website || '',
         },
@@ -2532,7 +2620,9 @@ const addJob = async () => {
             : String(job.value.location ?? ''),
           typeOfEmployment: Number(job.value.typeOfEmployment ?? 0),
           experienceLevel: job.value.experienceLevel ?? null,
-          requiredQualification: job.value.requiredQualification ?? null,
+          requiredQualification: Array.isArray(job.value.requiredQualification)
+            ? job.value.requiredQualification.filter(Boolean).map(String).join(',')
+            : String(job.value.requiredQualification ?? ''),
           gender: Array.isArray(job.value.gender)
             ? job.value.gender.filter(Boolean).map(String).join(',')
             : (job.value.gender as any) ?? null,
@@ -2566,21 +2656,28 @@ const addJob = async () => {
 
       if (response?.success) {
         isAddJobSuccess = true
-        useNotify({ message: response.message, type: 'success' })
 
-        // Nếu có token (user mới được tạo), tự động đăng nhập và redirect
-        if (response.accessToken && response.user) {
-          // Lưu token vào cookie
+        const accessToken = response.access_token || response.accessToken
+
+        // User mới tạo trong flow free-post: tự đăng nhập và vào dashboard
+        if (accessToken && response.user) {
           const token = useToken(CONSTANTS.COOKIE_TOKEN_OPTION as any)
-          token.set(response.accessToken)
-
-          // Lưu user vào auth store
+          token.set(accessToken)
           authStore.setUser(response.user)
 
-          // Redirect sang dashboard và return để không chạy code tiếp theo
-          router.push('/companies/dashboard?view=manageJobs')
+          useNotify({
+            message: response.message || 'Đăng tin thành công!',
+            type: 'success',
+          })
+
+          loading.value = false
+          await router.push(
+            response.redirectUrl || '/companies/dashboard?view=manageJobs',
+          )
           return
         }
+
+        useNotify({ message: response.message, type: 'success' })
       } else {
         throw new Error(response?.message || 'Đăng tải công việc thất bại. Vui lòng thử lại.')
       }
@@ -2649,27 +2746,14 @@ function validateCompanyFields(): boolean {
     isValid = false
   }
 
-  // Check if address is empty or only contains empty HTML tags
-  const addressHtml = companyAdd.value.address || ''
-  const cleanAddress = addressHtml.replace(/<[^>]*>/g, '').trim()
-
-  if (cleanAddress.length === 0) {
-    companyErrors.value.address = t('company.form.errAddress')
-    isValid = false
-  }
-
   if (!companyAdd.value.organizationType) {
     companyErrors.value.organizationType = t('company.form.errOrgType')
     isValid = false
   }
 
   if (!isValid) {
-    if (companyErrors.value.address) {
-      showOptionalCompanyInfo.value = true
-    }
     const companyFieldIdMap: Record<string, string> = {
       name: 'company-name',
-      address: 'company-address',
       organizationType: 'company-organization-type',
     }
 
@@ -2705,6 +2789,9 @@ function validateJobFields(): boolean {
 
   if (!job.value.deadline) {
     jobErrors.value.deadline = 'Vui lòng chọn hạn nộp hồ sơ.'
+    isValid = false
+  } else if (isDeadlineTooEarly(job.value.deadline)) {
+    jobErrors.value.deadline = 'Hạn nộp không được sớm hơn ngày đăng.'
     isValid = false
   }
 
@@ -2770,8 +2857,12 @@ function validateJobFields(): boolean {
   }
 
   // Required qualification validation - required
-  if (!job.value.requiredQualification || job.value.requiredQualification === 0) {
-    jobErrors.value.requiredQualification = 'Vui lòng chọn trình độ học vấn yêu cầu.'
+  if (
+    !job.value.requiredQualification ||
+    !Array.isArray(job.value.requiredQualification) ||
+    job.value.requiredQualification.length === 0
+  ) {
+    jobErrors.value.requiredQualification = 'Vui lòng chọn bằng cấp.'
     isValid = false
   }
 
