@@ -2,27 +2,27 @@
   <main class="employer-dashboard-content employer-overview-content">
     <section class="employer-overview-stats" aria-label="Chỉ số tổng quan">
       <article class="employer-overview-stat-card">
-        <span class="employer-overview-stat-icon is-blue" aria-hidden="true">
+        <span class="employer-overview-stat-icon is-green" aria-hidden="true">
           <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
             <path
-              d="M7 3.5h8l4 4V20a1 1 0 0 1-1 1H7a2 2 0 0 1-2-2V5.5a2 2 0 0 1 2-2Z"
-              stroke="currentColor"
-              stroke-width="1.9"
-              stroke-linejoin="round"
-            />
-            <path
-              d="M15 3.5V8h4M9 12h6M9 16h6"
+              d="M16 19a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4"
               stroke="currentColor"
               stroke-width="1.9"
               stroke-linecap="round"
-              stroke-linejoin="round"
+            />
+            <circle cx="10" cy="8" r="3" stroke="currentColor" stroke-width="1.9" />
+            <path
+              d="M20 8v6M17 11h6"
+              stroke="currentColor"
+              stroke-width="1.9"
+              stroke-linecap="round"
             />
           </svg>
         </span>
         <div class="employer-overview-stat-content">
-          <h2>Tin theo dõi</h2>
-          <strong data-overview-stat="total-jobs">{{ jobStats.postedJobs }}</strong>
-          <p>Tổng số tin của doanh nghiệp.</p>
+          <h2>Lượt ứng tuyển</h2>
+          <strong data-overview-stat="applications">{{ jobStats.totalApplications }}</strong>
+          <p>Tổng hồ sơ đã nộp.</p>
         </div>
       </article>
 
@@ -43,25 +43,6 @@
           <h2>Chờ duyệt</h2>
           <strong data-overview-stat="reviewing">{{ jobStats.pendingJobs }}</strong>
           <p>Tin đang chờ xác nhận.</p>
-        </div>
-      </article>
-
-      <article class="employer-overview-stat-card">
-        <span class="employer-overview-stat-icon is-red" aria-hidden="true">
-          <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
-            <circle cx="12" cy="12" r="8.5" stroke="currentColor" stroke-width="1.9" />
-            <path
-              d="M9 9L15 15M15 9L9 15"
-              stroke="currentColor"
-              stroke-width="1.9"
-              stroke-linecap="round"
-            />
-          </svg>
-        </span>
-        <div class="employer-overview-stat-content">
-          <h2>Đã hết hạn</h2>
-          <strong data-overview-stat="expired">{{ jobStats.expiredJobs }}</strong>
-          <p>Tin cần cập nhật lại hạn.</p>
         </div>
       </article>
 
@@ -90,17 +71,11 @@
       </article>
 
       <article class="employer-overview-stat-card">
-        <span class="employer-overview-stat-icon is-green" aria-hidden="true">
+        <span class="employer-overview-stat-icon is-red" aria-hidden="true">
           <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="12" r="8.5" stroke="currentColor" stroke-width="1.9" />
             <path
-              d="M16 19a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4"
-              stroke="currentColor"
-              stroke-width="1.9"
-              stroke-linecap="round"
-            />
-            <circle cx="10" cy="8" r="3" stroke="currentColor" stroke-width="1.9" />
-            <path
-              d="M20 8v6M17 11h6"
+              d="M9 9L15 15M15 9L9 15"
               stroke="currentColor"
               stroke-width="1.9"
               stroke-linecap="round"
@@ -108,9 +83,9 @@
           </svg>
         </span>
         <div class="employer-overview-stat-content">
-          <h2>Lượt ứng tuyển</h2>
-          <strong data-overview-stat="applications">{{ jobStats.totalApplications }}</strong>
-          <p>Tổng hồ sơ đã nộp.</p>
+          <h2>Đã hết hạn</h2>
+          <strong data-overview-stat="expired">{{ jobStats.expiredJobs }}</strong>
+          <p>Tin cần cập nhật lại hạn.</p>
         </div>
       </article>
     </section>
@@ -230,9 +205,6 @@
           v-if="applications.length > 0 && totalPages > 1"
           class="employer-overview-pagination"
         >
-          <p class="employer-overview-pagination-copy">
-            Hiển thị {{ rangeStart }}-{{ rangeEnd }} trong {{ totalCount }} hồ sơ
-          </p>
           <div class="employer-overview-pagination-actions">
             <button
               type="button"
@@ -307,7 +279,6 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
 
 export interface OverviewJobStats {
   postedJobs: number
@@ -346,15 +317,6 @@ defineEmits<{
   'delete-application': [applicationId: number]
   'update:page': [page: number]
 }>()
-
-const rangeStart = computed(() => {
-  if (props.totalCount === 0) return 0
-  return (props.page - 1) * props.perPage + 1
-})
-
-const rangeEnd = computed(() =>
-  Math.min(props.page * props.perPage, props.totalCount),
-)
 
 const formatDate = (date: Date | string): string => {
   const d = typeof date === 'string' ? new Date(date) : date

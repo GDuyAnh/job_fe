@@ -92,26 +92,6 @@
                 </div>
               </div>
 
-              <!-- Address -->
-              <div>
-                <label class="font-medium text-sm text-gray-700">
-                  {{ $t('company.address') }}
-                  <span aria-hidden="true" class="text-black">{{
-                    $t('common.requiredMark')
-                  }}</span>
-                </label>
-                <UInput
-                  v-model.trim="companyAdd.address"
-                  class="w-full"
-                  :class="{ 'border-red-500': companyErrors.address }"
-                  :placeholder="$t('company.form.placeholderAddress')"
-                  @input="companyErrors.address = ''"
-                />
-                <p v-if="companyErrors.address" class="text-red-500 text-sm mt-1">
-                  {{ companyErrors.address }}
-                </p>
-              </div>
-
               <!-- Địa chỉ thuế -->
               <div>
                 <label class="font-medium text-sm text-gray-700">
@@ -126,6 +106,26 @@
                 />
                 <p v-if="companyErrors.taxAddress" class="text-red-500 text-sm mt-1">
                   {{ companyErrors.taxAddress }}
+                </p>
+              </div>
+
+              <!-- Địa chỉ chi tiết -->
+              <div>
+                <label class="font-medium text-sm text-gray-700">
+                  {{ $t('job.uploadJob.detailAddressLabel') }}
+                  <span aria-hidden="true" class="text-black">{{
+                    $t('common.requiredMark')
+                  }}</span>
+                </label>
+                <UInput
+                  v-model.trim="companyAdd.address"
+                  class="w-full"
+                  :class="{ 'border-red-500': companyErrors.address }"
+                  :placeholder="$t('company.form.placeholderAddress')"
+                  @input="companyErrors.address = ''"
+                />
+                <p v-if="companyErrors.address" class="text-red-500 text-sm mt-1">
+                  {{ companyErrors.address }}
                 </p>
               </div>
 

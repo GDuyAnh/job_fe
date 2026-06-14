@@ -10,6 +10,7 @@ export class CompanyMapper {
     return {
       id: dto.id,
       name: dto.name,
+      mst: dto.mst ?? undefined,
       logo: dto.logo ?? null,
       organizationType: dto.organizationType ?? null,
       facebookLink: dto.facebookLink ?? null,
@@ -18,6 +19,7 @@ export class CompanyMapper {
       instagramLink: dto.instagramLink ?? null,
       website: dto.website ?? null,
       address: dto.address ?? null,
+      taxAddress: dto.taxAddress ?? null,
       companySize: dto.companySize ?? null,
       foundedYear: dto.foundedYear ?? null,
       email: dto.email,

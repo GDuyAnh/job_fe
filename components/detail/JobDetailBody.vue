@@ -58,7 +58,7 @@
               <template v-if="preview">
                 <span class="job-single-preview-chip">Chế độ xem trước</span>
               </template>
-              <template v-else-if="showApplyActions">
+              <template v-else-if="effectiveShowApplyActions">
                 <button
                   v-if="!hasApplied"
                   type="button"
@@ -126,7 +126,7 @@
               />
               <p v-else>{{ $t('common.nanValue') }}</p>
               <div
-                v-if="showApplyActions && !preview"
+                v-if="effectiveShowApplyActions"
                 class="job-single-inline-cta"
               >
                 <button
@@ -198,12 +198,20 @@
                       </div>
                     </div>
                     <button
+                      v-if="effectiveShowApplyActions && !hasAppliedToJob(sj.id)"
                       type="button"
                       class="apply-chip"
                       @click.stop.prevent="emit('apply', sj)"
                     >
                       Ứng tuyển
                     </button>
+                    <span
+                      v-else-if="effectiveShowApplyActions"
+                      class="apply-chip is-applied"
+                      aria-disabled="true"
+                    >
+                      Đã ứng tuyển
+                    </span>
                   </div>
 
                   <div class="job-row-meta">
@@ -269,6 +277,18 @@ const emit = defineEmits<{
   apply: [job: JobModel]
   viewSimilar: [job: JobModel]
 }>()
+
+const { ensureLoaded, hasAppliedToJob, canApplyToJobs } = useAppliedJobs()
+
+const effectiveShowApplyActions = computed(
+  () => props.showApplyActions && canApplyToJobs.value,
+)
+
+onMounted(() => {
+  if (effectiveShowApplyActions.value && !props.preview) {
+    ensureLoaded()
+  }
+})
 
 const jobRef = computed(() => props.job)
 

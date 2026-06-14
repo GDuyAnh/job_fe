@@ -26,6 +26,6 @@ export const useNotify = ({
   return toast.add({
     title: msg,
     color: type,
-    duration: 4000,
+    duration: 5000,
   })
 }

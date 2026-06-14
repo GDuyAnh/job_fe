@@ -141,6 +141,22 @@
   box-shadow: 0 6px 16px rgba(53, 99, 255, 0.25);
 }
 
+.employer-step-icon-btn {
+  padding: 0;
+  cursor: pointer;
+  font: inherit;
+}
+
+.employer-step.is-done .employer-step-icon-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 20px rgba(53, 99, 255, 0.32);
+}
+
+.employer-step.is-done .employer-step-icon-btn:focus-visible {
+  outline: 2px solid rgba(53, 99, 255, 0.55);
+  outline-offset: 3px;
+}
+
 .employer-step-panel {
   padding-top: 4px;
 }
@@ -658,7 +674,6 @@
 .page-job-upload .rich-text-output .rich-text-editor {
   border: var(--employer-input-border) !important;
   border-radius: 10px !important;
-  overflow: hidden;
   background: var(--employer-input-bg) !important;
   box-shadow: none !important;
 }
@@ -674,11 +689,20 @@
   border-bottom: 1px solid rgba(214, 223, 239, 0.8) !important;
 }
 
+.page-job-upload .employer-post-card .rich-text-editor .editor-content,
+.page-job-upload .employer-step-panel .rich-text-editor .editor-content,
+.page-job-upload .employer-accordion-body .rich-text-editor .editor-content,
+.page-job-upload .rich-text-output .rich-text-editor .editor-content {
+  resize: vertical;
+  overflow: auto;
+  min-height: 100px;
+}
+
 .page-job-upload .employer-post-card .rich-text-editor .ProseMirror,
 .page-job-upload .employer-step-panel .rich-text-editor .ProseMirror,
 .page-job-upload .employer-accordion-body .rich-text-editor .ProseMirror,
 .page-job-upload .rich-text-output .rich-text-editor .ProseMirror {
-  min-height: 100px;
+  min-height: 100%;
   padding: 12px 14px;
   font-size: 14px;
   font-weight: 500;

@@ -1,7 +1,7 @@
 <template>
-  <div class="rich-text-editor">
+  <div class="rich-text-editor" :class="{ 'rich-text-editor--admin': variant === 'admin' }">
     <!-- Toolbar -->
-    <div v-if="!readonly" class="editor-toolbar border-b border-gray-300 bg-gray-50 p-2 flex flex-wrap gap-2 relative">
+    <div v-if="!readonly" class="editor-toolbar">
       <UButton variant="ghost" size="xs" :color="editor?.isActive('bold') ? 'primary' : 'neutral'" @click="editor?.chain().focus().toggleBold().run()">
         <UIcon name="i-lucide-bold" class="w-4 h-4" />
       </UButton>
@@ -76,7 +76,11 @@
     </div>
     
     <!-- Editor Content -->
-    <div class="editor-content border border-gray-300 rounded-b-lg relative" :class="{ 'rounded-t-lg': readonly, 'bg-gray-50': readonly }">
+    <div
+      class="editor-content"
+      :class="{ 'editor-content--readonly': readonly }"
+      :style="editorContentStyle"
+    >
       <EditorContent :editor="editor" />
       
       <!-- Image Floating Menu -->
@@ -160,6 +164,7 @@ interface Props {
   placeholder?: string
   readonly?: boolean
   rows?: number
+  variant?: 'default' | 'admin'
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -167,7 +172,12 @@ const props = withDefaults(defineProps<Props>(), {
   placeholder: '',
   readonly: false,
   rows: 12,
+  variant: 'default',
 })
+
+const editorContentStyle = computed(() => ({
+  minHeight: `${Math.max(props.rows, 8) * 28}px`,
+}))
 
 const emit = defineEmits<{
   'update:modelValue': [value: string]
@@ -208,7 +218,13 @@ const editor = useEditor({
     extractTemporaryImages(html)
   },
   editorProps: {
-    attributes: { class: 'prose prose-sm sm:prose lg:prose-lg xl:prose-2xl mx-auto focus:outline-none p-4 min-h-[200px] max-w-none' },
+    attributes: {
+      class:
+        props.variant === 'admin'
+          ? 'employer-email-template-prosemirror focus:outline-none p-4 min-h-full max-w-none'
+          : 'prose prose-sm sm:prose lg:prose-lg xl:prose-2xl mx-auto focus:outline-none p-4 min-h-full max-w-none',
+      spellcheck: props.variant === 'admin' ? 'false' : 'true',
+    },
   },
 })
 
@@ -356,7 +372,13 @@ function resetTemporaryImages() {
   temporaryImages.value = []
 }
 
-defineExpose({ getTemporaryImages: () => temporaryImages.value, resetTemporaryImages })
+defineExpose({
+  getTemporaryImages: () => temporaryImages.value,
+  resetTemporaryImages,
+  insertText: (text: string) => {
+    editor.value?.chain().focus().insertContent(text).run()
+  },
+})
 
 watch(
   () => props.modelValue,
@@ -400,7 +422,81 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
-:deep(.ProseMirror) { outline: none; }
+.editor-toolbar {
+  border-bottom: 1px solid #e2e8f0;
+  background: #f8fafc;
+  padding: 8px 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  position: relative;
+}
+
+.rich-text-editor--admin .editor-toolbar {
+  padding: 10px 12px;
+  gap: 2px;
+  background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.rich-text-editor--admin :deep(.editor-toolbar button) {
+  min-width: 34px;
+  min-height: 34px;
+  border-radius: 8px;
+}
+
+.editor-content {
+  border: 1px solid #e2e8f0;
+  border-top: none;
+  border-radius: 0 0 12px 12px;
+  position: relative;
+  resize: vertical;
+  overflow: auto;
+  min-height: 200px;
+  background: #fff;
+}
+
+.editor-content--readonly {
+  border-top: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background: #f8fafc;
+}
+
+.rich-text-editor--admin {
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  overflow: hidden;
+  background: #fff;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+.rich-text-editor--admin .editor-content {
+  border: none;
+  border-radius: 0;
+  resize: vertical;
+}
+
+.rich-text-editor--admin :deep(.employer-email-template-prosemirror) {
+  font-size: 14px;
+  line-height: 1.65;
+  color: #334155;
+}
+
+.rich-text-editor--admin :deep(.employer-email-template-prosemirror h1) {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.rich-text-editor--admin :deep(.employer-email-template-prosemirror p) {
+  margin: 0.65em 0;
+}
+
+:deep(.ProseMirror) {
+  outline: none;
+  min-height: 100%;
+  box-sizing: border-box;
+}
 :deep(.ProseMirror p.is-editor-empty:first-child::before) { color: #9ca3af; content: attr(data-placeholder); float: left; height: 0; pointer-events: none; }
 :deep(.ProseMirror-focused) { outline: none; }
 :deep(.ProseMirror ul), :deep(.ProseMirror ol) { padding-left: 1.5rem; margin: 1rem 0; }

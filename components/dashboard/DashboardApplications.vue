@@ -117,14 +117,9 @@
       <!-- Footer pagination (match screenshot) -->
       <div
         v-if="filteredApplications.length > 0"
-        class="flex items-center justify-between px-6 py-4"
+        class="flex items-center justify-end px-6 py-4"
         style="border-top: 1px solid rgba(29, 36, 51, 0.10)"
       >
-        <div class="text-[12px] text-[rgba(29,36,51,0.55)]">
-          Hiển thị {{ (currentPage - 1) * itemsPerPage + 1 }}-{{
-            Math.min(currentPage * itemsPerPage, filteredApplications.length)
-          }} trong {{ filteredApplications.length }} công việc
-        </div>
         <button
           type="button"
           class="h-10 w-10 rounded-xl bg-[var(--blue)] text-white font-extrabold text-[12px] shadow-sm"

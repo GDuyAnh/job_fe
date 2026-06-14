@@ -88,7 +88,14 @@
 
 .search-item-directory input {
   font-size: 14px;
+  font-weight: 500;
+  font-family: inherit;
   color: var(--text);
+}
+
+.search-item-directory input::placeholder {
+  color: #8c95a8;
+  opacity: 1;
 }
 
 .search-item-directory .arr {
@@ -96,27 +103,12 @@
   opacity: 0.65;
 }
 
-.school-directory-select {
-  flex: 1;
-  min-width: 0;
-}
-
-.school-directory-select button,
-.school-directory-select [role='combobox'] {
-  width: 100%;
-  height: 56px;
-  padding: 0 !important;
-  border: 0 !important;
-  background: transparent !important;
-  box-shadow: none !important;
-  font-size: 14px !important;
-  font-weight: 500 !important;
-  color: var(--text) !important;
-  justify-content: flex-start !important;
-}
-
-.school-directory-select svg {
-  display: none;
+/* USelectMenu — menu portal trên trang companies */
+body:has(.companies-directory-page) [data-reka-popper-content-wrapper],
+body:has(.companies-directory-page) [data-reka-popover-content],
+body:has(.companies-directory-page) [data-reka-combobox-content],
+body:has(.companies-directory-page) [role='listbox'] {
+  z-index: 10000 !important;
 }
 
 .search-row-directory .school-directory-submit {

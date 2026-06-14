@@ -56,11 +56,16 @@
                   >
                 </div>
                 <div class="search-item search-item-hero">
-                  <USelect
+                  <USelectMenu
                     v-model="location"
-                    :items="locationItems"
+                    :items="heroLocationItems"
+                    value-key="value"
                     variant="none"
+                    :placeholder="$t('home.search.placeholderLocation')"
+                    :search-input="{ placeholder: 'Tìm tỉnh thành...', variant: 'none' }"
+                    :ui="heroLocationSelectUi"
                     class="hero-location-select"
+                    @update:open="onHeroLocationMenuOpenChange"
                   />
                   <span class="arr">▾</span>
                 </div>
@@ -273,13 +278,14 @@
                       <span v-else>{{ job.companyName }}</span>
                     </div>
                   </div>
-                  <NuxtLink
-                    :to="`/jobs/${job.id}`"
-                    class="apply-chip"
-                    @click.stop
-                  >
-                    Ứng tuyển
-                  </NuxtLink>
+                      <NuxtLink
+                        v-if="canApplyToJobs"
+                        :to="`/jobs/${job.id}`"
+                        class="apply-chip"
+                        @click.stop
+                      >
+                        Ứng tuyển
+                      </NuxtLink>
                 </div>
 
                 <div class="job-row-meta">
@@ -503,11 +509,23 @@ useHead({
 })
 
 const {
-  locationItems,
+  locationEnumLabel,
+  locationItemsSearchable: heroLocationItems,
   categoryEnumLabel,
   employmentTypesEnumLabel,
   experienceLevelsEnumLabel,
 } = useJobFilters()
+
+const heroLocationSelectUi = {
+  base: 'w-full min-h-[54px] h-[54px] justify-start text-start p-0 border-0 bg-transparent shadow-none ring-0 !text-[14px] !font-medium !font-[inherit]',
+  trailing: '!hidden',
+  trailingIcon: '!hidden',
+  placeholder:
+    'hero-location-select__placeholder truncate text-start flex-1 min-w-0 w-full !text-[14px] !font-medium !font-[inherit] !text-[#8c95a8]',
+  value:
+    'hero-location-select__value truncate text-start flex-1 min-w-0 w-full !text-[14px] !font-medium !font-[inherit] !text-[var(--text)]',
+  content: 'z-[10000] min-w-[240px]',
+}
 
 const getCategoryLabel = (category: string) => {
   return (categoryEnumLabel?.[category as unknown as number] as string) ?? category
@@ -536,7 +554,12 @@ const getCategoryInitials = (label: string) => {
 
 const keyword = ref('')
 
-const location = ref('0')
+const location = ref<string | undefined>(undefined)
+
+const onHeroLocationMenuOpenChange = (open: boolean) => {
+  if (!import.meta.client) return
+  document.body.classList.toggle('vselect-scroll-lock', open)
+}
 
 // Hero parallax + floating cards
 const heroRef = ref<HTMLElement | null>(null)
@@ -759,6 +782,7 @@ const activeTab = ref(tabs[0].name)
 const router = useRouter()
 const route = useRoute()
 const authStore = useAuthStore()
+const { canApplyToJobs } = useAppliedJobs()
 
 // User dropdown state
 const showUserDropdown = ref(false)
@@ -866,7 +890,7 @@ onMounted(() => {
 
   if (
     query.location &&
-    locationItems.value.some((item) => item.value === query.location)
+    heroLocationItems.value.some((item) => item.value === query.location)
   ) {
     location.value = query.location as string
   }
@@ -890,6 +914,9 @@ onMounted(() => {
 onUnmounted(() => {
   document.removeEventListener('click', handleClickOutside)
   window.removeEventListener('resize', updateCategoryRailNav)
+  if (import.meta.client) {
+    document.body.classList.remove('vselect-scroll-lock')
+  }
 })
 
 const searchJobs = () => {
@@ -897,7 +924,7 @@ const searchJobs = () => {
 
   if (keyword.value.trim()) query.keyword = keyword.value.trim()
 
-  if (location.value !== '0') query.location = location.value
+  if (location.value) query.location = location.value
 
   router.push({ path: '/jobs/search', query })
 }
@@ -1171,10 +1198,11 @@ const getLocationLabel = (locationValue: string): string => {
   if (locationValue === '0') return 'Toàn Quốc'
 
   const val = String(locationValue)
-  const match = locationItems.value?.find(
-    (i: any) => String(i.value) === val,
+  return (
+    (locationEnumLabel as Record<string, string>)?.[val] ??
+    (locationEnumLabel as Record<number, string>)?.[Number(val)] ??
+    val
   )
-  return (match?.label as string) ?? val
 }
 
 // Function to get all location labels for a job
@@ -1419,6 +1447,13 @@ const userMenuItems = computed(() => {
           openDashboardInNewTab(ROUTE_PAGE.DASHBOARD.COMPANY, { view: 'candidates' })
         },
       },
+      {
+        label: 'Thông tin tài khoản',
+        icon: 'i-lucide-user',
+        click: () => {
+          openDashboardInNewTab(ROUTE_PAGE.DASHBOARD.COMPANY, { view: 'settings' })
+        },
+      },
     )
   } else {
     // Menu cho user thường - đồng bộ với dashboard sidebar
@@ -1456,13 +1491,6 @@ const userMenuItems = computed(() => {
         icon: 'i-lucide-plus-circle',
         click: () => {
           openDashboardInNewTab('/jobs/upload')
-        },
-      },
-      {
-        label: 'Thay đổi mật khẩu',
-        icon: 'i-lucide-lock',
-        click: () => {
-          openDashboardInNewTab(ROUTE_PAGE.DASHBOARD.USER, { view: 'changePassword' })
         },
       },
     )

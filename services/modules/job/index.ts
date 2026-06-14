@@ -75,6 +75,16 @@ const JobModule = (apiService: FetchFactory) => {
     )
   }
 
+  const updateApplicationStatus = async (
+    applicationId: number,
+    body: { status: string; statusMessage?: string },
+  ) => {
+    return apiService.patch<any>(
+      ROUTE_API.JOB.UPDATE_APPLICATION_STATUS(applicationId),
+      { body },
+    )
+  }
+
   const submitApplication = async (data: {
     jobId: number
     userId: number
@@ -120,6 +130,7 @@ const JobModule = (apiService: FetchFactory) => {
     getJobsByEmail,
     getUserApplications,
     deleteApplication,
+    updateApplicationStatus,
     submitApplication,
     freePostPublic,
   }

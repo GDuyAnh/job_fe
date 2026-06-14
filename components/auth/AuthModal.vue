@@ -47,7 +47,7 @@
           </div>
 
           <form class="auth-form" data-auth-form="login" @submit.prevent="onSubmitLogin">
-            <label class="auth-field">
+            <label class="auth-field" :class="{ 'has-error': loginFieldErrors.email }">
               <span class="auth-field-control">
                 <input
                   v-model="loginForm.state.email"
@@ -56,6 +56,8 @@
                   aria-label="Nhập email"
                   :disabled="loading"
                   autocomplete="email"
+                  @blur="validateLoginFieldOnBlur('email')"
+                  @input="clearLoginFieldError('email')"
                 />
                 <span class="auth-field-icon" aria-hidden="true">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
@@ -78,6 +80,9 @@
                   </svg>
                 </span>
               </span>
+              <p v-if="loginFieldErrors.email" class="auth-field-error" role="alert">
+                {{ loginFieldErrors.email }}
+              </p>
             </label>
 
             <label class="auth-field">
@@ -221,7 +226,10 @@
               class="auth-role-panel"
               data-auth-role-panel="candidate"
             >
-              <label class="auth-field auth-field-full">
+              <label
+                class="auth-field auth-field-full"
+                :class="{ 'has-error': registerFieldErrors.fullName }"
+              >
                 <span class="auth-field-control">
                   <input
                     v-model="registerForm.state.fullName"
@@ -230,8 +238,13 @@
                     aria-label="Họ và tên"
                     :disabled="loading"
                     autocomplete="name"
+                    @input="onFullNameInput"
+                    @blur="validateRegisterFieldOnBlur('fullName')"
                   />
                 </span>
+                <p v-if="registerFieldErrors.fullName" class="auth-field-error" role="alert">
+                  {{ registerFieldErrors.fullName }}
+                </p>
               </label>
             </div>
 
@@ -240,7 +253,10 @@
               class="auth-role-panel"
               data-auth-role-panel="employer"
             >
-              <label class="auth-field auth-field-full">
+              <label
+                class="auth-field auth-field-full"
+                :class="{ 'has-error': mstBlurError }"
+              >
                 <span class="auth-field-control">
                   <input
                     v-model="registerForm.state.taxCode"
@@ -248,13 +264,26 @@
                     placeholder="Mã số thuế"
                     aria-label="Mã số thuế"
                     :disabled="loading"
+                    inputmode="numeric"
+                    @blur="onEmployerTaxCodeBlur"
+                    @input="onEmployerTaxCodeInput"
                   />
                 </span>
+                <p v-if="mstChecking" class="auth-field-hint">
+                  Đang kiểm tra...
+                </p>
+                <p
+                  v-else-if="mstBlurMessage"
+                  :class="mstBlurSuccess ? 'auth-field-success' : 'auth-field-error'"
+                  role="alert"
+                >
+                  {{ mstBlurMessage }}
+                </p>
               </label>
             </div>
 
             <div class="auth-grid">
-              <label class="auth-field">
+              <label class="auth-field" :class="{ 'has-error': registerFieldErrors.email }">
                 <span class="auth-field-control">
                   <input
                     v-model="registerForm.state.email"
@@ -263,6 +292,8 @@
                     aria-label="Nhập email"
                     :disabled="loading"
                     autocomplete="email"
+                    @blur="validateRegisterFieldOnBlur('email')"
+                    @input="clearRegisterFieldError('email')"
                   />
                   <span class="auth-field-icon" aria-hidden="true">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
@@ -285,9 +316,12 @@
                     </svg>
                   </span>
                 </span>
+                <p v-if="registerFieldErrors.email" class="auth-field-error" role="alert">
+                  {{ registerFieldErrors.email }}
+                </p>
               </label>
 
-              <label class="auth-field">
+              <label class="auth-field" :class="{ 'has-error': registerFieldErrors.phoneNumber }">
                 <span class="auth-field-control">
                   <input
                     v-model="registerForm.state.phoneNumber"
@@ -296,6 +330,8 @@
                     aria-label="Nhập số điện thoại"
                     :disabled="loading"
                     autocomplete="tel"
+                    @blur="validateRegisterFieldOnBlur('phoneNumber')"
+                    @input="clearRegisterFieldError('phoneNumber')"
                   />
                   <span class="auth-field-icon" aria-hidden="true">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
@@ -309,6 +345,9 @@
                     </svg>
                   </span>
                 </span>
+                <p v-if="registerFieldErrors.phoneNumber" class="auth-field-error" role="alert">
+                  {{ registerFieldErrors.phoneNumber }}
+                </p>
               </label>
             </div>
 
@@ -426,6 +465,14 @@ import {
   registerCompanySchema,
 } from '~/constants/schema/register'
 import { USER_ROLES } from '~/constants/roles'
+import {
+  handleAuthFullNameInput,
+  validateAuthEmail,
+  validateAuthFullName,
+  validateAuthPhone,
+} from '~/utils/auth-field-validation'
+import { MST_BLUR_MESSAGES } from '~/composables/useEmployerRegistration'
+import { handleMstInput } from '~/utils/mst'
 
 type ViewMode = 'login' | 'register'
 
@@ -445,6 +492,7 @@ const emit = defineEmits<{
 }>()
 
 const authStore = useAuthStore()
+const router = useRouter()
 
 const view = ref<ViewMode>(props.initialView)
 
@@ -456,6 +504,7 @@ watch(
     loading.value = false
     loginError.value = ''
     registerError.value = ''
+    clearAuthFieldErrors()
   },
 )
 
@@ -471,6 +520,98 @@ const loginError = ref('')
 const registerError = ref('')
 const loginShowPassword = ref(false)
 const registerShowPassword = ref(false)
+
+const loginFieldErrors = reactive({
+  email: '',
+})
+
+const registerFieldErrors = reactive({
+  fullName: '',
+  email: '',
+  phoneNumber: '',
+})
+
+const {
+  message: mstBlurMessage,
+  checking: mstChecking,
+  isSuccess: mstBlurSuccess,
+  isError: mstBlurError,
+  isVerified: mstIsVerified,
+  onMstBlur,
+  clearMstBlur,
+  ensureMstChecked,
+} = useMstBlurValidation()
+
+function clearAuthFieldErrors() {
+  loginFieldErrors.email = ''
+  registerFieldErrors.fullName = ''
+  registerFieldErrors.email = ''
+  registerFieldErrors.phoneNumber = ''
+  clearMstBlur()
+}
+
+function clearLoginFieldError(field: 'email') {
+  loginFieldErrors[field] = ''
+}
+
+function clearRegisterFieldError(field: keyof typeof registerFieldErrors) {
+  registerFieldErrors[field] = ''
+}
+
+function validateLoginFieldOnBlur(field: 'email') {
+  if (field === 'email') {
+    loginFieldErrors.email = validateAuthEmail(loginForm.state.email || '')
+  }
+}
+
+function validateRegisterFieldOnBlur(field: keyof typeof registerFieldErrors) {
+  if (field === 'fullName') {
+    if (registerForm.activeTab !== 'candidate') {
+      registerFieldErrors.fullName = ''
+      return
+    }
+    registerFieldErrors.fullName = validateAuthFullName(
+      registerForm.state.fullName || '',
+    )
+    return
+  }
+
+  if (field === 'email') {
+    registerFieldErrors.email = validateAuthEmail(registerForm.state.email || '')
+    return
+  }
+
+  registerFieldErrors.phoneNumber = validateAuthPhone(
+    registerForm.state.phoneNumber || '',
+  )
+}
+
+function onFullNameInput(event: Event) {
+  handleAuthFullNameInput(
+    event,
+    (value) => {
+      registerForm.state.fullName = value
+    },
+    () => {
+      registerFieldErrors.fullName = ''
+    },
+  )
+}
+
+function onEmployerTaxCodeBlur() {
+  if (registerForm.activeTab !== 'employer') return
+  onMstBlur(registerForm.state.taxCode)
+}
+
+function onEmployerTaxCodeInput(event: Event) {
+  handleMstInput(
+    event,
+    (value) => {
+      registerForm.state.taxCode = value
+    },
+    clearMstBlur,
+  )
+}
 
 const loginForm = reactive({
   schema: loginSchema(),
@@ -498,6 +639,14 @@ const registerForm = reactive({
   }),
 })
 
+watch(
+  () => registerForm.activeTab,
+  () => {
+    registerFieldErrors.fullName = ''
+    clearMstBlur()
+  },
+)
+
 function close() {
   emit('update:modelValue', false)
 }
@@ -514,6 +663,7 @@ function switchView(next: ViewMode, role?: 'candidate' | 'employer') {
   loading.value = false
   loginError.value = ''
   registerError.value = ''
+  clearAuthFieldErrors()
 
   if (next === 'register') {
     agreeTerms.value = false
@@ -522,10 +672,8 @@ function switchView(next: ViewMode, role?: 'candidate' | 'employer') {
 }
 
 function forgotPassword() {
-  useNotify({
-    type: 'error',
-    message: 'Tính năng quên mật khẩu sẽ được cập nhật sau.',
-  })
+  close()
+  navigateTo('/auth/forgot-password')
 }
 
 function firstZodMessage(result: { success: boolean; error?: { issues: { message: string }[] } }) {
@@ -535,6 +683,8 @@ function firstZodMessage(result: { success: boolean; error?: { issues: { message
 
 async function onSubmitLogin() {
   loginError.value = ''
+  validateLoginFieldOnBlur('email')
+  if (loginFieldErrors.email) return
 
   const parsed = loginForm.schema.safeParse(loginForm.state)
   if (!parsed.success) {
@@ -569,6 +719,20 @@ async function onSubmitRegister() {
 
   registerError.value = ''
 
+  if (registerForm.activeTab === 'candidate') {
+    validateRegisterFieldOnBlur('fullName')
+  }
+  validateRegisterFieldOnBlur('email')
+  validateRegisterFieldOnBlur('phoneNumber')
+
+  if (
+    registerFieldErrors.fullName ||
+    registerFieldErrors.email ||
+    registerFieldErrors.phoneNumber
+  ) {
+    return
+  }
+
   const parsed = registerForm.currentSchema.safeParse(registerForm.state)
   if (!parsed.success) {
     registerError.value = firstZodMessage(parsed)
@@ -577,8 +741,34 @@ async function onSubmitRegister() {
 
   const data = parsed.data
 
+  if (registerForm.activeTab === 'employer') {
+    await ensureMstChecked(registerForm.state.taxCode)
+    if (!mstIsVerified.value) {
+      registerError.value = mstBlurMessage.value || MST_BLUR_MESSAGES.invalid
+      return
+    }
+  }
+
   loading.value = true
   try {
+    if (registerForm.activeTab === 'employer') {
+      const { registerEmployer } = useEmployerRegistration()
+      await registerEmployer({
+        taxCode: (data as { taxCode: string }).taxCode,
+        email: data.email,
+        password: data.password,
+        phoneNumber: data.phoneNumber ? String(data.phoneNumber).trim() : undefined,
+      })
+
+      useNotify({
+        type: 'success',
+        message: 'Đăng ký thành công.',
+      })
+      close()
+      await router.push(ROUTE_PAGE.DASHBOARD.COMPANY)
+      return
+    }
+
     const registerData: Record<string, unknown> = {
       email: data.email,
       password: data.password,
@@ -589,15 +779,8 @@ async function onSubmitRegister() {
       registerData.phoneNumber = String(data.phoneNumber).trim()
     }
 
-    if (registerForm.activeTab === 'candidate') {
-      registerData.fullName = (data as { fullName: string }).fullName
-      registerData.role = USER_ROLES.USER
-    } else {
-      const taxCode = (data as { taxCode: string }).taxCode
-      registerData.fullName = taxCode
-      registerData.role = USER_ROLES.COMPANY
-      registerData.taxCode = taxCode
-    }
+    registerData.fullName = (data as { fullName: string }).fullName
+    registerData.role = USER_ROLES.USER
 
     const response = await authStore.register(registerData)
 

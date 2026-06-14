@@ -54,13 +54,14 @@
         </div>
 
           <label class="employer-field employer-field-full">
-            <span>{{ $t('company.taxAddress') }}</span>
+            <span>Địa chỉ thuế</span>
           <UInput
             v-model.trim="companyForm.taxAddress"
             class="w-full"
             :ui="{ base: 'h-10 rounded-xl text-[13px]' }"
-            :placeholder="$t('company.taxAddress')"
+            placeholder="Địa chỉ thuế"
             :disabled="formDisabled"
+            readonly
           />
           </label>
 
@@ -80,7 +81,7 @@
           </label>
 
           <label class="employer-field employer-field-full employer-field-editor">
-            <span>{{ $t('company.address') }} {{ $t('common.requiredMark') }}</span>
+            <span>{{ $t('job.uploadJob.detailAddressLabel') }} {{ $t('common.requiredMark') }}</span>
             <div class="employer-editor rich-text-output">
           <RichTextEditor
             id="company-address"
@@ -100,10 +101,11 @@
           <div class="employer-grid employer-grid-two">
           <label class="employer-field">
             <span>{{ $t('company.industry') }} {{ $t('common.requiredMark') }}</span>
-            <USelect
+            <USelectMenu
               id="company-organization-type"
-              :items="organizationTypeItems"
-              :model-value="companyForm.organizationType?.toString()"
+              :items="organizationTypeItemsSearchable"
+              :model-value="companyForm.organizationType?.toString() || undefined"
+              value-key="value"
               class="w-full employer-org-type-select employer-field-control"
               :class="{
                 'employer-field-select--placeholder': !companyForm.organizationType,
@@ -112,6 +114,8 @@
               :ui="orgTypeSelectUi"
               :content="{ side: 'bottom' }"
               :disabled="formDisabled"
+              :placeholder="$t('company.industry')"
+              :search-input="{ placeholder: 'Tìm loại hình...', variant: 'none' }"
               @update:model-value="
                 (v) => { companyForm.organizationType = Number(v ?? 0); companyErrors.organizationType = '' }
               "
@@ -144,23 +148,28 @@
 
           <label class="employer-field employer-field-full">
             <span>{{ $t('company.size') }}</span>
-          <UInput
-            id="company-size"
-            v-model.number="companyForm.companySize"
-            type="number"
-            min="0"
-            step="1"
-            class="w-full"
-            :ui="{
-              base:
-                'h-10 rounded-xl text-[13px]' +
-                (companyErrors.companySize ? ' !ring-1 !ring-inset !ring-red-500' : ''),
-            }"
-            :disabled="formDisabled"
-            :placeholder="$t('company.form.placeholderCompanySize')"
-            @input="companyErrors.companySize = ''"
-          />
-          <p v-if="companyErrors.companySize" class="employer-field-error">{{ companyErrors.companySize }}</p>
+            <USelect
+              id="company-size"
+              :items="companySizeSelectItems"
+              :model-value="companyForm.companySize?.toString() ?? ''"
+              class="w-full employer-field-select employer-field-control"
+              :class="{
+                'employer-field-select--placeholder': !companyForm.companySize,
+                'employer-field-select--error': !!companyErrors.companySize,
+              }"
+              :ui="orgTypeSelectUi"
+              :content="{ side: 'bottom' }"
+              :disabled="formDisabled"
+              :placeholder="$t('company.form.placeholderCompanySize')"
+              @update:model-value="
+                (v) => {
+                  companyForm.companySize = v ? Number(v) : null
+                  companySizeDirty = true
+                  companyErrors.companySize = ''
+                }
+              "
+            />
+            <p v-if="companyErrors.companySize" class="employer-field-error">{{ companyErrors.companySize }}</p>
           </label>
 
           <label class="employer-field employer-field-full">
@@ -627,6 +636,11 @@ import { nextTick, watch } from 'vue'
 import type { CompanyAddUpdateEntity, CompanyEntity } from '~/entities/company'
 import RichTextEditor from '~/components/RichTextEditor.vue'
 import { adminJobDrawerCompanySelectControlUi } from '~/utils/admin-drawer-ui'
+import {
+  companySizeSelectItems,
+  resolveCompanySizeForSave,
+  resolveCompanySizeForSelect,
+} from '~/constants/company-size'
 
 const orgTypeSelectUi = adminJobDrawerCompanySelectControlUi
 
@@ -643,7 +657,7 @@ const emit = defineEmits<{
 const { t } = useI18n()
 const { $api } = useNuxtApp()
 const authStore = useAuthStore()
-const { organizationTypeItems } = useJobFilters()
+const { organizationTypeItemsSearchable } = useJobFilters()
 const { loadForCrop } = useImageCropSource()
 
 // Check if current user is the host company
@@ -725,6 +739,9 @@ const companyForm = ref<CompanyAddUpdateEntity>({
   bannerImage: null,
 })
 
+const companySizeFromDb = ref<number | null>(null)
+const companySizeDirty = ref(false)
+
 // Company field errors
 const companyErrors = ref<Record<string, string>>({})
 
@@ -792,7 +809,9 @@ function populateFormFromCompanyData(res: CompanyEntity) {
     companyForm.value.organizationType = res.organizationType ?? 0
     companyForm.value.website = res.website || ''
     companyForm.value.foundedYear = res.foundedYear ?? null
-    companyForm.value.companySize = res.companySize ?? null
+    companySizeFromDb.value = res.companySize ?? null
+    companySizeDirty.value = false
+    companyForm.value.companySize = resolveCompanySizeForSelect(res.companySize)
     companyForm.value.facebookLink = res.facebookLink || ''
     companyForm.value.twitterLink = res.twitterLink || ''
     companyForm.value.instagramLink = res.instagramLink || ''
@@ -1427,25 +1446,11 @@ function validateCompanyFields(): boolean {
     }
   }
 
-  // Validate companySize format only if provided
-  if (companyForm.value.companySize != null && companyForm.value.companySize !== undefined) {
-    if (
-      !Number.isFinite(companyForm.value.companySize) ||
-      companyForm.value.companySize < 0 ||
-      !Number.isInteger(companyForm.value.companySize)
-    ) {
-      companyErrors.value.companySize = t('company.form.errCompanySize')
-      isValid = false
-    }
-  }
-
   // Validate logo
   if (!companyForm.value.logo) {
     companyErrors.value.logo = 'Logo công ty không được để trống.'
     isValid = false
   }
-
-  // Description is optional, no validation needed
 
   if (
     companyForm.value.website &&
@@ -1590,6 +1595,11 @@ async function saveCompany() {
     // Step 3: Prepare update data
     const updateData: CompanyAddUpdateEntity = {
       ...companyForm.value,
+      companySize: resolveCompanySizeForSave(
+        companySizeFromDb.value,
+        companyForm.value.companySize,
+        companySizeDirty.value,
+      ) ?? null,
       mst: companyForm.value.mst && companyForm.value.mst.trim() !== ''
         ? companyForm.value.mst.trim()
         : undefined,

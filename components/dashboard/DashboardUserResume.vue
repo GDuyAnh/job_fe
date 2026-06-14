@@ -115,44 +115,17 @@
         <section class="candidate-cv-section candidate-cv-section-cover">
           <div class="candidate-cv-section-head">
             <div>
-              <h2>Cover Letter (Không bắt buộc)</h2>
+              <h2>Cover Letter</h2>
             </div>
-
-            <button
-              type="button"
-              class="candidate-cv-edit-btn"
-              data-candidate-cv-edit-section="cover"
-              :aria-pressed="isEditingCoverLetter"
-              aria-label="Chỉnh sửa cover letter"
-              title="Chỉnh sửa cover letter"
-              @click="toggleEditCoverLetter"
-            >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                <path
-                  d="M4 20h4l9.8-9.8a1.5 1.5 0 0 0 0-2.1l-1.9-1.9a1.5 1.5 0 0 0-2.1 0L4 16v4Z"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linejoin="round"
-                />
-                <path
-                  d="m12.5 7.5 4 4"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                />
-              </svg>
-            </button>
           </div>
 
           <label class="candidate-cv-field candidate-cv-cover-field">
             <textarea
               v-model="coverLetterDraft"
-              rows="6"
+              rows="4"
               maxlength="1000"
               placeholder="Giới thiệu bản thân và lý do tại sao bạn sẽ là một ứng viên phù hợp."
               data-candidate-cv-cover-letter=""
-              :readonly="!isEditingCoverLetter"
-              :class="{ 'is-readonly': !isEditingCoverLetter }"
             />
             <small data-candidate-cv-count="">{{ coverLetterDraft.length }} / 1000</small>
           </label>
@@ -164,7 +137,7 @@
           type="button"
           class="candidate-secondary-btn"
           data-candidate-cv-cancel=""
-          :disabled="!isEditingCoverLetter"
+          :disabled="!canCancelCoverLetter"
           @click="cancelEditCoverLetter"
         >
           Hủy
@@ -199,7 +172,6 @@ const { t } = useI18n()
 
 const coverLetterTextValue = ref('')
 const savingCoverLetterText = ref(false)
-const isEditingCoverLetter = ref(false)
 const coverLetterDraft = ref('')
 
 const cvFileEl = ref<HTMLInputElement | null>(null)
@@ -324,7 +296,7 @@ const onPickCv = async (e: Event) => {
 }
 
 const saveCoverLetterText = async () => {
-  if (!canSaveCoverLetter.value) return
+  if (!canSaveCoverLetter.value || savingCoverLetterText.value) return
 
   savingCoverLetterText.value = true
 
@@ -346,7 +318,6 @@ const saveCoverLetterText = async () => {
     })
 
     coverLetterTextValue.value = coverLetterDraft.value
-    isEditingCoverLetter.value = false
   } catch (error: any) {
     console.error('Failed to save cover letter text:', error)
     useNotify({
@@ -358,22 +329,22 @@ const saveCoverLetterText = async () => {
   }
 }
 
-const canSaveCoverLetter = computed(() => {
-  if (!isEditingCoverLetter.value || savingCoverLetterText.value) return false
-
+const hasCoverLetterChanges = computed(() => {
   const next = (coverLetterDraft.value || '').trim()
   const prev = (coverLetterTextValue.value || '').trim()
-
   return next !== prev
 })
 
-const toggleEditCoverLetter = () => {
-  isEditingCoverLetter.value = true
-}
+const canSaveCoverLetter = computed(
+  () => hasCoverLetterChanges.value && !savingCoverLetterText.value,
+)
+
+const canCancelCoverLetter = computed(
+  () => hasCoverLetterChanges.value && !savingCoverLetterText.value,
+)
 
 const cancelEditCoverLetter = () => {
   coverLetterDraft.value = coverLetterTextValue.value || ''
-  isEditingCoverLetter.value = false
 }
 
 onMounted(async () => {

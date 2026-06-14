@@ -106,28 +106,6 @@
             <span>Thông tin Tài Khoản</span>
           </NuxtLink>
 
-          <NuxtLink
-            :to="{ path: '/users/dashboard', query: { view: 'settings' } }"
-            class="candidate-nav-link"
-            :class="{ 'is-active': activeView === 'settings' }"
-          >
-            <span class="candidate-nav-icon" aria-hidden="true">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-                <path
-                  d="M12 8.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7Z"
-                  stroke="currentColor"
-                  stroke-width="2"
-                />
-                <path
-                  d="M19.4 15a1 1 0 0 0 .2 1.1l.1.1a1.7 1.7 0 0 1-1.2 2.9h-.2a1 1 0 0 0-.9.6l-.1.2a1.7 1.7 0 0 1-3.1 0l-.1-.2a1 1 0 0 0-.9-.6h-.4a1 1 0 0 0-.9.6l-.1.2a1.7 1.7 0 0 1-3.1 0l-.1-.2a1 1 0 0 0-.9-.6h-.2a1.7 1.7 0 0 1-1.2-2.9l.1-.1a1 1 0 0 0 .2-1.1l-.1-.2a1.7 1.7 0 0 1 0-1.6l.1-.2a1 1 0 0 0-.2-1.1l-.1-.1A1.7 1.7 0 0 1 5.5 8.9h.2a1 1 0 0 0 .9-.6l.1-.2a1.7 1.7 0 0 1 3.1 0l.1.2a1 1 0 0 0 .9.6h.4a1 1 0 0 0 .9-.6l.1-.2a1.7 1.7 0 0 1 3.1 0l.1.2a1 1 0 0 0 .9.6h.2a1.7 1.7 0 0 1 1.2 2.9l-.1.1a1 1 0 0 0-.2 1.1l.1.2a1.7 1.7 0 0 1 0 1.6l-.1.2Z"
-                  stroke="currentColor"
-                  stroke-width="1.6"
-                  stroke-linejoin="round"
-                />
-              </svg>
-            </span>
-            <span>Cài đặt</span>
-          </NuxtLink>
         </nav>
       </aside>
 
@@ -213,11 +191,6 @@
           <DashboardUserApplications
             v-else-if="activeView === 'applications'"
           />
-
-          <DashboardSettings
-            v-else-if="activeView === 'settings'"
-            @edit-profile="setActiveView('editProfile')"
-          />
         </main>
       </div>
     </div>
@@ -231,7 +204,6 @@ import DashboardUserOverview from '~/components/dashboard/DashboardUserOverview.
 import DashboardUserEditProfile from '~/components/dashboard/DashboardUserEditProfile.vue'
 import DashboardUserResume from '~/components/dashboard/DashboardUserResume.vue'
 import DashboardUserApplications from '~/components/dashboard/DashboardUserApplications.vue'
-import DashboardSettings from '~/components/dashboard/DashboardSettings.vue'
 
 definePageMeta({
   layout: 'blank',
@@ -249,7 +221,7 @@ const authStore = useAuthStore()
 const accountDashboardUrl = '/users/dashboard?view=editProfile'
 
 // Dashboard view types
-type DashboardView = 'dashboard' | 'editProfile' | 'resume' | 'applications' | 'settings'
+type DashboardView = 'dashboard' | 'editProfile' | 'resume' | 'applications'
 
 // Active view state
 const activeView = ref<DashboardView>('dashboard')
@@ -311,9 +283,19 @@ const logout = () => {
 // Watch for route query changes (immediate để chạy ngay khi load)
 watch(() => route.query.view, (newView) => {
   const raw = newView as string | undefined
-  const mapped = raw === 'changePassword' ? 'settings' : raw
-  if (mapped && ['dashboard', 'editProfile', 'resume', 'applications', 'settings'].includes(mapped)) {
-    activeView.value = mapped as DashboardView
+
+  if (raw === 'settings' || raw === 'changePassword') {
+    activeView.value = 'editProfile'
+    router.replace({
+      path: '/users/dashboard',
+      query: { view: 'editProfile', expand: 'password' },
+    })
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+    return
+  }
+
+  if (raw && ['dashboard', 'editProfile', 'resume', 'applications'].includes(raw)) {
+    activeView.value = raw as DashboardView
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 }, { immediate: true })

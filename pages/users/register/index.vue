@@ -95,6 +95,8 @@
                 v-model="formState.fullName"
                 class="w-full rounded-xl text-base"
                 :placeholder="t('auth.fullName')"
+                @input="onFullNameInput"
+                @blur="onFullNameBlur"
               >
                 <template #trailing>
                   <svg
@@ -113,6 +115,13 @@
                 </template>
               </app-input>
             </app-form-field>
+            <p
+              v-if="fullNameBlurError"
+              class="text-error text-xs px-2.5 -mt-1"
+              role="alert"
+            >
+              {{ fullNameBlurError }}
+            </p>
 
             <app-form-field name="email" required>
               <app-input
@@ -195,6 +204,9 @@
                 v-model="recruiterFormState.taxCode"
                 class="w-full rounded-xl text-base"
                 :placeholder="t('auth.taxCode')"
+                inputmode="numeric"
+                @blur="onRecruiterTaxCodeBlur"
+                @input="onRecruiterTaxCodeInput"
               >
                 <template #trailing>
                   <svg
@@ -213,6 +225,20 @@
                 </template>
               </app-input>
             </app-form-field>
+            <p
+              v-if="mstChecking"
+              class="text-xs px-2.5 -mt-1 text-gray-500"
+            >
+              Đang kiểm tra...
+            </p>
+            <p
+              v-else-if="mstBlurMessage"
+              class="text-xs px-2.5 -mt-1"
+              :class="mstBlurSuccess ? 'text-green-600' : 'text-error'"
+              role="alert"
+            >
+              {{ mstBlurMessage }}
+            </p>
 
             <app-form-field name="email" required>
               <app-input
@@ -303,6 +329,12 @@ import type { FormSubmitEvent } from '@nuxt/ui'
 import { registerSchema, registerCompanySchema } from '~/constants/schema/register'
 import { useRouter } from 'vue-router'
 import { USER_ROLES } from '~/constants/roles'
+import {
+  handleAuthFullNameInput,
+  validateAuthFullName,
+} from '~/utils/auth-field-validation'
+import { MST_BLUR_MESSAGES } from '~/composables/useEmployerRegistration'
+import { handleMstInput } from '~/utils/mst'
 
 defineComponent({
   name: 'UsersRegister',
@@ -318,7 +350,6 @@ useHead({
 const { t } = useI18n()
 const authStore = useAuthStore()
 const router = useRouter()
-const { $api } = useNuxtApp()
 
 // Tab state
 const activeTab = ref<'candidate' | 'recruiter'>('candidate')
@@ -342,10 +373,53 @@ const recruiterFormState = reactive({
 })
 
 const loading = ref(false)
+const fullNameBlurError = ref('')
+
+const {
+  message: mstBlurMessage,
+  checking: mstChecking,
+  isSuccess: mstBlurSuccess,
+  isVerified: mstIsVerified,
+  onMstBlur,
+  clearMstBlur,
+  ensureMstChecked,
+} = useMstBlurValidation()
+
+function onFullNameInput(event: Event) {
+  handleAuthFullNameInput(
+    event,
+    (value) => {
+      formState.fullName = value
+    },
+    () => {
+      fullNameBlurError.value = ''
+    },
+  )
+}
+
+function onFullNameBlur() {
+  fullNameBlurError.value = validateAuthFullName(formState.fullName)
+}
+
+function onRecruiterTaxCodeBlur() {
+  onMstBlur(recruiterFormState.taxCode)
+}
+
+function onRecruiterTaxCodeInput(event: Event) {
+  handleMstInput(
+    event,
+    (value) => {
+      recruiterFormState.taxCode = value
+    },
+    clearMstBlur,
+  )
+}
 
 // Switch between tabs
 function switchTab(tab: 'candidate' | 'recruiter') {
   activeTab.value = tab
+  fullNameBlurError.value = ''
+  clearMstBlur()
   // Reset form states when switching tabs
   formState.fullName = ''
   formState.email = ''
@@ -419,166 +493,46 @@ async function onSubmitRecruiter(event: FormSubmitEvent<any>) {
   loading.value = true
 
   try {
-    const taxCode = event.data.taxCode as string
-    const email = event.data.email as string
-    const password = event.data.password as string
-
-    // Step 1: Check if company exists in database by MST
-    let existingCompany: any = null
-    let companyName = ''
-    let companyIdForRegistration: number | null = null // Company ID to send to registration API
-    let proceedWithRegistration = false // Flag to control if we should proceed to registration
-
-    try {
-      existingCompany = await $api.company.checkExistMst(taxCode)
-      console.log('checkExistMst result:', existingCompany)
-    } catch (_error: any) {
-      // Company doesn't exist in DB yet - will create new one
-      existingCompany = null
-      console.log('checkExistMst error, set to null')
-    }
-
-    console.log('existingCompany check:', existingCompany, 'existingCompany.id:', existingCompany?.id)
-
-    if (existingCompany && existingCompany.id && Number.isInteger(existingCompany.id)) {
-      // Case 1: Company already exists in DB - use its name and ID
-      companyName = existingCompany.name || ''
-      companyIdForRegistration = existingCompany.id
-      console.log('Company found in DB:', existingCompany.id)
-      proceedWithRegistration = true
-    } else {
-      // Case 2: Company doesn't exist in DB - lookup from VietQR
-      // Case 2: Company doesn't exist - lookup from VietQR
-      try {
-        const vietQRResponse = await $api.company.getCompanyByMst(taxCode)
-
-        console.log('vietQRResponse', vietQRResponse)
-
-        if (vietQRResponse && vietQRResponse.code === '00') {
-          // VietQR found data - create new company with this data
-          const vietQRData = vietQRResponse.data
-
-          const newCompany = {
-            name: vietQRData.name || 'Company',
-            mst: vietQRData.id || taxCode,
-            logo: 'https://via.placeholder.com/150', // Default logo placeholder
-            organizationType: 0,
-            isWaiting: true,
-            isFeatured: false,
-            facebookLink: '',
-            linkedInLink: '',
-            twitterLink: '',
-            instagramLink: '',
-            website: '',
-            videoUrl: '',
-            address: vietQRData.address || 'Chưa cập nhật',
-            taxAddress: vietQRData.address || '',
-            companySize: null,
-            foundedYear: null,
-            description: '',
-            insight: '',
-            overview: '',
-            companyImages: [],
-            bannerImage: null,
-          }
-
-          const createdCompany = await $api.company.addCompany(newCompany)
-
-          // Verify company creation was successful
-          if (!createdCompany || !createdCompany.id) {
-            useNotify({
-              type: 'error',
-              message: t('auth.mstNotFound'),
-            })
-            loading.value = false
-
-            return
-          }
-
-          companyName = vietQRData.name || createdCompany.name || ''
-          companyIdForRegistration = createdCompany.id
-          proceedWithRegistration = true
-
-          console.log('Created new company from VietQR:', createdCompany)
-        } else {
-          // VietQR didn't find data
-          console.log('VietQR did not find data, showing error and returning')
-          useNotify({
-            type: 'error',
-            message: t('auth.mstNotFound'),
-          })
-
-          loading.value = false
-
-          return // Ở lại trang đăng ký
-        }
-      } catch (vietQRError: any) {
-        console.error('VietQR lookup failed:', vietQRError)
-        console.log('VietQR error, showing error and returning')
-
-        useNotify({
-          type: 'error',
-          message: t('auth.mstNotFound'),
-        })
-
-        loading.value = false
-
-        return // Ở lại trang đăng ký
-      }
-    }
-
-    // Only proceed to registration if company lookup/create was successful
-    if (!proceedWithRegistration) {
-      loading.value = false
-
-      return // Ở lại trang đăng ký
-    }
-
-    // Step 2: Register user with company
-    const response = await authStore.register({
-      fullName: companyName,
-      email: email,
-      password: password,
-      role: USER_ROLES.COMPANY, // 3 = COMPANY
-      taxCode: taxCode,
-      companyId: companyIdForRegistration,
-    })
-
-    console.log('Recruiter Register response:', response)
-
-    // Check if registration was successful
-    if (response) {
-      // After successful registration, login the user
-      const loginResponse = await authStore.login({
-        email: email,
-        password: password,
-      })
-
-      if (loginResponse?.user) {
-        authStore.setUser(loginResponse.user)
-      }
-
-      useNotify({
-        type: 'success',
-        message: t('auth.registerSuccess'),
-      })
-      router.push('/')
-    } else {
-      console.log('Registration failed - no response')
+    await ensureMstChecked(event.data.taxCode as string)
+    if (!mstIsVerified.value) {
       useNotify({
         type: 'error',
-        message: t('auth.registerFailed'),
+        message: mstBlurMessage.value || MST_BLUR_MESSAGES.invalid,
       })
+      return
     }
+
+    const { registerEmployer, messages } = useEmployerRegistration()
+
+    await registerEmployer({
+      taxCode: event.data.taxCode as string,
+      email: event.data.email as string,
+      password: event.data.password as string,
+    })
+
+    useNotify({
+      type: 'success',
+      message: t('auth.registerSuccess'),
+    })
+    await router.push(ROUTE_PAGE.DASHBOARD.COMPANY)
   } catch (error: any) {
     console.error('Recruiter Registration error:', error)
 
-    // Handle specific error messages
     let errorMessage = t('auth.registerFailed')
+    const rawMessage = error?.message || error?.response?.data?.message
 
-    if (error?.response?.data?.message) {
-      errorMessage = error.response.data.message
-    } else if (error?.message) {
+    if (typeof rawMessage === 'string' && rawMessage.trim()) {
+      errorMessage = rawMessage
+    } else if (Array.isArray(rawMessage)) {
+      errorMessage = rawMessage.join(', ')
+    }
+
+    if (
+      errorMessage === t('auth.registerFailed')
+      && (error?.message === messages.invalidFormat
+        || error?.message === messages.notFound
+        || error?.message === messages.createFailed)
+    ) {
       errorMessage = error.message
     }
 

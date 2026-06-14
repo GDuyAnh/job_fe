@@ -39,6 +39,10 @@ export class JobMapper {
       address: value.address || '',
       jobAddress: (value as any).jobAddress || null,
       postType: (value as any).postType || 'Basic',
+      applicationsCount:
+        (value as any).applicationsCount
+        ?? (value as any).totalApplications
+        ?? 0,
     }
   }
 
@@ -59,10 +63,9 @@ export class JobMapper {
           : 0,
       experienceLevel:
         value.experienceLevel !== undefined ? Number(value.experienceLevel) : 0,
-      requiredQualification:
-        value.requiredQualification !== undefined
-          ? Number(value.requiredQualification)
-          : 0,
+      requiredQualification: value.requiredQualification
+        ? value.requiredQualification.split(',').map((q) => q.trim()).filter(Boolean)
+        : undefined,
       gender: value.gender 
         ? value.gender.split(',').map(g => g.trim()).filter(g => g)
         : undefined,

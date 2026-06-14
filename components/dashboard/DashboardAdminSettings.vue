@@ -15,7 +15,7 @@
       <div class="employer-admin-settings-body">
         <section class="employer-admin-settings-section">
           <div class="employer-settings-card-head">
-            <h2>Thông tin tài khoản</h2>
+            <h2>{{ $t('dashboard.admin.settings.account.title') }}</h2>
           </div>
 
           <form
@@ -43,27 +43,27 @@
                   stroke-linecap="round"
                 />
               </svg>
-              <span>Bạn không thể thay đổi tài khoản email của bạn</span>
+              <span>{{ $t('dashboard.admin.settings.account.emailReadonlyNote') }}</span>
             </div>
 
             <div class="employer-grid employer-grid-two">
               <label class="employer-field">
-                <span>Họ và tên *</span>
+                <span>{{ $t('dashboard.admin.settings.account.fullName') }} *</span>
                 <input
                   v-model="accountForm.fullName"
                   type="text"
-                  placeholder="Nhập họ và tên"
+                  :placeholder="$t('dashboard.admin.settings.account.fullNamePlaceholder')"
                   data-settings-full-name=""
                   required
                 >
               </label>
 
               <label class="employer-field">
-                <span>Tên đăng nhập *</span>
+                <span>{{ $t('dashboard.admin.settings.account.username') }} *</span>
                 <input
                   v-model="accountForm.username"
                   type="text"
-                  placeholder="Nhập tên đăng nhập"
+                  :placeholder="$t('dashboard.admin.settings.account.usernamePlaceholder')"
                   data-settings-username=""
                   required
                 >
@@ -71,11 +71,11 @@
             </div>
 
             <label class="employer-field employer-field-full">
-              <span>Số điện thoại</span>
+              <span>{{ $t('dashboard.admin.settings.account.phone') }}</span>
               <input
                 v-model="accountForm.phoneNumber"
                 type="tel"
-                placeholder="Nhập số điện thoại"
+                :placeholder="$t('dashboard.admin.settings.account.phonePlaceholder')"
                 data-settings-phone=""
               >
             </label>
@@ -86,7 +86,7 @@
                 class="employer-settings-primary"
                 :disabled="savingAccount"
               >
-                {{ savingAccount ? 'Đang lưu...' : 'Lưu thông tin' }}
+                {{ savingAccount ? $t('dashboard.admin.settings.account.saving') : $t('dashboard.admin.settings.account.save') }}
               </button>
             </div>
           </form>
@@ -94,7 +94,7 @@
 
         <section class="employer-admin-settings-section is-card">
           <div class="employer-settings-card-head">
-            <h2>Thay đổi mật khẩu của bạn</h2>
+            <h2>{{ $t('dashboard.admin.settings.password.title') }}</h2>
           </div>
 
           <form
@@ -104,11 +104,11 @@
           >
             <div class="employer-grid employer-grid-two">
               <label class="employer-field">
-                <span>Mật khẩu cũ *</span>
+                <span>{{ $t('dashboard.admin.settings.password.current') }} *</span>
                 <input
                   v-model="passwordForm.currentPassword"
                   type="password"
-                  placeholder="Mật khẩu cũ"
+                  :placeholder="$t('dashboard.admin.settings.password.currentPlaceholder')"
                   data-settings-current-password=""
                   required
                   autocomplete="current-password"
@@ -116,11 +116,11 @@
               </label>
 
               <label class="employer-field">
-                <span>Mật khẩu mới *</span>
+                <span>{{ $t('dashboard.admin.settings.password.new') }} *</span>
                 <input
                   v-model="passwordForm.newPassword"
                   type="password"
-                  placeholder="Mật khẩu mới"
+                  :placeholder="$t('dashboard.admin.settings.password.newPlaceholder')"
                   data-settings-new-password=""
                   required
                   autocomplete="new-password"
@@ -129,11 +129,11 @@
             </div>
 
             <label class="employer-field employer-field-full">
-              <span>Xác nhận mật khẩu mới *</span>
+              <span>{{ $t('dashboard.admin.settings.password.confirm') }} *</span>
               <input
                 v-model="passwordForm.confirmPassword"
                 type="password"
-                placeholder="Xác nhận mật khẩu mới"
+                :placeholder="$t('dashboard.admin.settings.password.confirmPlaceholder')"
                 data-settings-confirm-password=""
                 required
                 autocomplete="new-password"
@@ -146,7 +146,7 @@
                 class="employer-settings-primary is-amber"
                 :disabled="changingPassword"
               >
-                {{ changingPassword ? 'Đang đổi...' : 'Đổi mật khẩu' }}
+                {{ changingPassword ? $t('dashboard.admin.settings.password.changing') : $t('dashboard.admin.settings.password.change') }}
               </button>
             </div>
           </form>

@@ -21,40 +21,52 @@
               >
             </div>
 
-            <div class="search-item search-item-directory jobs-search-item">
+            <div class="search-item search-item-directory jobs-search-item jobs-search-item-select">
               <span class="search-item-icon" aria-hidden="true">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
                   <path d="M4 7H20M7 4V7M17 4V7M6 11H20V18H6V11Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
                 </svg>
               </span>
-              <USelect
-                v-model="searchParams.category"
-                :items="categoryItems"
-                variant="none"
-                class="jobs-directory-select"
-                placeholder="Bộ môn"
-                :trailing-icon="directorySelectNoIcon"
-                :ui="directorySelectUi"
-              />
+              <div class="jobs-directory-vselect job-vselect w-full min-w-0">
+                <v-select
+                  v-model="categoryForSelect"
+                  :options="categoryItemsSearchable"
+                  :append-to-body="true"
+                  multiple
+                  searchable
+                  class="w-full text-sm"
+                  placeholder="Bộ môn"
+                  label="label"
+                  :clear-search-on-blur="() => true"
+                  @open="onMultiSelectOpen"
+                  @close="onMultiSelectClose"
+                />
+              </div>
               <span class="arr">▾</span>
             </div>
 
-            <div class="search-item search-item-directory jobs-search-item">
+            <div class="search-item search-item-directory jobs-search-item jobs-search-item-select">
               <span class="search-item-icon" aria-hidden="true">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
                   <path d="M12 21C15.5 17.2 18 14.1 18 10.5C18 6.91015 15.3137 4 12 4C8.68629 4 6 6.91015 6 10.5C6 14.1 8.5 17.2 12 21Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
                   <path d="M12 12.5C13.1046 12.5 14 11.6046 14 10.5C14 9.39543 13.1046 8.5 12 8.5C10.8954 8.5 10 9.39543 10 10.5C10 11.6046 10.8954 12.5 12 12.5Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
                 </svg>
               </span>
-              <USelect
-                v-model="searchParams.location"
-                :items="locationItems"
-                variant="none"
-                class="jobs-directory-select jobs-directory-select-location"
-                placeholder="Tỉnh thành"
-                :trailing-icon="directorySelectNoIcon"
-                :ui="directorySelectUi"
-              />
+              <div class="jobs-directory-vselect job-vselect w-full min-w-0">
+                <v-select
+                  v-model="locationForSelect"
+                  :options="locationItemsSearchable"
+                  :append-to-body="true"
+                  multiple
+                  searchable
+                  class="w-full text-sm"
+                  placeholder="Tỉnh thành"
+                  label="label"
+                  :clear-search-on-blur="() => true"
+                  @open="onMultiSelectOpen"
+                  @close="onMultiSelectClose"
+                />
+              </div>
               <span class="arr">▾</span>
             </div>
 
@@ -366,13 +378,22 @@
                     </div>
                   </div>
 
-                  <div class="jobs-detail-actions">
+                  <div v-if="canApplyToJobs" class="jobs-detail-actions">
                     <button
+                      v-if="!hasAppliedToJob(selectedJob.id)"
                       type="button"
                       class="jobs-detail-cta"
                       @click.stop.prevent="openApplyDrawer(selectedJob)"
                     >
                       Ứng tuyển
+                    </button>
+                    <button
+                      v-else
+                      type="button"
+                      class="jobs-detail-cta"
+                      disabled
+                    >
+                      Đã ứng tuyển
                     </button>
                   </div>
                 </div>
@@ -468,13 +489,22 @@
                   </p>
                 </div>
 
-                <div class="jobs-detail-bottom-cta">
+                <div v-if="canApplyToJobs" class="jobs-detail-bottom-cta">
                   <button
+                    v-if="!hasAppliedToJob(selectedJob.id)"
                     type="button"
                     class="jobs-detail-cta"
                     @click.stop.prevent="openApplyDrawer(selectedJob)"
                   >
                     Ứng tuyển
+                  </button>
+                  <button
+                    v-else
+                    type="button"
+                    class="jobs-detail-cta"
+                    disabled
+                  >
+                    Đã ứng tuyển
                   </button>
                 </div>
               </aside>
@@ -523,8 +553,8 @@ import { hasRichTextContent } from '~/utils/rich-text'
 
 interface SearchParams {
   keyword: string
-  category: string
-  location: string
+  category: string[]
+  location: string[]
 }
 
 interface SelectedFilters {
@@ -533,21 +563,43 @@ interface SelectedFilters {
   grade: string[]
 }
 
-/** Chuỗi rỗng ghi đè chevron mặc định của USelect (defu) */
-const directorySelectNoIcon = ''
-const directorySelectUi = {
-  trailing: '!hidden',
-  trailingIcon: '!hidden',
-  content: 'z-[10000]',
+const vSelectOpenCount = ref(0)
+
+const preventScrollOutsideVSelect = (e: Event) => {
+  const target = e.target as HTMLElement | null
+  if (target?.closest?.('.vs__dropdown-menu')) return
+  e.preventDefault()
+}
+
+const setVSelectScrollLock = (locked: boolean) => {
+  if (!import.meta.client) return
+  document.body.classList.toggle('vselect-scroll-lock', locked)
+  if (locked) {
+    window.addEventListener('wheel', preventScrollOutsideVSelect, { passive: false })
+    window.addEventListener('touchmove', preventScrollOutsideVSelect, { passive: false })
+  } else {
+    window.removeEventListener('wheel', preventScrollOutsideVSelect as EventListener)
+    window.removeEventListener('touchmove', preventScrollOutsideVSelect as EventListener)
+  }
+}
+
+const onMultiSelectOpen = () => {
+  vSelectOpenCount.value += 1
+  if (vSelectOpenCount.value === 1) setVSelectScrollLock(true)
+}
+
+const onMultiSelectClose = () => {
+  vSelectOpenCount.value = Math.max(0, vSelectOpenCount.value - 1)
+  if (vSelectOpenCount.value === 0) setVSelectScrollLock(false)
 }
 
 // Enum
 const {
-  categoryItems,
+  categoryItemsSearchable,
   employmentTypeItems,
   experienceLevelItems,
   gradeItems,
-  locationItems,
+  locationItemsSearchable,
   locationEnumLabel,
   categoryEnumLabel,
   employmentTypesEnumLabel,
@@ -590,8 +642,8 @@ useHead({
 // Route
 const route = useRoute()
 const router = useRouter()
-const { t } = useI18n()
 const { $api } = useNuxtApp()
+const { ensureLoaded, hasAppliedToJob, canApplyToJobs } = useAppliedJobs()
 
 // Reactive data
 const loading = ref(false)
@@ -644,8 +696,40 @@ const requiredQualificationList = (job: JobModel | null): string[] =>
 // Search parameters
 const searchParams = ref<SearchParams>({
   keyword: '',
-  category: '',
-  location: '',
+  category: [],
+  location: [],
+})
+
+const categoryForSelect = computed({
+  get: () =>
+    searchParams.value.category
+      .map((v) =>
+        categoryItemsSearchable.value.find(
+          (o) => String(o.value) === String(v),
+        ),
+      )
+      .filter(Boolean) as { value: string; label: string }[],
+  set: (val: { value: string; label: string }[]) => {
+    searchParams.value.category = (val || [])
+      .map((o) => o?.value ?? '')
+      .filter(Boolean)
+  },
+})
+
+const locationForSelect = computed({
+  get: () =>
+    searchParams.value.location
+      .map((v) =>
+        locationItemsSearchable.value.find(
+          (o) => String(o.value) === String(v),
+        ),
+      )
+      .filter(Boolean) as { value: string; label: string }[],
+  set: (val: { value: string; label: string }[]) => {
+    searchParams.value.location = (val || [])
+      .map((o) => o?.value ?? '')
+      .filter(Boolean)
+  },
 })
 
 // Selected filters
@@ -761,17 +845,11 @@ const performSearch = async () => {
       apiParams.keyword = searchParams.value.keyword.trim()
     }
 
-    if (
-      searchParams.value.category &&
-      searchParams.value.category !== t('home.search.placeholderCategory')
-    ) {
+    if (searchParams.value.category.length > 0) {
       apiParams.category = searchParams.value.category
     }
 
-    if (
-      searchParams.value.location &&
-      searchParams.value.location !== t('home.search.placeholderLocation')
-    ) {
+    if (searchParams.value.location.length > 0) {
       apiParams.location = searchParams.value.location
     }
 
@@ -836,8 +914,8 @@ const clearFilters = () => {
 const clearSearch = async () => {
   searchParams.value = {
     keyword: '',
-    category: '',
-    location: '',
+    category: [],
+    location: [],
   }
   selectedFilters.value = {
     employmentType: [],
@@ -888,15 +966,13 @@ const getDisplayCategory = (jobCategory: string | null | undefined): string => {
 
   if (categories.length === 0) return jobCategory
 
-  // Check if there's a searched category
-  const searchedCategory = searchParams.value.category
-  const hasSearchedCategory = searchedCategory && 
-    searchedCategory !== t('home.search.placeholderCategory') &&
-    searchedCategory !== ''
+  const searchedCategories = searchParams.value.category
+  const hasSearchedCategory = searchedCategories.length > 0
 
   if (hasSearchedCategory) {
-    // Find the searched category in the job's categories
-    const foundCategory = categories.find((cat) => cat === searchedCategory)
+    const foundCategory = categories.find((cat) =>
+      searchedCategories.includes(cat),
+    )
     if (foundCategory) {
       // If found, display the searched category
       return categoryEnumLabel?.[foundCategory as unknown as number] ?? foundCategory
@@ -914,6 +990,8 @@ const viewJob = (job: JobModel) => {
 }
 
 const openApplyDrawer = (job: JobModel) => {
+  if (!canApplyToJobs.value || hasAppliedToJob(job.id)) return
+
   applyingJob.value = job
   applyDrawerOpen.value = true
 }
@@ -958,21 +1036,36 @@ const timeAgo = (d: Date | string) => {
 }
 
 // Initialize search from route query
-onMounted(() => {
+onMounted(async () => {
+  await ensureLoaded()
   const query = route.query
 
   if (query.keyword) searchParams.value.keyword = query.keyword as string
-  if (query.category) searchParams.value.category = query.category as string
-  if (query.location) searchParams.value.location = query.location as string
 
-  // Perform initial search if there are search parameters
-  if (
-    searchParams.value.keyword ||
-    searchParams.value.category !== t('home.search.placeholderCategory') ||
-    searchParams.value.location !== t('home.search.placeholderLocation')
-  ) {
-    performSearch()
+  const parseQueryStringArray = (raw: unknown): string[] => {
+    if (raw == null) return []
+    if (Array.isArray(raw)) return raw.map(String).filter(Boolean)
+    const str = String(raw).trim()
+    if (!str) return []
+    return str.split(/[,\n]/g).map((s) => s.trim()).filter(Boolean)
   }
+
+  const categoryIds = parseQueryStringArray(query.category).filter((id) =>
+    categoryItemsSearchable.value.some((item) => item.value === id),
+  )
+  if (categoryIds.length) searchParams.value.category = categoryIds
+
+  const locationIds = parseQueryStringArray(query.location).filter((id) =>
+    locationItemsSearchable.value.some((item) => item.value === id),
+  )
+  if (locationIds.length) searchParams.value.location = locationIds
+
+  performSearch()
+})
+
+onUnmounted(() => {
+  setVSelectScrollLock(false)
+  vSelectOpenCount.value = 0
 })
 
 watch(

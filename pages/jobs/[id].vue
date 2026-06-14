@@ -12,7 +12,7 @@
       :job="job"
       show-similar-jobs
       :similar-jobs="similarJobs"
-      :has-applied="hasApplied"
+      :has-applied="jobHasApplied"
       @apply="openApplyDrawer"
       @view-similar="viewSimilarJob"
     />
@@ -31,7 +31,6 @@
     <JobsJobApplicationDrawer
       v-model:open="applyDrawerOpen"
       :job="applyingJob"
-      @success="onApplySuccess"
     />
   </main>
 </template>
@@ -44,10 +43,14 @@ const route = useRoute()
 const router = useRouter()
 const { $api } = useNuxtApp()
 
+const { ensureLoaded, hasAppliedToJob, canApplyToJobs } = useAppliedJobs()
+
 const loading = ref(false)
 const job = ref<JobModel | null>(null)
-const hasApplied = ref(false)
 const similarJobs = ref<JobModel[]>([])
+const jobHasApplied = computed(() =>
+  job.value ? hasAppliedToJob(job.value.id) : false,
+)
 const applyDrawerOpen = ref(false)
 const applyingJob = ref<JobModel | null>(null)
 
@@ -62,14 +65,10 @@ const viewSimilarJob = (j: JobModel) => {
 }
 
 const openApplyDrawer = (j: JobModel) => {
+  if (!canApplyToJobs.value || hasAppliedToJob(j.id)) return
+
   applyingJob.value = j
   applyDrawerOpen.value = true
-}
-
-const onApplySuccess = (jobId: number) => {
-  if (Number(jobId) === Number(job.value?.id)) {
-    hasApplied.value = true
-  }
 }
 
 const loadSimilarJobs = async () => {
@@ -116,6 +115,9 @@ const loadJobDetail = async () => {
   }
 }
 
-onMounted(loadJobDetail)
+onMounted(async () => {
+  await Promise.all([loadJobDetail(), ensureLoaded()])
+})
+
 watch(() => route.params.id, loadJobDetail)
 </script>

@@ -10,6 +10,20 @@
     "password": "Password",
     "continue": "Continue",
     "forgotPassword": "Forgot password",
+    "forgotPasswordTitle": "Quên mật khẩu",
+    "forgotPasswordDescription": "Nhập email đã đăng ký. Chúng tôi sẽ gửi link đặt lại mật khẩu nếu email tồn tại.",
+    "forgotPasswordSubmit": "Gửi link đặt lại",
+    "forgotPasswordSending": "Đang gửi...",
+    "forgotPasswordSuccess": "Nếu email tồn tại trong hệ thống, bạn sẽ nhận được hướng dẫn đặt lại mật khẩu.",
+    "resetPasswordTitle": "Đặt lại mật khẩu",
+    "resetPasswordDescription": "Nhập mật khẩu mới cho tài khoản của bạn.",
+    "newPassword": "Mật khẩu mới",
+    "confirmPassword": "Xác nhận mật khẩu",
+    "resetPasswordSubmit": "Đặt lại mật khẩu",
+    "resetPasswordSubmitting": "Đang xử lý...",
+    "resetPasswordSuccess": "Mật khẩu đã được đặt lại. Vui lòng đăng nhập.",
+    "resetPasswordInvalidToken": "Link đặt lại mật khẩu không hợp lệ hoặc đã hết hạn.",
+    "backToLogin": "Quay lại đăng nhập",
     "newToJobster": "New to Jobster?",
     "createAccount": "Create an account",
     "fullName": "Họ và tên",
@@ -432,7 +446,7 @@
       "addressJobLabel": "Địa chỉ làm việc",
       "addressJobPlaceholder": "Nhập địa chỉ làm việc",
       "subAddressJobLabel": "(Danh sách cơ sở giảng dạy của trường/trung tâm)",
-      "locationJobLabel": "Tỉnh/Thành",
+      "locationJobLabel": "Tỉnh thành",
       "agreeUploadJobLabel": "Bằng cách ấn vào đây, tôi đồng ý với",
       "agreePolicy": "Điều khoản và Điều kiện ",
       "agreePrivacy": "Chính sách quyền riêng tư",
@@ -455,7 +469,7 @@
       "minSalary": "VD: 8,000,000",
       "maxSalary": "VD: 15,000,000",
       "chooseExperienceLevel": "Chọn kinh nghiệm",
-      "chooseBenefitLevel": "Chọn phúc lợi (Chọn nhiều)",
+      "chooseBenefitLevel": "Chọn phúc lợi",
       "chooseGender": "Chọn giới tính",
       "chooseGradeLevel": "Chọn khối",
       "chooseLocation": "Chọn tỉnh / thành"
@@ -551,7 +565,7 @@
     },
     "name": "Tên công ty",
     "mst": "Mã số thuế",
-    "taxAddress": "Nhập địa chỉ thuế",
+    "taxAddress": "Địa chỉ thuế",
     "email": "Email",
     "industry": "Loại hình tổ chức",
     "founded": "Năm thành lập",
@@ -567,7 +581,7 @@
     "website": "Website",
     "action": {
       "inputMST": "Mã số thuế trường học / công ty",
-      "placeHolderMST": "Ví dụ : 2100234326",
+      "placeHolderMST": "Nhập mã số thuế",
       "placeHolderInputName": "Nhập tên công ty"
     },
     "form": {
@@ -596,7 +610,7 @@
       "placeholderName": "Nhập tên công ty",
       "placeholderAddress": "Nhập địa chỉ làm việc hoặc địa chỉ trụ sở chính...",
       "placeholderFounded": "VD: 2008",
-      "placeholderCompanySize": "VD: 120",
+      "placeholderCompanySize": "Chọn quy mô công ty",
       "placeholderEmail": "Enter your email",
       "placeholderWebsite": "https://your-company.com",
       "placeholderFacebook": "https://facebook.com/your-company",
@@ -610,7 +624,7 @@
       "errOrgType": "Vui lòng chọn loại hình tổ chức.",
       "errEmail": "Email không hợp lệ.",
       "errWebsite": "Website không hợp lệ.",
-      "errCompanySize": "Quy mô phải là số nguyên không âm."
+      "errCompanySize": "Vui lòng chọn quy mô công ty hợp lệ."
     },
     "editCompany": {
       "title": "Chỉnh sửa công ty",
@@ -647,6 +661,7 @@
       "adminUsers": "Users",
       "adminBlogs": "Blogs",
       "adminSettings": "Cài đặt",
+      "adminEmailSettings": "Cài đặt gửi email",
       "adminImportExcel": "Import Excel"
     },
     "admin": {
@@ -770,6 +785,9 @@
           "candidateExpertise": "CANDIDATE EXPERTISE",
           "location": "LOCATION",
           "createdAt": "CREATED AT",
+          "status": "STATUS",
+          "applicationCount": "SỐ HỒ SƠ",
+          "latestApplication": "ỨNG TUYỂN GẦN NHẤT",
           "actions": "ACTION"
         },
         "deleteConfirm": "Bạn có chắc chắn muốn xóa đơn ứng tuyển này?",
@@ -778,7 +796,203 @@
       "settings": {
         "title": "Cài đặt",
         "welcome": "Welcome, System Admin",
-        "description": "Cài đặt hệ thống."
+        "description": "Cài đặt hệ thống.",
+        "account": {
+          "title": "Thông tin tài khoản",
+          "emailReadonlyNote": "Bạn không thể thay đổi tài khoản email của bạn",
+          "fullName": "Họ và tên",
+          "fullNamePlaceholder": "Nhập họ và tên",
+          "username": "Tên đăng nhập",
+          "usernamePlaceholder": "Nhập tên đăng nhập",
+          "phone": "Số điện thoại",
+          "phonePlaceholder": "Nhập số điện thoại",
+          "save": "Lưu thông tin",
+          "saving": "Đang lưu..."
+        },
+        "password": {
+          "title": "Thay đổi mật khẩu của bạn",
+          "current": "Mật khẩu cũ",
+          "currentPlaceholder": "Mật khẩu cũ",
+          "new": "Mật khẩu mới",
+          "newPlaceholder": "Mật khẩu mới",
+          "confirm": "Xác nhận mật khẩu mới",
+          "confirmPlaceholder": "Xác nhận mật khẩu mới",
+          "change": "Đổi mật khẩu",
+          "changing": "Đang đổi..."
+        }
+      },
+      "emailSettings": {
+        "title": "Cài đặt gửi email",
+        "welcome": "Welcome, System Admin",
+        "formTitle": "Cấu hình gửi email (SMTP)",
+        "smtpHost": "SMTP host",
+        "smtpPort": "SMTP port",
+        "smtpSecure": "Dùng SSL/TLS (thường bật với port 465)",
+        "smtpUser": "Tài khoản SMTP",
+        "smtpPass": "Mật khẩu SMTP",
+        "smtpPassPlaceholder": "Nhập mật khẩu SMTP",
+        "showSmtpPass": "Hiện mật khẩu",
+        "hideSmtpPass": "Ẩn mật khẩu",
+        "smtpPassHelp": {
+          "triggerLabel": "Hướng dẫn lấy App Password Gmail",
+          "title": "Cách lấy App Password (Gmail)",
+          "intro": "Nếu bạn dùng Gmail để gửi mail, hãy tạo Mật khẩu ứng dụng (App Password) thay vì dùng mật khẩu đăng nhập thường.",
+          "step1": "B1. Truy cập trang App Passwords bằng tài khoản Google của bạn:",
+          "step2": "B2. Nhập tên ứng dụng để dễ nhớ. Ví dụ: TuyenGiaoVien",
+          "step3": "B3. Nhấn Tạo, copy mã 16 ký tự Google hiển thị và dán vào ô Mật khẩu SMTP.",
+          "note": "Lưu ý: Tài khoản Google cần bật xác minh 2 bước trước khi tạo App Password."
+        },
+        "fromName": "Tên người gửi",
+        "testRecipient": "Email nhận thử",
+        "testEmailModalTitle": "Gửi email thử",
+        "testEmailModalDescription": "Nhập email để nhận thư kiểm tra cấu hình SMTP.",
+        "testEmailModalCancel": "Hủy",
+        "testEmailModalSend": "Gửi",
+        "save": "Lưu cấu hình",
+        "saving": "Đang lưu...",
+        "sendTest": "Gửi email thử",
+        "sendingTest": "Đang gửi...",
+        "loading": "Đang tải cấu hình email...",
+        "errors": {
+          "smtpHostRequired": "Vui lòng nhập SMTP host",
+          "smtpHostFormat": "SMTP host không đúng định dạng (vd: smtp.gmail.com)",
+          "smtpPortRequired": "Vui lòng nhập SMTP port",
+          "smtpPortFormat": "SMTP port phải là số từ 1 đến 65535",
+          "smtpUserRequired": "Vui lòng nhập tài khoản SMTP",
+          "smtpUserFormat": "Tài khoản SMTP không đúng định dạng email",
+          "smtpPassRequired": "Vui lòng nhập mật khẩu SMTP",
+          "fromNameRequired": "Vui lòng nhập tên người gửi",
+          "testRecipientRequired": "Vui lòng nhập email nhận thử",
+          "testRecipientFormat": "Email nhận thử không đúng định dạng"
+        },
+        "templates": {
+          "title": "Mẫu email hệ thống",
+          "description": "Chỉnh sửa nội dung email nghiệp vụ. Dùng nút biến để chèn placeholder.",
+          "loading": "Đang tải mẫu email...",
+          "subject": "Tiêu đề",
+          "body": "Nội dung",
+          "bodyHint": "Nhấn các nút biến bên dưới để chèn placeholder vào nội dung email.",
+          "bodyPlaceholder": "Nội dung email HTML...",
+          "variables": "Biến có thể chèn",
+          "enableSending": "Bật gửi email loại này",
+          "active": "Đang bật",
+          "inactive": "Chưa kích hoạt",
+          "save": "Lưu mẫu",
+          "saving": "Đang lưu...",
+          "reset": "Reset mặc định",
+          "resetting": "Đang reset...",
+          "preview": "Xem trước",
+          "previewing": "Đang tải...",
+          "previewTitle": "Xem trước email",
+          "whenSentTitle": "Email này được gửi khi nào?",
+          "whenLabel": "Thời điểm gửi",
+          "recipientLabel": "Người nhận",
+          "noteLabel": "Lưu ý",
+          "templateTriggers": {
+            "SMTP_TEST": {
+              "when": "Admin bấm nút \"Gửi email thử\" trên form cấu hình SMTP (phía trên).",
+              "recipient": "Email admin nhập trong hộp thoại gửi thử, hoặc email tài khoản đang đăng nhập."
+            },
+            "ACCOUNT_CREDENTIALS_CANDIDATE": {
+              "when": "Tạo tài khoản ứng viên (role USER): đăng ký mới, hoặc ứng tuyển lần đầu (hệ thống tự tạo user theo email).",
+              "recipient": "Ứng viên vừa được tạo tài khoản.",
+              "note": "Email chứa mật khẩu dạng plaintext theo luồng nghiệp vụ hiện tại."
+            },
+            "ACCOUNT_CREDENTIALS_EMPLOYER": {
+              "when": "Tạo tài khoản nhà tuyển dụng (role COMPANY): đăng ký NTD, đăng tin free-post lần đầu, hoặc admin thêm user công ty.",
+              "recipient": "Nhà tuyển dụng vừa được tạo tài khoản.",
+              "note": "Email chứa mật khẩu dạng plaintext theo luồng nghiệp vụ hiện tại."
+            },
+            "APPLICATION_CONFIRMATION": {
+              "when": "Ngay sau khi ứng viên nộp hồ sơ ứng tuyển thành công (guest hoặc đã đăng nhập).",
+              "recipient": "Email của ứng viên vừa nộp hồ sơ."
+            },
+            "NEW_APPLICATION_EMPLOYER": {
+              "when": "Cùng thời điểm với xác nhận ứng tuyển — khi có hồ sơ mới được tạo.",
+              "recipient": "Host công ty (user isHostCompany) của tin tuyển dụng được ứng tuyển."
+            },
+            "COMPANY_PENDING_ADMIN": {
+              "when": "Công ty mới được tạo và đang chờ duyệt (isWaiting = true): từ trang admin, đăng ký NTD, hoặc đăng tin free-post.",
+              "recipient": "Tất cả tài khoản có role ADMIN (gửi song song, dedupe email)."
+            },
+            "COMPANY_APPROVED": {
+              "when": "Admin duyệt công ty (PATCH /companies/:id/approve — chuyển isWaiting sang false).",
+              "recipient": "Host công ty được duyệt."
+            },
+            "COMPANY_REJECTED": {
+              "when": "Admin từ chối công ty (PATCH /companies/:id/reject).",
+              "recipient": "Host công ty bị từ chối."
+            },
+            "JOB_PENDING_ADMIN": {
+              "when": "Tin tuyển dụng mới được tạo với trạng thái ADMIN_REVIEW (dashboard admin/NTD hoặc đăng tin free-post).",
+              "recipient": "Tất cả tài khoản ADMIN."
+            },
+            "JOB_APPROVED": {
+              "when": "Tin được duyệt (PATCH /jobs/:id/approve — chuyển status sang APPROVED).",
+              "recipient": "Host công ty của tin, hoặc user tạo tin nếu không có host."
+            },
+            "JOB_REJECTED": {
+              "when": "Tin bị cập nhật sang trạng thái REJECTED (admin/NTD chỉnh sửa tin).",
+              "recipient": "Host công ty hoặc user tạo tin."
+            },
+            "PASSWORD_CHANGED": {
+              "when": "Sau khi user đổi mật khẩu thành công (trang cài đặt) hoặc hoàn tất đặt lại mật khẩu qua link reset.",
+              "recipient": "Chính user vừa đổi mật khẩu."
+            },
+            "PASSWORD_RESET": {
+              "when": "User gửi yêu cầu quên mật khẩu (POST /auth/forgot-password). Luôn trả message chung dù email có tồn tại hay không.",
+              "recipient": "User có email khớp trong hệ thống.",
+              "note": "Link reset hết hạn sau 1 giờ, chỉ dùng một lần."
+            },
+            "JOB_EXPIRING_SOON": {
+              "when": "Cron tự động chạy 8:00 sáng mỗi ngày — tin APPROVED còn từ 0–3 ngày trước deadline.",
+              "recipient": "Host công ty hoặc user tạo tin."
+            },
+            "JOB_EXPIRED": {
+              "when": "Cron tự động chạy 8:00 sáng mỗi ngày — tin APPROVED vừa quá deadline (trong vòng 24 giờ).",
+              "recipient": "Host công ty hoặc user tạo tin."
+            },
+            "EMAIL_VERIFICATION": {
+              "when": "Chưa kích hoạt — dự kiến gửi sau khi user đăng ký, kèm link xác minh email.",
+              "recipient": "User mới đăng ký.",
+              "note": "Template đang tắt (isActive = false). Bật gửi khi triển khai xác minh email."
+            },
+            "APPLICATION_STATUS_UPDATE": {
+              "when": "NTD hoặc admin đổi trạng thái hồ sơ trên trang Quản lý ứng viên / Applications.",
+              "recipient": "Ứng viên của hồ sơ được cập nhật.",
+              "note": "Email chỉ gửi khi trạng thái thay đổi (không gửi lúc mới nộp hồ sơ)."
+            }
+          },
+          "variableDescriptions": {
+            "fallback": "Biến {variable} — giá trị được thay khi gửi email.",
+            "siteName": "Tên website/hệ thống (vd: TopViec).",
+            "year": "Năm hiện tại khi gửi email.",
+            "sentAt": "Thời điểm gửi email (dùng cho email thử SMTP).",
+            "fullName": "Họ tên người nhận.",
+            "email": "Địa chỉ email người nhận.",
+            "username": "Tên đăng nhập tài khoản.",
+            "password": "Mật khẩu tài khoản (plaintext — chỉ email tạo tài khoản).",
+            "loginUrl": "Link trang đăng nhập.",
+            "dashboardUrl": "Link dashboard nhà tuyển dụng.",
+            "adminDashboardUrl": "Link trang quản trị admin.",
+            "jobTitle": "Tiêu đề tin tuyển dụng.",
+            "companyName": "Tên công ty.",
+            "companyMst": "Mã số thuế công ty.",
+            "applicantName": "Họ tên ứng viên.",
+            "applicantEmail": "Email ứng viên.",
+            "applicationDate": "Ngày nộp hồ sơ ứng tuyển.",
+            "jobUrl": "Link xem tin tuyển dụng công khai.",
+            "resetUrl": "Link đặt lại mật khẩu (có token, hết hạn 1 giờ).",
+            "verifyUrl": "Link xác minh email tài khoản.",
+            "expiresAt": "Thời điểm link reset/verify hết hạn.",
+            "changedAt": "Thời điểm mật khẩu được đổi.",
+            "deadline": "Hạn nộp / hết hạn tin tuyển dụng.",
+            "daysLeft": "Số ngày còn lại trước deadline.",
+            "rejectReason": "Lý do từ chối (công ty hoặc tin tuyển dụng).",
+            "applicationStatus": "Trạng thái mới của hồ sơ ứng tuyển.",
+            "statusMessage": "Ghi chú thêm về cập nhật trạng thái hồ sơ."
+          }
+        }
       },
       "users": {
         "title": "Users",
@@ -858,6 +1072,25 @@
         "noBlogs": "Chưa có blog nào",
         "save": "Lưu",
         "cancel": "Hủy"
+      }
+    },
+    "applicationStatus": {
+      "column": "Trạng thái",
+      "latestStatusColumn": "Trạng thái mới nhất",
+      "latestStatusHint": "Trạng thái của đơn ứng tuyển gần nhất. Mỗi vị trí có trạng thái riêng — xem và cập nhật trong chi tiết ứng viên.",
+      "updateLabel": "Cập nhật trạng thái",
+      "messagePlaceholder": "Ghi chú gửi kèm email cho ứng viên (tùy chọn)...",
+      "save": "Lưu",
+      "saveNote": "Gửi ghi chú",
+      "saving": "Đang lưu...",
+      "updateSuccess": "Đã cập nhật trạng thái hồ sơ",
+      "updateFailed": "Không thể cập nhật trạng thái hồ sơ",
+      "labels": {
+        "SUBMITTED": "Đã nộp hồ sơ",
+        "REVIEWING": "Đang xem xét",
+        "INTERVIEW": "Mời phỏng vấn",
+        "ACCEPTED": "Trúng tuyển",
+        "REJECTED": "Không phù hợp"
       }
     },
     "appliedJobs": {
@@ -958,7 +1191,22 @@
         "active": "Đang hoạt động",
         "pending": "Chờ duyệt",
         "expired": "Hết hạn",
-        "expiringSoon": "Sắp hết hạn"
+        "expiringSoon": "Sắp hết hạn",
+        "rejected": "Từ chối"
+      },
+      "cards": {
+        "all": "Tất cả tin đăng",
+        "pendingReview": "Chờ duyệt",
+        "approved": "Đã duyệt",
+        "expiringSoon": "Sắp hết hạn",
+        "expired": "Đã hết hạn",
+        "trash": "Đã xoá"
+      },
+      "rowStatus": {
+        "approved": "Đã duyệt",
+        "adminReview": "Chờ admin duyệt",
+        "pending": "Chờ duyệt",
+        "rejected": "Từ chối"
       },
       "pagination": {
         "showing": "Hiển thị",

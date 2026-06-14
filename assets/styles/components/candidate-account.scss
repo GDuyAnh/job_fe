@@ -141,6 +141,14 @@
 }
 
 .candidate-account-page .candidate-field > span,
+.candidate-account-page .candidate-avatar-hint {
+  margin: 0;
+  color: #94a3b8;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
 .candidate-account-page .candidate-avatar-field > span {
   color: #4f607d;
   font-size: 13px;
@@ -519,6 +527,63 @@ html body .candidate-account-page .job-vselect .v-select .vs__dropdown-toggle {
   min-height: 48px !important;
   height: auto !important;
   border-radius: 12px !important;
+}
+
+.candidate-account-page .candidate-account-password-section {
+  margin-top: 28px;
+  border: 1px solid rgba(220, 227, 239, 0.92);
+  border-radius: 16px;
+  background: #ffffff;
+  overflow: hidden;
+}
+
+.candidate-account-page .candidate-account-section-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  padding: 18px 22px;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.2s ease;
+}
+
+.candidate-account-page .candidate-account-section-toggle:hover {
+  background: rgba(248, 250, 252, 0.95);
+}
+
+.candidate-account-page .candidate-account-section-toggle h2 {
+  margin: 0;
+  color: #0f172a;
+  font-size: 18px;
+  line-height: 1.2;
+  font-weight: bold;
+}
+
+.candidate-account-page .candidate-account-section-chevron {
+  flex-shrink: 0;
+  color: #64748b;
+  transition: transform 0.28s ease;
+}
+
+.candidate-account-page .candidate-account-section-chevron.is-open {
+  transform: rotate(180deg);
+}
+
+.candidate-content .candidate-account-page .candidate-account-password-form.candidate-settings-password {
+  margin-top: 0;
+  padding: 0 22px 22px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.candidate-account-page .candidate-account-password-collapse {
+  will-change: height, opacity;
 }
 
 @media (max-width: 768px) {

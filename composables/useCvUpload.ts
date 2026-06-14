@@ -1,3 +1,48 @@
+export const AVATAR_ACCEPT = 'image/jpeg,image/png,.jpg,.jpeg,.png'
+export const AVATAR_MAX_SIZE_MB = 3
+
+const AVATAR_ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/jpg']
+const AVATAR_ALLOWED_EXTENSIONS = ['.jpg', '.jpeg', '.png']
+const AVATAR_BLOCKED_EXTENSIONS = [
+  '.avif',
+  '.webp',
+  '.gif',
+  '.svg',
+  '.bmp',
+  '.heic',
+  '.heif',
+  '.tiff',
+  '.tif',
+]
+
+export function validateAvatarFile(
+  file: File,
+  maxSizeMb: number = AVATAR_MAX_SIZE_MB,
+): string | null {
+  const extension = `.${file.name.split('.').pop()?.toLowerCase() || ''}`
+  const hasAllowedType = AVATAR_ALLOWED_TYPES.includes(file.type)
+  const hasAllowedExtension = AVATAR_ALLOWED_EXTENSIONS.includes(extension)
+
+  if (AVATAR_BLOCKED_EXTENSIONS.includes(extension)) {
+    return 'Chỉ chấp nhận file ảnh JPEG hoặc PNG'
+  }
+
+  if (file.type.startsWith('image/') && !hasAllowedType) {
+    return 'Chỉ chấp nhận file ảnh JPEG hoặc PNG'
+  }
+
+  if (!hasAllowedType && !hasAllowedExtension) {
+    return 'Chỉ chấp nhận file ảnh JPEG hoặc PNG'
+  }
+
+  const maxSizeBytes = maxSizeMb * 1024 * 1024
+  if (file.size > maxSizeBytes) {
+    return `Kích thước ảnh không được vượt quá ${maxSizeMb}MB`
+  }
+
+  return null
+}
+
 export const useCvUpload = () => {
   const loading = ref(false)
   const error = ref<string | null>(null)
@@ -141,17 +186,9 @@ export const useCvUpload = () => {
     progress.value = 0
 
     try {
-      // Validate image file
-      const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg']
-      const maxSize = 3 * 1024 * 1024 // 3MB
-
-      if (!allowedTypes.includes(file.type)) {
-        error.value = 'Chỉ chấp nhận file ảnh JPEG hoặc PNG'
-        return null
-      }
-
-      if (file.size > maxSize) {
-        error.value = 'Kích thước ảnh không được vượt quá 3MB'
+      const validationError = validateAvatarFile(file)
+      if (validationError) {
+        error.value = validationError
         return null
       }
 

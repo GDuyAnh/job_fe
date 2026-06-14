@@ -21,11 +21,23 @@ const AuthModule = (apiService: FetchFactory) => {
   const autoLogin = async (body: { email: string }) =>
     apiService.post(ROUTE_API.AUTO_LOGIN, { body })
 
+  const forgotPassword = async (body: { email: string }) =>
+    apiService.post<{ message: string }>(ROUTE_API.FORGOT_PASSWORD, { body })
+
+  const resetPassword = async (body: {
+    token: string
+    newPassword: string
+    confirmPassword: string
+  }) =>
+    apiService.post<{ message: string }>(ROUTE_API.RESET_PASSWORD, { body })
+
   return {
     login,
     register,
     getMe,
     autoLogin,
+    forgotPassword,
+    resetPassword,
   }
 }
 

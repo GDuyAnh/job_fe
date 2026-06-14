@@ -114,15 +114,7 @@ export const useAuthStore = defineStore('auth', {
     },
 
     setUser(user: UserModel) {
-      console.log('===== USER LOGIN INFO =====')
-      console.log('User:', user)
-      console.log('Role:', user.role)
-      console.log('Role Type:', typeof user.role)
-      console.log('Email:', user.email)
-      console.log('Full Name:', user.fullName)
-      console.log('Company ID:', user.companyId)
-      console.log('===========================')
-      this.user = user
+      this.user = UserMapper.toModel(user)
     },
 
     setToken(token: string) {

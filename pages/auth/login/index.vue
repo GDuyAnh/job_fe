@@ -223,11 +223,7 @@ async function onSubmit(event: FormSubmitEvent<LoginType>) {
 }
 
 function handleForgotPassword() {
-  // TODO: Implement forgot password functionality
-  useNotify({
-    type: 'success',
-    message: 'Tính năng quên mật khẩu sẽ được cập nhật sau.',
-  })
+  router.push('/auth/forgot-password')
 }
 
 function handleCreateAccount() {

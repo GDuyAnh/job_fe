@@ -17,6 +17,34 @@ export type JobApplicationSubmitResult =
   | { ok: true; isNewUser: false; needsLogin: false }
   | { ok: false; error: string }
 
+const DUPLICATE_APPLICATION_MESSAGE = 'Bạn đã ứng tuyển vị trí này.'
+const SUBMIT_APPLICATION_FALLBACK
+  = 'Có lỗi xảy ra khi gửi đơn ứng tuyển. Vui lòng thử lại.'
+
+function isDuplicateApplicationMessage(message: string): boolean {
+  const normalized = message.trim().toLowerCase()
+  return normalized.includes('đã ứng tuyển')
+    || normalized.includes('already applied')
+}
+
+function resolveApplicationSubmitError(error: unknown): string {
+  let raw = ''
+
+  if (error instanceof Error) {
+    raw = error.message
+  }
+  else if (error && typeof error === 'object' && 'message' in error) {
+    const message = (error as { message?: string | string[] }).message
+    raw = Array.isArray(message) ? String(message[0] || '') : String(message || '')
+  }
+
+  if (isDuplicateApplicationMessage(raw)) {
+    return DUPLICATE_APPLICATION_MESSAGE
+  }
+
+  return raw.trim() || SUBMIT_APPLICATION_FALLBACK
+}
+
 export function useJobApplicationSubmit() {
   const { $api } = useNuxtApp()
   const authStore = useAuthStore()
@@ -97,7 +125,7 @@ export function useJobApplicationSubmit() {
 
       if (!authStore.isLoggedIn) {
         useNotify({
-          message: 'Vui lòng đăng nhập để xem thông tin chi tiết việc làm ứng tuyển',
+          message: 'Ứng tuyển thành công. Vui lòng đăng nhập để xem chi tiết.',
           type: 'success',
         })
         return { ok: true, isNewUser: false, needsLogin: true }
@@ -110,10 +138,7 @@ export function useJobApplicationSubmit() {
       })
       return { ok: true, isNewUser: false, needsLogin: false }
     } catch (error: unknown) {
-      const message =
-        error instanceof Error
-          ? error.message
-          : 'Có lỗi xảy ra khi gửi đơn ứng tuyển. Vui lòng thử lại.'
+      const message = resolveApplicationSubmitError(error)
       useNotify({ message, type: 'error' })
       return { ok: false, error: message }
     }

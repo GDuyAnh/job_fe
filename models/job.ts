@@ -36,6 +36,7 @@ export interface JobModel {
   jobAddress?: string | null
   postType?: string
   note?: string
+  applicationsCount?: number
 }
 
 export interface JobModelAddUpdate {
@@ -45,7 +46,7 @@ export interface JobModelAddUpdate {
   location?: string[] // Array for UI binding, will be converted to string when sending
   typeOfEmployment: number
   experienceLevel: number
-  requiredQualification: number
+  requiredQualification?: string[] // Array for UI binding, will be converted to string when sending
   gender?: string[] // Array for UI binding, will be converted to string when sending
   grade?: number
   companyId?: number

@@ -73,115 +73,68 @@
               <table class="employer-candidates-table">
                 <thead>
                   <tr>
-                    <th>{{ $t('dashboard.admin.applications.table.jobPosition') }}</th>
                     <th>{{ $t('dashboard.admin.applications.table.candidate') }}</th>
                     <th>{{ $t('dashboard.admin.applications.table.email') }}</th>
                     <th>SĐT</th>
                     <th>{{ $t('dashboard.admin.applications.table.cv') }}</th>
-                    <th>{{ $t('dashboard.admin.applications.table.candidateExpertise') }}</th>
-                    <th>{{ $t('dashboard.admin.applications.table.location') }}</th>
-                    <th>{{ $t('dashboard.admin.applications.table.createdAt') }}</th>
-                    <th class="is-action">{{ $t('dashboard.admin.applications.table.actions') }}</th>
+                    <th>{{ $t('dashboard.admin.applications.table.applicationCount') }}</th>
+                    <th>{{ $t('dashboard.admin.applications.table.latestApplication') }}</th>
                   </tr>
                 </thead>
                 <tbody data-candidates-rows="">
-                  <tr v-if="paginatedApplications.length === 0">
-                    <td colspan="9" class="employer-candidates-empty-cell">
+                  <tr v-if="paginatedApplicants.length === 0">
+                    <td colspan="6" class="employer-candidates-empty-cell">
                       {{ $t('dashboard.main.applicationsTable.noApplications') }}
                     </td>
                   </tr>
                   <tr
-                    v-for="app in paginatedApplications"
-                    :key="app.id"
+                    v-for="candidate in paginatedApplicants"
+                    :key="candidate.groupKey"
                     data-candidate-row=""
                   >
                     <td>
-                      <div class="employer-candidate-role">
-                        <strong>{{ app.jobTitle || '–' }}</strong>
-                        <div v-if="app.companyName" class="employer-candidate-employer">
-                          <img
-                            v-if="app.companyLogo"
-                            :src="app.companyLogo"
-                            :alt="`${app.companyName} logo`"
-                            loading="lazy"
-                          >
-                          <span>{{ app.companyName }}</span>
-                        </div>
-                      </div>
-                    </td>
-                    <td>
                       <div class="employer-candidate-person">
-                        <strong>{{ app.applicantName || '–' }}</strong>
+                        <button
+                          type="button"
+                          class="employer-candidate-name-btn"
+                          @click="viewCandidate(candidate)"
+                        >
+                          <strong>{{ candidate.applicantName || '–' }}</strong>
+                        </button>
                       </div>
                     </td>
-                    <td>{{ app.email || '–' }}</td>
-                    <td>{{ app.phone || '–' }}</td>
+                    <td>{{ candidate.email || '–' }}</td>
+                    <td>{{ candidate.phone || '–' }}</td>
                     <td>
                       <a
-                        v-if="app.cvUrl"
-                        :href="app.cvUrl"
+                        v-if="candidate.cvUrl"
+                        :href="candidate.cvUrl"
                         class="employer-candidate-cv"
                         target="_blank"
                         rel="noopener noreferrer"
-                        :download="cvFileName(app)"
+                        :download="cvFileName(candidate)"
+                        @click.stop
                       >
                         <span>Tải CV</span>
                       </a>
                       <span v-else class="employer-overview-table-muted">—</span>
                     </td>
                     <td>
-                      <div class="employer-admin-candidate-tags">
-                        <span
-                          v-for="label in getCategoryLabels(app.category)"
-                          :key="label"
-                          class="employer-admin-candidate-tag"
-                        >
-                          {{ label }}
-                        </span>
-                        <span
-                          v-if="getCategoryLabels(app.category).length === 0"
-                          class="employer-overview-table-muted"
-                        >—</span>
-                      </div>
+                      <span class="employer-candidate-app-count">
+                        {{ candidate.applicationCount }}
+                      </span>
                     </td>
-                    <td>
-                      <div class="employer-admin-candidate-tags">
-                        <span
-                          v-for="label in getLocationLabels(app.location)"
-                          :key="label"
-                          class="employer-admin-candidate-tag"
-                        >
-                          {{ label }}
-                        </span>
-                        <span
-                          v-if="getLocationLabels(app.location).length === 0"
-                          class="employer-overview-table-muted"
-                        >—</span>
-                      </div>
-                    </td>
-                    <td>{{ formatDate(app.applicationDate) }}</td>
-                    <td class="is-action">
-                      <EmployerRowActions
-                        :show-edit="false"
-                        :delete-disabled="deletingId === app.id"
-                        @view="viewApplication(app)"
-                        @delete="deleteApplication(app)"
-                      />
-                    </td>
+                    <td>{{ formatDate(candidate.latestApplicationDate) }}</td>
                   </tr>
                 </tbody>
               </table>
             </div>
 
             <nav
-              v-if="filteredApplications.length > 0"
+              v-if="groupedApplicants.length > 0"
               class="employer-dashboard-pagination employer-candidates-pagination"
               aria-label="Phân trang ứng viên"
             >
-              <p class="employer-dashboard-pagination-meta">
-                Hiển thị {{ paginationFrom }}-{{ paginationTo }} trong
-                {{ filteredApplications.length }} ứng viên
-              </p>
               <div class="employer-dashboard-pagination-pages">
                 <button
                   v-if="currentPage > 1"
@@ -308,7 +261,7 @@
             <ul class="employer-candidate-job-list">
               <li
                 v-for="job in candidateDetail.jobs"
-                :key="`${job.jobTitle}-${job.applicationDate}`"
+                :key="job.applicationId"
                 class="employer-candidate-job-item"
               >
                 <strong class="employer-candidate-job-title">{{ job.jobTitle }}</strong>
@@ -325,6 +278,57 @@
                   <span class="employer-candidate-job-date">
                     Ngày ứng tuyển: {{ formatDate(job.applicationDate) }}
                   </span>
+                </div>
+                <div
+                  v-if="getCategoryLabels(job.category).length || getLocationLabels(job.location).length"
+                  class="employer-admin-candidate-tags employer-candidate-job-tags"
+                >
+                  <span
+                    v-for="label in getCategoryLabels(job.category)"
+                    :key="`cat-${job.applicationId}-${label}`"
+                    class="employer-admin-candidate-tag"
+                  >
+                    {{ label }}
+                  </span>
+                  <span
+                    v-for="label in getLocationLabels(job.location)"
+                    :key="`loc-${job.applicationId}-${label}`"
+                    class="employer-admin-candidate-tag"
+                  >
+                    {{ label }}
+                  </span>
+                </div>
+                <div class="employer-candidate-job-status">
+                  <span class="employer-candidate-job-status-label">
+                    {{ $t('dashboard.applicationStatus.updateLabel') }}
+                  </span>
+                  <ApplicationStatusControl
+                    :model-value="job.status || 'SUBMITTED'"
+                    :status-note="job.statusNote"
+                    show-message-field
+                    :disabled="updatingStatusId === job.applicationId"
+                    @change="(payload) => handleDialogStatusChange(job.applicationId, payload)"
+                  >
+                    <template #footer>
+                      <button
+                        type="button"
+                        class="employer-row-action is-delete"
+                        aria-label="Xóa đơn ứng tuyển"
+                        :disabled="deletingId === job.applicationId"
+                        @click="deleteApplicationById(job.applicationId)"
+                      >
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                          <path
+                            d="M4 7h16M9 7V4h6v3M8 7l1 12h6l1-12"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                          />
+                        </svg>
+                      </button>
+                    </template>
+                  </ApplicationStatusControl>
                 </div>
               </li>
             </ul>
@@ -381,7 +385,14 @@
 
 <script setup lang="ts">
 import type { AdminApplication } from '~/services/modules/admin'
+import ApplicationStatusControl from '~/components/dashboard/ApplicationStatusControl.vue'
 import { useJobFilters } from '~/composables/useMasterdataOptions'
+import {
+  belongsToApplicantGroup,
+  groupApplicationsByApplicant,
+  sortGroupedApplicants,
+  type GroupedApplicantRow,
+} from '~/utils/applicantApplicationGroups'
 
 const { $api } = useNuxtApp()
 const { t } = useI18n()
@@ -389,6 +400,7 @@ const { locationEnumLabel, categoryEnumLabel, categoryItemsWithoutAll, locationI
 
 const loading = ref(false)
 const applications = ref<AdminApplication[]>([])
+const updatingStatusId = ref<number | null>(null)
 const deletingId = ref<number | null>(null)
 const searchQuery = ref('')
 const filterExpertise = ref<string[]>([])
@@ -396,7 +408,7 @@ const filterLocation = ref<string[]>([])
 const currentPage = ref(1)
 const itemsPerPage = 10
 const showCandidateDialog = ref(false)
-const selectedApplicantEmail = ref<string | null>(null)
+const selectedApplicantGroupKey = ref<string | null>(null)
 
 const showDeleteModal = ref(false)
 const applicationPendingDelete = ref<AdminApplication | null>(null)
@@ -460,10 +472,15 @@ const filterLocationForSelect = computed({
 })
 
 interface CandidateAppliedJob {
+  applicationId: number
   jobTitle: string
   applicationDate: string
   companyName: string
   companyLogo?: string
+  category?: string
+  location?: string
+  status?: string
+  statusNote?: string | null
 }
 
 interface CandidateDetail {
@@ -476,12 +493,10 @@ interface CandidateDetail {
 }
 
 const applicantApplications = computed(() => {
-  if (!selectedApplicantEmail.value) return []
-
-  const email = selectedApplicantEmail.value.toLowerCase()
+  if (!selectedApplicantGroupKey.value) return []
 
   return applications.value
-    .filter((app) => app.email?.toLowerCase() === email)
+    .filter((app) => belongsToApplicantGroup(app, selectedApplicantGroupKey.value!))
     .sort((a, b) => {
       const dateA = a.applicationDate ? new Date(a.applicationDate).getTime() : 0
       const dateB = b.applicationDate ? new Date(b.applicationDate).getTime() : 0
@@ -503,10 +518,15 @@ const candidateDetail = computed((): CandidateDetail | null => {
     cvUrl,
     cvDownloadName: cvFileName(first),
     jobs: apps.map((app) => ({
+      applicationId: app.id,
       jobTitle: app.jobTitle,
       applicationDate: app.applicationDate,
       companyName: app.companyName,
       companyLogo: app.companyLogo,
+      category: app.category,
+      location: app.location,
+      status: app.status,
+      statusNote: app.statusNote,
     })),
   }
 })
@@ -567,23 +587,21 @@ const filteredApplications = computed(() => {
   return list
 })
 
+const groupedApplicants = computed(() =>
+  sortGroupedApplicants(
+    groupApplicationsByApplicant(filteredApplications.value),
+    'newest',
+  ),
+)
+
 const totalPages = computed(() =>
-  Math.max(1, Math.ceil(filteredApplications.value.length / itemsPerPage)),
+  Math.max(1, Math.ceil(groupedApplicants.value.length / itemsPerPage)),
 )
 
-const paginatedApplications = computed(() => {
+const paginatedApplicants = computed(() => {
   const start = (currentPage.value - 1) * itemsPerPage
-  return filteredApplications.value.slice(start, start + itemsPerPage)
+  return groupedApplicants.value.slice(start, start + itemsPerPage)
 })
-
-const paginationFrom = computed(() => {
-  if (filteredApplications.value.length === 0) return 0
-  return (currentPage.value - 1) * itemsPerPage + 1
-})
-
-const paginationTo = computed(() =>
-  Math.min(currentPage.value * itemsPerPage, filteredApplications.value.length),
-)
 
 type PaginationItem = number | 'ellipsis'
 
@@ -619,8 +637,8 @@ function formatDate(date: string | Date | undefined): string {
   return `${day}/${month}/${year}`
 }
 
-function cvFileName(app: AdminApplication) {
-  const base = (app.applicantName || '')
+function cvFileName(candidate: { applicantName: string }) {
+  const base = (candidate.applicantName || '')
     .trim()
     .toLowerCase()
     .replace(/\s+/g, '-')
@@ -640,6 +658,16 @@ watch(totalPages, (total) => {
   if (currentPage.value > total) currentPage.value = total
 })
 
+function viewCandidate(candidate: GroupedApplicantRow<AdminApplication>) {
+  selectedApplicantGroupKey.value = candidate.groupKey
+  showCandidateDialog.value = true
+}
+
+function closeCandidateDialog() {
+  showCandidateDialog.value = false
+  selectedApplicantGroupKey.value = null
+}
+
 async function fetchApplications() {
   loading.value = true
   try {
@@ -653,16 +681,6 @@ async function fetchApplications() {
   } finally {
     loading.value = false
   }
-}
-
-function viewApplication(application: AdminApplication) {
-  selectedApplicantEmail.value = application.email
-  showCandidateDialog.value = true
-}
-
-function closeCandidateDialog() {
-  showCandidateDialog.value = false
-  selectedApplicantEmail.value = null
 }
 
 function onDialogKeydown(event: KeyboardEvent) {
@@ -686,6 +704,13 @@ onUnmounted(() => {
   window.removeEventListener('keydown', onDialogKeydown)
 })
 
+function deleteApplicationById(applicationId: number) {
+  const application = applications.value.find((app) => app.id === applicationId)
+  if (!application) return
+
+  deleteApplication(application)
+}
+
 function deleteApplication(application: AdminApplication) {
   applicationPendingDelete.value = application
   showDeleteModal.value = true
@@ -701,9 +726,9 @@ async function confirmDelete() {
     )
     useNotify({ message: t('dashboard.admin.applications.deleteSuccess'), type: 'success' })
     if (
-      selectedApplicantEmail.value
+      selectedApplicantGroupKey.value
       && !applications.value.some(
-        app => app.email?.toLowerCase() === selectedApplicantEmail.value?.toLowerCase(),
+        (app) => belongsToApplicantGroup(app, selectedApplicantGroupKey.value!),
       )
     ) {
       closeCandidateDialog()
@@ -721,6 +746,42 @@ async function confirmDelete() {
 function cancelDelete() {
   showDeleteModal.value = false
   applicationPendingDelete.value = null
+}
+
+async function handleStatusChange(
+  app: AdminApplication,
+  payload: { status: string; statusMessage?: string },
+) {
+  updatingStatusId.value = app.id
+
+  try {
+    await $api.job.updateApplicationStatus(app.id, payload)
+    app.status = payload.status
+    if (payload.statusMessage !== undefined) {
+      app.statusNote = payload.statusMessage || null
+    }
+    useNotify({
+      type: 'success',
+      message: t('dashboard.applicationStatus.updateSuccess'),
+    })
+  } catch (error: any) {
+    useNotify({
+      type: 'error',
+      message: error?.message || t('dashboard.applicationStatus.updateFailed'),
+    })
+  } finally {
+    updatingStatusId.value = null
+  }
+}
+
+async function handleDialogStatusChange(
+  applicationId: number,
+  payload: { status: string; statusMessage?: string },
+) {
+  const app = applications.value.find((item) => item.id === applicationId)
+  if (!app) return
+
+  await handleStatusChange(app, payload)
 }
 
 onMounted(() => {

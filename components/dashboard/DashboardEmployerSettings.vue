@@ -100,20 +100,47 @@
                 </button>
               </div>
             </form>
-        </div>
-      </section>
 
-      <div class="employer-settings-stack">
-        <section class="employer-settings-card">
-            <div class="employer-settings-card-head">
-              <h2>Thay đổi mật khẩu của bạn</h2>
-            </div>
-
-            <form
-              class="employer-settings-form"
-              data-settings-password-form=""
-              @submit.prevent="handleChangePassword"
+          <section class="employer-account-password-section">
+            <button
+              type="button"
+              class="employer-account-section-toggle"
+              :aria-expanded="passwordSectionOpen"
+              data-settings-password-toggle=""
+              @click="passwordSectionOpen = !passwordSectionOpen"
             >
+              <h2>Đổi mật khẩu</h2>
+              <svg
+                class="employer-account-section-chevron"
+                :class="{ 'is-open': passwordSectionOpen }"
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                aria-hidden="true"
+              >
+                <path
+                  d="m6 9 6 6 6-6"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            </button>
+
+            <Transition
+              @enter="onPasswordPanelEnter"
+              @after-enter="onPasswordPanelAfterEnter"
+              @leave="onPasswordPanelLeave"
+              @after-leave="onPasswordPanelAfterLeave"
+            >
+              <form
+                v-if="passwordSectionOpen"
+                class="employer-settings-form employer-account-password-form employer-account-password-collapse"
+                data-settings-password-form=""
+                @submit.prevent="handleChangePassword"
+              >
               <div class="employer-grid employer-grid-two">
                 <label class="employer-field">
                   <span>Mật khẩu cũ *</span>
@@ -161,140 +188,18 @@
                   {{ changingPassword ? 'Đang đổi...' : 'Đổi mật khẩu' }}
                 </button>
               </div>
-            </form>
+              </form>
+            </Transition>
           </section>
-
-          <section class="employer-settings-card is-danger">
-            <div class="employer-settings-card-head">
-              <h2>Xóa tài khoản</h2>
-            </div>
-
-            <div class="employer-settings-warning">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                <path
-                  d="M12 9v4M12 17h.01M10.3 3.86 1.82 18a2 2 0 0 0 1.72 3h16.92a2 2 0 0 0 1.72-3L13.7 3.86a2 2 0 0 0-3.4 0Z"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                />
-              </svg>
-              <div>
-                <strong>Cảnh báo: Hành động này không thể hoàn tác</strong>
-                <p>
-                  Khi bạn xóa tài khoản, tất cả dữ liệu như thông tin công ty, tin đăng và cài đặt tài khoản sẽ bị xóa vĩnh viễn.
-                </p>
-              </div>
-            </div>
-
-            <div class="employer-settings-actions">
-              <button
-                type="button"
-                class="employer-settings-danger"
-                data-settings-delete-account=""
-                :disabled="deletingAccount"
-                @click="openDeleteModal"
-              >
-                Xóa tài khoản
-              </button>
-            </div>
-        </section>
-      </div>
-    </div>
-
-    <UModal
-      v-model:open="deleteModalOpen"
-      :ui="{
-        overlay: 'bg-[rgba(29,36,51,0.45)] backdrop-blur-sm',
-        content: 'w-[94vw] sm:max-w-xl overflow-hidden rounded-2xl border-0 ring-0 shadow-2xl bg-white',
-        header: 'hidden',
-        close: 'hidden',
-        body: 'p-0',
-      }"
-    >
-      <template #body="{ close }">
-        <div class="candidate-delete-modal">
-          <button
-            type="button"
-            class="candidate-delete-modal-close"
-            aria-label="Đóng"
-            @click.stop.prevent="closeDeleteModal(close)"
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-              <path
-                stroke="currentColor"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M6 18L18 6M6 6l12 12"
-              />
-            </svg>
-          </button>
-
-          <header class="candidate-delete-modal-head">
-            <h3>Xác nhận xoá tài khoản</h3>
-            <p>Hành động này không thể hoàn tác. Vui lòng nhập mật khẩu để tiếp tục.</p>
-          </header>
-
-          <div class="candidate-delete-modal-body">
-            <label class="candidate-delete-modal-field">
-              <span>Mật khẩu</span>
-              <input
-                v-model="deletePassword"
-                type="password"
-                placeholder="Nhập mật khẩu"
-                autocomplete="current-password"
-              >
-              <p v-if="deleteErrors.password" class="candidate-delete-modal-error">
-                {{ deleteErrors.password }}
-              </p>
-            </label>
-
-            <div class="candidate-delete-modal-terms">
-              <label class="candidate-delete-modal-checkbox">
-                <input v-model="deleteAgree" type="checkbox">
-                <span>
-                  Tôi đồng ý với
-                  <NuxtLink
-                    to="/policy#dieu-khoan-dieu-kien"
-                    class="is-link"
-                    @click.stop="closeDeleteModalForPolicy"
-                  >
-                    Điều khoản
-                  </NuxtLink>
-                  và
-                  <NuxtLink
-                    to="/policy#chinh-sach-quyen-rieng-tu"
-                    class="is-link"
-                    @click.stop="closeDeleteModalForPolicy"
-                  >
-                    Chính sách quyền riêng tư
-                  </NuxtLink>
-                </span>
-              </label>
-              <p v-if="deleteErrors.terms" class="candidate-delete-modal-error">
-                {{ deleteErrors.terms }}
-              </p>
-            </div>
-          </div>
-
-          <footer class="candidate-delete-modal-actions">
-            <button
-              type="button"
-              class="candidate-delete-modal-submit"
-              :disabled="deletingAccount || !deleteAgree || !deletePassword"
-              @click="confirmDeleteAccount"
-            >
-              {{ deletingAccount ? 'Đang xử lý...' : 'Xoá tài khoản' }}
-            </button>
-          </footer>
         </div>
-      </template>
-    </UModal>
+      </section>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import { useRoute } from 'vue-router'
+
 defineProps<{
   companyInitial: string
   companyName: string
@@ -304,9 +209,9 @@ const emit = defineEmits<{
   createNewJob: []
 }>()
 
+const route = useRoute()
 const { $api } = useNuxtApp()
 const authStore = useAuthStore()
-const router = useRouter()
 
 const accountForm = ref({
   email: '',
@@ -316,6 +221,7 @@ const accountForm = ref({
 })
 const savingAccount = ref(false)
 
+const passwordSectionOpen = ref(false)
 const passwordForm = ref({
   currentPassword: '',
   newPassword: '',
@@ -323,11 +229,12 @@ const passwordForm = ref({
 })
 const changingPassword = ref(false)
 
-const deletingAccount = ref(false)
-const deleteModalOpen = ref(false)
-const deletePassword = ref('')
-const deleteAgree = ref(false)
-const deleteErrors = ref<{ password?: string; terms?: string }>({})
+const {
+  onEnter: onPasswordPanelEnter,
+  onAfterEnter: onPasswordPanelAfterEnter,
+  onLeave: onPasswordPanelLeave,
+  onAfterLeave: onPasswordPanelAfterLeave,
+} = useCollapsibleTransition()
 
 const syncAccountForm = () => {
   const user = authStore.user
@@ -342,6 +249,10 @@ const syncAccountForm = () => {
 }
 
 onMounted(() => {
+  if (route.query.expand === 'password') {
+    passwordSectionOpen.value = true
+  }
+
   syncAccountForm()
 })
 
@@ -438,62 +349,6 @@ const handleChangePassword = async () => {
   }
   finally {
     changingPassword.value = false
-  }
-}
-
-const openDeleteModal = () => {
-  deleteErrors.value = {}
-  deletePassword.value = ''
-  deleteAgree.value = false
-  deleteModalOpen.value = true
-}
-
-const closeDeleteModal = (close?: () => void) => {
-  try {
-    close?.()
-  }
-  finally {
-    deleteModalOpen.value = false
-  }
-}
-
-const closeDeleteModalForPolicy = () => {
-  window.setTimeout(() => {
-    deleteModalOpen.value = false
-  }, 0)
-}
-
-const confirmDeleteAccount = async () => {
-  deleteErrors.value = {}
-  if (!deletePassword.value) deleteErrors.value.password = 'Vui lòng nhập mật khẩu.'
-  if (!deleteAgree.value) deleteErrors.value.terms = 'Vui lòng tick đồng ý trước khi xoá.'
-  if (deleteErrors.value.password || deleteErrors.value.terms) return
-
-  deletingAccount.value = true
-  try {
-    await $api.users.deleteAccount({ password: deletePassword.value })
-
-    useNotify({
-      message: 'Tài khoản đã được xóa thành công',
-      type: 'success',
-    })
-
-    deleteModalOpen.value = false
-    authStore.logout()
-    router.push('/')
-  }
-  catch (error: any) {
-    console.error('Delete account failed:', error)
-    useNotify({
-      message:
-        Array.isArray(error.message)
-          ? error.message[0]
-          : error.message || 'Xóa tài khoản thất bại',
-      type: 'error',
-    })
-  }
-  finally {
-    deletingAccount.value = false
   }
 }
 </script>

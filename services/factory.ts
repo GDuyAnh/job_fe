@@ -33,10 +33,12 @@ export default class FetchFactory {
         if (error?.response?._data?.statusCode === StatusCode.Unauthorized) {
           // Không logout nếu đang gọi API login
           const requestUrl = error?.request || error?.options?.url || ''
-          const isLoginRequest = requestUrl.toString().includes('/auth/login') || requestUrl.toString().includes('login')
-          
-          // Chỉ logout khi KHÔNG phải là request login
-          if (!isLoginRequest) {
+          const url = requestUrl.toString()
+          const isLoginRequest = url.includes('/auth/login') || url.includes('login')
+          const isChangePasswordRequest = url.includes('/users/change-password')
+
+          // Chỉ logout khi KHÔNG phải login / đổi mật khẩu (sai MK cũ không phải hết phiên)
+          if (!isLoginRequest && !isChangePasswordRequest) {
             const authStore = useAuthStore()
             authStore.logout()
           }

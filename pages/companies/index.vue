@@ -27,12 +27,16 @@
                   <path d="M4 7H20M7 4V7M17 4V7M6 11H18V18H6V11Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
                 </svg>
               </span>
-              <USelect
+              <USelectMenu
                 v-model="searchParams.organizationType"
-                :items="companyOrganizationTypeItems"
+                :items="organizationTypeItemsSearchable"
+                value-key="value"
                 variant="none"
                 class="school-directory-select"
                 :placeholder="$t('companies.search.organizationType')"
+                :search-input="{ placeholder: 'Tìm loại hình...', variant: 'none' }"
+                :ui="companyDirectorySelectUi"
+                @update:open="onCompanySelectMenuOpenChange"
               />
               <span class="arr">▾</span>
             </div>
@@ -44,12 +48,16 @@
                   <path d="M12 12.5C13.1046 12.5 14 11.6046 14 10.5C14 9.39543 13.1046 8.5 12 8.5C10.8954 8.5 10 9.39543 10 10.5C10 11.6046 10.8954 12.5 12 12.5Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
                 </svg>
               </span>
-              <USelect
+              <USelectMenu
                 v-model="searchParams.location"
-                :items="locationItems"
+                :items="locationItemsSearchable"
+                value-key="value"
                 variant="none"
                 class="school-directory-select"
                 :placeholder="$t('home.search.placeholderLocation')"
+                :search-input="{ placeholder: 'Tìm tỉnh thành...', variant: 'none' }"
+                :ui="companyDirectorySelectUi"
+                @update:open="onCompanySelectMenuOpenChange"
               />
               <span class="arr">▾</span>
             </div>
@@ -207,7 +215,7 @@
 
 <script setup lang="ts">
 import { useRouter, useRoute } from 'vue-router'
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { MasterDataItem } from '#imports'
 
 useHead({
@@ -228,17 +236,31 @@ interface CompanyEntity {
   location?: number
 }
 
-// Use the working composable from home page
-const { t } = useI18n()
-const { locationItems, organizationTypeItems } = useJobFilters()
+const {
+  locationEnumLabel,
+  locationItemsSearchable,
+  organizationTypeItemsSearchable,
+} = useJobFilters()
 
-const companyOrganizationTypeItems = computed(() => {
-  const defaultLabel = t('companies.search.organizationType')
+const companyDirectorySelectUi = {
+  base: 'w-full min-h-[56px] h-[56px] justify-start text-start p-0 border-0 bg-transparent shadow-none ring-0 !text-[14px] !font-medium !font-[inherit]',
+  trailing: '!hidden',
+  trailingIcon: '!hidden',
+  placeholder:
+    'school-directory-select__placeholder truncate text-start flex-1 min-w-0 w-full !text-[14px] !font-medium !font-[inherit] !text-[#8c95a8]',
+  value:
+    'school-directory-select__value truncate text-start flex-1 min-w-0 w-full !text-[14px] !font-medium !font-[inherit] !text-[var(--text)]',
+  content: 'z-[10000] min-w-[240px]',
+}
 
-  return organizationTypeItems.value.map((item, index) =>
-    index === 0 ? { ...item, label: defaultLabel } : item,
-  )
-})
+const companySelectMenuOpenCount = ref(0)
+
+const onCompanySelectMenuOpenChange = (open: boolean) => {
+  if (!import.meta.client) return
+  companySelectMenuOpenCount.value += open ? 1 : -1
+  companySelectMenuOpenCount.value = Math.max(0, companySelectMenuOpenCount.value)
+  document.body.classList.toggle('vselect-scroll-lock', companySelectMenuOpenCount.value > 0)
+}
 
 const router = useRouter()
 const route = useRoute()
@@ -249,10 +271,14 @@ const loading = ref(false)
 const pageSize = 8
 const currentPage = ref(1)
 
-const searchParams = ref({
+const searchParams = ref<{
+  keyword: string
+  location: string | undefined
+  organizationType: string | undefined
+}>({
   keyword: '',
-  location: '',
-  organizationType: '',
+  location: undefined,
+  organizationType: undefined,
 })
 
 // Computed property for filtered companies
@@ -321,7 +347,7 @@ const performSearch = async () => {
 }
 
 const clearSearch = () => {
-  searchParams.value = { keyword: '', location: '', organizationType: '' }
+  searchParams.value = { keyword: '', location: undefined, organizationType: undefined }
   currentPage.value = 1
   performSearch()
 }
@@ -343,9 +369,11 @@ const getCompanyLocationLabel = (company: CompanyEntity): string => {
   if (raw == null) return ''
 
   const val = String(raw)
-  const match = locationItems.value?.find((i: any) => String(i.value) === val)
-
-  return (match?.label as string) ?? val
+  return (
+    (locationEnumLabel as Record<string, string>)?.[val] ??
+    (locationEnumLabel as Record<number, string>)?.[Number(val)] ??
+    val
+  )
 }
 
 const getCompanySubtitle = (company: CompanyEntity): string => {
@@ -372,15 +400,29 @@ onMounted(() => {
     searchParams.value.keyword = query.keyword as string
   }
 
-  if (query.location) {
+  if (
+    query.location &&
+    locationItemsSearchable.value.some((item) => item.value === query.location)
+  ) {
     searchParams.value.location = query.location as string
   }
 
-  if (query.organizationType) {
+  if (
+    query.organizationType &&
+    organizationTypeItemsSearchable.value.some(
+      (item) => item.value === query.organizationType,
+    )
+  ) {
     searchParams.value.organizationType = query.organizationType as string
   }
 
   performSearch()
+})
+
+onUnmounted(() => {
+  if (import.meta.client) {
+    document.body.classList.remove('vselect-scroll-lock')
+  }
 })
 
 watch(
