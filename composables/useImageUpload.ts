@@ -1,4 +1,5 @@
 import type { UploadResult, UploadOptions } from '~/types/imgbb'
+import { validateImageUploadFile } from '~/utils/imageUploadValidation'
 
 export const useImageUpload = () => {
   const loading = ref(false)
@@ -105,10 +106,9 @@ export const useImageUpload = () => {
    * @param maxSize - Maximum file size in MB
    */
   const validateImageFile = (file: File, maxSize: number = 32): boolean => {
-    // Check file type
-    if (!file.type.startsWith('image/')) {
-      error.value = 'Tệp phải là ảnh'
-
+    const imageError = validateImageUploadFile(file)
+    if (imageError) {
+      error.value = imageError
       return false
     }
 

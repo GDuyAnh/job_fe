@@ -499,8 +499,13 @@ html body .jobs-directory-page .jobs-directory-vselect .v-select .vs__open-indic
 
 body:has(.jobs-directory-page) .vs__dropdown-menu {
   z-index: 10000 !important;
+  /* vue-select append-to-body gán width = trigger (~220px) — mở rộng để hiện đủ tên bộ môn */
+  width: max-content !important;
+  min-width: 360px !important;
+  max-width: min(520px, calc(100vw - 32px));
   max-height: 240px;
   overflow-y: auto;
+  overflow-x: hidden;
   border: 1px solid rgba(200, 214, 236, 0.9) !important;
   border-radius: 10px !important;
   background: #ffffff !important;
@@ -515,8 +520,13 @@ body:has(.jobs-directory-page) .vs__dropdown-option {
   padding: 8px 10px;
   border-radius: 0.75rem;
   font-size: 14px;
+  line-height: 1.4;
   color: #1f2937;
   cursor: pointer;
+  white-space: normal;
+  overflow: visible;
+  text-overflow: unset;
+  word-break: break-word;
 }
 
 body:has(.jobs-directory-page) .vs__dropdown-option:hover,

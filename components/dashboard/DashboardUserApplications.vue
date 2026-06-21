@@ -169,6 +169,7 @@ import { ref, computed, onMounted, watch } from 'vue'
 import { useNuxtApp } from '#app'
 import { useAuthStore } from '~/stores/auth'
 import { useNotify } from '~/composables/useNotify'
+import { normalizeCompanyLogo } from '~/utils/companyLogo'
 import { useJobFilters } from '~/composables/useMasterdataOptions'
 import { useI18n } from 'vue-i18n'
 import ApplicationStatusBadge from '~/components/dashboard/ApplicationStatusBadge.vue'
@@ -261,7 +262,10 @@ const jobDetailUrl = (jobId: number) => `/jobs/${jobId}`
 const resolveCompanyLogo = (application: {
   companyLogo?: string | null
   job?: { companyLogo?: string | null }
-}) => application.companyLogo || application.job?.companyLogo || ''
+}) =>
+  normalizeCompanyLogo(
+    application.companyLogo || application.job?.companyLogo || '',
+  ) || ''
 
 const getCompanyLogoLetters = (application: {
   companyName?: string | null

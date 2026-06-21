@@ -241,7 +241,7 @@
             <input
               ref="imagesFileEl"
               type="file"
-              accept="image/*"
+              :accept="IMAGE_UPLOAD_ACCEPT"
               multiple
               class="hidden"
               @change="onPickImages"
@@ -357,6 +357,7 @@
 
 <script setup lang="ts">
 import type { CompanyAddUpdateEntity } from '~/entities/company'
+import { IMAGE_UPLOAD_ACCEPT, validateImageUploadFile } from '~/utils/imageUploadValidation'
 
 const { t } = useI18n()
 const route = useRoute()
@@ -520,6 +521,11 @@ function onPickImages(e: Event) {
 }
 function addImageFiles(files: File[]) {
   for (const f of files) {
+    const validationError = validateImageUploadFile(f)
+    if (validationError) {
+      useNotify({ type: 'error', message: validationError })
+      continue
+    }
     imageFiles.value.push(f)
     imagePreviews.value.push(URL.createObjectURL(f))
   }

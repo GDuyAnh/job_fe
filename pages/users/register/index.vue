@@ -335,6 +335,7 @@ import {
 } from '~/utils/auth-field-validation'
 import { MST_BLUR_MESSAGES } from '~/composables/useEmployerRegistration'
 import { handleMstInput } from '~/utils/mst'
+import { redirectToRoleDashboard } from '~/utils/authRedirect'
 
 defineComponent({
   name: 'UsersRegister',
@@ -459,7 +460,7 @@ async function onSubmitCandidate(event: FormSubmitEvent<any>) {
         type: 'success',
         message: t('auth.registerSuccess'),
       })
-      router.push('/')
+      await redirectToRoleDashboard(authStore.user?.role)
     } else {
       console.log('Registration failed - no response')
       useNotify({

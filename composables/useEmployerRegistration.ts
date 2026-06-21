@@ -6,6 +6,7 @@ import {
   isValidMstFormat,
   normalizeMstDigits,
 } from '~/utils/mst'
+import { COMPANY_LOGO_PLACEHOLDER_PATH } from '~/utils/companyLogo'
 
 export const EMPLOYER_MST_MESSAGES = {
   invalidFormat:
@@ -17,8 +18,7 @@ export const EMPLOYER_MST_MESSAGES = {
 } as const
 
 export const MST_BLUR_MESSAGES = {
-  exists: 'Mã số thuế đã tồn tại',
-  validNew: 'Mã số thuế hợp lệ chưa có trên hệ thống',
+  valid: 'Mã số thuế hợp lệ',
   invalid: 'Mã số thuế không hợp lệ',
 } as const
 
@@ -60,7 +60,7 @@ function buildCompanyFromVietQr(
   return {
     name: vietQr.data.name || 'Company',
     mst: resolvedMst,
-    logo: 'https://via.placeholder.com/150',
+    logo: COMPANY_LOGO_PLACEHOLDER_PATH,
     organizationType: 0,
     isWaiting: true,
     isFeatured: false,
@@ -240,7 +240,7 @@ export function useEmployerRegistration() {
 
     const existingCompany = await findCompanyInDatabase(digits)
     if (existingCompany) {
-      return { status: 'exists', message: MST_BLUR_MESSAGES.exists }
+      return { status: 'exists', message: MST_BLUR_MESSAGES.valid }
     }
 
     const vietQr = await fetchVietQrBusiness(digits)
@@ -253,10 +253,10 @@ export function useEmployerRegistration() {
     )
     const companyAfterVietQr = await findCompanyInDatabase(resolvedMst)
     if (companyAfterVietQr) {
-      return { status: 'exists', message: MST_BLUR_MESSAGES.exists }
+      return { status: 'exists', message: MST_BLUR_MESSAGES.valid }
     }
 
-    return { status: 'valid_new', message: MST_BLUR_MESSAGES.validNew }
+    return { status: 'valid_new', message: MST_BLUR_MESSAGES.valid }
   }
 
   return {

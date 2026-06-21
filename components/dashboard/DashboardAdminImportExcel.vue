@@ -47,16 +47,22 @@
                 Ở sheet <b>jobs</b>:
                 <ul>
                   <li>
-                    Cột <b>id</b> (A) là id tạm trong file; <b>company_id</b> / <b>user_id</b> chọn từ dropdown
-                    (cột A sheet companies / users). Có thể vẫn dùng <b>company_mst</b> và <b>user_email</b>.
+                    Cột <b>id</b> (A) là id tạm; <b>company_id</b> (G) / <b>user_id</b> (H) chọn từ dropdown
+                    (sheet companies / users cột A).
                   </li>
                   <li>
-                    Cột <b>category</b>, <b>location</b>, <b>benefits</b> dùng <b>multi-select</b> — chọn nhiều
-                    lần, VBA nối vào cùng một ô (phân cách bằng dấu phẩy).
+                    Cột <b>email</b> (V) là email liên hệ tin — trùng <b>jobs.email</b> trong DB (không có
+                    user_email / job_email).
                   </li>
                   <li>
-                    Các cột còn lại (ví dụ <b>type_of_employment</b>, <b>salary_type</b>, <b>status</b>…) là
-                    <b>select đơn</b>.
+                    Cột <b>category</b>, <b>location</b>, <b>required_qualification</b>, <b>gender</b>, <b>benefits</b>
+                    dùng <b>multi-select</b> — chọn nhiều lần, VBA nối vào cùng một ô (phân cách bằng dấu phẩy).
+                  </li>
+                  <li>
+                    Các cột còn lại (ví dụ <b>type_of_employment</b>, <b>salary_type</b>, <b>status</b>,
+                    <b>post_type</b>…) là <b>select đơn</b>. Sheet <b>companies</b> không có cột email — email NTD
+                    ở sheet <b>users</b>. Sheet <b>jobs</b> tùy chọn: <b>email</b> (liên hệ tin), <b>deadline</b>,
+                    <b>posted_date</b>, <b>note</b>.
                   </li>
                 </ul>
               </li>

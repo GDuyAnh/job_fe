@@ -4,6 +4,7 @@ import type {
   CompanyJobSummary,
 } from '~/entities/company'
 import type { CompanyBannerModel } from '~/models/company'
+import { normalizeCompanyLogo } from '~/utils/companyLogo'
 
 export class CompanyMapper {
   static fromDto(dto: any): CompanyEntity {
@@ -11,7 +12,7 @@ export class CompanyMapper {
       id: dto.id,
       name: dto.name,
       mst: dto.mst ?? undefined,
-      logo: dto.logo ?? null,
+      logo: normalizeCompanyLogo(dto.logo),
       organizationType: dto.organizationType ?? null,
       facebookLink: dto.facebookLink ?? null,
       linkedInLink: dto.linkedInLink ?? null,
@@ -22,7 +23,6 @@ export class CompanyMapper {
       taxAddress: dto.taxAddress ?? null,
       companySize: dto.companySize ?? null,
       foundedYear: dto.foundedYear ?? null,
-      email: dto.email,
       description: dto.description ?? null,
       insight: dto.insight ?? null,
       overview: dto.overview ?? null,
@@ -65,7 +65,7 @@ export class CompanyMapper {
       image:
         value.companyImages && value.companyImages.length > 0
           ? (value.companyImages[0].url ?? '')
-          : (value.logo ?? ''),
+          : (normalizeCompanyLogo(value.logo) ?? ''),
     }
   }
 }

@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 120 120" fill="none" role="img" aria-label="Logo công ty">
+  <rect width="120" height="120" rx="20" fill="#EEF2F7"/>
+  <rect x="1" y="1" width="118" height="118" rx="19" stroke="#D8E0EA" stroke-width="2"/>
+  <path d="M34 78V52L60 36L86 52V78" stroke="#94A3B8" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="50" y="62" width="20" height="16" rx="2" fill="#CBD5E1"/>
+  <path d="M44 78H76" stroke="#94A3B8" stroke-width="3" stroke-linecap="round"/>
+</svg>

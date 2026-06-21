@@ -92,6 +92,7 @@
                     v-model="categoryForSelect"
                     :options="categoryItemsSearchable"
                     :append-to-body="true"
+                    :calculate-position="vueSelectCalculatePosition"
                     multiple
                     searchable
                     class="w-full text-sm"
@@ -326,6 +327,7 @@
                     v-model="locationForSelect"
                     :options="locationSelectItems"
                     :append-to-body="true"
+                    :calculate-position="vueSelectCalculatePosition"
                     multiple
                     searchable
                     class="w-full text-sm"
@@ -381,6 +383,7 @@
                     v-model="requiredQualificationForSelect"
                     :options="requiredQualificationSelectItems"
                     :append-to-body="true"
+                    :calculate-position="vueSelectCalculatePosition"
                     multiple
                     searchable
                     class="w-full text-sm"
@@ -434,6 +437,7 @@
                     v-model="genderForSelect"
                     :options="genderItems"
                     :append-to-body="true"
+                    :calculate-position="vueSelectCalculatePosition"
                     multiple
                     searchable
                     class="w-full text-sm"
@@ -462,6 +466,7 @@
                     v-model="benefitsForSelect"
                     :options="jobBenefitsSelectItems"
                     :append-to-body="true"
+                    :calculate-position="vueSelectCalculatePosition"
                     multiple
                     searchable
                     class="w-full text-sm"
@@ -653,6 +658,7 @@ import { CalendarDate, type DateValue } from '@internationalized/date'
 import RichTextEditor from '~/components/RichTextEditor.vue'
 import AdminJobActionFields from '~/components/dashboard/AdminJobActionFields.vue'
 import { onUnmounted } from 'vue'
+import { useVueSelectFixedPosition } from '~/composables/useVueSelectFixedPosition'
 
 // Props
 const props = defineProps<{
@@ -710,8 +716,10 @@ const bindScrollLockListeners = (locked: boolean) => {
   }
 
   if (locked) {
-    window.addEventListener('wheel', preventScrollOutsideVSelect, { passive: false })
-    window.addEventListener('touchmove', preventScrollOutsideVSelect, { passive: false })
+    if (!props.embeddedInDrawer) {
+      window.addEventListener('wheel', preventScrollOutsideVSelect, { passive: false })
+      window.addEventListener('touchmove', preventScrollOutsideVSelect, { passive: false })
+    }
   } else {
     window.removeEventListener('wheel', preventScrollOutsideVSelect as EventListener)
     window.removeEventListener('touchmove', preventScrollOutsideVSelect as EventListener)
@@ -805,35 +813,9 @@ const jobControlUiBase = 'employer-field-control w-full rounded-xl'
 const jobDeadlineButtonUiBase =
   'employer-field-control w-full justify-start rounded-xl bg-white text-sm font-medium'
 
-function calculateFixedDropdownPosition(dropdownList: HTMLElement, component: any) {
-  const update = () => {
-    const toggleEl: HTMLElement | null =
-      component?.$el?.querySelector?.('.vs__dropdown-toggle') || component?.$el || null
-
-    if (!toggleEl) return
-
-    const rect = toggleEl.getBoundingClientRect()
-
-    dropdownList.style.position = 'fixed'
-    dropdownList.style.top = `${rect.bottom}px`
-    dropdownList.style.left = `${rect.left}px`
-    dropdownList.style.width = `${rect.width}px`
-    dropdownList.style.zIndex = '9999'
-  }
-
-  update()
-
-  const onScroll = () => update()
-  const onResize = () => update()
-
-  window.addEventListener('scroll', onScroll, true)
-  window.addEventListener('resize', onResize, true)
-
-  return () => {
-    window.removeEventListener('scroll', onScroll, true)
-    window.removeEventListener('resize', onResize, true)
-  }
-}
+const { calculatePosition: vueSelectCalculatePosition } = useVueSelectFixedPosition({
+  zIndex: props.embeddedInDrawer ? 10050 : 9999,
+})
 
 // Enum
 const {

@@ -23,6 +23,8 @@ export const useNotify = ({
     ? getApiErrorMessage(error)
     : 'Đã xảy ra lỗi'
 
+  toast.clear()
+
   return toast.add({
     title: msg,
     color: type,

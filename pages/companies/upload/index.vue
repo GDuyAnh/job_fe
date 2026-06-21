@@ -295,7 +295,7 @@
                   <input
                     ref="imagesFileEl"
                     type="file"
-                    accept="image/*"
+                    :accept="IMAGE_UPLOAD_ACCEPT"
                     multiple
                     class="hidden"
                     @change="onPickImages"
@@ -375,7 +375,7 @@
                   <input
                     ref="bannerFileEl"
                     type="file"
-                    accept="image/*"
+                    :accept="IMAGE_UPLOAD_ACCEPT"
                     class="hidden"
                     @change="onPickBanner"
                   />
@@ -487,6 +487,7 @@
 import { UButton } from '#components'
 import type { StepperItem } from '@nuxt/ui'
 import type { CompanyAddUpdateEntity, CompanyEntity } from '~/entities/company'
+import { IMAGE_UPLOAD_ACCEPT, validateImageUploadFile } from '~/utils/imageUploadValidation'
 
 const { t } = useI18n()
 
@@ -529,7 +530,6 @@ const companyAdd = ref<CompanyAddUpdateEntity>({
   mst: null,
   address: '',
   taxAddress: '',
-  email: '',
   website: '',
   organizationType: 0,
   companySize: null,
@@ -583,28 +583,40 @@ function onDropBanner(e: DragEvent) {
 
   if (!files?.length) return
   const file = files[0]
+  if (!file) return
 
-  if (file.type.startsWith('image/')) {
-    if (bannerPreview.value?.startsWith('blob:')) {
-      URL.revokeObjectURL(bannerPreview.value)
-    }
-    bannerFile.value = file
-    bannerPreview.value = URL.createObjectURL(file)
+  const validationError = validateImageUploadFile(file)
+  if (validationError) {
+    useNotify({ type: 'error', message: validationError })
+    return
   }
+
+  if (bannerPreview.value?.startsWith('blob:')) {
+    URL.revokeObjectURL(bannerPreview.value)
+  }
+  bannerFile.value = file
+  bannerPreview.value = URL.createObjectURL(file)
 }
 function onPickBanner(e: Event) {
-  const files = (e.target as HTMLInputElement).files
+  const input = e.target as HTMLInputElement
+  const files = input.files
 
   if (!files?.length) return
   const file = files[0]
+  if (!file) return
 
-  if (file.type.startsWith('image/')) {
-    if (bannerPreview.value?.startsWith('blob:')) {
-      URL.revokeObjectURL(bannerPreview.value)
-    }
-    bannerFile.value = file
-    bannerPreview.value = URL.createObjectURL(file)
+  const validationError = validateImageUploadFile(file)
+  if (validationError) {
+    useNotify({ type: 'error', message: validationError })
+    input.value = ''
+    return
   }
+
+  if (bannerPreview.value?.startsWith('blob:')) {
+    URL.revokeObjectURL(bannerPreview.value)
+  }
+  bannerFile.value = file
+  bannerPreview.value = URL.createObjectURL(file)
   if (bannerFileEl.value) bannerFileEl.value.value = ''
 }
 function removeBanner() {
@@ -631,6 +643,11 @@ function onPickImages(e: Event) {
 }
 async function addImageFiles(files: File[]) {
   for (const f of files) {
+    const validationError = validateImageUploadFile(f)
+    if (validationError) {
+      useNotify({ type: 'error', message: validationError })
+      continue
+    }
     imageFiles.value.push(f)
     imagePreviews.value.push(URL.createObjectURL(f))
   }

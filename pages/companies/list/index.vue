@@ -64,7 +64,7 @@
                   <!-- Left -->
                   <div class="flex gap-4">
                     <img
-                      :src="company.logo || '/default-logo.png'"
+                      :src="companyLogoForDisplay(company.logo)"
                       alt="Company Logo"
                       class="w-16 h-16 rounded-full object-cover border"
                     />
@@ -167,6 +167,7 @@
 import type { CompanyModel } from '~/models/company'
 import { useI18n } from 'vue-i18n'
 import { computed } from 'vue'
+import { companyLogoForDisplay } from '~/utils/companyLogo'
 const { t } = useI18n()
 
 useHead({

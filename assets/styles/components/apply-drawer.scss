@@ -142,6 +142,10 @@
   font-weight: 700;
 }
 
+.job-apply-drawer-content .apply-profile-section-head h3 .is-required {
+  color: #ef4444;
+}
+
 .job-apply-drawer-content .apply-profile-resume:has(.apply-profile-resume-file[hidden]) {
   grid-template-columns: 1fr;
 }

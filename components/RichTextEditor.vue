@@ -1,9 +1,7 @@
 <template>
-  <div
-    class="rich-text-editor rounded-xl border border-slate-200/90 bg-white shadow-sm"
-  >
+  <div class="rich-text-editor">
     <div
-      class="editor-toolbar flex flex-wrap gap-2 border-b border-slate-200/80 bg-slate-50/90 p-2"
+      class="editor-toolbar flex flex-wrap gap-2 p-2"
       :class="{
         'pointer-events-none': disabled || readonly,
       }"
@@ -98,7 +96,7 @@
         <UIcon name="i-lucide-code" class="w-4 h-4" />
       </UButton>
     </div>
-    <div class="editor-content bg-white">
+    <div class="editor-content">
       <EditorContent :editor="editor" />
     </div>
   </div>
@@ -182,10 +180,31 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
+.rich-text-editor {
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  filter: none;
+  border: 1.5px solid rgba(200, 214, 236, 0.9);
+  border-radius: 12px;
+}
+
+.rich-text-editor:focus-within {
+  border-color: #3563ff;
+  border-width: 2px;
+  box-shadow: none;
+  outline: none;
+}
+
+.editor-toolbar {
+  background: #f3f6fb;
+  border-bottom: 1px solid rgba(214, 223, 239, 0.95);
+}
+
 .editor-content {
   resize: vertical;
   overflow: auto;
   min-height: 200px;
+  background: #ffffff;
 }
 
 :deep(.ProseMirror) {
@@ -193,6 +212,8 @@ onBeforeUnmount(() => {
   color: rgb(15 23 42);
   min-height: 100%;
   box-sizing: border-box;
+  background: #ffffff;
+  opacity: 1;
 }
 
 :deep(.ProseMirror[contenteditable='false']) {
@@ -203,7 +224,8 @@ onBeforeUnmount(() => {
 }
 
 :deep(.ProseMirror p.is-editor-empty:first-child::before) {
-  color: #9ca3af;
+  color: #8c95a8;
+  opacity: 1;
   content: attr(data-placeholder);
   float: left;
   height: 0;

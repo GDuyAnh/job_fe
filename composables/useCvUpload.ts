@@ -27,6 +27,10 @@ export function validateAvatarFile(
     return 'Chỉ chấp nhận file ảnh JPEG hoặc PNG'
   }
 
+  if (['image/avif', 'image/heif', 'image/heic'].includes(file.type.toLowerCase())) {
+    return 'Chỉ chấp nhận file ảnh JPEG hoặc PNG'
+  }
+
   if (file.type.startsWith('image/') && !hasAllowedType) {
     return 'Chỉ chấp nhận file ảnh JPEG hoặc PNG'
   }

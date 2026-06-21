@@ -473,6 +473,7 @@ import {
 } from '~/utils/auth-field-validation'
 import { MST_BLUR_MESSAGES } from '~/composables/useEmployerRegistration'
 import { handleMstInput } from '~/utils/mst'
+import { redirectToRoleDashboard } from '~/utils/authRedirect'
 
 type ViewMode = 'login' | 'register'
 
@@ -702,6 +703,7 @@ async function onSubmitLogin() {
     if (response?.user) {
       authStore.setUser(response.user)
       close()
+      await redirectToRoleDashboard(response.user.role)
       return
     }
 
@@ -799,6 +801,7 @@ async function onSubmitRegister() {
         message: 'Đăng ký thành công.',
       })
       close()
+      await redirectToRoleDashboard(authStore.user?.role)
       return
     }
 

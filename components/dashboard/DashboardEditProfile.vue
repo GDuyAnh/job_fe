@@ -306,7 +306,7 @@
             <input
               ref="logoFileEl"
               type="file"
-              accept="image/*"
+              :accept="IMAGE_UPLOAD_ACCEPT"
               class="hidden"
               @change="onPickLogo"
             />
@@ -384,7 +384,7 @@
             <input
               ref="bannerFileEl"
               type="file"
-              accept="image/*"
+              :accept="IMAGE_UPLOAD_ACCEPT"
               class="hidden"
               @change="onPickBanner"
             />
@@ -446,7 +446,7 @@
             <input
               ref="imagesFileEl"
               type="file"
-              accept="image/*"
+              :accept="IMAGE_UPLOAD_ACCEPT"
               multiple
               class="hidden"
               @change="onPickImages"
@@ -641,6 +641,8 @@ import {
   resolveCompanySizeForSave,
   resolveCompanySizeForSelect,
 } from '~/constants/company-size'
+import { normalizeCompanyLogo } from '~/utils/companyLogo'
+import { IMAGE_UPLOAD_ACCEPT, validateImageUploadFile } from '~/utils/imageUploadValidation'
 
 const orgTypeSelectUi = adminJobDrawerCompanySelectControlUi
 
@@ -821,9 +823,9 @@ function populateFormFromCompanyData(res: CompanyEntity) {
     companyForm.value.insight = res.insight || ''
     companyForm.value.overview = res.overview || ''
 
-    // Load logo - set directly to form
-    companyForm.value.logo = res.logo || null
-    logoPreview.value = res.logo || null
+    // Load logo — bỏ URL placeholder / lỗi để hiện vùng upload
+    companyForm.value.logo = normalizeCompanyLogo(res.logo)
+    logoPreview.value = normalizeCompanyLogo(res.logo)
 
     // Load banner image - set directly to form
     companyForm.value.bannerImage = res.bannerImage || null
@@ -870,10 +872,15 @@ function onDropLogo(e: DragEvent) {
   if (!files?.length) return
 
   const file = files[0]
+  if (!file) return
 
-  if (file && file.type.startsWith('image/')) {
-    setLogoFile(file)
+  const validationError = validateImageUploadFile(file)
+  if (validationError) {
+    useNotify({ type: 'error', message: validationError })
+    return
   }
+
+  setLogoFile(file)
 }
 
 function onPickLogo(e: Event) {
@@ -882,10 +889,16 @@ function onPickLogo(e: Event) {
   if (!files?.length) return
 
   const file = files[0]
+  if (!file) return
 
-  if (file) {
-    setLogoFile(file)
+  const validationError = validateImageUploadFile(file)
+  if (validationError) {
+    useNotify({ type: 'error', message: validationError })
+    if (logoFileEl.value) logoFileEl.value.value = ''
+    return
   }
+
+  setLogoFile(file)
   if (logoFileEl.value) logoFileEl.value.value = ''
 }
 
@@ -1309,20 +1322,24 @@ function onDropImages(e: DragEvent) {
   const files = e.dataTransfer?.files
 
   if (!files?.length) return
-  addImageFiles(Array.from(files).filter((f) => f.type.startsWith('image/')))
+  addImageFiles(Array.from(files))
 }
 
 function onPickImages(e: Event) {
   const files = (e.target as HTMLInputElement).files
 
   if (!files?.length) return
-  addImageFiles(Array.from(files).filter((f) => f.type.startsWith('image/')))
+  addImageFiles(Array.from(files))
   if (imagesFileEl.value) imagesFileEl.value.value = ''
 }
 
 function addImageFiles(files: File[]) {
   for (const f of files) {
-    // Add blob URL to form directly for preview
+    const validationError = validateImageUploadFile(f)
+    if (validationError) {
+      useNotify({ type: 'error', message: validationError })
+      continue
+    }
     const blobUrl = URL.createObjectURL(f)
 
     imagePreviews.value.push(blobUrl)
@@ -1362,30 +1379,39 @@ function onDropBanner(e: DragEvent) {
 
   if (!files?.length) return
   const file = files[0]
+  if (!file) return
 
-  if (file.type.startsWith('image/')) {
-    if (bannerPreview.value?.startsWith('blob:')) {
-      URL.revokeObjectURL(bannerPreview.value)
-    }
-    // Set directly to form
-    companyForm.value.bannerImage = URL.createObjectURL(file)
-    bannerPreview.value = companyForm.value.bannerImage
+  const validationError = validateImageUploadFile(file)
+  if (validationError) {
+    useNotify({ type: 'error', message: validationError })
+    return
   }
+
+  if (bannerPreview.value?.startsWith('blob:')) {
+    URL.revokeObjectURL(bannerPreview.value)
+  }
+  companyForm.value.bannerImage = URL.createObjectURL(file)
+  bannerPreview.value = companyForm.value.bannerImage
 }
 function onPickBanner(e: Event) {
   const files = (e.target as HTMLInputElement).files
 
   if (!files?.length) return
   const file = files[0]
+  if (!file) return
 
-  if (file.type.startsWith('image/')) {
-    if (bannerPreview.value?.startsWith('blob:')) {
-      URL.revokeObjectURL(bannerPreview.value)
-    }
-    // Set directly to form
-    companyForm.value.bannerImage = URL.createObjectURL(file)
-    bannerPreview.value = companyForm.value.bannerImage
+  const validationError = validateImageUploadFile(file)
+  if (validationError) {
+    useNotify({ type: 'error', message: validationError })
+    if (bannerFileEl.value) bannerFileEl.value.value = ''
+    return
   }
+
+  if (bannerPreview.value?.startsWith('blob:')) {
+    URL.revokeObjectURL(bannerPreview.value)
+  }
+  companyForm.value.bannerImage = URL.createObjectURL(file)
+  bannerPreview.value = companyForm.value.bannerImage
   if (bannerFileEl.value) bannerFileEl.value.value = ''
 }
 function removeBanner() {

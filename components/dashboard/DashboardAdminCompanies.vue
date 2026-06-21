@@ -234,7 +234,7 @@
               :key="company.id"
               :class="[
                 'hover:bg-gray-50 transition-colors',
-                company.isWaiting ? 'bg-amber-50' : ''
+                isCompanyRejected(company) ? 'bg-red-50' : company.isWaiting ? 'bg-amber-50' : ''
               ]"
             >
               <!-- Tên công ty (click mở company-management) -->
@@ -285,15 +285,15 @@
                 <span class="text-sm text-gray-900">{{ formatRegistrationDate(company) }}</span>
               </td>
 
-              <!-- Company type (badge Đã duyệt / Chưa duyệt) -->
+              <!-- Company type (badge trạng thái duyệt) -->
               <td class="px-6 py-4 whitespace-nowrap">
                 <span
                   :class="[
                     'inline-flex px-2.5 py-1 text-xs font-semibold rounded-full',
-                    company.isWaiting ? 'bg-amber-100 text-amber-800' : 'bg-green-100 text-green-800'
+                    companyStatusClass(company)
                   ]"
                 >
-                  {{ company.isWaiting ? $t('dashboard.admin.companies.status.pending') : $t('dashboard.admin.companies.status.approved') }}
+                  {{ companyStatusLabel(company) }}
                 </span>
               </td>
 
@@ -361,7 +361,7 @@
             <span class="font-semibold">
               "{{ companyPendingDelete?.name || '' }}"
             </span>
-            ? Hành động này không thể hoàn tác.
+            ? Công ty sẽ được đánh dấu <strong>Từ chối</strong>, ẩn khỏi trang công khai và hệ thống gửi email thông báo cho nhà tuyển dụng.
           </p>
           <div class="flex justify-end gap-3 pt-2">
             <UButton
@@ -410,6 +410,30 @@ function toggleSort(field: string) {
     sortBy.value = field
     sortOrder.value = 'asc'
   }
+}
+
+function isCompanyRejected(company: { isDeleted?: boolean }) {
+  return company.isDeleted === true
+}
+
+function companyStatusLabel(company: { isWaiting?: boolean; isDeleted?: boolean }) {
+  if (isCompanyRejected(company)) {
+    return t('dashboard.admin.companies.status.rejected')
+  }
+  if (company.isWaiting) {
+    return t('dashboard.admin.companies.status.pending')
+  }
+  return t('dashboard.admin.companies.status.approved')
+}
+
+function companyStatusClass(company: { isWaiting?: boolean; isDeleted?: boolean }) {
+  if (isCompanyRejected(company)) {
+    return 'bg-red-100 text-red-800'
+  }
+  if (company.isWaiting) {
+    return 'bg-amber-100 text-amber-800'
+  }
+  return 'bg-green-100 text-green-800'
 }
 
 const addCompanySlideoverOpen = ref(false)
@@ -545,9 +569,9 @@ const filteredCompanies = computed(() => {
   
   // Filter by approved status
   if (filterApproved.value === 'approved') {
-    result = result.filter(c => !c.isWaiting)
+    result = result.filter(c => !c.isWaiting && !c.isDeleted)
   } else if (filterApproved.value === 'pending') {
-    result = result.filter(c => c.isWaiting)
+    result = result.filter(c => c.isWaiting && !c.isDeleted)
   }
   
   // Filter by feature - using isFeatured field
@@ -569,7 +593,6 @@ const filteredCompanies = computed(() => {
         c.mst,
         c.openPositions,
         c.creatorEmail,
-        c.email,
         c.creatorPhone,
         c.phone,
         c.provinceName,
@@ -583,9 +606,14 @@ const filteredCompanies = computed(() => {
   // Sort: mặc định mới nhất theo ngày tạo; khi chọn cột Company type thì sort theo trạng thái duyệt
   if (sortBy.value === 'companyType') {
     result = [...result].sort((a, b) => {
-      const aWaiting = a.isWaiting ? 1 : 0
-      const bWaiting = b.isWaiting ? 1 : 0
-      const cmp = sortOrder.value === 'asc' ? aWaiting - bWaiting : bWaiting - aWaiting
+      const rank = (c: { isWaiting?: boolean; isDeleted?: boolean }) => {
+        if (c.isDeleted) return 2
+        if (c.isWaiting) return 1
+        return 0
+      }
+      const cmp = sortOrder.value === 'asc'
+        ? rank(a) - rank(b)
+        : rank(b) - rank(a)
       if (cmp !== 0) return cmp
       return companyCreatedTime(b) - companyCreatedTime(a)
     })
@@ -618,7 +646,7 @@ const totalJobCount = (company: any): number => {
 }
 
 const displayEmail = (company: any): string => {
-  const v = company.creatorEmail ?? company.email
+  const v = company.creatorEmail
 
   if (v == null || String(v).trim() === '') return 'Không có'
 
@@ -669,6 +697,10 @@ const formatRegistrationDate = (company: any): string => {
 }
 
 const viewCompany = (company: any) => {
+  if (company.isDeleted) {
+    window.open(`/companies/preview/${company.id}`, '_blank', 'noopener,noreferrer')
+    return
+  }
   if (company.isWaiting) {
     // Redirect to preview page for unapproved companies
     window.open(`/companies/preview/${company.id}`, '_blank', 'noopener,noreferrer')
@@ -700,6 +732,7 @@ const fetchCompanies = async () => {
     if (filterBanner.value) params.hasBanner = true
     if (filterApproved.value === 'approved') params.isWaiting = false
     else if (filterApproved.value === 'pending') params.isWaiting = true
+    // isDeleted companies vẫn trả về trong list admin; lọc client-side khi cần
 
     const response = await $api.company.adminListCompany(params)
 

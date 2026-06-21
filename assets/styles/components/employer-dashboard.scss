@@ -1158,43 +1158,62 @@
 
 .employer-field-editor .employer-editor {
   border: 1.5px solid rgba(200, 214, 236, 0.9);
-  border-radius: 10px;
-  overflow: visible;
-  background: #fafbfe;
-  transition:
-    border-color 0.2s ease,
-    box-shadow 0.2s ease;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #ffffff;
 }
 
 .employer-field-editor .employer-editor:focus-within {
-  border-color: rgba(53, 99, 255, 0.45);
-  box-shadow: 0 0 0 3px rgba(53, 99, 255, 0.12);
+  border-color: rgba(53, 99, 255, 0.55);
+  border-width: 1.5px;
+  box-shadow: none;
+  outline: none;
+  background: #ffffff;
 }
 
 .employer-field-editor :deep(.rich-text-editor) {
   border: 0 !important;
   border-radius: 0 !important;
-  background: transparent !important;
+  background: #ffffff !important;
   box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  filter: none !important;
+  opacity: 1 !important;
+}
+
+.employer-field-editor :deep(.rich-text-editor:focus-within) {
+  border: 0 !important;
+  border-width: 0 !important;
+  box-shadow: none !important;
+  outline: none !important;
 }
 
 .employer-field-editor :deep(.editor-toolbar) {
   min-height: 44px;
   padding: 8px 10px;
-  background: #f3f6fb;
-  border-bottom: 1px solid rgba(214, 223, 239, 0.8);
+  background: #f3f6fb !important;
+  border-bottom: 1px solid rgba(214, 223, 239, 0.95);
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  filter: none !important;
+  opacity: 1 !important;
 }
 
 .employer-field-editor :deep(.editor-content) {
   resize: vertical;
   overflow: auto;
   min-height: 120px;
+  background: #ffffff !important;
+  opacity: 1 !important;
 }
 
 .employer-field-editor :deep(.ProseMirror) {
   min-height: 100%;
   padding: 12px 14px;
   line-height: 1.6;
+  background: #ffffff !important;
+  opacity: 1 !important;
 }
 
 .employer-company-form .employer-field-editor:first-of-type :deep(.editor-content) {
@@ -3828,6 +3847,8 @@ body:has(.employer-company-job-drawer) .vs__dropdown-menu {
   z-index: 10050 !important;
   pointer-events: auto !important;
   border-radius: 0.75rem !important; /* rounded-xl */
+  position: fixed !important;
+  margin-top: 6px;
 }
 
 /* Drawer đăng tin — multi-select (vue-select) rounded-xl đồng bộ USelect */
@@ -3943,6 +3964,72 @@ body:has(.employer-company-page) [data-reka-combobox-content] {
   height: auto;
   overflow-y: auto;
   overflow-x: hidden;
+}
+
+/* Safari — drawer đăng/duyệt tin: zoom + flex overflow khiến form không scroll tới cuối */
+@supports (font: -apple-system-body) {
+  .ui-drawer-scale-80.employer-admin-job-drawer,
+  .ui-drawer-scale-80.employer-company-job-drawer {
+    zoom: 1 !important;
+    transform: scale(0.9);
+    transform-origin: right center;
+    height: calc(100dvh / 0.9) !important;
+    max-height: calc(100dvh / 0.9) !important;
+    min-height: calc(100dvh / 0.9) !important;
+  }
+
+  .ui-drawer-scale-80.employer-admin-job-drawer > div:not([data-vaul-handle]),
+  .ui-drawer-scale-80.employer-company-job-drawer > div:not([data-vaul-handle]) {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .employer-admin-job-drawer-container,
+  .employer-company-job-drawer-container {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-height: 0;
+    height: 100%;
+    overflow: hidden !important;
+  }
+
+  .employer-admin-job-drawer-body {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: hidden !important;
+  }
+
+  .employer-admin-job-drawer-body > .employer-job-drawer-body-inner.ui-drawer-body-vh,
+  .employer-admin-job-drawer .employer-admin-job-drawer-body .ui-drawer-body-vh {
+    flex: 1 1 auto;
+    min-height: 0 !important;
+    height: auto !important;
+    max-height: none !important;
+    overflow-y: scroll !important;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    touch-action: pan-y;
+  }
+
+  .employer-company-job-drawer-body {
+    flex: 1 1 auto;
+    min-height: 0 !important;
+    overflow-y: scroll !important;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    touch-action: pan-y;
+  }
+
+  .employer-company-job-drawer-body .employer-job-drawer-body-inner {
+    min-height: min-content;
+  }
 }
 
 .employer-admin-job-drawer-header {
@@ -4166,28 +4253,49 @@ body:has(.employer-company-page) [data-reka-combobox-content] {
   border-radius: 12px;
   overflow: visible;
   background: #fafbfe;
-  transition:
-    border-color 0.2s ease,
-    box-shadow 0.2s ease;
 }
 
 .employer-admin-company-drawer-form .employer-field-editor .employer-editor:focus-within,
 .employer-admin-blog-drawer-form .employer-field-editor .employer-editor:focus-within {
   border-color: rgba(53, 99, 255, 0.55);
-  box-shadow: 0 0 0 3px rgba(53, 99, 255, 0.12);
+  border-width: 1.5px;
+  box-shadow: none;
+  outline: none;
   background: #ffffff;
 }
 
 .employer-admin-company-drawer-form .employer-field-editor :deep(.rich-text-editor),
 .employer-admin-blog-drawer-form .employer-field-editor :deep(.rich-text-editor) {
-  border: 0;
+  border: 0 !important;
   border-radius: 0;
   box-shadow: none;
+  background: #ffffff !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  filter: none !important;
+  opacity: 1 !important;
+}
+
+.employer-admin-company-drawer-form .employer-field-editor :deep(.rich-text-editor:focus-within),
+.employer-admin-blog-drawer-form .employer-field-editor :deep(.rich-text-editor:focus-within) {
+  border: 0 !important;
+  border-width: 0 !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+.employer-admin-company-drawer-form .employer-field-editor :deep(.editor-toolbar),
+.employer-admin-blog-drawer-form .employer-field-editor :deep(.editor-toolbar) {
+  background: #f3f6fb !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  opacity: 1 !important;
 }
 
 .employer-admin-company-drawer-form .employer-field-editor :deep(.editor-content),
 .employer-admin-blog-drawer-form .employer-field-editor :deep(.editor-content) {
   min-height: 140px;
+  background: #ffffff !important;
 }
 
 .employer-admin-company-drawer-form .employer-field-editor :deep(.ProseMirror),
@@ -4196,6 +4304,8 @@ body:has(.employer-company-page) [data-reka-combobox-content] {
   padding: 12px 14px;
   font-size: 14px;
   line-height: 1.6;
+  background: #ffffff !important;
+  opacity: 1 !important;
 }
 
 .employer-dashboard-simple .employer-admin-company-drawer-form .employer-field input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]):not([type="file"]),

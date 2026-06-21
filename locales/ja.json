@@ -718,6 +718,7 @@
           "active": "Hoạt động",
           "pending": "Chờ duyệt",
           "approved": "Đã duyệt",
+          "rejected": "Từ chối",
           "inactive": "Không hoạt động"
         },
         "actions": {
@@ -916,12 +917,12 @@
               "recipient": "Tất cả tài khoản có role ADMIN (gửi song song, dedupe email)."
             },
             "COMPANY_APPROVED": {
-              "when": "Admin duyệt công ty (PATCH /companies/:id/approve — chuyển isWaiting sang false).",
-              "recipient": "Host công ty được duyệt."
+              "when": "Admin duyệt công ty (form admin hoặc PATCH /companies/:id/approve — isWaiting = false).",
+              "recipient": "Tất cả user NTD đang hoạt động thuộc công ty (users.companyId, dedupe email)."
             },
             "COMPANY_REJECTED": {
-              "when": "Admin từ chối công ty (PATCH /companies/:id/reject).",
-              "recipient": "Host công ty bị từ chối."
+              "when": "Admin từ chối hoặc xóa mềm công ty (PATCH reject hoặc DELETE).",
+              "recipient": "Tất cả user NTD đang hoạt động thuộc công ty (users.companyId, dedupe email)."
             },
             "JOB_PENDING_ADMIN": {
               "when": "Tin tuyển dụng mới được tạo với trạng thái ADMIN_REVIEW (dashboard admin/NTD hoặc đăng tin free-post).",
