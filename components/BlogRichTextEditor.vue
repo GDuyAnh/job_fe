@@ -50,7 +50,7 @@
           </div>
           
           <div v-if="imageTab === 'upload'" class="space-y-2">
-            <input ref="imageInput" type="file" accept="image/*" class="hidden" @change="handleImageUpload" />
+            <input ref="imageInput" type="file" :accept="IMAGE_UPLOAD_ACCEPT" class="hidden" @change="handleImageUpload" />
             <div v-if="!previewImage" class="border-2 border-dashed border-gray-300 rounded-lg p-4 flex flex-col items-center justify-center cursor-pointer hover:border-blue-500" @click="imageInput?.click()">
               <UIcon name="i-lucide-upload" class="w-8 h-8 text-gray-400 mb-1" />
               <p class="text-xs text-gray-600">Chọn hình ảnh</p>
@@ -120,6 +120,7 @@ import { useEditor, EditorContent } from '@tiptap/vue-3'
 import StarterKit from '@tiptap/starter-kit'
 import Placeholder from '@tiptap/extension-placeholder'
 import { Image } from '@tiptap/extension-image'
+import { IMAGE_UPLOAD_ACCEPT, validateImageUploadFile } from '~/utils/imageUploadValidation'
 
 const CustomImage = Image.extend({
   addAttributes() {
@@ -321,14 +322,20 @@ function deleteImage() {
 }
 
 async function handleImageUpload(event: Event) {
-  const file = (event.target as HTMLInputElement).files?.[0]
+  const input = event.target as HTMLInputElement
+  const file = input.files?.[0]
   if (!file) return
-  if (!file.type.startsWith('image/')) {
-    useNotify({ message: 'Vui lòng chọn file hình ảnh', type: 'error' })
+
+  const validationError = validateImageUploadFile(file)
+  if (validationError) {
+    useNotify({ message: validationError, type: 'error' })
+    input.value = ''
     return
   }
+
   if (file.size > 5 * 1024 * 1024) {
     useNotify({ message: 'Hình ảnh không được vượt quá 5MB', type: 'error' })
+    input.value = ''
     return
   }
   previewImage.value = URL.createObjectURL(file)
@@ -435,8 +442,13 @@ onBeforeUnmount(() => {
 .rich-text-editor--admin .editor-toolbar {
   padding: 10px 12px;
   gap: 2px;
-  background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+  background: #f3f6fb !important;
+  background-image: none !important;
   border-bottom: 1px solid #e2e8f0;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  filter: none !important;
+  opacity: 1 !important;
 }
 
 .rich-text-editor--admin :deep(.editor-toolbar button) {
@@ -467,7 +479,18 @@ onBeforeUnmount(() => {
   border-radius: 14px;
   overflow: hidden;
   background: #fff;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  filter: none;
+  opacity: 1;
+}
+
+.rich-text-editor--admin:focus-within {
+  border-color: #3563ff;
+  border-width: 2px;
+  box-shadow: none;
+  outline: none;
 }
 
 .rich-text-editor--admin .editor-content {
@@ -497,7 +520,7 @@ onBeforeUnmount(() => {
   min-height: 100%;
   box-sizing: border-box;
 }
-:deep(.ProseMirror p.is-editor-empty:first-child::before) { color: #9ca3af; content: attr(data-placeholder); float: left; height: 0; pointer-events: none; }
+:deep(.ProseMirror p.is-editor-empty:first-child::before) { color: #8c95a8; content: attr(data-placeholder); float: left; height: 0; pointer-events: none; opacity: 1; }
 :deep(.ProseMirror-focused) { outline: none; }
 :deep(.ProseMirror ul), :deep(.ProseMirror ol) { padding-left: 1.5rem; margin: 1rem 0; }
 :deep(.ProseMirror h1), :deep(.ProseMirror h2), :deep(.ProseMirror h3) { font-weight: 600; margin-top: 1rem; margin-bottom: 0.5rem; }

@@ -58,25 +58,7 @@
     <section class="apply-profile-section">
       <div class="apply-profile-section-head">
         <div>
-          <h3>Cover Letter</h3>
-        </div>
-      </div>
-
-      <label class="apply-modal-field apply-modal-field-textarea apply-profile-cover-field">
-        <textarea
-          v-model="form.coverLetter"
-          rows="7"
-          maxlength="1000"
-          placeholder="Viết vài dòng ngắn gọn về kinh nghiệm, thế mạnh và lý do bạn phù hợp với vị trí này."
-        />
-        <small>{{ coverLetterCount }} / 1000</small>
-      </label>
-    </section>
-
-    <section class="apply-profile-section">
-      <div class="apply-profile-section-head">
-        <div>
-          <h3>Tải lên CV</h3>
+          <h3>Tải lên CV <span class="is-required">*</span></h3>
         </div>
       </div>
 
@@ -141,6 +123,24 @@
       </div>
 
       <p v-if="cvError" class="apply-modal-field-error">{{ cvError }}</p>
+    </section>
+
+    <section class="apply-profile-section">
+      <div class="apply-profile-section-head">
+        <div>
+          <h3>Cover Letter</h3>
+        </div>
+      </div>
+
+      <label class="apply-modal-field apply-modal-field-textarea apply-profile-cover-field">
+        <textarea
+          v-model="form.coverLetter"
+          rows="7"
+          maxlength="1000"
+          placeholder="Viết vài dòng ngắn gọn về kinh nghiệm, thế mạnh và lý do bạn phù hợp với vị trí này."
+        />
+        <small>{{ coverLetterCount }} / 1000</small>
+      </label>
     </section>
 
     <div class="apply-modal-actions">

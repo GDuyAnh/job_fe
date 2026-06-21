@@ -23,6 +23,7 @@
 @import "./components/detail-preview.scss";
 @import "./components/apply-drawer.scss";
 @import "./components/employer-post-page.scss";
+@import "./components/rich-text-editor.scss";
 
 :root {
   --ui-primary: #3563ff;

@@ -153,7 +153,7 @@
                       <input
                         ref="coverImageInput"
                         type="file"
-                        accept="image/*"
+                        :accept="IMAGE_UPLOAD_ACCEPT"
                         class="hidden"
                         tabindex="-1"
                         @change="handleCoverImageChange"
@@ -548,6 +548,7 @@ import BlogRichTextEditor from '~/components/BlogRichTextEditor.vue'
 import AdminDrawerHeader from '~/components/AdminDrawerHeader.vue'
 import { adminDrawerSelectContentZ, adminDrawerUi } from '~/utils/admin-drawer-ui'
 import { watch } from 'vue'
+import { IMAGE_UPLOAD_ACCEPT, validateImageUploadFile } from '~/utils/imageUploadValidation'
 
 const { $api } = useNuxtApp()
 const { t } = useI18n()
@@ -767,9 +768,10 @@ const handleCoverImageChange = async (e: Event) => {
   const file = input.files?.[0]
   if (!file) return
 
-  if (!file.type.startsWith('image/')) {
+  const validationError = validateImageUploadFile(file)
+  if (validationError) {
     input.value = ''
-    useNotify({ message: 'Vui lòng chọn file ảnh hợp lệ', type: 'error' })
+    useNotify({ message: validationError, type: 'error' })
     return
   }
 

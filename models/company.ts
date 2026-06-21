@@ -27,7 +27,6 @@ export interface CompanyModel {
   address: string | null
   companySize: number | null
   foundedYear: number | null
-  email: string
   description: string | null
   insight: string | null
   overview: string | null

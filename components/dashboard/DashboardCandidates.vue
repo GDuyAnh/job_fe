@@ -54,7 +54,6 @@
                   <tr>
                     <th>Ứng viên</th>
                     <th>Email</th>
-                    <th>Số hồ sơ</th>
                     <th>CV</th>
                     <th ref="dateSortMenuRef" class="is-sortable">
                       <div class="employer-candidates-th-sort">
@@ -110,7 +109,7 @@
                 </thead>
                 <tbody data-candidates-rows="">
                   <tr v-if="paginatedApplicants.length === 0">
-                    <td colspan="5" class="employer-candidates-empty-cell">
+                    <td colspan="4" class="employer-candidates-empty-cell">
                       {{ $t('dashboard.main.applicationsTable.noApplications') }}
                     </td>
                   </tr>
@@ -131,11 +130,6 @@
                       </div>
                     </td>
                     <td>{{ candidate.email || '—' }}</td>
-                    <td>
-                      <span class="employer-candidate-app-count">
-                        {{ candidate.applicationCount }}
-                      </span>
-                    </td>
                     <td>
                       <a
                         v-if="candidate.cvUrl"
@@ -304,14 +298,6 @@
               <strong data-candidate-detail-name-field="">{{ candidateDetail.name }}</strong>
             </div>
             <div class="employer-candidate-detail-item">
-              <span>Email</span>
-              <strong data-candidate-detail-email="">{{ candidateDetail.email }}</strong>
-            </div>
-            <div class="employer-candidate-detail-item">
-              <span>Số điện thoại</span>
-              <strong data-candidate-detail-phone="">{{ candidateDetail.phone || '—' }}</strong>
-            </div>
-            <div class="employer-candidate-detail-item">
               <span>CV</span>
               <a
                 v-if="candidateDetail.cvUrl"
@@ -351,37 +337,24 @@
                     Ngày ứng tuyển: {{ formatDate(job.applicationDate) }}
                   </span>
                 </div>
-                <div class="employer-candidate-job-status">
-                  <span class="employer-candidate-job-status-label">
-                    {{ $t('dashboard.applicationStatus.updateLabel') }}
-                  </span>
-                  <ApplicationStatusControl
-                    :model-value="job.status || 'SUBMITTED'"
-                    :status-note="job.statusNote"
-                    show-message-field
-                    :disabled="updatingStatusId === job.applicationId"
-                    @change="(payload) => handleDialogStatusChange(job.applicationId, payload)"
+                <div class="employer-candidate-job-actions">
+                  <button
+                    type="button"
+                    class="employer-row-action is-delete"
+                    :aria-label="$t('dashboard.manageJobs.delete')"
+                    :disabled="deletingApplicationId === job.applicationId"
+                    @click="openDeleteModalById(job.applicationId)"
                   >
-                    <template #footer>
-                      <button
-                        type="button"
-                        class="employer-row-action is-delete"
-                        :aria-label="$t('dashboard.manageJobs.delete')"
-                        :disabled="deletingApplicationId === job.applicationId"
-                        @click="openDeleteModalById(job.applicationId)"
-                      >
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                          <path
-                            d="M4 7h16M9 7V4h6v3M8 7l1 12h6l1-12"
-                            stroke="currentColor"
-                            stroke-width="2"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                          />
-                        </svg>
-                      </button>
-                    </template>
-                  </ApplicationStatusControl>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                      <path
+                        d="M4 7h16M9 7V4h6v3M8 7l1 12h6l1-12"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      />
+                    </svg>
+                  </button>
                 </div>
               </li>
             </ul>
@@ -413,7 +386,6 @@
 </template>
 
 <script setup lang="ts">
-import ApplicationStatusControl from '~/components/dashboard/ApplicationStatusControl.vue'
 import {
   belongsToApplicantGroup,
   groupApplicationsByApplicant,
@@ -473,7 +445,6 @@ const { t } = useI18n()
 
 const loading = ref(false)
 const applications = ref<JobApplication[]>([])
-const updatingStatusId = ref<number | null>(null)
 const deletingApplicationId = ref<number | null>(null)
 const showDeleteModal = ref(false)
 const applicationPendingDelete = ref<JobApplication | null>(null)
@@ -660,42 +631,6 @@ const cvFileName = (candidate: { applicantName: string }) => {
     .replace(/[^a-z0-9-]/gi, '')
 
   return base ? `cv-${base}.pdf` : 'cv.pdf'
-}
-
-async function handleStatusChange(
-  application: JobApplication,
-  payload: { status: string; statusMessage?: string },
-) {
-  updatingStatusId.value = application.id
-
-  try {
-    await $api.job.updateApplicationStatus(application.id, payload)
-    application.status = payload.status
-    if (payload.statusMessage !== undefined) {
-      application.statusNote = payload.statusMessage || null
-    }
-    useNotify({
-      type: 'success',
-      message: t('dashboard.applicationStatus.updateSuccess'),
-    })
-  } catch (error: any) {
-    useNotify({
-      type: 'error',
-      message: error?.message || t('dashboard.applicationStatus.updateFailed'),
-    })
-  } finally {
-    updatingStatusId.value = null
-  }
-}
-
-async function handleDialogStatusChange(
-  applicationId: number,
-  payload: { status: string; statusMessage?: string },
-) {
-  const application = applications.value.find((app) => app.id === applicationId)
-  if (!application) return
-
-  await handleStatusChange(application, payload)
 }
 
 const fetchApplications = async () => {

@@ -159,6 +159,7 @@
 import type { FormSubmitEvent } from '@nuxt/ui'
 import { loginSchema, type LoginType } from '~/constants/schema/login'
 import { useRouter } from 'vue-router'
+import { redirectToRoleDashboard } from '~/utils/authRedirect'
 
 defineComponent({
   name: 'AuthLogin',
@@ -195,8 +196,7 @@ async function onSubmit(event: FormSubmitEvent<LoginType>) {
     // Chỉ redirect khi đăng nhập thành công VÀ có user
     if (response?.user) {
       authStore.setUser(response.user)
-      // Redirect về home chỉ khi đăng nhập thành công
-      await router.push('/')
+      await redirectToRoleDashboard(response.user.role)
 
       return
     }

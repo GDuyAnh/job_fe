@@ -260,7 +260,7 @@
         <input
           ref="logoInput"
           type="file"
-          accept="image/*"
+          :accept="IMAGE_UPLOAD_ACCEPT"
           class="hidden"
           tabindex="-1"
           @change="onPickLogo"
@@ -307,7 +307,7 @@
         :class="formDisabled ? 'is-disabled' : ''"
         @click.stop="openImagesPicker"
       >
-        <input ref="imagesInput" type="file" accept="image/*" multiple class="hidden" @change="onPickImages" />
+        <input ref="imagesInput" type="file" :accept="IMAGE_UPLOAD_ACCEPT" multiple class="hidden" @change="onPickImages" />
         <div v-if="imagePreviews.length" class="flex flex-wrap gap-2">
           <div v-for="(src, i) in imagePreviews" :key="i" class="relative">
             <img :src="src" class="h-20 w-auto object-contain rounded border" />
@@ -333,7 +333,7 @@
         :class="formDisabled ? 'is-disabled' : ''"
         @click.stop="openBannerPicker"
       >
-        <input ref="bannerInput" type="file" accept="image/*" class="hidden" @change="onPickBanner" />
+        <input ref="bannerInput" type="file" :accept="IMAGE_UPLOAD_ACCEPT" class="hidden" @change="onPickBanner" />
         <img v-if="bannerPreview" :src="bannerPreview" class="max-h-24 mx-auto object-contain rounded" />
         <div v-else class="grid place-items-center">
           <div
@@ -497,6 +497,8 @@ import type { CompanyAddUpdateEntity } from '~/entities/company'
 import RichTextEditor from '~/components/RichTextEditor.vue'
 import { adminJobDrawerCompanySelectControlUi } from '~/utils/admin-drawer-ui'
 import { handleMstInput } from '~/utils/mst'
+import { normalizeCompanyLogo } from '~/utils/companyLogo'
+import { IMAGE_UPLOAD_ACCEPT, validateImageUploadFile } from '~/utils/imageUploadValidation'
 import {
   companySizeSelectItems,
   resolveCompanySizeForSave,
@@ -697,7 +699,7 @@ function fillFormFromCompany(company: any) {
   companySizeFromDb.value = company.companySize ?? null
   companySizeDirty.value = false
   console.log('[AdminCompanyForm] form after fill:', form.value)
-  logoPreview.value = company.logo || null
+  logoPreview.value = normalizeCompanyLogo(company.logo)
   bannerPreview.value = company.bannerImage || null
   imagePreviews.value = Array.isArray(company.companyImages) ? company.companyImages.map((img: any) => img?.url ?? '') : []
   imageFiles.value = []
@@ -751,7 +753,14 @@ function onPickLogo(e: Event) {
   const input = e.target as HTMLInputElement
   const file = input.files?.[0]
 
-  if (!file?.type.startsWith('image/')) {
+  if (!file) {
+    input.value = ''
+    return
+  }
+
+  const validationError = validateImageUploadFile(file)
+  if (validationError) {
+    useNotify({ type: 'error', message: validationError })
     input.value = ''
     return
   }
@@ -764,7 +773,14 @@ function onDropLogo(e: DragEvent) {
   isDragging.value = false
   const file = e.dataTransfer?.files?.[0]
 
-  if (!file?.type.startsWith('image/')) return
+  if (!file) return
+
+  const validationError = validateImageUploadFile(file)
+  if (validationError) {
+    useNotify({ type: 'error', message: validationError })
+    return
+  }
+
   setLogoFile(file)
 }
 
@@ -1120,7 +1136,11 @@ function onPickImages(e: Event) {
   if (!files?.length) return
 
   for (const f of Array.from(files)) {
-    if (!f.type.startsWith('image/')) continue
+    const validationError = validateImageUploadFile(f)
+    if (validationError) {
+      useNotify({ type: 'error', message: validationError })
+      continue
+    }
     imageFiles.value.push(f)
     imagePreviews.value.push(URL.createObjectURL(f))
   }
@@ -1154,9 +1174,20 @@ function removeImage(i: number) {
 }
 
 function onPickBanner(e: Event) {
-  const file = (e.target as HTMLInputElement).files?.[0]
+  const input = e.target as HTMLInputElement
+  const file = input.files?.[0]
 
-  if (!file?.type.startsWith('image/')) return
+  if (!file) {
+    input.value = ''
+    return
+  }
+
+  const validationError = validateImageUploadFile(file)
+  if (validationError) {
+    useNotify({ type: 'error', message: validationError })
+    input.value = ''
+    return
+  }
 
   if (bannerPreview.value?.startsWith('blob:')) URL.revokeObjectURL(bannerPreview.value)
   bannerFile.value = file

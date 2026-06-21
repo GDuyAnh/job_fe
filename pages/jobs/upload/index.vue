@@ -287,178 +287,6 @@
                   </p>
                 </div>
 
-                <UCollapsible
-                  v-model:open="showOptionalCompanyInfo"
-                  :unmount-on-hide="false"
-                  class="employer-optional-details w-full"
-                  :ui="{
-                    content: 'overflow-visible data-[state=open]:pb-0',
-                  }"
-                >
-                  <template #default="{ open }">
-                    <button
-                      type="button"
-                      class="flex w-full items-center justify-start gap-3 rounded-xl border border-sky-200/80 bg-sky-50/70 px-4 py-2.5 text-left text-sm transition hover:bg-sky-50"
-                      :class="open ? 'rounded-b-none border-b-0' : ''"
-                      :aria-expanded="open"
-                    >
-                      <UIcon
-                        :name="open ? 'i-lucide-x' : 'i-lucide-plus'"
-                        class="h-4 w-4 shrink-0 text-sky-600"
-                        aria-hidden="true"
-                      />
-                      <span class="min-w-0">
-                        <span class="font-semibold text-sky-600">
-                          {{ $t('job.uploadJob.optionalMoreInfo') }}
-                        </span>
-                        <span class="ml-1 text-slate-400">{{
-                          $t('job.uploadJob.optionalMoreInfoHint')
-                        }}</span>
-                      </span>
-                    </button>
-                  </template>
-                  <template #content>
-                    <div
-                      class="employer-optional-inner rounded-b-xl border border-t-0 border-sky-200/80 bg-sky-50/30"
-                    >
-                      <div class="employer-optional-block">
-                        <div class="rich-text-output employer-field-stack">
-                          <label class="employer-input-label">
-                            {{ $t('company.form.descLabel') }}
-                          </label>
-                          <RichTextEditor
-                            :model-value="companyAdd.description || undefined"
-                            class="rich-text-content w-full"
-                            :readonly="isExistCompany"
-                            :placeholder="$t('company.form.descPlaceholder')"
-                            @update:model-value="
-                              (val) => (companyAdd.description = val || null)
-                            "
-                          />
-                        </div>
-                      </div>
-
-                      <div
-                        id="company-address"
-                        class="employer-optional-block scroll-mt-4"
-                      >
-                        <label class="employer-input-label">
-                          {{ $t('job.uploadJob.detailAddressLabel') }}
-                        </label>
-                        <RichTextEditor
-                          v-model="companyAdd.address"
-                          class="rich-text-content w-full text-sm"
-                          :class="{
-                            'ring-1 ring-red-300': companyErrors.address,
-                          }"
-                          :placeholder="$t('company.form.placeholderAddress')"
-                          :readonly="isExistCompany"
-                        />
-                        <p
-                          v-if="companyErrors.address"
-                          class="mt-1 text-sm !text-red-500"
-                        >
-                          {{ companyErrors.address }}
-                        </p>
-                      </div>
-
-                      <div
-                        class="employer-optional-grid grid grid-cols-3 gap-5 sm:gap-6"
-                      >
-                        <div class="employer-field-stack">
-                          <label class="employer-input-label">
-                            {{ $t('company.founded') }}
-                          </label>
-                          <UInput
-                            v-model.number="companyAdd.foundedYear"
-                            type="number"
-                            min="1800"
-                            max="2100"
-                            class="w-full text-sm"
-                            :class="{
-                              'border-red-500': companyErrors.foundedYear,
-                            }"
-                            :readonly="isExistCompany"
-                            :placeholder="
-                              $t('company.form.placeholderFounded') as string
-                            "
-                            :ui="{ base: 'h-11 rounded-xl' }"
-                            @input="companyErrors.foundedYear = ''"
-                          />
-                          <p
-                            v-if="companyErrors.foundedYear"
-                            class="mt-0.5 text-sm !text-red-500"
-                          >
-                            {{ companyErrors.foundedYear }}
-                          </p>
-                        </div>
-                        <div class="employer-field-stack">
-                          <label class="employer-input-label">
-                            {{ $t('company.size') }}
-                          </label>
-                          <USelect
-                            id="company-size"
-                            :items="companySizeSelectItems"
-                            :model-value="companyAdd.companySize?.toString() ?? ''"
-                            :content="{ side: 'bottom' }"
-                            :disabled="isExistCompany"
-                            :placeholder="$t('company.form.placeholderCompanySize')"
-                            :ui="{
-                              base: [
-                                'h-11 w-full rounded-xl',
-                                companyErrors.companySize
-                                  ? 'ring-1 ring-inset ring-red-200/80 border border-red-500'
-                                  : companyFieldsLookupHighlight
-                                    ? 'ring-1 ring-inset ring-sky-200/80 border-sky-300/80'
-                                    : '',
-                              ]
-                                .filter(Boolean)
-                                .join(' '),
-                            }"
-                            @update:model-value="
-                              (v) => {
-                                companyAdd.companySize = v ? Number(v) : null
-                                companyErrors.companySize = ''
-                              }
-                            "
-                          />
-                          <p
-                            v-if="companyErrors.companySize"
-                            class="mt-0.5 text-sm !text-red-500"
-                          >
-                            {{ companyErrors.companySize }}
-                          </p>
-                        </div>
-                        <div class="employer-field-stack">
-                          <label class="employer-input-label">
-                            {{ $t('company.website') }}
-                          </label>
-                          <UInput
-                            v-model.trim="companyAdd.website"
-                            type="url"
-                            class="w-full text-sm"
-                            :class="{
-                              'border-red-500': companyErrors.website,
-                            }"
-                            :readonly="isExistCompany"
-                            :placeholder="
-                              $t('company.form.placeholderWebsite')
-                            "
-                            :ui="{ base: 'h-11 rounded-xl' }"
-                            @input="companyErrors.website = ''"
-                          />
-                          <p
-                            v-if="companyErrors.website"
-                            class="mt-0.5 text-sm !text-red-500"
-                          >
-                            {{ companyErrors.website }}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </template>
-                </UCollapsible>
-
                 <!-- Social links and Video (removed for free-post) -->
                 <!-- Logo uploader hidden in free-post -->
                 <div v-if="false" class="pt-5">
@@ -486,7 +314,7 @@
                     <input
                       ref="logoFileEl"
                       type="file"
-                      accept="image/*"
+                      :accept="IMAGE_UPLOAD_ACCEPT"
                       class="hidden"
                       @change="onPickLogo"
                     />
@@ -559,7 +387,7 @@
                     <input
                       ref="bannerFileEl"
                       type="file"
-                      accept="image/*"
+                      :accept="IMAGE_UPLOAD_ACCEPT"
                       class="hidden"
                       @change="onPickBanner"
                     />
@@ -615,7 +443,7 @@
                     <input
                       ref="imagesFileEl"
                       type="file"
-                      accept="image/*"
+                      :accept="IMAGE_UPLOAD_ACCEPT"
                       multiple
                       class="hidden"
                       @change="onPickImages"
@@ -768,6 +596,7 @@
                             v-model="categoryForSelect"
                             :options="categoryItemsSearchable"
                             :append-to-body="true"
+                            :calculate-position="vueSelectCalculatePosition"
                             multiple
                             searchable
                             class="w-full text-sm"
@@ -977,6 +806,7 @@
                             v-model="locationForSelect"
                             :options="locationSelectItems"
                             :append-to-body="true"
+                            :calculate-position="vueSelectCalculatePosition"
                             multiple
                             searchable
                             class="w-full text-sm"
@@ -1031,6 +861,7 @@
                               v-model="requiredQualificationForSelect"
                               :options="requiredQualificationSelectItems"
                               :append-to-body="true"
+                            :calculate-position="vueSelectCalculatePosition"
                               multiple
                               searchable
                               class="w-full text-sm"
@@ -1081,6 +912,7 @@
                               v-model="genderForSelect"
                               :options="genderItems"
                               :append-to-body="true"
+                            :calculate-position="vueSelectCalculatePosition"
                               multiple
                               searchable
                               class="w-full text-sm"
@@ -1108,6 +940,7 @@
                               v-model="benefitsForSelect"
                               :options="jobBenefitsSelectItems"
                               :append-to-body="true"
+                            :calculate-position="vueSelectCalculatePosition"
                               multiple
                               searchable
                               class="w-full text-sm"
@@ -1349,10 +1182,12 @@ import { CalendarDate, type DateValue } from '@internationalized/date'
 import RichTextEditor from '~/components/RichTextEditor.vue'
 import { handleMstInput } from '~/utils/mst'
 import {
-  companySizeSelectItems,
   resolveCompanySizeForSelect,
 } from '~/constants/company-size'
+import { normalizeCompanyLogo } from '~/utils/companyLogo'
+import { IMAGE_UPLOAD_ACCEPT, validateImageUploadFile } from '~/utils/imageUploadValidation'
 const { t } = useI18n()
+const { calculatePosition: vueSelectCalculatePosition } = useVueSelectFixedPosition()
 
 useHead({
   title: computed(() => t('job.uploadJob.title')),
@@ -1636,10 +1471,15 @@ function onDropLogo(e: DragEvent) {
   if (!files?.length) return
 
   const file = files[0]
+  if (!file) return
 
-  if (file && file.type.startsWith('image/')) {
-    setLogoFile(file)
+  const validationError = validateImageUploadFile(file)
+  if (validationError) {
+    useNotify({ type: 'error', message: validationError })
+    return
   }
+
+  setLogoFile(file)
 }
 
 function onPickLogo(e: Event) {
@@ -1648,10 +1488,16 @@ function onPickLogo(e: Event) {
   if (!files?.length) return
 
   const file = files[0]
+  if (!file) return
 
-  if (file) {
-    setLogoFile(file)
+  const validationError = validateImageUploadFile(file)
+  if (validationError) {
+    useNotify({ type: 'error', message: validationError })
+    if (logoFileEl.value) logoFileEl.value.value = ''
+    return
   }
+
+  setLogoFile(file)
   if (logoFileEl.value) logoFileEl.value.value = ''
 }
 
@@ -2111,19 +1957,24 @@ function onDropImages(e: DragEvent) {
   const files = e.dataTransfer?.files
 
   if (!files?.length) return
-  addImageFiles(Array.from(files).filter((f) => f.type.startsWith('image/')))
+  addImageFiles(Array.from(files))
 }
 
 function onPickImages(e: Event) {
   const files = (e.target as HTMLInputElement).files
 
   if (!files?.length) return
-  addImageFiles(Array.from(files).filter((f) => f.type.startsWith('image/')))
+  addImageFiles(Array.from(files))
   if (imagesFileEl.value) imagesFileEl.value.value = ''
 }
 
 function addImageFiles(files: File[]) {
   for (const f of files) {
+    const validationError = validateImageUploadFile(f)
+    if (validationError) {
+      useNotify({ type: 'error', message: validationError })
+      continue
+    }
     imageFiles.value.push(f)
     imagePreviews.value.push(URL.createObjectURL(f))
   }
@@ -2150,28 +2001,40 @@ function onDropBanner(e: DragEvent) {
 
   if (!files?.length) return
   const file = files[0]
+  if (!file) return
 
-  if (file.type.startsWith('image/')) {
-    if (bannerPreview.value?.startsWith('blob:')) {
-      URL.revokeObjectURL(bannerPreview.value)
-    }
-    bannerFile.value = file
-    bannerPreview.value = URL.createObjectURL(file)
+  const validationError = validateImageUploadFile(file)
+  if (validationError) {
+    useNotify({ type: 'error', message: validationError })
+    return
   }
+
+  if (bannerPreview.value?.startsWith('blob:')) {
+    URL.revokeObjectURL(bannerPreview.value)
+  }
+  bannerFile.value = file
+  bannerPreview.value = URL.createObjectURL(file)
 }
 function onPickBanner(e: Event) {
-  const files = (e.target as HTMLInputElement).files
+  const input = e.target as HTMLInputElement
+  const files = input.files
 
   if (!files?.length) return
   const file = files[0]
+  if (!file) return
 
-  if (file.type.startsWith('image/')) {
-    if (bannerPreview.value?.startsWith('blob:')) {
-      URL.revokeObjectURL(bannerPreview.value)
-    }
-    bannerFile.value = file
-    bannerPreview.value = URL.createObjectURL(file)
+  const validationError = validateImageUploadFile(file)
+  if (validationError) {
+    useNotify({ type: 'error', message: validationError })
+    input.value = ''
+    return
   }
+
+  if (bannerPreview.value?.startsWith('blob:')) {
+    URL.revokeObjectURL(bannerPreview.value)
+  }
+  bannerFile.value = file
+  bannerPreview.value = URL.createObjectURL(file)
   if (bannerFileEl.value) bannerFileEl.value.value = ''
 }
 function removeBanner() {
@@ -2293,7 +2156,6 @@ const companyFieldsLookupHighlight = computed(
     isDisplayInputCompany.value &&
     (isExistCompany.value || Boolean(companyByMST.value?.data)),
 )
-const showOptionalCompanyInfo = ref(false)
 
 // Date picker for deadline
 const parseDateString = (str: string | null): DateValue | null => {
@@ -2366,7 +2228,6 @@ const findCompanyByMst = async () => {
   isGettingCompanyByMst.value = true
   loading.value = true
   isDisplayInputCompany.value = false
-  showOptionalCompanyInfo.value = false
   isExistCompany.value = false
 
   // Reset logo and images when searching new company
@@ -2422,7 +2283,7 @@ const findCompanyByMst = async () => {
       companyAdd.value.address = existingCompany.address ?? ''
       companyAdd.value.taxAddress = existingCompany.taxAddress ?? ''
       companyAdd.value.mst = existingCompany.mst ?? null
-      companyAdd.value.logo = existingCompany.logo ?? ''
+      companyAdd.value.logo = normalizeCompanyLogo(existingCompany.logo) ?? ''
       companyAdd.value.organizationType = existingCompany.organizationType ?? 0
       companyAdd.value.facebookLink = existingCompany.facebookLink ?? ''
       companyAdd.value.twitterLink = existingCompany.twitterLink ?? ''

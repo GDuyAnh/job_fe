@@ -28,6 +28,7 @@ export interface CompanyEntity {
   organizationType: number | null
   isWaiting: boolean
   isFeatured: boolean
+  isDeleted?: boolean
   facebookLink: string | null
   linkedInLink: string | null
   twitterLink: string | null
@@ -38,7 +39,6 @@ export interface CompanyEntity {
   taxAddress: string | null
   companySize: number | null
   foundedYear: number | null
-  email: string | null
   description: string | null
   insight: string | null
   overview: string | null
