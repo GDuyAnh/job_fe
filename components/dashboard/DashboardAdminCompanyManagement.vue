@@ -529,10 +529,6 @@
                           <span class="text-sm">{{ $t('dashboard.manageJobs.rowStatus.pending') }}</span>
                         </label>
                         <label class="flex items-center gap-2 cursor-pointer px-2 py-1 hover:bg-gray-50 rounded">
-                          <input v-model="statusFilter" type="radio" value="reviewing" class="w-4 h-4 text-blue-600">
-                          <span class="text-sm">{{ $t('dashboard.manageJobs.rowStatus.adminReview') }}</span>
-                        </label>
-                        <label class="flex items-center gap-2 cursor-pointer px-2 py-1 hover:bg-gray-50 rounded">
                           <input v-model="statusFilter" type="radio" value="rejected" class="w-4 h-4 text-blue-600">
                           <span class="text-sm">{{ $t('dashboard.manageJobs.rowStatus.rejected') }}</span>
                         </label>
@@ -862,6 +858,7 @@ const {
   matchesStatusFilter,
   jobRowStatusLabel,
   isApproved,
+  isPendingReview,
 } = useJobManageStatusCards()
 
 const props = defineProps<{
@@ -979,8 +976,9 @@ const filteredJobs = computed(() => {
   // Filter by Status (column filter)
   const stat = statusFilter.value
   if (stat === 'approved') list = list.filter((j: any) => (j.status || '').toUpperCase() === 'APPROVED')
-  else if (stat === 'pending') list = list.filter((j: any) => (j.status || '').toUpperCase() === 'PENDING')
-  else if (stat === 'reviewing') list = list.filter((j: any) => (j.status || '').toUpperCase() === 'ADMIN_REVIEW')
+  else if (stat === 'pending' || stat === 'reviewing') {
+    list = list.filter((j: any) => isPendingReview(j))
+  }
   else if (stat === 'rejected') list = list.filter((j: any) => (j.status || '').toUpperCase() === 'REJECTED')
 
   // Sort by postType or status
@@ -1107,8 +1105,8 @@ function jobStatusDisplayClass(j: any): string {
   const s = (j.status || '').toUpperCase()
   if (s === 'APPROVED') return 'bg-blue-100 text-blue-800'
   if (s === 'REJECTED') return 'bg-red-100 text-red-800'
-  if (s === 'PENDING') return 'bg-orange-100 text-orange-800'
-  return 'bg-amber-100 text-amber-800'
+  if (isJobPendingReview(s)) return 'bg-orange-100 text-orange-800'
+  return 'bg-orange-100 text-orange-800'
 }
 function formatJobDate(date: Date | string | undefined) {
   if (!date) return '–'

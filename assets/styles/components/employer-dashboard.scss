@@ -1216,6 +1216,10 @@
   opacity: 1 !important;
 }
 
+.employer-company-form .employer-field-editor--address .rich-text-editor .editor-content {
+  min-height: 100px;
+}
+
 .employer-company-form .employer-field-editor:first-of-type :deep(.editor-content) {
   min-height: 220px;
 }
@@ -3720,11 +3724,12 @@ body:has(.employer-admin-applications-filters) .vs__no-options {
 @supports not (zoom: 1) {
   .ui-drawer-scale-80.employer-admin-drawer-panel,
   .ui-drawer-scale-80.employer-admin-job-drawer,
+  .ui-drawer-scale-80.employer-company-job-drawer,
   .ui-drawer-scale-80.employer-admin-company-drawer,
   .ui-drawer-scale-80.employer-admin-blog-drawer,
   .ui-drawer-scale-80.employer-admin-user-drawer {
     transform: scale(0.9);
-    transform-origin: right center;
+    transform-origin: top right;
     height: calc(100dvh / 0.9) !important;
     max-height: calc(100dvh / 0.9) !important;
     min-height: calc(100dvh / 0.9) !important;
@@ -3966,16 +3971,21 @@ body:has(.employer-company-page) [data-reka-combobox-content] {
   overflow-x: hidden;
 }
 
-/* Safari — drawer đăng/duyệt tin: zoom + flex overflow khiến form không scroll tới cuối */
+/* Safari — zoom + flex overflow; scale neo top-right để không bị hở khoảng phía trên */
 @supports (font: -apple-system-body) {
+  .ui-drawer-scale-80.employer-admin-drawer-panel,
   .ui-drawer-scale-80.employer-admin-job-drawer,
-  .ui-drawer-scale-80.employer-company-job-drawer {
+  .ui-drawer-scale-80.employer-company-job-drawer,
+  .ui-drawer-scale-80.employer-admin-company-drawer,
+  .ui-drawer-scale-80.employer-admin-blog-drawer,
+  .ui-drawer-scale-80.employer-admin-user-drawer {
     zoom: 1 !important;
-    transform: scale(0.9);
-    transform-origin: right center;
-    height: calc(100dvh / 0.9) !important;
-    max-height: calc(100dvh / 0.9) !important;
-    min-height: calc(100dvh / 0.9) !important;
+    transform: scale(var(--drawer-scale, 0.9));
+    transform-origin: top right;
+    top: 0 !important;
+    height: calc(100dvh / var(--drawer-scale, 0.9)) !important;
+    max-height: calc(100dvh / var(--drawer-scale, 0.9)) !important;
+    min-height: calc(100dvh / var(--drawer-scale, 0.9)) !important;
   }
 
   .ui-drawer-scale-80.employer-admin-job-drawer > div:not([data-vaul-handle]),
@@ -5806,6 +5816,19 @@ html.employer-admin-crop-modal-open [data-vaul-drawer] {
   background: rgba(254, 242, 242, 0.95);
 }
 
+.employer-admin-import-alert--info {
+  border-color: rgba(53, 99, 255, 0.28);
+  background: rgba(243, 246, 255, 0.95);
+}
+
+.employer-admin-import-alert--info .employer-admin-import-alert-icon {
+  color: #3563ff;
+}
+
+.employer-admin-import-alert--info .employer-admin-import-alert-copy strong {
+  color: #1e3a8a;
+}
+
 .employer-admin-import-alert-icon {
   flex-shrink: 0;
   width: 22px;
@@ -5899,6 +5922,41 @@ html.employer-admin-crop-modal-open [data-vaul-drawer] {
 .employer-admin-import-guide b {
   color: #1e293b;
   font-weight: 700;
+}
+
+.employer-admin-import-mode {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 20px;
+  margin-bottom: 16px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: 1.5px solid rgba(200, 214, 236, 0.9);
+  background: #fafbfe;
+}
+
+.employer-admin-import-mode-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: #334155;
+}
+
+.employer-admin-import-mode-option {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #475569;
+  cursor: pointer;
+}
+
+.employer-admin-import-mode-option input {
+  width: 16px;
+  height: 16px;
+  accent-color: #3563ff;
+  cursor: pointer;
 }
 
 .employer-admin-import-actions {

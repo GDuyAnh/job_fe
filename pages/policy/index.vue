@@ -176,7 +176,7 @@
           <p>
             Để thực hiện các quyền này, bạn có thể trực tiếp chỉnh sửa trong phần cài đặt tài khoản hoặc
             gửi yêu cầu qua email
-            <a href="mailto:hotro@tuyengiaovien.vn">hotro@tuyengiaovien.vn</a>.
+            <a v-if="email" :href="mailtoHref">{{ email }}</a><template v-else>admin</template>.
           </p>
 
           <h3>Cookie và công nghệ theo dõi</h3>
@@ -197,7 +197,11 @@
           <dl class="legal-contact-list">
             <div>
               <dt>Email</dt>
-              <dd><a href="mailto:hotro@tuyengiaovien.vn">hotro@tuyengiaovien.vn</a></dd>
+              <dd><a v-if="email" :href="mailtoHref">{{ email }}</a><span v-else>—</span></dd>
+            </div>
+            <div v-if="phoneNumber">
+              <dt>Hotline</dt>
+              <dd><a :href="telHref">{{ phoneNumber }}</a></dd>
             </div>
             <div>
               <dt>Website</dt>
@@ -213,6 +217,7 @@
 <script setup lang="ts">
 const router = useRouter()
 const route = useRoute()
+const { email, phoneNumber, mailtoHref, telHref } = useAdminContactInfo()
 
 const navItems = [
   { id: 'dieu-khoan-dieu-kien', label: 'Điều khoản & Điều kiện' },

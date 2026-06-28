@@ -659,6 +659,11 @@ import RichTextEditor from '~/components/RichTextEditor.vue'
 import AdminJobActionFields from '~/components/dashboard/AdminJobActionFields.vue'
 import { onUnmounted } from 'vue'
 import { useVueSelectFixedPosition } from '~/composables/useVueSelectFixedPosition'
+import {
+  JOB_STATUS_FORM_OPTIONS,
+  normalizeJobStatusForForm,
+  type JobStatusOption,
+} from '~/utils/jobStatus'
 
 // Props
 const props = defineProps<{
@@ -882,13 +887,7 @@ const postTypeOption = computed<PostTypeOption>({
   },
 })
 
-type JobStatusOption = 'ADMIN_REVIEW' | 'PENDING' | 'APPROVED' | 'REJECTED'
-const jobStatusOptions: { value: JobStatusOption; label: string }[] = [
-  { value: 'ADMIN_REVIEW', label: 'ADMIN_REVIEW' },
-  { value: 'PENDING', label: 'PENDING' },
-  { value: 'APPROVED', label: 'APPROVED' },
-  { value: 'REJECTED', label: 'REJECTED' },
-]
+const jobStatusOptions = JOB_STATUS_FORM_OPTIONS
 const jobStatusOption = ref<JobStatusOption>('ADMIN_REVIEW')
 
 // Computed property for v-select benefits (convert between string[] and object[])
@@ -1063,9 +1062,7 @@ const autoFillEmail = () => {
 watch(() => props.jobToEdit, (newJob) => {
   if (newJob) {
     job.value = convertJobModelToAddUpdate(newJob)
-    const s = (newJob.status || '').toUpperCase()
-
-    jobStatusOption.value = (s === 'APPROVED' || s === 'REJECTED' || s === 'PENDING' || s === 'ADMIN_REVIEW') ? s as JobStatusOption : 'ADMIN_REVIEW'
+    jobStatusOption.value = normalizeJobStatusForForm(newJob.status)
   } else {
     job.value = {} as JobModelAddUpdate
     job.value.postedDate = new Date()

@@ -93,7 +93,11 @@
               </div>
 
               <div class="contact-channel-list">
-                <a href="mailto:hotro@tuyengiaovien.vn" class="contact-channel-card">
+                <a
+                  v-if="email"
+                  :href="mailtoHref"
+                  class="contact-channel-card"
+                >
                   <span class="contact-channel-icon" aria-hidden="true">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
                       <path
@@ -116,11 +120,15 @@
                   </span>
                   <span class="contact-channel-copy">
                     <strong>Email</strong>
-                    <span>hotro@tuyengiaovien.vn</span>
+                    <span>{{ email }}</span>
                   </span>
                 </a>
 
-                <a href="tel:+84858436359" class="contact-channel-card">
+                <a
+                  v-if="phoneNumber"
+                  :href="telHref"
+                  class="contact-channel-card"
+                >
                   <span class="contact-channel-icon" aria-hidden="true">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
                       <path
@@ -134,9 +142,13 @@
                   </span>
                   <span class="contact-channel-copy">
                     <strong>Hotline</strong>
-                    <span>+84858436359</span>
+                    <span>{{ phoneNumber }}</span>
                   </span>
                 </a>
+
+                <p v-if="!loading && !email && !phoneNumber" class="contact-channel-empty">
+                  Chưa có thông tin liên hệ admin.
+                </p>
 
                 <div class="contact-channel-card is-static">
                   <span class="contact-channel-icon" aria-hidden="true">
@@ -270,6 +282,8 @@
 <script setup lang="ts">
 useHead({ title: 'Liên hệ' })
 
+const { email, phoneNumber, mailtoHref, telHref, loading } = useAdminContactInfo()
+
 const submitting = ref(false)
 
 const form = reactive({
@@ -317,12 +331,24 @@ const submit = async () => {
 
   submitting.value = true
   try {
-    await new Promise((r) => setTimeout(r, 500))
+    const { $api } = useNuxtApp()
+    await $api.contact.submitMessage({
+      fullName: name,
+      email,
+      subject,
+      message,
+    })
     useNotify({ type: 'success', message: 'Đã gửi tin nhắn! Chúng tôi sẽ phản hồi sớm nhất.' })
     form.fullName = ''
     form.email = ''
     form.subject = ''
     form.message = ''
+  } catch (e: unknown) {
+    const err = e as { message?: string | string[] }
+    const msg = Array.isArray(err.message)
+      ? err.message[0]
+      : err.message || 'Gửi tin nhắn thất bại. Vui lòng thử lại.'
+    useNotify({ type: 'error', message: String(msg) })
   } finally {
     submitting.value = false
   }

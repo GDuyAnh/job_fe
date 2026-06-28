@@ -19,10 +19,7 @@ export function useJobDetailView(job: Ref<JobModel | null>) {
     (job.value?.companyName || 'CT').slice(0, 2).toUpperCase(),
   )
 
-  const showReviewStatus = computed(() => {
-    const status = (job.value?.status || '').toUpperCase()
-    return status === 'ADMIN_REVIEW' || status === 'PENDING'
-  })
+  const showReviewStatus = computed(() => isJobPendingReview(job.value?.status))
 
   const processBenefits = (benefits: string | null): string[] => {
     if (!benefits) return []

@@ -25,7 +25,7 @@ export interface JobModel {
   salaryMax?: string | null
   salaryType: number
   benefits?: string | null
-  /** ADMIN_REVIEW | PENDING | APPROVED | REJECTED. Chỉ hiển thị khi APPROVED */
+  /** ADMIN_REVIEW | APPROVED | REJECTED. Chỉ hiển thị khi APPROVED */
   status?: string
   createdAt?: Date
   deadline?: Date

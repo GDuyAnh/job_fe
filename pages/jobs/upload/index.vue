@@ -171,85 +171,42 @@
                   <span>{{ $t('job.uploadJob.lookupFoundTitle') }}</span>
                 </div>
 
-                <div class="employer-grid">
-                  <div class="employer-field-stack">
-                    <label
-                      class="employer-input-label"
-                      for="company-name"
-                    >
-                      {{ $t('company.name') }}
-                      <span aria-hidden="true" class="text-red-500">{{
-                        $t('common.requiredMark')
-                      }}</span>
-                    </label>
-                    <UInput
-                      id="company-name"
-                      v-model="companyAdd.name"
-                      variant="outline"
-                      :readonly="isDisplayInputCompany"
-                      :ui="{
-                        root: 'w-full',
-                        base: [
-                          'h-11 rounded-xl w-full',
-                          companyErrors.name
-                            ? 'ring-1 ring-inset ring-red-200/80 border border-red-500'
-                            : companyFieldsLookupHighlight
-                              ? 'ring-1 ring-inset ring-sky-200/80 border-sky-300/80'
-                              : '',
-                        ]
-                          .filter(Boolean)
-                          .join(' '),
-                      }"
-                      @input="companyErrors.name = ''"
-                    />
-                    <p
-                      v-if="companyErrors.name"
-                      class="mt-0.5 text-sm !text-red-500"
-                    >
-                      {{ companyErrors.name }}
-                    </p>
-                  </div>
-                  <div id="company-organization-type" class="employer-field-stack">
-                    <label class="employer-input-label">
-                      {{ $t('company.industry') }}
-                      <span aria-hidden="true" class="text-red-500">{{
-                        $t('common.requiredMark')
-                      }}</span>
-                    </label>
-                    <USelectMenu
-                      :items="organizationTypeItemsSearchable"
-                      :model-value="companyAdd.organizationType?.toString() || undefined"
-                      value-key="value"
-                      :content="{ side: 'bottom' }"
-                      :disabled="isExistCompany"
-                      :placeholder="$t('company.industry')"
-                      :search-input="{ placeholder: 'Tìm loại hình...', variant: 'none' }"
-                      :ui="{
-                        base: [
-                          'h-11 w-full rounded-xl',
-                          companyErrors.organizationType
-                            ? 'ring-1 ring-inset ring-red-200/80 border border-red-500'
-                            : companyFieldsLookupHighlight
-                              ? 'ring-1 ring-inset ring-sky-200/80 border-sky-300/80'
-                              : '',
-                        ]
-                          .filter(Boolean)
-                          .join(' '),
-                      }"
-                      @update:model-value="
-                        (v) => {
-                          companyAdd.organizationType = Number(v ?? 0)
-                          companyErrors.organizationType = ''
-                        }
-                      "
-                    />
-                    <p
-                      v-if="companyErrors.organizationType"
-                      class="mt-0.5 text-sm !text-red-500"
-                    >
-                      {{ companyErrors.organizationType }}
-                    </p>
-                  </div>
+                <div class="employer-field-stack">
+                  <label
+                    class="employer-input-label"
+                    for="company-name"
+                  >
+                    {{ $t('company.name') }}
+                    <span aria-hidden="true" class="text-red-500">{{
+                      $t('common.requiredMark')
+                    }}</span>
+                  </label>
+                  <UInput
+                    id="company-name"
+                    v-model="companyAdd.name"
+                    variant="outline"
+                    :readonly="isDisplayInputCompany"
+                    :ui="{
+                      root: 'w-full',
+                      base: [
+                        'h-11 rounded-xl w-full',
+                        companyErrors.name
+                          ? 'ring-1 ring-inset ring-red-200/80 border border-red-500'
+                          : companyFieldsLookupHighlight
+                            ? 'ring-1 ring-inset ring-sky-200/80 border-sky-300/80'
+                            : '',
+                      ]
+                        .filter(Boolean)
+                        .join(' '),
+                    }"
+                    @input="companyErrors.name = ''"
+                  />
+                  <p
+                    v-if="companyErrors.name"
+                    class="mt-0.5 text-sm !text-red-500"
+                  >
+                    {{ companyErrors.name }}
+                  </p>
                 </div>
 
                 <div class="employer-field-stack">
@@ -1186,6 +1143,10 @@ import {
 } from '~/constants/company-size'
 import { normalizeCompanyLogo } from '~/utils/companyLogo'
 import { IMAGE_UPLOAD_ACCEPT, validateImageUploadFile } from '~/utils/imageUploadValidation'
+import { OrganizationType } from '~/enums/master-data'
+
+/** Loại hình tổ chức mặc định khi ẩn field trên form free-post (Khác). */
+const DEFAULT_COMPANY_ORGANIZATION_TYPE = OrganizationType.khac
 const { t } = useI18n()
 const { calculatePosition: vueSelectCalculatePosition } = useVueSelectFixedPosition()
 
@@ -1265,7 +1226,6 @@ function fieldErrorRingClass(errorMsg: string | undefined | null) {
 
 // Enum
 const {
-  organizationTypeItemsSearchable,
   categoryItemsSearchable,
   employmentTypeItems,
   experienceLevelItems,
@@ -2080,7 +2040,7 @@ const companyAdd = ref<CompanyAddUpdateEntity>({
   address: '',
   taxAddress: '',
   website: '',
-  organizationType: 0,
+  organizationType: DEFAULT_COMPANY_ORGANIZATION_TYPE,
   companySize: null,
   foundedYear: null,
   description: '',
@@ -2284,7 +2244,8 @@ const findCompanyByMst = async () => {
       companyAdd.value.taxAddress = existingCompany.taxAddress ?? ''
       companyAdd.value.mst = existingCompany.mst ?? null
       companyAdd.value.logo = normalizeCompanyLogo(existingCompany.logo) ?? ''
-      companyAdd.value.organizationType = existingCompany.organizationType ?? 0
+      companyAdd.value.organizationType =
+        existingCompany.organizationType ?? DEFAULT_COMPANY_ORGANIZATION_TYPE
       companyAdd.value.facebookLink = existingCompany.facebookLink ?? ''
       companyAdd.value.twitterLink = existingCompany.twitterLink ?? ''
       companyAdd.value.linkedInLink = existingCompany.linkedInLink ?? ''
@@ -2331,7 +2292,7 @@ const findCompanyByMst = async () => {
 
           // Init default data for new company
           companyAdd.value.logo = ''
-          companyAdd.value.organizationType = 0
+          companyAdd.value.organizationType = DEFAULT_COMPANY_ORGANIZATION_TYPE
           companyAdd.value.isWaiting = true
           companyAdd.value.facebookLink = ''
           companyAdd.value.twitterLink = ''
@@ -2467,7 +2428,8 @@ const addJob = async () => {
           mst: companyAdd.value?.mst || mstCompany.value || '',
           address: companyAdd.value?.address || '',
           taxAddress: companyAdd.value?.taxAddress || '',
-          organizationType: companyAdd.value?.organizationType || 1,
+          organizationType:
+            companyAdd.value?.organizationType ?? DEFAULT_COMPANY_ORGANIZATION_TYPE,
           website: companyAdd.value?.website || '',
         },
         job: {
@@ -2504,6 +2466,9 @@ const addJob = async () => {
           phoneNumber: job.value.phoneNumber ?? '',
           email: job.value.email || '',
           address: job.value.address || '',
+          benefits: Array.isArray(job.value.benefits)
+            ? job.value.benefits.filter(Boolean).map(String).join(',')
+            : String(job.value.benefits ?? ''),
         },
       }
 
@@ -2607,15 +2572,9 @@ function validateCompanyFields(): boolean {
     isValid = false
   }
 
-  if (!companyAdd.value.organizationType) {
-    companyErrors.value.organizationType = t('company.form.errOrgType')
-    isValid = false
-  }
-
   if (!isValid) {
     const companyFieldIdMap: Record<string, string> = {
       name: 'company-name',
-      organizationType: 'company-organization-type',
     }
 
     // Hiển thị toast notification

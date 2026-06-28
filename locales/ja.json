@@ -1205,7 +1205,7 @@
       },
       "rowStatus": {
         "approved": "Đã duyệt",
-        "adminReview": "Chờ admin duyệt",
+        "adminReview": "Chờ duyệt",
         "pending": "Chờ duyệt",
         "rejected": "Từ chối"
       },
@@ -1272,7 +1272,7 @@
     },
     "candidates": {
       "description": "Xem danh sách ứng viên đã ứng tuyển",
-      "searchPlaceholder": "Tìm kiếm theo email, vị trí, tên ứng viên...",
+      "searchPlaceholder": "Tìm theo tên ứng viên...",
       "fetchFailed": "Không thể tải danh sách ứng tuyển",
       "viewDetailFeature": "Tính năng xem chi tiết đang được phát triển",
       "deleteConfirm": "Bạn có chắc chắn muốn xóa đơn ứng tuyển này không?",

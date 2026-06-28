@@ -53,7 +53,6 @@
                 <thead>
                   <tr>
                     <th>Ứng viên</th>
-                    <th>Email</th>
                     <th>CV</th>
                     <th ref="dateSortMenuRef" class="is-sortable">
                       <div class="employer-candidates-th-sort">
@@ -109,7 +108,7 @@
                 </thead>
                 <tbody data-candidates-rows="">
                   <tr v-if="paginatedApplicants.length === 0">
-                    <td colspan="4" class="employer-candidates-empty-cell">
+                    <td colspan="3" class="employer-candidates-empty-cell">
                       {{ $t('dashboard.main.applicationsTable.noApplications') }}
                     </td>
                   </tr>
@@ -129,7 +128,6 @@
                         </button>
                       </div>
                     </td>
-                    <td>{{ candidate.email || '—' }}</td>
                     <td>
                       <a
                         v-if="candidate.cvUrl"
@@ -506,14 +504,9 @@ const filteredApplications = computed(() => {
   if (searchQuery.value.trim()) {
     const query = searchQuery.value.trim().toLowerCase()
 
-    list = list.filter((app) => {
-      const matchesEmail = app.email?.toLowerCase().includes(query)
-      const matchesJobTitle = app.jobTitle?.toLowerCase().includes(query)
-      const matchesApplicantName = app.applicantName?.toLowerCase().includes(query)
-      const matchesPhone = app.phone?.toLowerCase().includes(query)
-
-      return matchesEmail || matchesJobTitle || matchesApplicantName || matchesPhone
-    })
+    list = list.filter((app) =>
+      app.applicantName?.toLowerCase().includes(query),
+    )
   }
 
   return list

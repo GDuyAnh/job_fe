@@ -14,14 +14,25 @@
         </div>
 
         <div class="employer-admin-import-body">
-          <div class="employer-admin-import-alert employer-admin-import-alert--danger">
-            <UIcon name="i-lucide-triangle-alert" class="employer-admin-import-alert-icon" />
+          <div
+            class="employer-admin-import-alert"
+            :class="importDataMode === 'clear' ? 'employer-admin-import-alert--danger' : 'employer-admin-import-alert--info'"
+          >
+            <UIcon
+              :name="importDataMode === 'clear' ? 'i-lucide-triangle-alert' : 'i-lucide-info'"
+              class="employer-admin-import-alert-icon"
+            />
             <div class="employer-admin-import-alert-copy">
-              <strong>Cảnh báo quan trọng</strong>
-              <p>
+              <strong>{{ importDataMode === 'clear' ? 'Xóa data trước khi import' : 'Giữ nguyên data hiện có' }}</strong>
+              <p v-if="importDataMode === 'clear'">
                 Mỗi lần bấm <b>Import data</b>, server sẽ <b>xóa toàn bộ</b> dữ liệu companies, jobs, đơn ứng tuyển,
                 blogs, ảnh công ty, phúc lợi job và <b>mọi user không phải ADMIN</b>, rồi mới import từ file.
                 Tài khoản <b>ADMIN</b> được giữ nguyên.
+              </p>
+              <p v-else>
+                Dữ liệu hiện có được <b>giữ nguyên</b>. File Excel chỉ <b>thêm mới</b> bản ghi chưa trùng
+                (MST, email, username…). Các sheet import theo thứ tự <b>companies → users → jobs → …</b>;
+                cột <b>id</b> trong file là id tạm — hệ thống map sang id thật sau khi insert object cha.
               </p>
             </div>
           </div>
@@ -99,6 +110,32 @@
               class="hidden"
               @change="onFileChange"
             />
+
+            <div
+              class="employer-admin-import-mode"
+              role="radiogroup"
+              aria-label="Chế độ import"
+            >
+              <span class="employer-admin-import-mode-label">Chế độ import</span>
+              <label class="employer-admin-import-mode-option">
+                <input
+                  v-model="importDataMode"
+                  type="radio"
+                  name="import-data-mode"
+                  value="keep"
+                >
+                <span>Giữ nguyên data</span>
+              </label>
+              <label class="employer-admin-import-mode-option">
+                <input
+                  v-model="importDataMode"
+                  type="radio"
+                  name="import-data-mode"
+                  value="clear"
+                >
+                <span>Xóa data</span>
+              </label>
+            </div>
 
             <div class="employer-admin-import-actions">
               <UButton
@@ -214,6 +251,7 @@ const selectedFile = ref<File | null>(null)
 const fileName = ref('')
 const downloading = ref(false)
 const importing = ref(false)
+const importDataMode = ref<'keep' | 'clear'>('keep')
 
 const lastResult = ref<{
   summary: {
@@ -290,6 +328,7 @@ async function doImport() {
   try {
     const fd = new FormData()
     fd.append('file', selectedFile.value)
+    fd.append('dataMode', importDataMode.value)
     const data = await $api.admin.postImportExcel(fd)
     lastResult.value = data
     const errCount = data.errors?.length ?? 0
