@@ -80,7 +80,7 @@
             </div>
           </label>
 
-          <label class="employer-field employer-field-full employer-field-editor">
+          <label class="employer-field employer-field-full employer-field-editor employer-field-editor--address">
             <span>{{ $t('job.uploadJob.detailAddressLabel') }} {{ $t('common.requiredMark') }}</span>
             <div class="employer-editor rich-text-output">
           <RichTextEditor

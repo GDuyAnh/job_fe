@@ -63,7 +63,7 @@
 </template>
 
 <script setup lang="ts">
-type JobStatusOption = 'ADMIN_REVIEW' | 'PENDING' | 'APPROVED' | 'REJECTED'
+import type { JobStatusOption } from '~/utils/jobStatus'
 type PostTypeOption = 'Basic' | 'Hot' | 'Urgent'
 
 defineProps<{
@@ -87,7 +87,6 @@ function postTypePillClass(value: PostTypeOption): string {
 }
 
 function statusPillClass(value: JobStatusOption): string {
-  if (value === 'PENDING') return 'is-pending'
   if (value === 'APPROVED') return 'is-approved'
   if (value === 'REJECTED') return 'is-rejected'
   return 'is-admin-review'

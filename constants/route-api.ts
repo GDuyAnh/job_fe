@@ -2,6 +2,7 @@ export const ROUTE_API = {
   // Auth
   LOGIN: '/auth/login',
   REGISTER: '/users/register',
+  PUBLIC_ADMIN_CONTACT: '/users/public/admin-contact',
   ME: '/auth/me',
   AUTO_LOGIN: '/auth/auto-login',
   FORGOT_PASSWORD: '/auth/forgot-password',
@@ -35,6 +36,10 @@ export const ROUTE_API = {
 
   BLOG: {
     GET_BLOG: 'blogs',
+  },
+
+  CONTACT: {
+    MESSAGES: '/contact/messages',
   },
 
   ADMIN: {

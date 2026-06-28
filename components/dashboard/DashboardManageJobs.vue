@@ -568,8 +568,7 @@ const statusBadgeClass = (job: JobModel) => {
 
   const s = (job.status || '').toUpperCase().trim()
 
-  if (s === 'ADMIN_REVIEW') return 'is-reviewing'
-  if (s === 'PENDING') return 'is-pending'
+  if (isJobPendingReview(s)) return 'is-reviewing'
   if (s === 'APPROVED') return 'is-approved'
   if (s === 'REJECTED') return 'is-rejected'
 

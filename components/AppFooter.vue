@@ -13,12 +13,19 @@
           Nền tảng kết nối giáo viên với trường học, trung tâm và các đơn vị giáo dục trên toàn quốc.
         </p>
         <div class="footer-contact-list">
-          <a href="tel:+84858436359" class="footer-contact-item">
-            <!-- eslint-disable-next-line @intlify/vue-i18n/no-raw-text -->
-            +84 858 436 359
+          <a
+            v-if="phoneNumber"
+            :href="telHref"
+            class="footer-contact-item"
+          >
+            {{ phoneNumber }}
           </a>
-          <a href="mailto:hotro@tuyengiaovien.vn" class="footer-contact-item">
-            hotro@tuyengiaovien.vn
+          <a
+            v-if="email"
+            :href="mailtoHref"
+            class="footer-contact-item"
+          >
+            {{ email }}
           </a>
         </div>
       </div>
@@ -55,4 +62,5 @@
 
 <script setup lang="ts">
 const currentYear = new Date().getFullYear()
+const { email, phoneNumber, mailtoHref, telHref } = useAdminContactInfo()
 </script>

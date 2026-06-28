@@ -19,6 +19,8 @@ export function useJobManageStatusCards() {
   const normalizeStatus = (status?: string | null) =>
     (status || '').toUpperCase().trim()
 
+  const isPendingReview = (job: JobLike) => isJobPendingReview(job.status)
+
   const getDeadlineStart = (deadline?: Date | string | null) => {
     if (!deadline) return null
 
@@ -60,12 +62,6 @@ export function useJobManageStatusCards() {
       deadlineStart.getTime() >= today.getTime() &&
       deadlineStart.getTime() <= limit.getTime()
     )
-  }
-
-  const isPendingReview = (job: JobLike) => {
-    const status = normalizeStatus(job.status)
-
-    return status === 'ADMIN_REVIEW' || status === 'PENDING'
   }
 
   const isApproved = (job: JobLike) =>
@@ -126,11 +122,12 @@ export function useJobManageStatusCards() {
     const status = normalizeStatus(job.status)
 
     if (status === 'APPROVED') return t('dashboard.manageJobs.rowStatus.approved')
-    if (status === 'ADMIN_REVIEW') return t('dashboard.manageJobs.rowStatus.adminReview')
-    if (status === 'PENDING') return t('dashboard.manageJobs.rowStatus.pending')
+    if (isJobPendingReview(status)) {
+      return t('dashboard.manageJobs.rowStatus.pending')
+    }
     if (status === 'REJECTED') return t('dashboard.manageJobs.rowStatus.rejected')
 
-    return t('dashboard.manageJobs.rowStatus.adminReview')
+    return t('dashboard.manageJobs.rowStatus.pending')
   }
 
   return {
