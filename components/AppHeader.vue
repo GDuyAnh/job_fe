@@ -2,7 +2,7 @@
   <header v-if="!headerStore.hideHeader" class="app-header site-header">
     <div class="topbar app-header__container">
       <div class="topbar-inner app-header__inner">
-        <NuxtLink to="/" class="wordmark" aria-label="Trang chủ">
+        <NuxtLink to="/" class="wordmark" aria-label="Trang chủ" @click="closeMobileNav">
           <span class="wordmark-main">TuyenGiaoVien</span>
           <span class="wordmark-dot">.vn</span>
         </NuxtLink>
@@ -12,7 +12,7 @@
           class="mobile-toggle"
           data-mobile-toggle
           :aria-expanded="isMobileNavOpen"
-          aria-controls="site-primary-nav"
+          aria-controls="site-mobile-menu"
           aria-label="Menu"
           @click="toggleMobileNav"
         >
@@ -21,9 +21,7 @@
 
         <nav
           id="site-primary-nav"
-          class="site-nav"
-          :class="{ 'is-open': isMobileNavOpen }"
-          data-mobile-nav
+          class="site-nav site-nav--desktop"
           aria-label="Primary"
         >
           <NuxtLink
@@ -31,13 +29,74 @@
             :key="item.to"
             :to="item.to"
             :class="{ 'is-active': isActive(item) }"
-            @click="closeMobileNav"
           >
             {{ item.label }}
           </NuxtLink>
         </nav>
 
-        <div class="topbar-actions app-header__cluster app-header__cluster--end">
+        <div
+          id="site-mobile-menu"
+          class="site-mobile-menu"
+          :class="{ 'is-open': isMobileNavOpen }"
+          data-mobile-nav
+        >
+          <nav class="site-mobile-menu__nav" aria-label="Primary">
+            <NuxtLink
+              v-for="item in menuItems"
+              :key="`mobile-${item.to}`"
+              :to="item.to"
+              :class="{ 'is-active': isActive(item) }"
+              @click="closeMobileNav"
+            >
+              {{ item.label }}
+            </NuxtLink>
+          </nav>
+
+          <div class="site-mobile-menu__actions">
+            <template v-if="authStore.isLoggedIn">
+              <p class="site-mobile-menu__user">
+                {{ authStore.user?.fullName || authStore.user?.email || 'User' }}
+              </p>
+              <button
+                type="button"
+                class="site-mobile-menu__action"
+                @click="goAccountFromMobile"
+              >
+                <UIcon name="i-lucide-user" class="size-4 shrink-0" />
+                Thông tin tài khoản
+              </button>
+              <button
+                type="button"
+                class="site-mobile-menu__action site-mobile-menu__action--danger"
+                @click="logoutFromMobile"
+              >
+                <UIcon name="i-lucide-log-out" class="size-4 shrink-0" />
+                Đăng xuất
+              </button>
+            </template>
+            <template v-else>
+              <button
+                type="button"
+                class="site-mobile-menu__action site-mobile-menu__action--primary"
+                data-auth-open
+                data-auth-view-target="login"
+                @click="openAuthFromMobile('login')"
+              >
+                Đăng ký / Đăng nhập
+              </button>
+              <button
+                v-if="showPostButton"
+                type="button"
+                class="site-mobile-menu__action site-mobile-menu__action--secondary"
+                @click="handlePostJobFree"
+              >
+                Đăng tin miễn phí
+              </button>
+            </template>
+          </div>
+        </div>
+
+        <div class="topbar-actions topbar-actions--desktop app-header__cluster app-header__cluster--end">
           <template v-if="authStore.isLoggedIn">
             <UDropdownMenu
               :items="userDropdownItems"
@@ -53,21 +112,15 @@
             </UDropdownMenu>
           </template>
           <template v-else>
-            <AuthModal
-              v-model="authModalOpen"
-              :initial-view="authModalView"
-              @closed="onAuthModalClosed"
+            <button
+              type="button"
+              class="primary-btn small-btn"
+              data-auth-open
+              data-auth-view-target="login"
+              @click="openAuthModal('login')"
             >
-              <button
-                type="button"
-                class="primary-btn small-btn"
-                data-auth-open
-                data-auth-view-target="login"
-                @click="openAuthModal('login')"
-              >
-                Đăng ký / Đăng nhập
-              </button>
-            </AuthModal>
+              Đăng ký / Đăng nhập
+            </button>
           </template>
 
           <button
@@ -81,6 +134,13 @@
         </div>
       </div>
     </div>
+
+    <AuthModal
+      v-if="!authStore.isLoggedIn"
+      v-model="authModalOpen"
+      :initial-view="authModalView"
+      @closed="onAuthModalClosed"
+    />
 
     <button
       v-if="isMobileNavOpen"
@@ -113,6 +173,11 @@ const openAuthModal = (view: 'login' | 'register') => {
   if (Date.now() < suppressAuthModalOpenUntil.value) return
   authModalView.value = view
   authModalOpen.value = true
+}
+
+const openAuthFromMobile = (view: 'login' | 'register') => {
+  closeMobileNav()
+  openAuthModal(view)
 }
 
 const onAuthModalClosed = () => {
@@ -163,6 +228,15 @@ const accountPageTarget = computed(() => {
   }
   return { path: ROUTE_PAGE.DASHBOARD.USER, query: { view: 'editProfile' } }
 })
+
+const goAccountFromMobile = () => {
+  goDashboard(accountPageTarget.value.path, accountPageTarget.value.query)
+}
+
+const logoutFromMobile = () => {
+  closeMobileNav()
+  authStore.logout()
+}
 
 const userDropdownItems = computed(() => {
   const items: any[] = []

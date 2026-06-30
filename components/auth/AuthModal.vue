@@ -264,7 +264,6 @@
                     placeholder="Mã số thuế"
                     aria-label="Mã số thuế"
                     :disabled="loading"
-                    inputmode="numeric"
                     @blur="onEmployerTaxCodeBlur"
                     @input="onEmployerTaxCodeInput"
                   />

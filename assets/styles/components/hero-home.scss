@@ -538,14 +538,26 @@ body:has(.home-page) [role='listbox'] {
   }
 }
 
+@media (max-width: 1220px) {
+  .hero-home {
+    min-height: 0;
+  }
+
+  .hero-shell,
+  .hero-banner {
+    min-height: 0;
+  }
+
+  .hero-orbits,
+  .hero-floating-chip {
+    display: none;
+  }
+}
+
 @media (max-width: 768px) {
   .hero-banner h1 {
     font-size: 44px;
     white-space: normal;
-  }
-
-  .hero-floating-chip {
-    display: none;
   }
 
   .search-row-hero {

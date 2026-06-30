@@ -129,7 +129,6 @@
                       class="w-full min-w-0 flex-1 text-sm"
                       :ui="{ base: 'h-11 w-full rounded-xl' }"
                       :placeholder="$t('company.action.placeHolderMST')"
-                      inputmode="numeric"
                       @input="onMstCompanyInput"
                       @keydown.enter="findCompanyByMst()"
                     />

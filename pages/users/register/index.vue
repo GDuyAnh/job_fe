@@ -204,7 +204,6 @@
                 v-model="recruiterFormState.taxCode"
                 class="w-full rounded-xl text-base"
                 :placeholder="t('auth.taxCode')"
-                inputmode="numeric"
                 @blur="onRecruiterTaxCodeBlur"
                 @input="onRecruiterTaxCodeInput"
               >

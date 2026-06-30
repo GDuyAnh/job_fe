@@ -10,7 +10,6 @@
           v-model.trim="form.mst"
           class="w-full min-w-0 flex-1"
           placeholder="Mã số thuế"
-          inputmode="numeric"
           :disabled="mstChecking || isEditMode"
           @input="onMstInput"
           @keyup.enter="validateMst"
