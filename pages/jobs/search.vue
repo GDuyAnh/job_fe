@@ -1,5 +1,8 @@
 <template>
-  <div class="min-h-screen bg-[var(--bg)] jobs-directory-page">
+  <div
+    class="min-h-screen bg-[var(--bg)] jobs-directory-page"
+    :class="{ 'jobs-directory-page--compact-list': isCompactJobSearch }"
+  >
     <section class="jobs-directory-hero">
       <div class="container jobs-directory-shell">
         <form
@@ -249,18 +252,19 @@
             <USkeleton v-for="i in 5" :key="i" class="h-32 w-full" />
           </div>
 
-          <div v-else-if="filteredJobs.length > 0" class="space-y-4">
+          <div v-else-if="filteredJobs.length > 0" class="jobs-directory-results space-y-4">
             <p class="job-results-count">
               <span class="job-results-count__number">{{ jobs.length }}</span>
               <span class="job-results-count__label">việc làm phù hợp</span>
             </p>
 
             <div
-              class="grid min-h-0 grid-cols-1 items-start lg:grid-cols-[420px_1fr] gap-6"
+              class="jobs-browser-layout grid min-h-0 grid-cols-1 items-start gap-6"
+              :class="{ 'jobs-browser-split': !isCompactJobSearch }"
             >
               <!-- Left: results list (cùng chiều cao với cột phải, scroll nội bộ) -->
               <div
-                class="flex min-h-0 flex-col"
+                class="jobs-browser-list-pane flex min-h-0 flex-col"
                 :style="splitPaneStyle"
               >
                 <div
@@ -336,9 +340,9 @@
                 </div>
               </div>
 
-              <!-- Right: job detail -->
+              <!-- Right: job detail (desktop split view) -->
               <aside
-                v-if="selectedJob"
+                v-if="selectedJob && !isCompactJobSearch"
                 class="jobs-browser-detail"
               >
                 <div class="jobs-detail-top">
@@ -510,7 +514,7 @@
               </aside>
 
               <aside
-                v-else
+                v-else-if="!isCompactJobSearch"
                 class="jobs-browser-detail jobs-browser-detail--empty"
               >
                 <p>Chọn một công việc để xem chi tiết.</p>
@@ -649,17 +653,103 @@ const { ensureLoaded, hasAppliedToJob, canApplyToJobs } = useAppliedJobs()
 const loading = ref(false)
 const jobs = ref<JobModel[]>([])
 const selectedJob = ref<JobModel | null>(null)
+const isCompactJobSearch = ref(false)
 
-// Apply drawer state
-const applyDrawerOpen = ref(false)
-const applyingJob = ref<JobModel | null>(null)
+const JOB_SEARCH_COMPACT_MQ = '(max-width: 1020px)'
+
+const updateCompactJobSearch = () => {
+  if (!import.meta.client) return
+  isCompactJobSearch.value = window.matchMedia(JOB_SEARCH_COMPACT_MQ).matches
+}
+
+const compactListMaxHeight = ref('')
+let compactLayoutObserver: ResizeObserver | null = null
+
+const getAppHeaderHeightPx = () => {
+  const raw = getComputedStyle(document.documentElement)
+    .getPropertyValue('--app-header-height')
+    .trim()
+  const parsed = parseFloat(raw)
+  return Number.isFinite(parsed) ? parsed : 74
+}
+
+const measureCompactListHeight = () => {
+  if (!import.meta.client || !isCompactJobSearch.value) {
+    compactListMaxHeight.value = ''
+    return
+  }
+
+  requestAnimationFrame(() => {
+    const headerHeight = getAppHeaderHeightPx()
+    const hero = document.querySelector('.jobs-directory-hero') as HTMLElement | null
+    const countEl = document.querySelector(
+      '.jobs-directory-results .job-results-count',
+    ) as HTMLElement | null
+    const mainEl = document.querySelector('.jobs-directory-main') as HTMLElement | null
+
+    let offset = headerHeight
+
+    if (hero) offset += hero.offsetHeight
+    if (countEl) offset += countEl.offsetHeight + 12
+    if (mainEl) {
+      const styles = getComputedStyle(mainEl)
+      offset += parseFloat(styles.paddingTop) + parseFloat(styles.paddingBottom)
+    }
+
+    offset += 12
+
+    compactListMaxHeight.value = `calc(100dvh - ${Math.ceil(offset)}px)`
+  })
+}
+
+const bindCompactListLayout = () => {
+  if (!import.meta.client) return
+
+  compactLayoutObserver?.disconnect()
+  compactLayoutObserver = null
+
+  if (!isCompactJobSearch.value) {
+    compactListMaxHeight.value = ''
+    return
+  }
+
+  measureCompactListHeight()
+
+  const hero = document.querySelector('.jobs-directory-hero')
+  if (!hero) return
+
+  compactLayoutObserver = new ResizeObserver(() => {
+    measureCompactListHeight()
+  })
+  compactLayoutObserver.observe(hero)
+  if (filterPillsRoot.value) {
+    compactLayoutObserver.observe(filterPillsRoot.value)
+  }
+}
 
 /** Cùng một chiều cao cho cột list + cột chi tiết; scroll ở từng cột, không lệch nhau. */
-const splitPaneStyle = {
-  height: 'calc(100vh - var(--app-header-height) - 50px)',
-  minHeight: 0,
-  maxHeight: 'calc(100vh - var(--app-header-height) - 50px)',
-} as const
+const splitPaneStyle = computed(() => {
+  if (isCompactJobSearch.value) {
+    if (!compactListMaxHeight.value) {
+      return { minHeight: 0 }
+    }
+
+    return {
+      height: compactListMaxHeight.value,
+      maxHeight: compactListMaxHeight.value,
+      minHeight: 0,
+    } as const
+  }
+
+  return {
+    height: 'calc(100vh - var(--app-header-height) - 50px)',
+    minHeight: 0,
+    maxHeight: 'calc(100vh - var(--app-header-height) - 50px)',
+  } as const
+})
+
+const applyDrawerOpen = ref(false)
+const applyingJob = ref<JobModel | null>(null)
 
 const parseIdList = (raw: unknown): string[] => {
   if (raw == null) return []
@@ -831,6 +921,11 @@ const filteredJobs = computed(() => {
 
 // Methods
 const selectJob = (job: JobModel) => {
+  if (isCompactJobSearch.value) {
+    viewJob(job)
+    return
+  }
+
   selectedJob.value = job
 }
 
@@ -1037,6 +1132,21 @@ const timeAgo = (d: Date | string) => {
 
 // Initialize search from route query
 onMounted(async () => {
+  updateCompactJobSearch()
+
+  if (import.meta.client) {
+    const mediaQuery = window.matchMedia(JOB_SEARCH_COMPACT_MQ)
+    const onMediaChange = () => {
+      updateCompactJobSearch()
+      nextTick(() => bindCompactListLayout())
+    }
+    mediaQuery.addEventListener('change', onMediaChange)
+    onUnmounted(() => mediaQuery.removeEventListener('change', onMediaChange))
+
+    window.addEventListener('resize', measureCompactListHeight)
+    onUnmounted(() => window.removeEventListener('resize', measureCompactListHeight))
+  }
+
   await ensureLoaded()
   const query = route.query
 
@@ -1061,11 +1171,35 @@ onMounted(async () => {
   if (locationIds.length) searchParams.value.location = locationIds
 
   performSearch()
+  await nextTick()
+  bindCompactListLayout()
 })
 
 onUnmounted(() => {
+  compactLayoutObserver?.disconnect()
+  compactLayoutObserver = null
   setVSelectScrollLock(false)
   vSelectOpenCount.value = 0
+})
+
+watch(isCompactJobSearch, (compact) => {
+  nextTick(() => bindCompactListLayout())
+
+  if (compact) return
+
+  const list = filteredJobs.value
+  if (!list.length) {
+    selectedJob.value = null
+    return
+  }
+
+  if (!selectedJob.value || !list.some((j) => j.id === selectedJob.value?.id)) {
+    selectedJob.value = list[0]
+  }
+})
+
+watch([loading, () => filteredJobs.value.length], () => {
+  nextTick(() => measureCompactListHeight())
 })
 
 watch(
@@ -1073,6 +1207,10 @@ watch(
   (list) => {
     if (!list.length) {
       selectedJob.value = null
+      return
+    }
+
+    if (isCompactJobSearch.value) {
       return
     }
 

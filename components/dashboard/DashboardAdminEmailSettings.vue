@@ -25,135 +25,135 @@
             @submit.prevent="handleSaveEmailSettings"
           >
             <div class="employer-grid employer-grid-two">
-              <label class="employer-field">
-                <span>{{ $t('dashboard.admin.emailSettings.smtpHost') }} *</span>
-                <input
-                  v-model="emailForm.smtpHost"
-                  type="text"
-                  placeholder="smtp.gmail.com"
-                  :class="{ 'employer-field-control--error': !!errors.smtpHost }"
-                  @blur="validateSmtpHost"
-                  @input="errors.smtpHost = ''"
-                >
-                <p v-if="errors.smtpHost" class="employer-field-error">{{ errors.smtpHost }}</p>
-              </label>
-
-              <label class="employer-field">
-                <span>{{ $t('dashboard.admin.emailSettings.smtpPort') }} *</span>
-                <input
-                  v-model.number="emailForm.smtpPort"
-                  type="number"
-                  min="1"
-                  max="65535"
-                  placeholder="587"
-                  :class="{ 'employer-field-control--error': !!errors.smtpPort }"
-                  @blur="validateSmtpPort"
-                  @input="errors.smtpPort = ''"
-                >
-                <p v-if="errors.smtpPort" class="employer-field-error">{{ errors.smtpPort }}</p>
-              </label>
-            </div>
-
-            <div class="employer-settings-checkbox-row">
-              <label class="employer-settings-checkbox">
-                <input
-                  v-model="emailForm.smtpSecure"
-                  type="checkbox"
-                >
-                <span>{{ $t('dashboard.admin.emailSettings.smtpSecure') }}</span>
-              </label>
-            </div>
-
-            <div class="employer-grid employer-grid-two">
-              <label class="employer-field">
-                <span>{{ $t('dashboard.admin.emailSettings.smtpUser') }} *</span>
-                <input
-                  v-model="emailForm.smtpUser"
-                  type="text"
-                  placeholder="noreply@example.com"
-                  :class="{ 'employer-field-control--error': !!errors.smtpUser }"
-                  @blur="validateSmtpUser"
-                  @input="errors.smtpUser = ''"
-                >
-                <p v-if="errors.smtpUser" class="employer-field-error">{{ errors.smtpUser }}</p>
-              </label>
-
-              <div class="employer-field">
-                <div class="employer-field-label-row">
-                  <span>{{ $t('dashboard.admin.emailSettings.smtpPass') }} *</span>
-                  <UPopover
-                    :content="{
-                      side: 'bottom',
-                      align: 'end',
-                      sideOffset: 8,
-                    }"
-                    :ui="{ content: 'employer-smtp-pass-help-popover z-[9999]' }"
+                <label class="employer-field">
+                  <span>{{ $t('dashboard.admin.emailSettings.smtpHost') }} *</span>
+                  <input
+                    v-model="emailForm.smtpHost"
+                    type="text"
+                    placeholder="smtp.gmail.com"
+                    :class="{ 'employer-field-control--error': !!errors.smtpHost }"
+                    @blur="validateSmtpHost"
+                    @input="errors.smtpHost = ''"
                   >
+                  <p v-if="errors.smtpHost" class="employer-field-error">{{ errors.smtpHost }}</p>
+                </label>
+
+                <label class="employer-field">
+                  <span>{{ $t('dashboard.admin.emailSettings.smtpPort') }} *</span>
+                  <input
+                    v-model.number="emailForm.smtpPort"
+                    type="number"
+                    min="1"
+                    max="65535"
+                    placeholder="587"
+                    :class="{ 'employer-field-control--error': !!errors.smtpPort }"
+                    @blur="validateSmtpPort"
+                    @input="errors.smtpPort = ''"
+                  >
+                  <p v-if="errors.smtpPort" class="employer-field-error">{{ errors.smtpPort }}</p>
+                </label>
+              </div>
+
+              <div class="employer-settings-checkbox-row">
+                <label class="employer-settings-checkbox">
+                  <input
+                    v-model="emailForm.smtpSecure"
+                    type="checkbox"
+                  >
+                  <span>{{ $t('dashboard.admin.emailSettings.smtpSecure') }}</span>
+                </label>
+              </div>
+
+              <div class="employer-grid employer-grid-two">
+                <label class="employer-field">
+                  <span>{{ $t('dashboard.admin.emailSettings.smtpUser') }} *</span>
+                  <input
+                    v-model="emailForm.smtpUser"
+                    type="text"
+                    placeholder="noreply@example.com"
+                    :class="{ 'employer-field-control--error': !!errors.smtpUser }"
+                    @blur="validateSmtpUser"
+                    @input="errors.smtpUser = ''"
+                  >
+                  <p v-if="errors.smtpUser" class="employer-field-error">{{ errors.smtpUser }}</p>
+                </label>
+
+                <div class="employer-field">
+                  <div class="employer-field-label-row">
+                    <span>{{ $t('dashboard.admin.emailSettings.smtpPass') }} *</span>
+                    <UPopover
+                      :content="{
+                        side: 'bottom',
+                        align: 'end',
+                        sideOffset: 8,
+                      }"
+                      :ui="{ content: 'employer-smtp-pass-help-popover z-[9999]' }"
+                    >
+                      <button
+                        type="button"
+                        class="employer-field-help-trigger"
+                        :aria-label="$t('dashboard.admin.emailSettings.smtpPassHelp.triggerLabel')"
+                      >
+                        <UIcon name="i-lucide-info" class="size-4" aria-hidden="true" />
+                      </button>
+                      <template #content>
+                        <div class="employer-smtp-pass-help">
+                          <p class="employer-smtp-pass-help-title">
+                            {{ $t('dashboard.admin.emailSettings.smtpPassHelp.title') }}
+                          </p>
+                          <p class="employer-smtp-pass-help-intro">
+                            {{ $t('dashboard.admin.emailSettings.smtpPassHelp.intro') }}
+                          </p>
+                          <ol class="employer-smtp-pass-help-steps">
+                            <li>
+                              <span>{{ $t('dashboard.admin.emailSettings.smtpPassHelp.step1') }}</span>
+                              <a
+                                href="https://myaccount.google.com/apppasswords"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                class="employer-smtp-pass-help-link"
+                              >
+                                https://myaccount.google.com/apppasswords
+                              </a>
+                            </li>
+                            <li>{{ $t('dashboard.admin.emailSettings.smtpPassHelp.step2') }}</li>
+                            <li>{{ $t('dashboard.admin.emailSettings.smtpPassHelp.step3') }}</li>
+                          </ol>
+                          <p class="employer-smtp-pass-help-note">
+                            {{ $t('dashboard.admin.emailSettings.smtpPassHelp.note') }}
+                          </p>
+                        </div>
+                      </template>
+                    </UPopover>
+                  </div>
+                  <div class="employer-admin-user-password-wrap">
+                    <input
+                      v-model="emailForm.smtpPass"
+                      :type="showSmtpPass ? 'text' : 'password'"
+                      :placeholder="$t('dashboard.admin.emailSettings.smtpPassPlaceholder')"
+                      autocomplete="new-password"
+                      :class="{ 'employer-field-control--error': !!errors.smtpPass }"
+                      @blur="validateSmtpPass"
+                      @input="errors.smtpPass = ''"
+                    >
                     <button
                       type="button"
-                      class="employer-field-help-trigger"
-                      :aria-label="$t('dashboard.admin.emailSettings.smtpPassHelp.triggerLabel')"
+                      class="employer-admin-user-password-toggle"
+                      :aria-label="showSmtpPass
+                        ? $t('dashboard.admin.emailSettings.hideSmtpPass')
+                        : $t('dashboard.admin.emailSettings.showSmtpPass')"
+                      @click="showSmtpPass = !showSmtpPass"
                     >
-                      <UIcon name="i-lucide-info" class="size-4" aria-hidden="true" />
+                      <UIcon
+                        :name="showSmtpPass ? 'i-lucide-eye-off' : 'i-lucide-eye'"
+                        class="h-5 w-5"
+                        aria-hidden="true"
+                      />
                     </button>
-                    <template #content>
-                      <div class="employer-smtp-pass-help">
-                        <p class="employer-smtp-pass-help-title">
-                          {{ $t('dashboard.admin.emailSettings.smtpPassHelp.title') }}
-                        </p>
-                        <p class="employer-smtp-pass-help-intro">
-                          {{ $t('dashboard.admin.emailSettings.smtpPassHelp.intro') }}
-                        </p>
-                        <ol class="employer-smtp-pass-help-steps">
-                          <li>
-                            <span>{{ $t('dashboard.admin.emailSettings.smtpPassHelp.step1') }}</span>
-                            <a
-                              href="https://myaccount.google.com/apppasswords"
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              class="employer-smtp-pass-help-link"
-                            >
-                              https://myaccount.google.com/apppasswords
-                            </a>
-                          </li>
-                          <li>{{ $t('dashboard.admin.emailSettings.smtpPassHelp.step2') }}</li>
-                          <li>{{ $t('dashboard.admin.emailSettings.smtpPassHelp.step3') }}</li>
-                        </ol>
-                        <p class="employer-smtp-pass-help-note">
-                          {{ $t('dashboard.admin.emailSettings.smtpPassHelp.note') }}
-                        </p>
-                      </div>
-                    </template>
-                  </UPopover>
+                  </div>
+                  <p v-if="errors.smtpPass" class="employer-field-error">{{ errors.smtpPass }}</p>
                 </div>
-                <div class="employer-admin-user-password-wrap">
-                  <input
-                    v-model="emailForm.smtpPass"
-                    :type="showSmtpPass ? 'text' : 'password'"
-                    :placeholder="$t('dashboard.admin.emailSettings.smtpPassPlaceholder')"
-                    autocomplete="new-password"
-                    :class="{ 'employer-field-control--error': !!errors.smtpPass }"
-                    @blur="validateSmtpPass"
-                    @input="errors.smtpPass = ''"
-                  >
-                  <button
-                    type="button"
-                    class="employer-admin-user-password-toggle"
-                    :aria-label="showSmtpPass
-                      ? $t('dashboard.admin.emailSettings.hideSmtpPass')
-                      : $t('dashboard.admin.emailSettings.showSmtpPass')"
-                    @click="showSmtpPass = !showSmtpPass"
-                  >
-                    <UIcon
-                      :name="showSmtpPass ? 'i-lucide-eye-off' : 'i-lucide-eye'"
-                      class="h-5 w-5"
-                      aria-hidden="true"
-                    />
-                  </button>
-                </div>
-                <p v-if="errors.smtpPass" class="employer-field-error">{{ errors.smtpPass }}</p>
               </div>
-            </div>
 
             <label class="employer-field employer-field-full">
               <span>{{ $t('dashboard.admin.emailSettings.fromName') }} *</span>
@@ -523,7 +523,6 @@ const { t, te } = useI18n()
 const SMTP_HOST_REGEX =
   /^(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,63}$/
 const SMTP_EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-
 type EmailFieldErrors = {
   smtpHost: string
   smtpPort: string
@@ -741,7 +740,6 @@ const validateAllFields = () => {
 const applyEmailSettings = (settings: AdminEmailSettings) => {
   clearErrors()
   emailForm.value = {
-    ...emailForm.value,
     smtpHost: settings.smtpHost || '',
     smtpPort: settings.smtpPort || 587,
     smtpSecure: settings.smtpSecure === true,

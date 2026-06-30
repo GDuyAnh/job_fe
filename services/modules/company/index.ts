@@ -4,6 +4,7 @@ import type {
   CompanyEntity,
   VietQRBusinessResponse,
 } from '~/entities/company'
+import { getMstLookupVariants } from '~/utils/mst'
 
 const CompanyModule = (apiService: FetchFactory) => {
   const searchCompany = async (params: Record<string, any>) => {
@@ -39,9 +40,27 @@ const CompanyModule = (apiService: FetchFactory) => {
   }
 
   const getCompanyByMst = async (mst: string) => {
-    return apiService.get<VietQRBusinessResponse>(
-      `${ROUTE_API.COMPANY.GET_COMPANY_BY_MST}/${mst}`,
-    )
+    const variants = getMstLookupVariants(mst)
+    let lastError: unknown
+
+    for (const variant of variants) {
+      try {
+        const response = await apiService.get<VietQRBusinessResponse>(
+          `${ROUTE_API.COMPANY.GET_COMPANY_BY_MST}/${encodeURIComponent(variant)}`,
+        )
+        if (response?.code === '00' && response?.data?.name) {
+          return response
+        }
+      } catch (error) {
+        lastError = error
+      }
+    }
+
+    if (lastError) {
+      throw lastError
+    }
+
+    throw new Error('Không tìm thấy thông tin công ty với mã số thuế đã nhập.')
   }
 
   const checkExistMst = async (mst: string) => {

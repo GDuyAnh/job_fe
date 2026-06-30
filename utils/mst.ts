@@ -3,9 +3,9 @@ export function normalizeMstDigits(raw: string): string {
   return String(raw ?? '').replace(/\D/g, '')
 }
 
-/** Chặn nhập ký tự không phải số trong ô MST. */
+/** Chặn ký tự lạ; cho phép chữ số và dấu gạch ngang. */
 export function sanitizeMstInput(value: string): string {
-  return normalizeMstDigits(value)
+  return String(value ?? '').replace(/[^\d-]/g, '')
 }
 
 export function handleMstInput(
@@ -33,10 +33,15 @@ export function isValidMstFormat(raw: string): boolean {
  * VietQR/DB có thể lưu khác format dù cùng một MST.
  */
 export function getMstLookupVariants(raw: string): string[] {
-  const digits = normalizeMstDigits(raw)
+  const trimmed = String(raw ?? '').trim()
+  const digits = normalizeMstDigits(trimmed)
   if (!digits) return []
 
   const variants = new Set<string>([digits])
+
+  if (trimmed && trimmed !== digits) {
+    variants.add(trimmed)
+  }
 
   if (digits.length === 10 && digits.startsWith('0')) {
     const withoutLeading = digits.replace(/^0+/, '')

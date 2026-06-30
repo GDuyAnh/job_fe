@@ -97,7 +97,6 @@
                   v-model="formState[activeTab === 'candidate' ? 'fullName' : 'taxCode']"
                   class="w-full rounded-xl text-base"
                   :placeholder="activeTab === 'candidate' ? '氏名 (Họ và tên)' : '納税者番号 (Mã số thuế)'"
-                  :inputmode="activeTab === 'employer' ? 'numeric' : undefined"
                   @input="onRegisterNameInput"
                   @blur="onRegisterNameBlur"
                 >

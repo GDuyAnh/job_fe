@@ -825,7 +825,7 @@
       "emailSettings": {
         "title": "Cài đặt gửi email",
         "welcome": "Welcome, System Admin",
-        "formTitle": "Cấu hình gửi email (SMTP)",
+        "formTitle": "Cấu hình gửi email",
         "smtpHost": "SMTP host",
         "smtpPort": "SMTP port",
         "smtpSecure": "Dùng SSL/TLS (thường bật với port 465)",

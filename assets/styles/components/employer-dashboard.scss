@@ -5265,6 +5265,19 @@ html.employer-admin-crop-modal-open [data-vaul-drawer] {
   align-items: center;
 }
 
+.employer-email-provider-row {
+  flex-wrap: wrap;
+  gap: 12px 20px;
+  margin-bottom: 4px;
+}
+
+.employer-email-provider-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #6b7280;
+  margin-right: 4px;
+}
+
 .employer-settings-checkbox {
   display: inline-flex;
   align-items: center;
