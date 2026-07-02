@@ -564,8 +564,6 @@ const activeStatus = ref<
 const statusLabel = (job: JobModel) => jobRowStatusLabel(job)
 
 const statusBadgeClass = (job: JobModel) => {
-  if (isExpired(job)) return 'is-expired'
-
   const s = (job.status || '').toUpperCase().trim()
 
   if (isJobPendingReview(s)) return 'is-reviewing'

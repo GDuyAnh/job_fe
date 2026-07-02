@@ -117,8 +117,6 @@ export function useJobManageStatusCards() {
   }
 
   const jobRowStatusLabel = (job: JobLike) => {
-    if (isExpired(job)) return t('dashboard.manageJobs.cards.expired')
-
     const status = normalizeStatus(job.status)
 
     if (status === 'APPROVED') return t('dashboard.manageJobs.rowStatus.approved')
