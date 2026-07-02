@@ -678,7 +678,7 @@
         "notifyDownloaded": "Đã tải file mẫu",
         "notifyDownloadError": "Không tải được file mẫu",
         "notifyImportOk": "Import hoàn tất",
-        "notifyImportDoneWithErrors": "Import xong, có {n} dòng ghi chú — xem chi tiết bên dưới",
+        "notifyImportFailed": "Import thất bại — có {n} lỗi, xem chi tiết bên dưới",
         "notifyImportError": "Import thất bại"
       },
       "overview": {

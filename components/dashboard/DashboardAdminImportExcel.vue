@@ -59,7 +59,8 @@
                 <ul>
                   <li>
                     Cột <b>id</b> (A) là id tạm; <b>company_id</b> (G) / <b>user_id</b> (H) chọn từ dropdown
-                    (sheet companies / users cột A).
+                    (sheet companies / users cột A). <b>user_id</b> phải là nhà tuyển dụng (role COMPANY) hoặc admin —
+                    không dùng ứng viên (role USER).
                   </li>
                   <li>
                     Cột <b>email</b> (V) là email liên hệ tin — trùng <b>jobs.email</b> trong DB (không có
@@ -332,13 +333,17 @@ async function doImport() {
     const data = await $api.admin.postImportExcel(fd)
     lastResult.value = data
     const errCount = data.errors?.length ?? 0
-    useNotify({
-      message:
-        errCount > 0
-          ? t('dashboard.admin.importExcel.notifyImportDoneWithErrors', { n: errCount })
-          : t('dashboard.admin.importExcel.notifyImportOk'),
-      type: 'success',
-    })
+    if (errCount > 0) {
+      useNotify({
+        message: t('dashboard.admin.importExcel.notifyImportFailed', { n: errCount }),
+        type: 'error',
+      })
+    } else {
+      useNotify({
+        message: t('dashboard.admin.importExcel.notifyImportOk'),
+        type: 'success',
+      })
+    }
   } catch (e: any) {
     const msg = e?.message || t('dashboard.admin.importExcel.notifyImportError')
     useNotify({ message: String(msg), type: 'error' })
