@@ -1,15 +1,25 @@
-FROM node:21.7-alpine
+FROM node:22-alpine AS builder
 
 WORKDIR /app
 
-COPY package.json yarn.lock ./
+RUN corepack enable
 
-RUN yarn install
+COPY package.json yarn.lock ./
+RUN yarn install --frozen-lockfile
 
 COPY . .
-
 RUN yarn build
 
-CMD ["yarn", "start"]
+FROM node:22-alpine AS runner
 
-EXPOSE 3000
+WORKDIR /app
+
+ENV NODE_ENV=production
+ENV PORT=3001
+ENV HOST=0.0.0.0
+
+COPY --from=builder /app/.output ./.output
+
+EXPOSE 3001
+
+CMD ["node", ".output/server/index.mjs"]
