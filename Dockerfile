@@ -5,7 +5,9 @@ WORKDIR /app
 RUN corepack enable
 
 COPY package.json ./
-RUN yarn install
+
+RUN yarn config set registry https://registry.npmjs.org \
+    && yarn install --network-timeout 600000
 
 COPY . .
 RUN yarn build
