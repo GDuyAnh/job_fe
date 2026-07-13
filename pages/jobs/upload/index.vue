@@ -2022,6 +2022,7 @@ onBeforeUnmount(() => {
 
 // Route
 const router = useRouter()
+const config = useRuntimeConfig()
 const { $api } = useNuxtApp()
 const authStore = useAuthStore()
 const loading = ref(false)
@@ -2069,7 +2070,11 @@ onMounted(() => {
     const userRole = authStore.user.role
 
     if (userRole === USER_ROLES.ADMIN) {
-      router.push(ROUTE_PAGE.DASHBOARD.ADMIN)
+      if (config.public.adminUrl) {
+        window.location.href = `${config.public.adminUrl}${ROUTE_PAGE.DASHBOARD.ADMIN}`
+      } else {
+        router.push(ROUTE_PAGE.DASHBOARD.ADMIN)
+      }
       return
     }
     if (userRole === USER_ROLES.USER) {

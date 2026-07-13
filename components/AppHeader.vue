@@ -163,6 +163,7 @@ import { USER_ROLES } from '~/constants/roles'
 const headerStore = useHeaderStore()
 const authStore = useAuthStore()
 const router = useRouter()
+const config = useRuntimeConfig()
 
 const authModalOpen = ref(false)
 const authModalView = ref<'login' | 'register'>('login')
@@ -216,7 +217,12 @@ const handlePostJobFree = () => {
 
 const goDashboard = (path: string, query?: Record<string, any>) => {
   closeMobileNav()
-  router.push({ path, query: query ?? {} })
+  if (path === ROUTE_PAGE.DASHBOARD.ADMIN && config.public.adminUrl) {
+    const queryStr = query ? '?' + new URLSearchParams(query).toString() : ''
+    window.location.href = `${config.public.adminUrl}${path}${queryStr}`
+  } else {
+    router.push({ path, query: query ?? {} })
+  }
 }
 
 const accountPageTarget = computed(() => {

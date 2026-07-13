@@ -94,7 +94,12 @@ export const useAuthStore = defineStore('auth', {
 
       token.set(null)
 
-      router.push(ROUTE_PAGE.HOME)
+      const config = useRuntimeConfig()
+      if (import.meta.client && config.public.adminUrl && window.location.origin === new URL(config.public.adminUrl).origin) {
+        window.location.href = config.public.baseUrl || '/'
+      } else {
+        router.push(ROUTE_PAGE.HOME)
+      }
     },
 
     async getMe() {

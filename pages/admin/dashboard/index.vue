@@ -10,10 +10,10 @@
     >
       <aside class="employer-sidebar employer-sidebar-with-footer">
         <div class="employer-sidebar-brand-wrap">
-          <NuxtLink to="/" class="employer-sidebar-brand wordmark" aria-label="Trang chủ">
+          <a :href="config.public.baseUrl || '/'" class="employer-sidebar-brand wordmark" aria-label="Trang chủ">
             <span class="wordmark-main">TuyenGiaoVien</span>
             <span class="wordmark-dot">.vn</span>
-          </NuxtLink>
+          </a>
         </div>
 
         <nav class="employer-sidebar-nav" aria-label="Dashboard quản trị">
@@ -225,6 +225,7 @@ type AdminView =
 
 const route = useRoute()
 const router = useRouter()
+const config = useRuntimeConfig()
 const authStore = useAuthStore()
 const { $api } = useNuxtApp()
 

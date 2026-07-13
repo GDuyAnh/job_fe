@@ -19,5 +19,15 @@ export async function redirectToRoleDashboard(
   role: number | undefined | null,
 ): Promise<void> {
   const router = useRouter()
-  await router.push(getDashboardPathByRole(role))
+  if (role === USER_ROLES.ADMIN) {
+    const config = useRuntimeConfig()
+    const adminUrl = config.public.adminUrl
+    if (adminUrl) {
+      window.location.href = `${adminUrl}${ROUTE_PAGE.DASHBOARD.ADMIN}`
+    } else {
+      await router.push(ROUTE_PAGE.DASHBOARD.ADMIN)
+    }
+  } else {
+    await router.push(getDashboardPathByRole(role))
+  }
 }
