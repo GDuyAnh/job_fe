@@ -94,6 +94,11 @@ export const useAuthStore = defineStore('auth', {
 
       token.set(null)
 
+      if (import.meta.client) {
+        // Also clear host-only cookie to be safe
+        document.cookie = `${CONSTANTS.ACCESS_TOKEN}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT`
+      }
+
       const config = useRuntimeConfig()
       if (import.meta.client && config.public.adminUrl && window.location.origin === new URL(config.public.adminUrl).origin) {
         window.location.href = config.public.baseUrl || '/'
