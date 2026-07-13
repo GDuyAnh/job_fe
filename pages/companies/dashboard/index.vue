@@ -505,6 +505,7 @@ useHead({
 const router = useRouter()
 const route = useRoute()
 const authStore = useAuthStore()
+const config = useRuntimeConfig()
 
 /** Drawer đăng tin — layout flex row để [data-vaul-handle] căn giữa dọc (employer-dashboard.scss) */
 const companyJobDrawerUi = {
@@ -941,10 +942,14 @@ onMounted(async () => {
       'adminImportExcel',
     ]
     const view = viewParam && adminViews.includes(viewParam) ? viewParam : 'adminDashboard'
-    await router.replace({
-      path: ROUTE_PAGE.DASHBOARD.ADMIN,
-      query: { view },
-    })
+    if (config.public.adminUrl) {
+      window.location.replace(`${config.public.adminUrl}${ROUTE_PAGE.DASHBOARD.ADMIN}?view=${view}`)
+    } else {
+      await router.replace({
+        path: ROUTE_PAGE.DASHBOARD.ADMIN,
+        query: { view },
+      })
+    }
     return
   }
 

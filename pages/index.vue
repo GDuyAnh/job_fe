@@ -504,6 +504,8 @@ import { CompanyMapper } from '~/mapper/company'
 import type { BlogModel } from '~/models/blog'
 import { BlogMapper } from '~/mapper/blog'
 
+const config = useRuntimeConfig()
+
 useHead({
   title: 'Trang chủ',
 })
@@ -1333,7 +1335,10 @@ const openDashboardInNewTab = (path: string, query?: Record<string, string>) => 
   const queryString = query 
     ? '?' + new URLSearchParams(query).toString() 
     : ''
-  const url = path + queryString
+  let url = path + queryString
+  if (path === ROUTE_PAGE.DASHBOARD.ADMIN && config.public.adminUrl) {
+    url = `${config.public.adminUrl}${path}${queryString}`
+  }
   window.open(url, '_blank')
 }
 
