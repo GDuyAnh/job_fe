@@ -4,7 +4,7 @@ export const CONSTANTS = {
   COOKIE_TOKEN_OPTION: {
     path: '/',
     maxAge: 60 * 60 * 24 * 30,
-    sameSite: 'strict',
+    sameSite: 'lax',
   },
   MAX_LENGTH: {
     DEFAULT: 255,

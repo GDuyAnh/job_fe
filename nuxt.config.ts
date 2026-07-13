@@ -88,6 +88,7 @@ export default defineNuxtConfig({
       apiUrl: import.meta.env.NUXT_PUBLIC_API_URL,
       baseUrl: import.meta.env.NUXT_PUBLIC_BASE_URL,
       adminUrl: process.env.NUXT_PUBLIC_ADMIN_URL || import.meta.env.NUXT_PUBLIC_ADMIN_URL,
+      cookieDomain: process.env.NUXT_PUBLIC_COOKIE_DOMAIN || import.meta.env.NUXT_PUBLIC_COOKIE_DOMAIN,
       prefixImageUrl: import.meta.env.NUXT_APP_BASE_URL,
       bankCodeApiKey: import.meta.env.NUXT_PUBLIC_BANK_CODE_API_KEY,
       ekycUrl: import.meta.env.NUXT_PUBLIC_LIQUIDEKYC_URL,
